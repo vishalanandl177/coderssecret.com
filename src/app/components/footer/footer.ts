@@ -33,10 +33,8 @@ import { RouterLink } from '@angular/router';
           <div>
             <h3 class="text-sm font-semibold text-foreground mb-3">Connect</h3>
             <ul class="space-y-2 text-sm">
-              <li><a href="#" class="text-muted-foreground transition-colors hover:text-foreground">Twitter</a></li>
-              <li><a href="#" class="text-muted-foreground transition-colors hover:text-foreground">GitHub</a></li>
-              <li><a href="#" class="text-muted-foreground transition-colors hover:text-foreground">Instagram</a></li>
-              <li><a href="#" class="text-muted-foreground transition-colors hover:text-foreground">RSS Feed</a></li>
+              <li><a href="https://instagram.com/viz_naz" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">Instagram</a></li>
+              <li><a href="https://linkedin.com/in/vishal-techlead" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">LinkedIn</a></li>
             </ul>
           </div>
         </div>
