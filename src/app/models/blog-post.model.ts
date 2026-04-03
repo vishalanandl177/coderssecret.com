@@ -253,6 +253,12 @@ MIDDLEWARE = [
       <h2>Two Ways to Log: Database &amp; Signals</h2>
       <p>DRF API Logger gives you two powerful logging mechanisms that can be used independently or together:</p>
       <p><strong>Database Logging</strong> stores every API call in your Django database. It comes with a beautiful admin dashboard featuring charts, analytics, advanced search across request/response data, and filtering by date, status code, HTTP method, and performance metrics. This is perfect for debugging, auditing, and monitoring.</p>
+      <p>Here's what the built-in analytics dashboard looks like:</p>
+      <img src="https://raw.githubusercontent.com/vishalanandl177/DRF-API-Logger/master/graph.png" alt="DRF API Logger analytics dashboard showing API call graphs and charts" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
+      <p>The log listing view gives you a detailed table of every API call with status codes, methods, and execution times:</p>
+      <img src="https://raw.githubusercontent.com/vishalanandl177/DRF-API-Logger/master/lists.png" alt="DRF API Logger list view showing API call logs with status codes and methods" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
+      <p>You can drill into any individual log entry to see the full request and response details:</p>
+      <img src="https://raw.githubusercontent.com/vishalanandl177/DRF-API-Logger/master/details.png" alt="DRF API Logger detail view showing full request and response data for a single API call" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
       <p><strong>Signal-Based Logging</strong> fires a custom Django signal for every API call, letting you build custom handlers. Want to send logs to Elasticsearch? Push slow API alerts to Slack? Write to a custom file format? Signals make it possible without touching the core library.</p>
 
       <h2>Powerful Configuration Options</h2>

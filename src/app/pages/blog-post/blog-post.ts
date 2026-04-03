@@ -51,7 +51,8 @@ import { BLOG_POSTS, CATEGORIES, BlogPost } from '../../models/blog-post.model';
                       [&>code]:bg-muted [&>code]:px-1.5 [&>code]:py-0.5 [&>code]:rounded [&>code]:text-sm
                       [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm
                       [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:text-primary/80
-                      [&>pre_code]:bg-transparent [&>pre_code]:p-0"
+                      [&>pre_code]:bg-transparent [&>pre_code]:p-0
+                      [&>img]:rounded-lg [&>img]:border [&>img]:border-border [&>img]:my-6 [&>img]:w-full [&>img]:shadow-sm"
                [innerHTML]="post.content">
           </div>
 
