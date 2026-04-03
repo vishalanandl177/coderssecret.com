@@ -267,36 +267,6 @@ import { BLOG_POSTS, CATEGORIES, BlogPost } from '../../models/blog-post.model';
       </div>
     </section>
 
-    <!-- Newsletter CTA -->
-    <section class="py-16 animate-in fade-in duration-700">
-      <div class="container max-w-6xl mx-auto px-6">
-        <div class="relative rounded-3xl overflow-hidden">
-          <!-- Background -->
-          <div class="absolute inset-0 bg-gradient-to-br from-primary via-primary to-purple-700"></div>
-          <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_70%)]"></div>
-          <!-- Dot pattern -->
-          <div class="absolute inset-0 opacity-10"
-               style="background-image: radial-gradient(circle, currentColor 1px, transparent 1px); background-size: 24px 24px; color: white;"></div>
-
-          <div class="relative px-8 py-16 md:px-16 md:py-20 text-center">
-            <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-primary-foreground">
-              Never Miss a Post
-            </h2>
-            <p class="mt-4 text-primary-foreground/80 text-base md:text-lg max-w-xl mx-auto">
-              Join developers who get fresh articles on Angular, Python, DevOps, and more delivered to their inbox.
-            </p>
-            <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
-              <input type="email" placeholder="your@email.com"
-                     class="w-full sm:flex-1 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 px-5 py-3 text-sm text-primary-foreground placeholder:text-primary-foreground/50 outline-none focus:ring-2 focus:ring-white/30 transition-all" />
-              <button class="w-full sm:w-auto rounded-full bg-white px-8 py-3 text-sm font-bold text-primary shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.97]">
-                Subscribe
-              </button>
-            </div>
-            <p class="mt-4 text-xs text-primary-foreground/50">No spam, unsubscribe anytime.</p>
-          </div>
-        </div>
-      </div>
-    </section>
   `,
 })
 export class HomeComponent {
