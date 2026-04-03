@@ -1,0 +1,20 @@
+# Dependencies
+/node_modules
+
+# Build output
+/dist
+
+# IDE
+/.vscode/*
+!/.vscode/extensions.json
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Angular cache
+/.angular
+
+# Environment files
+.env
+.env.*
