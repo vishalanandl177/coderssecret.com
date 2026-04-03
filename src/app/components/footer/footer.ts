@@ -41,9 +41,8 @@ import { RouterLink } from '@angular/router';
           </div>
         </div>
 
-        <div class="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+        <div class="mt-10 pt-6 border-t border-border text-center text-xs text-muted-foreground">
           <p>&copy; {{ currentYear }} CodersSecret. All rights reserved.</p>
-          <p>Built with Angular &amp; Spartan UI</p>
         </div>
       </div>
     </footer>
