@@ -13,6 +13,197 @@ export interface BlogPost {
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    id: '5',
+    title: 'Cron Jobs Explained: The Complete Guide with Real-World Examples',
+    slug: 'cron-jobs-complete-guide-with-examples',
+    excerpt: 'Everything you need to know about cron jobs — from basic syntax to advanced scheduling patterns. Packed with practical examples anyone can follow.',
+    content: `
+      <p>If you've ever wanted your computer to automatically run a task — like backing up a database every night, sending a report every Monday, or clearing temp files every hour — <strong>cron jobs</strong> are how you do it. Cron is one of the most powerful and widely-used scheduling tools in the Linux/Unix world, and once you understand it, you'll wonder how you ever lived without it.</p>
+
+      <h2>What is a Cron Job?</h2>
+      <p>A <strong>cron job</strong> is a scheduled task that runs automatically at specified times or intervals on Unix-based systems (Linux, macOS). The word "cron" comes from the Greek word <em>chronos</em>, meaning time. The cron daemon (<code>crond</code>) runs in the background and checks every minute if there's a job to execute.</p>
+      <p>You define cron jobs in a file called the <strong>crontab</strong> (cron table). Each line in the crontab represents one scheduled task.</p>
+
+      <h2>The Cron Syntax — 5 Fields</h2>
+      <p>Every cron expression has exactly <strong>5 time fields</strong> followed by the command to run:</p>
+      <pre><code>┌───────────── minute (0 - 59)
+│ ┌───────────── hour (0 - 23)
+│ │ ┌───────────── day of month (1 - 31)
+│ │ │ ┌───────────── month (1 - 12)
+│ │ │ │ ┌───────────── day of week (0 - 7, where 0 and 7 = Sunday)
+│ │ │ │ │
+* * * * * command_to_run</code></pre>
+      <p>The <code>*</code> (asterisk) means <strong>"every"</strong> — so <code>* * * * *</code> means "every minute of every hour of every day of every month on every day of the week."</p>
+
+      <h2>Special Characters</h2>
+      <p>Before we dive into examples, here are the special characters you'll use:</p>
+      <ul>
+        <li><code>*</code> — Every possible value (wildcard)</li>
+        <li><code>,</code> — List separator (e.g., <code>1,3,5</code> means 1 and 3 and 5)</li>
+        <li><code>-</code> — Range (e.g., <code>1-5</code> means 1 through 5)</li>
+        <li><code>/</code> — Step value (e.g., <code>*/10</code> means every 10th unit)</li>
+      </ul>
+
+      <h2>Basic Examples — Getting Started</h2>
+
+      <p><strong>Example 1: Run every minute</strong></p>
+      <pre><code>* * * * * /home/user/scripts/check-health.sh</code></pre>
+      <p>This runs <code>check-health.sh</code> every single minute, 24/7. Useful for monitoring scripts.</p>
+
+      <p><strong>Example 2: Run every hour (at minute 0)</strong></p>
+      <pre><code>0 * * * * /home/user/scripts/sync-data.sh</code></pre>
+      <p>Runs at the top of every hour: 1:00, 2:00, 3:00, etc.</p>
+
+      <p><strong>Example 3: Run once a day at midnight</strong></p>
+      <pre><code>0 0 * * * /home/user/scripts/daily-backup.sh</code></pre>
+      <p>Runs at exactly 00:00 (midnight) every day. Perfect for nightly backups.</p>
+
+      <p><strong>Example 4: Run once a day at 2:30 AM</strong></p>
+      <pre><code>30 2 * * * /home/user/scripts/cleanup.sh</code></pre>
+      <p>Runs at 2:30 AM every day. Great for maintenance tasks during low-traffic hours.</p>
+
+      <h2>Weekly &amp; Monthly Examples</h2>
+
+      <p><strong>Example 5: Run every Monday at 9:00 AM</strong></p>
+      <pre><code>0 9 * * 1 /home/user/scripts/weekly-report.sh</code></pre>
+      <p>Day of week: 0 = Sunday, 1 = Monday, ..., 6 = Saturday. This sends your weekly report every Monday morning.</p>
+
+      <p><strong>Example 6: Run every weekday (Mon-Fri) at 8:00 AM</strong></p>
+      <pre><code>0 8 * * 1-5 /home/user/scripts/morning-alerts.sh</code></pre>
+      <p>The <code>1-5</code> range covers Monday through Friday. No weekend noise.</p>
+
+      <p><strong>Example 7: Run on the 1st of every month at midnight</strong></p>
+      <pre><code>0 0 1 * * /home/user/scripts/monthly-invoice.sh</code></pre>
+      <p>Runs at midnight on the 1st day of each month. Ideal for monthly billing, reports, or cleanup.</p>
+
+      <p><strong>Example 8: Run on the 1st and 15th of every month</strong></p>
+      <pre><code>0 0 1,15 * * /home/user/scripts/bimonthly-task.sh</code></pre>
+      <p>The comma lets you specify multiple days. This runs twice a month — on the 1st and 15th.</p>
+
+      <h2>Interval Examples — Every N Minutes/Hours</h2>
+
+      <p><strong>Example 9: Run every 5 minutes</strong></p>
+      <pre><code>*/5 * * * * /home/user/scripts/check-queue.sh</code></pre>
+      <p>The <code>*/5</code> means "every 5th minute." Runs at :00, :05, :10, :15, etc.</p>
+
+      <p><strong>Example 10: Run every 15 minutes</strong></p>
+      <pre><code>*/15 * * * * /home/user/scripts/poll-api.sh</code></pre>
+      <p>Runs at :00, :15, :30, :45 of every hour.</p>
+
+      <p><strong>Example 11: Run every 2 hours</strong></p>
+      <pre><code>0 */2 * * * /home/user/scripts/cache-refresh.sh</code></pre>
+      <p>Runs at 00:00, 02:00, 04:00, 06:00, etc. Note the <code>0</code> in the minute field — without it, the job would run every minute during those hours!</p>
+
+      <p><strong>Example 12: Run every 30 minutes during business hours (9 AM - 6 PM)</strong></p>
+      <pre><code>*/30 9-18 * * * /home/user/scripts/business-check.sh</code></pre>
+      <p>Combines a step value (<code>*/30</code>) with an hour range (<code>9-18</code>). Only runs during working hours.</p>
+
+      <h2>Specific Time Examples</h2>
+
+      <p><strong>Example 13: Run at 6:00 AM and 6:00 PM every day</strong></p>
+      <pre><code>0 6,18 * * * /home/user/scripts/twice-daily.sh</code></pre>
+      <p>The comma in the hour field gives you two specific times.</p>
+
+      <p><strong>Example 14: Run every Sunday at 11:30 PM</strong></p>
+      <pre><code>30 23 * * 0 /home/user/scripts/weekly-cleanup.sh</code></pre>
+      <p>End-of-week cleanup right before Monday begins.</p>
+
+      <p><strong>Example 15: Run at 3:15 AM on the first Monday of each month</strong></p>
+      <pre><code>15 3 1-7 * 1 /home/user/scripts/first-monday.sh</code></pre>
+      <p>This is a clever trick: it targets days 1-7 (first week of the month) AND Mondays. The job only fires when both conditions overlap — the first Monday.</p>
+
+      <h2>Real-World Use Cases</h2>
+
+      <p><strong>Example 16: Database backup every night at 3 AM</strong></p>
+      <pre><code>0 3 * * * pg_dump mydb > /backups/mydb_$(date +\\%Y\\%m\\%d).sql 2>&1</code></pre>
+      <p>Creates a dated backup file like <code>mydb_20260403.sql</code>. The <code>\\%</code> escaping is needed in crontab because <code>%</code> has a special meaning (newline).</p>
+
+      <p><strong>Example 17: Clear log files older than 7 days</strong></p>
+      <pre><code>0 4 * * * find /var/log/myapp -name "*.log" -mtime +7 -delete</code></pre>
+      <p>Runs at 4 AM daily and removes log files older than 7 days. Keeps your disk from filling up.</p>
+
+      <p><strong>Example 18: Restart a service every 6 hours</strong></p>
+      <pre><code>0 */6 * * * systemctl restart myapp.service</code></pre>
+      <p>Restarts at midnight, 6 AM, noon, and 6 PM. Useful for apps with memory leaks you haven't fixed yet.</p>
+
+      <p><strong>Example 19: Send a disk space alert if usage exceeds 90%</strong></p>
+      <pre><code>*/30 * * * * df -h / | awk 'NR==2 {if ($5+0 > 90) print "DISK ALERT: " $5 " used"}' | mail -s "Disk Alert" admin@example.com</code></pre>
+      <p>Checks every 30 minutes and emails an alert if the root partition is over 90% full.</p>
+
+      <p><strong>Example 20: Pull latest code and restart app (simple CI/CD)</strong></p>
+      <pre><code>*/10 * * * * cd /var/www/myapp && git pull origin main && systemctl restart myapp</code></pre>
+      <p>A simple (but effective) deploy pipeline that checks for new code every 10 minutes.</p>
+
+      <h2>Shortcut Strings</h2>
+      <p>Most cron implementations support these convenient shortcuts:</p>
+      <ul>
+        <li><code>@reboot</code> — Run once at startup</li>
+        <li><code>@yearly</code> or <code>@annually</code> — Same as <code>0 0 1 1 *</code> (Jan 1st, midnight)</li>
+        <li><code>@monthly</code> — Same as <code>0 0 1 * *</code> (1st of month, midnight)</li>
+        <li><code>@weekly</code> — Same as <code>0 0 * * 0</code> (Sunday, midnight)</li>
+        <li><code>@daily</code> or <code>@midnight</code> — Same as <code>0 0 * * *</code></li>
+        <li><code>@hourly</code> — Same as <code>0 * * * *</code></li>
+      </ul>
+
+      <p><strong>Example 21: Run a script at system boot</strong></p>
+      <pre><code>@reboot /home/user/scripts/start-services.sh</code></pre>
+      <p>Perfect for starting background processes after a server reboot.</p>
+
+      <h2>Managing Cron Jobs</h2>
+      <p>Here are the essential commands for working with crontab:</p>
+      <pre><code># Edit your crontab
+crontab -e
+
+# List all your cron jobs
+crontab -l
+
+# Remove all your cron jobs (use with caution!)
+crontab -r
+
+# Edit crontab for a specific user (requires root)
+crontab -u username -e</code></pre>
+
+      <h2>Common Mistakes to Avoid</h2>
+      <ul>
+        <li><strong>Forgetting the full path:</strong> Cron runs with a minimal environment. Always use absolute paths like <code>/usr/bin/python3</code> instead of just <code>python3</code>.</li>
+        <li><strong>Not escaping %:</strong> In crontab, <code>%</code> is treated as a newline. Escape it with <code>\\%</code> when using date formats.</li>
+        <li><strong>Missing output redirection:</strong> Cron emails output by default. Redirect to a file or <code>/dev/null</code> to avoid mailbox spam:</li>
+      </ul>
+      <pre><code># Log output to a file
+0 3 * * * /scripts/backup.sh >> /var/log/backup.log 2>&1
+
+# Discard output completely
+0 3 * * * /scripts/backup.sh > /dev/null 2>&1</code></pre>
+      <ul>
+        <li><strong>Not setting PATH:</strong> Add a PATH variable at the top of your crontab if your scripts depend on it:</li>
+      </ul>
+      <pre><code>PATH=/usr/local/bin:/usr/bin:/bin
+0 3 * * * backup.sh</code></pre>
+
+      <h2>Quick Reference Cheat Sheet</h2>
+      <pre><code>Expression          Description
+──────────────────  ──────────────────────────────
+* * * * *           Every minute
+*/5 * * * *         Every 5 minutes
+0 * * * *           Every hour
+0 0 * * *           Every day at midnight
+0 0 * * 0           Every Sunday at midnight
+0 0 1 * *           First day of every month
+0 0 1 1 *           Once a year (Jan 1st)
+0 9-17 * * 1-5      Every hour, Mon-Fri, 9AM-5PM
+*/10 * * * *        Every 10 minutes
+0 6,18 * * *        At 6 AM and 6 PM
+0 0 1,15 * *        1st and 15th of each month</code></pre>
+
+      <p>Cron jobs are one of those tools that, once mastered, become an essential part of your DevOps toolkit. Whether you're automating backups, scheduling reports, managing deployments, or monitoring systems, cron has been doing it reliably for over 40 years — and it's not going anywhere.</p>
+    `,
+    author: 'Coder Secret',
+    date: '2026-04-03',
+    readTime: '12 min read',
+    tags: ['Linux', 'DevOps', 'Cron', 'Automation', 'Tutorial'],
+    coverImage: '',
+  },
+  {
     id: '4',
     title: 'DRF API Logger: Effortless API Logging for Django REST Framework',
     slug: 'drf-api-logger-django-rest-framework',
