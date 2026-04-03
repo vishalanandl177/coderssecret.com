@@ -8,8 +8,19 @@ export interface BlogPost {
   date: string;
   readTime: string;
   tags: string[];
+  category: string;
   coverImage: string;
+  featured?: boolean;
 }
+
+export const CATEGORIES = [
+  { name: 'All', slug: '' },
+  { name: 'Frontend', slug: 'frontend' },
+  { name: 'Backend', slug: 'backend' },
+  { name: 'DevOps', slug: 'devops' },
+  { name: 'Tutorials', slug: 'tutorials' },
+  { name: 'Open Source', slug: 'open-source' },
+];
 
 export const BLOG_POSTS: BlogPost[] = [
   {
@@ -17,6 +28,8 @@ export const BLOG_POSTS: BlogPost[] = [
     title: 'Cron Jobs Explained: The Complete Guide with Real-World Examples',
     slug: 'cron-jobs-complete-guide-with-examples',
     excerpt: 'Everything you need to know about cron jobs — from basic syntax to advanced scheduling patterns. Packed with practical examples anyone can follow.',
+    category: 'devops',
+    featured: true,
     content: `
       <p>If you've ever wanted your computer to automatically run a task — like backing up a database every night, sending a report every Monday, or clearing temp files every hour — <strong>cron jobs</strong> are how you do it. Cron is one of the most powerful and widely-used scheduling tools in the Linux/Unix world, and once you understand it, you'll wonder how you ever lived without it.</p>
 
@@ -208,6 +221,7 @@ crontab -u username -e</code></pre>
     title: 'DRF API Logger: Effortless API Logging for Django REST Framework',
     slug: 'drf-api-logger-django-rest-framework',
     excerpt: 'Discover how DRF API Logger makes it dead simple to capture, monitor, and analyze every API call in your Django REST Framework application — with zero impact on response times.',
+    category: 'backend',
     content: `
       <p>If you've ever found yourself digging through server logs trying to figure out why an API call failed, or wishing you had a dashboard showing your API's health at a glance, <strong>DRF API Logger</strong> is the tool you've been looking for. It's an open-source Django package that automatically logs every API request and response in your Django REST Framework project — with minimal setup and zero performance overhead.</p>
 
@@ -300,6 +314,7 @@ method_stats = APILogsModel.objects.values('method').annotate(
     title: 'Getting Started with Angular and Spartan UI',
     slug: 'getting-started-angular-spartan-ui',
     excerpt: 'Learn how to set up a modern Angular project with Spartan UI, the shadcn/ui-inspired component library for Angular.',
+    category: 'tutorials',
     content: `
       <p>Spartan UI brings the popular shadcn/ui approach to Angular. Instead of installing a traditional component library, you get unstyled, accessible primitives that you style with Tailwind CSS.</p>
       <h2>Why Spartan UI?</h2>
@@ -319,6 +334,7 @@ method_stats = APILogsModel.objects.values('method').annotate(
     title: 'Tailwind CSS v4: What\'s New for Angular Developers',
     slug: 'tailwind-css-v4-angular',
     excerpt: 'Explore the latest features in Tailwind CSS v4 and how they improve the Angular development experience.',
+    category: 'frontend',
     content: `
       <p>Tailwind CSS v4 introduces a brand-new engine built from the ground up with performance and developer experience in mind.</p>
       <h2>CSS-First Configuration</h2>
@@ -339,6 +355,7 @@ method_stats = APILogsModel.objects.values('method').annotate(
     title: 'Building Accessible Components in Angular',
     slug: 'accessible-components-angular',
     excerpt: 'A deep dive into creating fully accessible UI components using Angular and the WAI-ARIA specification.',
+    category: 'frontend',
     content: `
       <p>Web accessibility is not optional — it's a fundamental requirement for building inclusive web applications. In this post, we'll explore how to build accessible components in Angular.</p>
       <h2>Understanding ARIA</h2>
