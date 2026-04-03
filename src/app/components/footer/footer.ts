@@ -10,8 +10,22 @@ import { RouterLink } from '@angular/router';
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <!-- Brand -->
           <div>
-            <a routerLink="/" class="font-bold text-lg tracking-tight">
-              <span class="text-primary">Coders</span><span class="text-muted-foreground">Secret</span>
+            <a routerLink="/" class="inline-flex items-center gap-2 font-bold text-lg tracking-tight">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" class="h-7 w-7">
+                <defs>
+                  <linearGradient id="footer-logo-g" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#7c3aed"/>
+                    <stop offset="100%" style="stop-color:#3b82f6"/>
+                  </linearGradient>
+                </defs>
+                <rect width="32" height="32" rx="7" fill="url(#footer-logo-g)"/>
+                <g stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                  <polyline points="11,10 6,16 11,22"/>
+                  <polyline points="21,10 26,16 21,22"/>
+                  <line x1="18.5" y1="8" x2="13.5" y2="24"/>
+                </g>
+              </svg>
+              <span><span class="text-primary">Coders</span><span class="text-muted-foreground">Secret</span></span>
             </a>
             <p class="mt-2 text-sm text-muted-foreground leading-relaxed">
               Exploring modern web development, one post at a time.

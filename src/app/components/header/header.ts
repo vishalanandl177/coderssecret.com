@@ -8,8 +8,22 @@ import { SearchComponent } from '../search/search';
   template: `
     <header class="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300">
       <div class="container flex h-16 max-w-5xl items-center justify-between mx-auto px-6">
-        <a routerLink="/" class="flex items-center gap-2 font-bold text-xl tracking-tight transition-opacity duration-200 hover:opacity-80">
-          <span class="text-primary">Coders</span><span class="text-muted-foreground">Secret</span>
+        <a routerLink="/" class="flex items-center gap-2.5 font-bold text-xl tracking-tight transition-opacity duration-200 hover:opacity-80">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" class="h-8 w-8">
+            <defs>
+              <linearGradient id="logo-g" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#7c3aed"/>
+                <stop offset="100%" style="stop-color:#3b82f6"/>
+              </linearGradient>
+            </defs>
+            <rect width="32" height="32" rx="7" fill="url(#logo-g)"/>
+            <g stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+              <polyline points="11,10 6,16 11,22"/>
+              <polyline points="21,10 26,16 21,22"/>
+              <line x1="18.5" y1="8" x2="13.5" y2="24"/>
+            </g>
+          </svg>
+          <span><span class="text-primary">Coders</span><span class="text-muted-foreground">Secret</span></span>
         </a>
 
         <div class="flex items-center gap-1 md:gap-2">
