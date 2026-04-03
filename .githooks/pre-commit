@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# Pre-commit hook: Checks vulnerabilities, build, and SEO before each commit.
+#
+
+echo "========================================"
+echo "  Running pre-commit checks..."
+echo "========================================"
+echo ""
+
+# 1. Vulnerability check (production dependencies only)
+echo "🔒 [1/3] Checking for vulnerabilities..."
+npm audit --audit-level=high --omit=dev 2>/dev/null
+VULN_EXIT=$?
+if [ $VULN_EXIT -ne 0 ]; then
+  echo ""
+  echo "❌ Vulnerability check failed. Run 'npm audit' for details."
+  echo "   Fix critical/high vulnerabilities before committing."
+  echo ""
+  exit 1
+fi
+echo "✅ No high/critical vulnerabilities found."
+echo ""
+
+# 2. Production build
+echo "🏗️  [2/3] Verifying production build..."
+npx ng build --configuration production 2>&1
+BUILD_EXIT=$?
+if [ $BUILD_EXIT -ne 0 ]; then
+  echo ""
+  echo "❌ Production build failed. Fix build errors before committing."
+  echo ""
+  exit 1
+fi
+echo "✅ Production build succeeded."
+echo ""
+
+# 3. SEO checks
+echo "🔍 [3/3] Running SEO checks..."
+node scripts/check-seo.js
+SEO_EXIT=$?
+if [ $SEO_EXIT -ne 0 ]; then
+  echo ""
+  echo "❌ SEO checks failed. Fix SEO issues before committing."
+  echo ""
+  exit 1
+fi
+
+echo "========================================"
+echo "  ✅ All pre-commit checks passed!"
+echo "========================================"
+echo ""
