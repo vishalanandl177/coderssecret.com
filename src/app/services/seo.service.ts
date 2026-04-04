@@ -132,7 +132,7 @@ export class SeoService {
         'logo': `${this.siteUrl}/logo.svg`,
         'description': this.defaultDescription,
         'sameAs': [
-          'https://instagram.com/viz_naz',
+          'https://instagram.com/vis_naz',
           'https://linkedin.com/in/vishal-techlead',
         ],
       });
