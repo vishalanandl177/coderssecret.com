@@ -41,6 +41,35 @@ export const BLOG_POSTS: BlogPost[] = [
     content: `
       <p>Python is wonderful for productivity, but sometimes you hit a wall — a tight loop that needs to run 100x faster, a C library you need to wrap, or a data structure that doesn't exist in pure Python. That's when <strong>C extensions</strong> come in. This workshop takes you from "never written a C extension" to "shipping a production-quality module" — step by step, with code you can run at each stage.</p>
 
+      <!-- Python/C Boundary -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Python &#x2194; C Extension Boundary</div>
+        <div class="layer-diagram">
+          <div class="layer-item" style="background:#3b82f6">Python Code (your_script.py)<span class="layer-item-sub">import fastutils; fastutils.fibonacci(70)</span></div>
+          <div class="layer-item" style="background:#7c3aed">CPython Interpreter<span class="layer-item-sub">Converts Python objects to C types via PyArg_ParseTuple</span></div>
+          <div class="layer-item" style="background:#f97316">Your C Extension (fastutils.c)<span class="layer-item-sub">Pure C computation &#x2014; no Python overhead, 100x faster</span></div>
+          <div class="layer-item" style="background:#22c55e">Result returned to Python<span class="layer-item-sub">C types converted back via Py_BuildValue / PyLong_FromLong</span></div>
+        </div>
+      </div>
+
+      <!-- Workshop Steps -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Workshop Roadmap</div>
+        <div class="pipeline">
+          <div class="pipeline-step" style="background:#3b82f6;--i:0"><span class="pipeline-step-icon">&#x1F44B;</span>Hello<span class="pipeline-step-sub">Step 1-2</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#22c55e;--i:1"><span class="pipeline-step-icon">&#x26A1;</span>Speed<span class="pipeline-step-sub">Step 3: Fibonacci</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#a855f7;--i:2"><span class="pipeline-step-icon">&#x1F4DD;</span>Strings<span class="pipeline-step-sub">Step 4-5</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#f97316;--i:3"><span class="pipeline-step-icon">&#x1F4E6;</span>Types<span class="pipeline-step-sub">Step 7: IntArray</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#ef4444;--i:4"><span class="pipeline-step-icon">&#x1F9E0;</span>Memory<span class="pipeline-step-sub">Golden Rules</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#ec4899;--i:5"><span class="pipeline-step-icon">&#x1F680;</span>Ship<span class="pipeline-step-sub">Production</span></div>
+        </div>
+      </div>
+
       <h2>What You'll Build</h2>
       <p>By the end of this workshop, you'll have built <strong>fastutils</strong> — a C extension module with:</p>
       <ul>
@@ -422,6 +451,18 @@ print(arr[2])         # 30
 print(arr.sum())      # 150
 print(repr(arr))      # IntArray([10, 20, 30, 40, 50])</code></pre>
 
+      <!-- Reference Counting -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">CPython Reference Counting &#x2014; The 5 Golden Rules</div>
+        <div class="timeline">
+          <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">Rule 1: Py_INCREF when you keep a reference</div><div class="timeline-item-desc">Borrowed references don't own the object &#x2014; INCREF to claim ownership</div></div>
+          <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">Rule 2: Return values transfer ownership</div><div class="timeline-item-desc">Don't DECREF objects you return &#x2014; the caller owns them now</div></div>
+          <div class="timeline-item" style="--c:#a855f7"><div class="timeline-item-title" style="color:#a855f7">Rule 3: DECREF everything you create</div><div class="timeline-item-desc">If you called Py*_New/From*, you must DECREF (unless returned)</div></div>
+          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Rule 4: Check NULL after every API call</div><div class="timeline-item-desc">NULL means an exception occurred &#x2014; clean up and return NULL</div></div>
+          <div class="timeline-item" style="--c:#ef4444"><div class="timeline-item-title" style="color:#ef4444">Rule 5: Use Py_XDECREF in cleanup paths</div><div class="timeline-item-desc">Safe with NULL pointers &#x2014; simplifies error handling</div></div>
+        </div>
+      </div>
+
       <h2>Memory Management — The Golden Rules</h2>
       <p>Memory management is where most C extension bugs live. Python uses <strong>reference counting</strong> — every object has a count of how many references point to it. When the count hits zero, the object is freed.</p>
       <pre><code>// Rule 1: Py_INCREF when you keep a reference
@@ -624,6 +665,57 @@ PYTHONMALLOC=debug python -c "import fastutils; ..."</code></pre>
         <li><strong>Compliance failures:</strong> Auditors ask "who has access to what?" and nobody can answer accurately.</li>
       </ul>
       <p>SCIM eliminates all of this. The IdP becomes the single source of truth, and every connected app stays in sync automatically.</p>
+
+      <!-- SCIM Provisioning Flow -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">SCIM User Provisioning Flow</div>
+        <div class="seq-diagram">
+          <div class="seq-actors">
+            <div class="seq-actor idp">Identity Provider<span class="seq-actor-sub">(Okta / Azure AD)</span></div>
+            <div class="seq-actor sp">SCIM Endpoint<span class="seq-actor-sub">(Your App)</span></div>
+            <div class="seq-actor browser">App Database<span class="seq-actor-sub">(Users table)</span></div>
+          </div>
+          <div class="seq-steps">
+            <div class="seq-step">
+              <div class="seq-arrow right" style="--arrow-color:#7c3aed"><span class="seq-num purple">1</span> POST /scim/v2/Users (new hire)</div>
+            </div>
+            <div class="seq-step">
+              <div></div>
+              <div class="seq-arrow right-23" style="--arrow-color:#22c55e"><span class="seq-num green">2</span> INSERT user row</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow left" style="--arrow-color:#22c55e"><span class="seq-num green">3</span> 201 Created + SCIM user</div>
+            </div>
+            <div class="seq-step"><div style="border-top:1px dashed var(--border);grid-column:1/4;margin:0.3rem 0"></div></div>
+            <div class="seq-step">
+              <div class="seq-arrow right" style="--arrow-color:#f97316"><span class="seq-num orange">4</span> PATCH /Users/:id (deactivate)</div>
+            </div>
+            <div class="seq-step">
+              <div></div>
+              <div class="seq-arrow right-23" style="--arrow-color:#ef4444"><span class="seq-num" style="background:#ef4444">5</span> UPDATE active=false</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow left" style="--arrow-color:#22c55e"><span class="seq-num green">6</span> 200 OK &#x2014; user deactivated &#x1F512;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Lifecycle -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Employee Lifecycle via SCIM</div>
+        <div class="pipeline">
+          <div class="pipeline-step" style="background:#22c55e;--i:0"><span class="pipeline-step-icon">&#x1F464;</span>Hired<span class="pipeline-step-sub">IdP creates user</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#3b82f6;--i:1"><span class="pipeline-step-icon">&#x1F4E9;</span>SCIM POST<span class="pipeline-step-sub">Auto-provisioned</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#a855f7;--i:2"><span class="pipeline-step-icon">&#x1F504;</span>Updates<span class="pipeline-step-sub">SCIM PATCH syncs</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#f97316;--i:3"><span class="pipeline-step-icon">&#x1F44B;</span>Leaves<span class="pipeline-step-sub">IdP deactivates</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#ef4444;--i:4"><span class="pipeline-step-icon">&#x1F512;</span>Deprovisioned<span class="pipeline-step-sub">Instant, everywhere</span></div>
+        </div>
+      </div>
 
       <h2>How SCIM Works — The Flow</h2>
       <pre><code>1. Admin adds a new user "Jane" in the Identity Provider (Okta, Azure AD)
@@ -904,6 +996,24 @@ def authenticate():
       <p>A <strong>headless API</strong> is the backend of a system that has been <em>decoupled from its frontend</em> (the "head"). The API serves content or functionality without dictating how it's presented. The term comes from "headless CMS" but applies broadly to any system where the presentation layer is separated from the data/logic layer.</p>
       <p>In a traditional (monolithic) architecture, the backend renders HTML pages directly. In a headless architecture, the backend only exposes APIs — and any frontend (web app, mobile app, kiosk, smartwatch) can consume them independently.</p>
 
+      <!-- Headless vs Traditional -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Traditional (Coupled) vs Headless (Decoupled) Architecture</div>
+        <div class="layer-diagram" style="margin-bottom:1.5rem">
+          <div class="layer-item" style="background:#6b7280;border-radius:0.6rem">Traditional: Server renders HTML + Data together &#x1F6AB;</div>
+        </div>
+        <div class="hub-diagram">
+          <div class="hub-center" style="background:#22c55e;box-shadow:0 0 30px rgba(34,197,94,0.3)">Headless API<span class="hub-center-sub">JSON / GraphQL — no UI opinions</span></div>
+          <div class="hub-arrow-label"><span class="arrow-animated">&#x2B07;</span> Same API, any frontend</div>
+          <div class="hub-apps">
+            <div class="hub-app" style="animation-delay:0.3s"><span class="hub-app-icon">&#x1F310;</span>React App<span class="hub-app-sub">Web</span></div>
+            <div class="hub-app" style="animation-delay:0.45s"><span class="hub-app-icon">&#x1F4F1;</span>iOS / Android<span class="hub-app-sub">Mobile</span></div>
+            <div class="hub-app" style="animation-delay:0.6s"><span class="hub-app-icon">&#x1F4FA;</span>Smart Display<span class="hub-app-sub">IoT</span></div>
+            <div class="hub-app" style="animation-delay:0.75s"><span class="hub-app-icon">&#x2328;</span>CLI Tool<span class="hub-app-sub">Terminal</span></div>
+          </div>
+        </div>
+      </div>
+
       <h2>Headless Architecture in Practice</h2>
       <pre><code># Traditional (coupled) architecture:
 User → Browser → Server (renders HTML + data) → Browser displays page
@@ -1139,6 +1249,18 @@ async def create_deployment(req: DeployRequest):
       <p>A Kubernetes Operator is a method of packaging, deploying, and managing a Kubernetes application using <strong>custom resources</strong> (CRs) and <strong>custom controllers</strong>. Think of it as a robot SRE that watches your cluster and takes actions to reconcile the actual state with the desired state you've declared.</p>
       <p>The Operator pattern was introduced by CoreOS in 2016 and has since become the standard way to manage complex workloads. Popular operators include the Prometheus Operator, Cert-Manager, and the PostgreSQL Operator.</p>
 
+      <!-- Operator Architecture -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Kubernetes Operator Architecture</div>
+        <div class="layer-diagram">
+          <div class="layer-item" style="background:#3b82f6">Kubernetes API Server<span class="layer-item-sub">Receives CRD definitions and custom resources</span></div>
+          <div class="layer-item" style="background:#7c3aed">Custom Resource Definition (CRD)<span class="layer-item-sub">Extends the API with your own resource types</span></div>
+          <div class="layer-item" style="background:#ec4899">Controller / Reconciler<span class="layer-item-sub">Watches for changes, reconciles desired vs actual state</span></div>
+          <div class="layer-item" style="background:#f97316">Managed Resources<span class="layer-item-sub">Deployments, Services, ConfigMaps created by the operator</span></div>
+          <div class="layer-item" style="background:#22c55e">Running Workloads<span class="layer-item-sub">Pods, containers, your actual application</span></div>
+        </div>
+      </div>
+
       <h2>Core Concepts</h2>
       <p>Before building an operator, you need to understand these key concepts:</p>
       <ul>
@@ -1198,6 +1320,21 @@ type AppServiceStatus struct {
       <p>After modifying the types, regenerate the manifests:</p>
       <pre><code>make generate
 make manifests</code></pre>
+
+      <!-- Reconciliation Loop -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">The Reconciliation Loop</div>
+        <div class="cycle-diagram">
+          <div class="cycle-ring">
+            <div class="cycle-node" style="background:#3b82f6"><span class="cycle-node-icon">&#x1F440;</span>Watch</div>
+            <div class="cycle-node" style="background:#7c3aed"><span class="cycle-node-icon">&#x1F4E9;</span>Event</div>
+            <div class="cycle-node" style="background:#f97316"><span class="cycle-node-icon">&#x2699;</span>Reconcile</div>
+            <div class="cycle-node" style="background:#ec4899"><span class="cycle-node-icon">&#x1F50D;</span>Compare</div>
+            <div class="cycle-center">&#x267B; Loop</div>
+            <div class="cycle-node" style="background:#22c55e"><span class="cycle-node-icon">&#x2705;</span>Converge</div>
+          </div>
+        </div>
+      </div>
 
       <h2>Implementing the Reconciliation Loop</h2>
       <p>The reconciler is where all the magic happens. Edit <code>internal/controller/appservice_controller.go</code>:</p>
@@ -1264,6 +1401,22 @@ kubectl get appservice
 kubectl get deployments
 kubectl get pods</code></pre>
 
+      <!-- Build Pipeline -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Operator Development Pipeline</div>
+        <div class="pipeline">
+          <div class="pipeline-step" style="background:#7c3aed;--i:0"><span class="pipeline-step-icon">&#x1F4DD;</span>Define CRD<span class="pipeline-step-sub">types.go</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#3b82f6;--i:1"><span class="pipeline-step-icon">&#x2699;</span>Generate<span class="pipeline-step-sub">make manifests</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#ec4899;--i:2"><span class="pipeline-step-icon">&#x1F4BB;</span>Implement<span class="pipeline-step-sub">controller.go</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#f97316;--i:3"><span class="pipeline-step-icon">&#x1F9EA;</span>Test<span class="pipeline-step-sub">make test</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#22c55e;--i:4"><span class="pipeline-step-icon">&#x1F680;</span>Deploy<span class="pipeline-step-sub">make deploy</span></div>
+        </div>
+      </div>
+
       <h2>Deploying to Production</h2>
       <p>When you're ready to deploy the operator to a real cluster:</p>
       <pre><code># Build and push the operator image
@@ -1302,6 +1455,22 @@ kubectl get pods -n appservice-operator-system</code></pre>
     category: 'backend',
     content: `
       <p>Python is loved for its readability and developer productivity, but it's often criticized for being slow. The truth is, <strong>most Python performance issues come from how the code is written</strong>, not from the language itself. With the right techniques, you can often achieve 10x-100x speedups without leaving Python.</p>
+
+      <!-- Performance Optimization Pipeline -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Python Performance Optimization Workflow</div>
+        <div class="pipeline">
+          <div class="pipeline-step" style="background:#ef4444;--i:0"><span class="pipeline-step-icon">&#x1F50D;</span>Profile<span class="pipeline-step-sub">cProfile / line_profiler</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#f97316;--i:1"><span class="pipeline-step-icon">&#x1F3AF;</span>Identify<span class="pipeline-step-sub">Find bottlenecks</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#a855f7;--i:2"><span class="pipeline-step-icon">&#x1F528;</span>Optimize<span class="pipeline-step-sub">Apply technique</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#3b82f6;--i:3"><span class="pipeline-step-icon">&#x1F4CA;</span>Benchmark<span class="pipeline-step-sub">Measure speedup</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#22c55e;--i:4"><span class="pipeline-step-icon">&#x267B;</span>Repeat<span class="pipeline-step-sub">Next bottleneck</span></div>
+        </div>
+      </div>
 
       <h2>Profile Before You Optimize</h2>
       <p>The golden rule of optimization: <strong>never guess where the bottleneck is</strong>. Always measure first.</p>
@@ -1648,6 +1817,20 @@ setup(
 # Build: python setup.py build_ext --inplace
 # Use:   from fast_module import fibonacci</code></pre>
 
+      <!-- Speedup Comparison -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Typical Speedup vs Pure Python (hover for values)</div>
+        <div class="bar-chart">
+          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:5%;background:#6b7280" data-value="1x"></div><div class="bar-chart-label">Pure Python</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:15%;background:#22c55e" data-value="3x"></div><div class="bar-chart-label">Built-ins</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:25%;background:#3b82f6" data-value="5-10x"></div><div class="bar-chart-label">PyPy</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:45%;background:#f97316" data-value="50-100x"></div><div class="bar-chart-label">NumPy</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:55%;background:#a855f7" data-value="50-100x"></div><div class="bar-chart-label">Numba</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:70%;background:#ec4899" data-value="50-200x"></div><div class="bar-chart-label">Cython</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:90%;background:#ef4444" data-value="100-500x"></div><div class="bar-chart-label">C Extension</div></div>
+        </div>
+      </div>
+
       <h2>Choosing the Right Tool</h2>
       <pre><code>Tool              Setup Effort   Speed Gain   Best For
 ────────────────  ────────────   ──────────   ──────────────────────────
@@ -1685,6 +1868,37 @@ PyPy              Very Low       5-10x        General Python speedup</code></pre
         <li>A CI/CD pipeline deploying to cloud infrastructure</li>
         <li>Microservices communicating within a cluster</li>
       </ul>
+
+      <!-- M2M Auth Flow -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">M2M Authentication: Service-to-Service Communication</div>
+        <div class="seq-diagram">
+          <div class="seq-actors">
+            <div class="seq-actor sp">Service A<span class="seq-actor-sub">(Client)</span></div>
+            <div class="seq-actor idp">Auth Server<span class="seq-actor-sub">(OAuth 2.0)</span></div>
+            <div class="seq-actor browser">Service B<span class="seq-actor-sub">(API)</span></div>
+          </div>
+          <div class="seq-steps">
+            <div class="seq-step">
+              <div class="seq-arrow right" style="--arrow-color:#22c55e"><span class="seq-num green">1</span> POST /token (client_id + secret)</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow left" style="--arrow-color:#7c3aed"><span class="seq-num purple">2</span> Access Token (JWT)</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-right" style="--arrow-color:#3b82f6"><span class="seq-num blue">3</span> GET /api/data + Bearer token</div>
+            </div>
+            <div class="seq-step">
+              <div></div>
+              <div></div>
+              <div class="seq-action" style="border-color:#3b82f6;color:#60a5fa">Validate JWT signature + scopes</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-left" style="--arrow-color:#3b82f6"><span class="seq-num blue">4</span> 200 OK + response data &#x2705;</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <h2>OAuth 2.0 Client Credentials Flow</h2>
       <p>The most widely adopted standard for M2M auth is the <strong>OAuth 2.0 Client Credentials Grant</strong>. Here's how it works:</p>
@@ -1809,6 +2023,31 @@ def validate_m2m_token(token):
         raise PermissionError(f"Missing required scope: {required_scope}")
 
     return payload</code></pre>
+
+      <!-- M2M Method Comparison -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">M2M Authentication Methods Compared</div>
+        <div class="vs-cards" style="grid-template-columns:1fr 1fr">
+          <div class="vs-card" style="border-color:#7c3aed">
+            <div class="vs-card-header" style="background:#7c3aed">OAuth 2.0 Client Credentials</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F512;</span>Security<span class="vs-row-value" style="color:#22c55e">High</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2699;</span>Complexity<span class="vs-row-value" style="color:#f97316">Medium</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3AF;</span>Scoping<span class="vs-row-value" style="color:#22c55e">Yes (JWT scopes)</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3E2;</span>Best For<span class="vs-row-value" style="color:#7c3aed">Cross-boundary APIs</span></div>
+            </div>
+          </div>
+          <div class="vs-card" style="border-color:#3b82f6">
+            <div class="vs-card-header" style="background:#3b82f6">Mutual TLS (mTLS)</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F512;</span>Security<span class="vs-row-value" style="color:#22c55e">Highest</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2699;</span>Complexity<span class="vs-row-value" style="color:#ef4444">High</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3AF;</span>Scoping<span class="vs-row-value" style="color:#f97316">Certificate-based</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3E2;</span>Best For<span class="vs-row-value" style="color:#3b82f6">Service mesh / Zero-trust</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <h2>Choosing the Right Approach</h2>
       <ul>
@@ -2232,6 +2471,20 @@ Standard Body        OASIS                 OpenID Foundation</code></pre>
       <p>A <strong>cron job</strong> is a scheduled task that runs automatically at specified times or intervals on Unix-based systems (Linux, macOS). The word "cron" comes from the Greek word <em>chronos</em>, meaning time. The cron daemon (<code>crond</code>) runs in the background and checks every minute if there's a job to execute.</p>
       <p>You define cron jobs in a file called the <strong>crontab</strong> (cron table). Each line in the crontab represents one scheduled task.</p>
 
+      <!-- Cron Syntax Visual -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Cron Expression: 5 Fields + Command</div>
+        <div class="pipeline" style="justify-content:center">
+          <div class="pipeline-step" style="background:#ef4444;--i:0"><span class="pipeline-step-icon">&#x23F0;</span>Minute<span class="pipeline-step-sub">0-59</span></div>
+          <div class="pipeline-step" style="background:#f97316;--i:1"><span class="pipeline-step-icon">&#x1F551;</span>Hour<span class="pipeline-step-sub">0-23</span></div>
+          <div class="pipeline-step" style="background:#a855f7;--i:2"><span class="pipeline-step-icon">&#x1F4C5;</span>Day<span class="pipeline-step-sub">1-31</span></div>
+          <div class="pipeline-step" style="background:#3b82f6;--i:3"><span class="pipeline-step-icon">&#x1F5D3;</span>Month<span class="pipeline-step-sub">1-12</span></div>
+          <div class="pipeline-step" style="background:#22c55e;--i:4"><span class="pipeline-step-icon">&#x1F4C6;</span>Weekday<span class="pipeline-step-sub">0-7 (Sun=0,7)</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#ec4899;--i:5"><span class="pipeline-step-icon">&#x1F4BB;</span>Command<span class="pipeline-step-sub">/path/to/script</span></div>
+        </div>
+      </div>
+
       <h2>The Cron Syntax — 5 Fields</h2>
       <p>Every cron expression has exactly <strong>5 time fields</strong> followed by the command to run:</p>
       <pre><code>┌───────────── minute (0 - 59)
@@ -2419,6 +2672,47 @@ crontab -u username -e</code></pre>
     category: 'backend',
     content: `
       <p>If you've ever found yourself digging through server logs trying to figure out why an API call failed, or wishing you had a dashboard showing your API's health at a glance, <strong>DRF API Logger</strong> is the tool you've been looking for. It's an open-source Django package that automatically logs every API request and response in your Django REST Framework project — with minimal setup and zero performance overhead.</p>
+
+      <!-- DRF Logger Pipeline -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">DRF API Logger &#x2014; How It Works</div>
+        <div class="pipeline">
+          <div class="pipeline-step" style="background:#3b82f6;--i:0"><span class="pipeline-step-icon">&#x1F4E8;</span>Request<span class="pipeline-step-sub">Client sends API call</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#7c3aed;--i:1"><span class="pipeline-step-icon">&#x1F50D;</span>Middleware<span class="pipeline-step-sub">Captures request data</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#22c55e;--i:2"><span class="pipeline-step-icon">&#x2699;</span>DRF View<span class="pipeline-step-sub">Processes normally</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#7c3aed;--i:3"><span class="pipeline-step-icon">&#x1F4DD;</span>Log<span class="pipeline-step-sub">Queue (non-blocking)</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#f97316;--i:4"><span class="pipeline-step-icon">&#x1F4E4;</span>Response<span class="pipeline-step-sub">Sent to client</span></div>
+        </div>
+      </div>
+
+      <!-- Logging Destinations -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Two Logging Paths</div>
+        <div class="vs-cards" style="grid-template-columns:1fr 1fr">
+          <div class="vs-card" style="border-color:#3b82f6">
+            <div class="vs-card-header" style="background:#3b82f6">&#x1F4BE; Database Logging</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4CA;</span>Admin dashboard with charts</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F50E;</span>Search across request/response</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4C5;</span>Filter by date, status, method</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x26A1;</span>Slow API detection</div>
+            </div>
+          </div>
+          <div class="vs-card" style="border-color:#22c55e">
+            <div class="vs-card-header" style="background:#22c55e">&#x1F4E1; Signal-Based Logging</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4E8;</span>Send to Elasticsearch</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F514;</span>Slack alerts for slow APIs</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4C1;</span>Custom file format output</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F527;</span>Build any custom handler</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <h2>What is DRF API Logger?</h2>
       <p>DRF API Logger is a middleware-based logging solution for Django REST Framework. Once installed, it silently captures detailed information about every API call — the URL, HTTP method, request headers, request body, response status code, response body, execution time, and client IP address. All of this happens in the background using a non-blocking queue, so your API response times remain completely unaffected.</p>

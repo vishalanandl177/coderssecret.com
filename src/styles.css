@@ -767,3 +767,229 @@
 .dtree-answer.oidc { background: #3b82f6; }
 .dtree-answer.both { background: #22c55e; }
 .dtree-answer-sub { font-size: 0.6rem; font-weight: 400; opacity: 0.8; display: block; }
+
+/* ── Pipeline / Flow Diagram ──────────────────── */
+.pipeline {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+}
+.pipeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.6rem;
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  min-width: 90px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: default;
+  opacity: 0;
+  animation: hub-app-pop 0.4s ease forwards;
+}
+.pipeline-step:nth-child(odd):nth-of-type(n) { animation-delay: calc(var(--i, 0) * 0.15s); }
+.pipeline-step:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+.pipeline-step-icon { font-size: 1.3rem; }
+.pipeline-step-sub { font-size: 0.55rem; font-weight: 400; opacity: 0.8; }
+.pipeline-arrow {
+  font-size: 1.2rem;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+  padding: 0 0.2rem;
+  animation: arrow-bounce 1.5s ease-in-out infinite;
+}
+
+/* ── Loop / Cycle Diagram ─────────────────────── */
+.cycle-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 0;
+}
+.cycle-ring {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+}
+.cycle-ring::before {
+  content: '';
+  position: absolute;
+  inset: 20%;
+  border: 2px dashed var(--border);
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: cycle-spin 20s linear infinite;
+}
+@keyframes cycle-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.cycle-node {
+  padding: 0.6rem;
+  border-radius: 0.6rem;
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: default;
+  z-index: 1;
+}
+.cycle-node:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+.cycle-node-icon { font-size: 1.1rem; display: block; margin-bottom: 0.2rem; }
+.cycle-center {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--foreground);
+  padding: 0.8rem;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--card);
+  z-index: 2;
+}
+
+/* ── Bar Chart ────────────────────────────────── */
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  height: 180px;
+  padding: 0.5rem 0;
+}
+.bar-chart-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  height: 100%;
+  justify-content: flex-end;
+}
+.bar-chart-bar {
+  width: 100%;
+  max-width: 50px;
+  border-radius: 0.4rem 0.4rem 0 0;
+  transition: height 0.6s ease, filter 0.3s;
+  cursor: default;
+  position: relative;
+}
+.bar-chart-bar:hover {
+  filter: brightness(1.2);
+}
+.bar-chart-bar::after {
+  content: attr(data-value);
+  position: absolute;
+  top: -1.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--foreground);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.bar-chart-bar:hover::after { opacity: 1; }
+.bar-chart-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ── Layer Diagram (stacked) ──────────────────── */
+.layer-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 500px;
+  margin: 0 auto;
+}
+.layer-item {
+  padding: 0.7rem 1rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  transition: transform 0.3s, letter-spacing 0.3s;
+  cursor: default;
+  position: relative;
+}
+.layer-item:first-child { border-radius: 0.6rem 0.6rem 0 0; }
+.layer-item:last-child { border-radius: 0 0 0.6rem 0.6rem; }
+.layer-item:hover {
+  transform: scaleX(1.03);
+  letter-spacing: 0.05em;
+  z-index: 2;
+}
+.layer-item-sub {
+  font-size: 0.6rem;
+  font-weight: 400;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.3s, max-height 0.3s, margin 0.3s;
+}
+.layer-item:hover .layer-item-sub {
+  opacity: 0.85;
+  max-height: 30px;
+  margin-top: 0.2rem;
+}
+
+/* ── Timeline ─────────────────────────────────── */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0.5rem 0 0.5rem 1.5rem;
+  border-left: 3px solid var(--border);
+  position: relative;
+}
+.timeline-item {
+  padding: 0.5rem 0 0.5rem 1.2rem;
+  position: relative;
+  transition: background 0.2s;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+.timeline-item:hover { background: var(--accent); }
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -1.85rem;
+  top: 0.75rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2.5px solid var(--c, var(--foreground));
+  background: var(--card);
+}
+.timeline-item-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+.timeline-item-desc {
+  font-size: 0.65rem;
+  color: var(--muted-foreground);
+  margin-top: 0.1rem;
+}
