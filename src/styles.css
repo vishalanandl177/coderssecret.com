@@ -888,8 +888,9 @@
 .bar-chart-bar {
   width: 100%;
   max-width: 50px;
+  min-width: 30px;
   border-radius: 0.4rem 0.4rem 0 0;
-  transition: height 0.6s ease, filter 0.3s;
+  transition: filter 0.3s;
   cursor: default;
   position: relative;
 }
@@ -909,6 +910,18 @@
   transition: opacity 0.2s;
 }
 .bar-chart-bar:hover::after { opacity: 1; }
+/* Bar heights */
+.bar-h-5 { height: 5%; } .bar-h-10 { height: 10%; } .bar-h-15 { height: 15%; }
+.bar-h-20 { height: 20%; } .bar-h-25 { height: 25%; } .bar-h-30 { height: 30%; }
+.bar-h-35 { height: 35%; } .bar-h-40 { height: 40%; } .bar-h-45 { height: 45%; }
+.bar-h-50 { height: 50%; } .bar-h-55 { height: 55%; } .bar-h-60 { height: 60%; }
+.bar-h-65 { height: 65%; } .bar-h-70 { height: 70%; } .bar-h-75 { height: 75%; }
+.bar-h-80 { height: 80%; } .bar-h-85 { height: 85%; } .bar-h-90 { height: 90%; }
+/* Bar colors */
+.bar-red { background: #ef4444; } .bar-orange { background: #f97316; }
+.bar-purple { background: #a855f7; } .bar-blue { background: #3b82f6; }
+.bar-green { background: #22c55e; } .bar-pink { background: #ec4899; }
+.bar-gray { background: #6b7280; }
 .bar-chart-label {
   font-size: 0.6rem;
   font-weight: 600;

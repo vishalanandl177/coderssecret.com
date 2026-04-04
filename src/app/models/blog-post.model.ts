@@ -304,18 +304,18 @@ TestBed.configureTestingModule({
       <div class="flow-diagram">
         <div class="flow-diagram-title">Startup Performance — Time to Interactive (lower is better, hover for values)</div>
         <div class="bar-chart">
-          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:55%;background:#ef4444" data-value="~1.2s"></div><div class="bar-chart-label">Angular 21</div></div>
-          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:50%;background:#3b82f6" data-value="~1.1s"></div><div class="bar-chart-label">React 19</div></div>
-          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:40%;background:#22c55e" data-value="~0.9s"></div><div class="bar-chart-label">Vue 3.5</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-55 bar-red" data-value="~1.2s"></div><div class="bar-chart-label">Angular 21</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-50 bar-blue" data-value="~1.1s"></div><div class="bar-chart-label">React 19</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-40 bar-green" data-value="~0.9s"></div><div class="bar-chart-label">Vue 3.5</div></div>
         </div>
       </div>
 
       <div class="flow-diagram">
         <div class="flow-diagram-title">Update Performance — 10,000 Row Table Update (lower is better)</div>
         <div class="bar-chart">
-          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:35%;background:#ef4444" data-value="~45ms"></div><div class="bar-chart-label">Angular (Signals)</div></div>
-          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:60%;background:#3b82f6" data-value="~80ms"></div><div class="bar-chart-label">React (useState)</div></div>
-          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:40%;background:#22c55e" data-value="~55ms"></div><div class="bar-chart-label">Vue (ref)</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-35 bar-red" data-value="~45ms"></div><div class="bar-chart-label">Angular (Signals)</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-60 bar-blue" data-value="~80ms"></div><div class="bar-chart-label">React (useState)</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-40 bar-green" data-value="~55ms"></div><div class="bar-chart-label">Vue (ref)</div></div>
         </div>
       </div>
 
@@ -2592,13 +2592,13 @@ setup(
       <div class="flow-diagram">
         <div class="flow-diagram-title">Typical Speedup vs Pure Python (hover for values)</div>
         <div class="bar-chart">
-          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:5%;background:#6b7280" data-value="1x"></div><div class="bar-chart-label">Pure Python</div></div>
-          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:15%;background:#22c55e" data-value="3x"></div><div class="bar-chart-label">Built-ins</div></div>
-          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:25%;background:#3b82f6" data-value="5-10x"></div><div class="bar-chart-label">PyPy</div></div>
-          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:45%;background:#f97316" data-value="50-100x"></div><div class="bar-chart-label">NumPy</div></div>
-          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:55%;background:#a855f7" data-value="50-100x"></div><div class="bar-chart-label">Numba</div></div>
-          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:70%;background:#ec4899" data-value="50-200x"></div><div class="bar-chart-label">Cython</div></div>
-          <div class="bar-chart-item"><div class="bar-chart-bar" style="height:90%;background:#ef4444" data-value="100-500x"></div><div class="bar-chart-label">C Extension</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-5 bar-gray" data-value="1x"></div><div class="bar-chart-label">Pure Python</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-15 bar-green" data-value="3x"></div><div class="bar-chart-label">Built-ins</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-25 bar-blue" data-value="5-10x"></div><div class="bar-chart-label">PyPy</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-45 bar-orange" data-value="50-100x"></div><div class="bar-chart-label">NumPy</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-55 bar-purple" data-value="50-100x"></div><div class="bar-chart-label">Numba</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-70 bar-pink" data-value="50-200x"></div><div class="bar-chart-label">Cython</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-90 bar-red" data-value="100-500x"></div><div class="bar-chart-label">C Extension</div></div>
         </div>
       </div>
 
