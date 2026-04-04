@@ -24,16 +24,20 @@ import { DOCUMENT } from '@angular/common';
         </div>
 
         <div class="container max-w-4xl mx-auto px-6 pt-12 pb-10 md:pt-16 md:pb-14">
-          <!-- Back button -->
-          <a routerLink="/blog"
-             class="group inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 backdrop-blur-sm px-4 py-2 text-sm text-muted-foreground transition-all duration-300 hover:text-foreground hover:bg-accent hover:border-accent mb-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                 class="transition-transform duration-300 group-hover:-translate-x-1">
-              <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
-            </svg>
-            Back to Blog
-          </a>
+          <!-- Breadcrumb navigation -->
+          <nav aria-label="Breadcrumb" class="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <ol class="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
+              <li><a routerLink="/" class="hover:text-foreground transition-colors">Home</a></li>
+              <li class="text-muted-foreground/50">/</li>
+              <li><a routerLink="/blog" class="hover:text-foreground transition-colors">Blog</a></li>
+              @if (categoryName) {
+                <li class="text-muted-foreground/50">/</li>
+                <li><a [routerLink]="['/category', post.category]" class="hover:text-foreground transition-colors">{{ categoryName }}</a></li>
+              }
+              <li class="text-muted-foreground/50">/</li>
+              <li class="text-foreground font-medium truncate max-w-[200px]" aria-current="page">{{ post.title }}</li>
+            </ol>
+          </nav>
 
           <header class="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
             <!-- Meta row -->
@@ -47,7 +51,7 @@ import { DOCUMENT } from '@angular/common';
                 </a>
               }
               <div class="flex items-center gap-2 text-sm text-muted-foreground">
-                <time class="font-mono text-xs">{{ post.date }}</time>
+                <time class="font-mono text-xs" [attr.datetime]="post.date">{{ post.date }}</time>
                 <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
                 <span>{{ post.readTime }}</span>
               </div>
@@ -185,7 +189,7 @@ import { DOCUMENT } from '@angular/common';
                             [style.color]="getCategoryColor(related.category)">
                         {{ getCategoryName(related.category) }}
                       </span>
-                      <time class="font-mono">{{ related.date }}</time>
+                      <time class="font-mono" [attr.datetime]="related.date">{{ related.date }}</time>
                       <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
                       <span>{{ related.readTime }}</span>
                     </div>
@@ -290,7 +294,14 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
               author: this.post.author,
               publishedTime: this.post.date,
               tags: this.post.tags,
+              section: this.categoryName,
             },
+            breadcrumbs: [
+              { name: 'Home', url: '/' },
+              { name: 'Blog', url: '/blog' },
+              ...(this.categoryName ? [{ name: this.categoryName, url: `/category/${this.post.category}` }] : []),
+              { name: this.post.title, url: `/blog/${this.post.slug}` },
+            ],
           });
         } else {
           this.relatedPosts = [];

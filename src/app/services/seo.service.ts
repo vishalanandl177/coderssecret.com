@@ -8,11 +8,15 @@ interface SeoConfig {
   url?: string;
   type?: string;
   image?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   article?: {
     author?: string;
     publishedTime?: string;
     tags?: string[];
+    section?: string;
   };
+  breadcrumbs?: { name: string; url: string }[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -24,7 +28,9 @@ export class SeoService {
   private readonly siteName = 'CodersSecret';
   private readonly siteUrl = 'https://coderssecret.com';
   private readonly defaultDescription = 'Deep dives into Angular, Python, DevOps, and the modern web. Written by developers, for developers who love building things.';
-  private readonly defaultImage = `${this.siteUrl}/logo.svg`;
+  private readonly defaultImage = `${this.siteUrl}/og-image.svg`;
+  private readonly defaultImageWidth = 1200;
+  private readonly defaultImageHeight = 630;
 
   update(config: SeoConfig) {
     const fullTitle = config.title === this.siteName
@@ -34,6 +40,8 @@ export class SeoService {
     const url = config.url ? `${this.siteUrl}${config.url}` : this.siteUrl;
     const type = config.type || 'website';
     const image = config.image || this.defaultImage;
+    const imageWidth = config.imageWidth || this.defaultImageWidth;
+    const imageHeight = config.imageHeight || this.defaultImageHeight;
 
     // Page title
     this.title.setTitle(fullTitle);
@@ -47,6 +55,8 @@ export class SeoService {
     this.meta.updateTag({ property: 'og:url', content: url });
     this.meta.updateTag({ property: 'og:type', content: type });
     this.meta.updateTag({ property: 'og:image', content: image });
+    this.meta.updateTag({ property: 'og:image:width', content: String(imageWidth) });
+    this.meta.updateTag({ property: 'og:image:height', content: String(imageHeight) });
     this.meta.updateTag({ property: 'og:site_name', content: this.siteName });
 
     // Twitter Card
@@ -54,14 +64,19 @@ export class SeoService {
     this.meta.updateTag({ name: 'twitter:title', content: fullTitle });
     this.meta.updateTag({ name: 'twitter:description', content: description });
     this.meta.updateTag({ name: 'twitter:image', content: image });
+    this.meta.updateTag({ name: 'twitter:creator', content: '@coderssecret' });
+    this.meta.updateTag({ name: 'twitter:site', content: '@coderssecret' });
 
-    // Article-specific
+    // Article-specific OG tags
     if (config.article) {
       if (config.article.author) {
         this.meta.updateTag({ property: 'article:author', content: config.article.author });
       }
       if (config.article.publishedTime) {
         this.meta.updateTag({ property: 'article:published_time', content: config.article.publishedTime });
+      }
+      if (config.article.section) {
+        this.meta.updateTag({ property: 'article:section', content: config.article.section });
       }
       if (config.article.tags) {
         config.article.tags.forEach(tag => {
@@ -74,8 +89,11 @@ export class SeoService {
     this.updateCanonical(url);
 
     // JSON-LD structured data
+    const schemas: Record<string, unknown>[] = [];
+
     if (config.type === 'article' && config.article) {
-      this.updateJsonLd({
+      // BlogPosting schema
+      schemas.push({
         '@context': 'https://schema.org',
         '@type': 'BlogPosting',
         'headline': config.title,
@@ -86,14 +104,69 @@ export class SeoService {
         'author': {
           '@type': 'Person',
           'name': config.article.author,
+          'url': this.siteUrl,
         },
         'publisher': {
           '@type': 'Organization',
           'name': this.siteName,
           'url': this.siteUrl,
+          'logo': {
+            '@type': 'ImageObject',
+            'url': `${this.siteUrl}/logo.svg`,
+          },
+        },
+        'mainEntityOfPage': {
+          '@type': 'WebPage',
+          '@id': url,
         },
         'keywords': config.article.tags?.join(', '),
+        'articleSection': config.article.section,
       });
+    } else if (config.url === '/') {
+      // Organization schema for homepage
+      schemas.push({
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        'name': this.siteName,
+        'url': this.siteUrl,
+        'logo': `${this.siteUrl}/logo.svg`,
+        'description': this.defaultDescription,
+        'sameAs': [
+          'https://instagram.com/viz_naz',
+          'https://linkedin.com/in/vishal-techlead',
+        ],
+      });
+      // WebSite schema with search action
+      schemas.push({
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        'name': this.siteName,
+        'url': this.siteUrl,
+        'description': this.defaultDescription,
+        'potentialAction': {
+          '@type': 'SearchAction',
+          'target': `${this.siteUrl}/blog?q={search_term_string}`,
+          'query-input': 'required name=search_term_string',
+        },
+      });
+    }
+
+    // BreadcrumbList schema
+    if (config.breadcrumbs && config.breadcrumbs.length > 0) {
+      schemas.push({
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': config.breadcrumbs.map((crumb, i) => ({
+          '@type': 'ListItem',
+          'position': i + 1,
+          'name': crumb.name,
+          'item': `${this.siteUrl}${crumb.url}`,
+        })),
+      });
+    }
+
+    if (schemas.length > 0) {
+      this.updateJsonLd(schemas.length === 1 ? schemas[0] : schemas);
     } else {
       this.removeJsonLd();
     }
@@ -109,7 +182,7 @@ export class SeoService {
     link.setAttribute('href', url);
   }
 
-  private updateJsonLd(data: Record<string, unknown>) {
+  private updateJsonLd(data: Record<string, unknown> | Record<string, unknown>[]) {
     let script: HTMLScriptElement | null = this.doc.querySelector('script[type="application/ld+json"]');
     if (!script) {
       script = this.doc.createElement('script');

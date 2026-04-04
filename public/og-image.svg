@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0a"/>
+      <stop offset="100%" style="stop-color:#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#7c3aed"/>
+      <stop offset="50%" style="stop-color:#ec4899"/>
+      <stop offset="100%" style="stop-color:#f97316"/>
+    </linearGradient>
+    <linearGradient id="logo-g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed"/>
+      <stop offset="100%" style="stop-color:#3b82f6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="4" fill="url(#accent)"/>
+  <!-- Logo -->
+  <rect x="80" y="200" width="64" height="64" rx="14" fill="url(#logo-g)"/>
+  <g transform="translate(80,200)" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <polyline points="22,20 12,32 22,44"/>
+    <polyline points="42,20 52,32 42,44"/>
+    <line x1="37" y1="16" x2="27" y2="48"/>
+  </g>
+  <!-- Text -->
+  <text x="160" y="248" font-family="system-ui,-apple-system,sans-serif" font-size="42" font-weight="800" fill="#ffffff">
+    <tspan fill="#a78bfa">Coders</tspan><tspan fill="#94a3b8">Secret</tspan>
+  </text>
+  <text x="80" y="340" font-family="system-ui,-apple-system,sans-serif" font-size="56" font-weight="800" fill="#ffffff" letter-spacing="-1">
+    Where Code Meets Creativity
+  </text>
+  <text x="80" y="400" font-family="system-ui,-apple-system,sans-serif" font-size="24" fill="#94a3b8">
+    Angular · Python · DevOps · Modern Web Development
+  </text>
+  <!-- URL -->
+  <text x="80" y="560" font-family="ui-monospace,monospace" font-size="20" fill="#6b7280">
+    coderssecret.com
+  </text>
+  <rect x="0" y="626" width="1200" height="4" fill="url(#accent)"/>
+</svg>

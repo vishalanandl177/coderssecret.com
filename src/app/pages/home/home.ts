@@ -94,7 +94,7 @@ import { SeoService } from '../../services/seo.service';
 
                 <div class="max-w-3xl">
                   <div class="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-6">
-                    <time class="font-mono text-xs">{{ featuredPost.date }}</time>
+                    <time class="font-mono text-xs" [attr.datetime]="featuredPost.date">{{ featuredPost.date }}</time>
                     <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
                     <span>{{ featuredPost.readTime }}</span>
                   </div>
@@ -216,7 +216,7 @@ import { SeoService } from '../../services/seo.service';
                               [style.color]="getCategoryColor(post.category)">
                           {{ post.category }}
                         </span>
-                        <time class="font-mono">{{ post.date }}</time>
+                        <time class="font-mono" [attr.datetime]="post.date">{{ post.date }}</time>
                         <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
                         <span>{{ post.readTime }}</span>
                       </div>

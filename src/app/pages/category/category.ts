@@ -16,6 +16,16 @@ import { SeoService } from '../../services/seo.service';
       </div>
 
       <div class="container max-w-6xl mx-auto px-6 pt-16 pb-12 md:pt-24 md:pb-16">
+        <!-- Breadcrumb -->
+        <nav aria-label="Breadcrumb" class="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <ol class="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <li><a routerLink="/" class="hover:text-foreground transition-colors">Home</a></li>
+            <li class="text-muted-foreground/50">/</li>
+            <li><a routerLink="/blog" class="hover:text-foreground transition-colors">Blog</a></li>
+            <li class="text-muted-foreground/50">/</li>
+            <li class="text-foreground font-medium" aria-current="page">{{ categoryName() }}</li>
+          </ol>
+        </nav>
         <div class="max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider mb-6"
                [style.background-color]="categoryColor() + '15'"
@@ -63,7 +73,7 @@ import { SeoService } from '../../services/seo.service';
                   <div class="p-6 md:p-8 flex flex-col justify-between" [class]="i === 0 ? 'md:flex-1' : ''">
                     <div>
                       <div class="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-4">
-                        <time class="font-mono">{{ post.date }}</time>
+                        <time class="font-mono" [attr.datetime]="post.date">{{ post.date }}</time>
                         <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
                         <span>{{ post.readTime }}</span>
                         <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
@@ -149,14 +159,30 @@ export class CategoryComponent {
     return colors[this.categorySlug()] ?? '#6b7280';
   });
 
+  private categoryDescriptions: Record<string, string> = {
+    frontend: 'Tutorials and deep dives into Angular, React, TypeScript, CSS, and modern frontend development.',
+    backend: 'Practical guides on Python, Django, APIs, authentication, and backend architecture patterns.',
+    devops: 'Learn Kubernetes, Docker, CI/CD, cron jobs, and infrastructure automation for production systems.',
+    tutorials: 'Step-by-step workshops and hands-on tutorials for developers at every level.',
+    'open-source': 'Discover and contribute to open-source projects, tools, and libraries.',
+  };
+
   constructor() {
     effect(() => {
       const name = this.categoryName();
+      const slug = this.categorySlug();
       const count = this.filteredPosts().length;
+      const desc = this.categoryDescriptions[slug]
+        || `Browse ${count} article${count !== 1 ? 's' : ''} about ${name} on CodersSecret.`;
       this.seo.update({
         title: `${name} Articles`,
-        description: `Browse ${count} article${count !== 1 ? 's' : ''} about ${name} on CodersSecret.`,
-        url: `/category/${this.categorySlug()}`,
+        description: desc,
+        url: `/category/${slug}`,
+        breadcrumbs: [
+          { name: 'Home', url: '/' },
+          { name: 'Blog', url: '/blog' },
+          { name: name, url: `/category/${slug}` },
+        ],
       });
     });
   }

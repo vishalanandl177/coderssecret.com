@@ -73,7 +73,7 @@ import { SeoService } from '../../services/seo.service';
                               [style.color]="getCategoryColor(post.category)">
                           {{ getCategoryName(post.category) }}
                         </span>
-                        <time class="font-mono">{{ post.date }}</time>
+                        <time class="font-mono" [attr.datetime]="post.date">{{ post.date }}</time>
                         <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
                         <span>{{ post.readTime }}</span>
                         @if (post.featured) {
