@@ -1,5 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, DestroyRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BLOG_POSTS, CATEGORIES, BlogPost } from '../../models/blog-post.model';
 
 @Component({
@@ -175,22 +176,31 @@ import { BLOG_POSTS, CATEGORIES, BlogPost } from '../../models/blog-post.model';
 })
 export class BlogPostComponent {
   private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
   post: BlogPost | undefined;
   relatedPosts: BlogPost[] = [];
   categoryName = '';
   categoryColor = '#6b7280';
 
   constructor() {
-    const slug = this.route.snapshot.paramMap.get('slug');
-    this.post = BLOG_POSTS.find(p => p.slug === slug);
-    if (this.post) {
-      const cat = CATEGORIES.find(c => c.slug === this.post!.category);
-      this.categoryName = cat?.name ?? '';
-      this.categoryColor = this.getCategoryColor(this.post.category);
-      this.relatedPosts = BLOG_POSTS
-        .filter(p => p.id !== this.post!.id && (p.category === this.post!.category || p.tags.some(t => this.post!.tags.includes(t))))
-        .slice(0, 2);
-    }
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const slug = params.get('slug');
+        this.post = BLOG_POSTS.find(p => p.slug === slug);
+        if (this.post) {
+          const cat = CATEGORIES.find(c => c.slug === this.post!.category);
+          this.categoryName = cat?.name ?? '';
+          this.categoryColor = this.getCategoryColor(this.post.category);
+          this.relatedPosts = BLOG_POSTS
+            .filter(p => p.id !== this.post!.id && (p.category === this.post!.category || p.tags.some(t => this.post!.tags.includes(t))))
+            .slice(0, 2);
+        } else {
+          this.relatedPosts = [];
+          this.categoryName = '';
+          this.categoryColor = '#6b7280';
+        }
+      });
   }
 
   getCategoryColor(slug: string): string {
