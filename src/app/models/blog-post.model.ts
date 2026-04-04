@@ -1228,6 +1228,336 @@ async def create_deployment(req: DeployRequest):
         <li><strong>Use both when:</strong> You're building a platform. Expose headless APIs for frontend developers building UIs, and programmatic APIs for backend developers building automations and integrations.</li>
       </ul>
 
+      <h2>Authentication: The Critical Difference</h2>
+      <p>One of the most important — and often overlooked — differences between headless and programmatic APIs is <strong>how authentication works</strong>. The auth model fundamentally changes based on <em>who</em> is making the request: a user through a frontend, or a machine through code.</p>
+
+      <!-- Auth Comparison Diagram -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Authentication Models: Headless vs Programmatic</div>
+        <div class="vs-cards">
+          <div class="vs-card" style="border-color:#3b82f6">
+            <div class="vs-card-header" style="background:#3b82f6">&#x1F464; Headless API Auth</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F511;</span>Who authenticates?<span class="vs-row-value" style="color:#3b82f6">End user</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4B3;</span>Token represents<span class="vs-row-value" style="color:#3b82f6">User identity</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F504;</span>Auth flow<span class="vs-row-value" style="color:#3b82f6">OAuth + PKCE</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x23F1;</span>Token lifetime<span class="vs-row-value" style="color:#f97316">Short (15-60 min)</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F6AA;</span>Revocation<span class="vs-row-value" style="color:#3b82f6">User logs out</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2753;</span>Key question<span class="vs-row-value" style="color:#3b82f6">Who is this person?</span></div>
+            </div>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="vs-card" style="border-color:#22c55e">
+            <div class="vs-card-header" style="background:#22c55e">&#x1F916; Programmatic API Auth</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F511;</span>Who authenticates?<span class="vs-row-value" style="color:#22c55e">Service / machine</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4B3;</span>Token represents<span class="vs-row-value" style="color:#22c55e">Service identity</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F504;</span>Auth flow<span class="vs-row-value" style="color:#22c55e">Client Credentials</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x23F1;</span>Token lifetime<span class="vs-row-value" style="color:#22c55e">Longer (hours-days)</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F6AA;</span>Revocation<span class="vs-row-value" style="color:#22c55e">Credential rotated</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2753;</span>Key question<span class="vs-row-value" style="color:#22c55e">Which system is this?</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>Headless API Authentication Patterns</h2>
+      <p>Headless APIs serve content to frontends — so authentication must be <strong>user-centric</strong> and work safely in browsers and mobile apps where secrets can't be hidden.</p>
+
+      <h2>Public Content (No User Login)</h2>
+      <p>If your headless API serves public content (blog posts, product listings, marketing pages), you don't need user auth at all — just a public API key to identify the client:</p>
+      <pre><code># Public Storefront API — no user context needed
+GET https://cdn.example.com/api/v1/articles
+Headers:
+  X-API-Key: pk_storefront_abc123
+
+# Response: public content, heavily cached, CDN-friendly
+{
+  "data": [
+    { "title": "Getting Started", "slug": "getting-started", ... }
+  ]
+}</code></pre>
+      <p><strong>Real-world examples:</strong> Contentful Delivery API, Shopify Storefront API, Strapi public endpoints. These use <strong>read-only public tokens</strong> that are safe to embed in frontend code.</p>
+
+      <h2>Personalized Content (User Login Required)</h2>
+      <p>When the headless API serves personalized data (user profile, cart, order history), use <strong>OAuth 2.0 Authorization Code + PKCE</strong> — the gold standard for SPAs and mobile apps:</p>
+
+      <!-- Headless Auth Flow -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Headless API: OAuth 2.0 + PKCE Flow (for SPAs &amp; Mobile)</div>
+        <div class="seq-diagram">
+          <div class="seq-actors">
+            <div class="seq-actor browser">User / SPA</div>
+            <div class="seq-actor idp">Auth Server<span class="seq-actor-sub">(OAuth 2.0)</span></div>
+            <div class="seq-actor sp">Headless API<span class="seq-actor-sub">(Content)</span></div>
+          </div>
+          <div class="seq-steps">
+            <div class="seq-step">
+              <div class="seq-arrow right" style="--arrow-color:#3b82f6"><span class="seq-num blue">1</span> /authorize + code_challenge (PKCE)</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow left" style="--arrow-color:#7c3aed"><span class="seq-num purple">2</span> Login page (user enters credentials)</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow left" style="--arrow-color:#7c3aed"><span class="seq-num purple">3</span> Authorization code (via redirect)</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow right" style="--arrow-color:#3b82f6"><span class="seq-num blue">4</span> Exchange code + verifier for tokens</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow left" style="--arrow-color:#7c3aed"><span class="seq-num purple">5</span> access_token (15 min) + refresh_token</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-right" style="--arrow-color:#22c55e"><span class="seq-num green">6</span> GET /api/me/cart + Bearer token</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-left" style="--arrow-color:#22c55e"><span class="seq-num green">7</span> Personalized data &#x2705;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <pre><code># SPA fetching personalized content from a headless API
+# Step 1-5: OAuth PKCE flow handled by auth library (e.g., auth0-spa-js)
+import { createAuth0Client } from '@auth0/auth0-spa-js';
+
+const auth0 = await createAuth0Client({
+  domain: 'your-tenant.auth0.com',
+  clientId: 'YOUR_SPA_CLIENT_ID',  // Public — no secret needed
+  authorizationParams: { audience: 'https://api.example.com' }
+});
+
+// Step 6: Use the token to call the headless API
+const token = await auth0.getTokenSilently();
+const response = await fetch('https://api.example.com/me/cart', {
+  headers: { 'Authorization': \`Bearer \${token}\` }
+});
+const cart = await response.json();</code></pre>
+
+      <p><strong>Why PKCE?</strong> SPAs and mobile apps can't securely store a client secret — the code is visible to the user. PKCE (Proof Key for Code Exchange) replaces the secret with a one-time cryptographic challenge, making the flow safe for public clients.</p>
+
+      <h2>Server-Rendered Headless (SSR)</h2>
+      <p>If your frontend is server-rendered (Next.js, Nuxt, Angular SSR), the SSR server can securely hold secrets:</p>
+      <pre><code># Next.js API route — SSR server authenticates with headless CMS
+# The server has a secret token; the browser never sees it
+
+export async function getServerSideProps() {
+  const res = await fetch('https://cms.example.com/api/articles', {
+    headers: {
+      'Authorization': 'Bearer SECRET_CMS_TOKEN',  // Server-side only
+    },
+  });
+  const articles = await res.json();
+  return { props: { articles } };
+}
+
+// The browser receives rendered HTML — no token exposed</code></pre>
+
+      <h2>Programmatic API Authentication Patterns</h2>
+      <p>Programmatic APIs serve machines, not humans. Authentication must be <strong>automated, scriptable, and work without user interaction</strong>.</p>
+
+      <h2>API Keys (Simple Integrations)</h2>
+      <p>The simplest approach — a long-lived secret string that identifies the calling service:</p>
+      <pre><code># Simple API key authentication
+curl -X POST https://api.example.com/v1/deployments \\
+  -H "X-API-Key: sk_live_abc123def456" \\
+  -H "Content-Type: application/json" \\
+  -d '{"service": "web-app", "version": "2.1.0"}'
+
+# Server-side validation
+def authenticate(request):
+    api_key = request.headers.get('X-API-Key')
+    service = APIKey.objects.filter(
+        key=api_key, active=True
+    ).select_related('service').first()
+    if not service:
+        raise AuthenticationError("Invalid API key")
+    return service  # Returns the SERVICE, not a user</code></pre>
+
+      <!-- API Key vs OAuth Decision -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Programmatic Auth: When to Use What</div>
+        <div class="dtree">
+          <div class="dtree-node question">What's your use case?</div>
+          <div class="dtree-branches">
+            <div class="dtree-branch">
+              <div class="dtree-label">Simple 3rd-party integration?</div>
+              <div class="dtree-connector orange"></div>
+              <div class="dtree-answer saml">API Key<span class="dtree-answer-sub">+ rate limiting + scopes</span></div>
+            </div>
+            <div class="dtree-branch">
+              <div class="dtree-label">Internal microservices?</div>
+              <div class="dtree-connector blue"></div>
+              <div class="dtree-answer oidc">Client Credentials<span class="dtree-answer-sub">JWT with scopes, auto-expiring</span></div>
+            </div>
+            <div class="dtree-branch">
+              <div class="dtree-label">Zero-trust / service mesh?</div>
+              <div class="dtree-connector green"></div>
+              <div class="dtree-answer both">mTLS<span class="dtree-answer-sub">+ JWT for authorization</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>OAuth 2.0 Client Credentials (Microservices)</h2>
+      <p>For internal service-to-service communication, <strong>Client Credentials</strong> is the standard — no user involvement, scoped access, auto-expiring tokens:</p>
+      <pre><code>import requests
+
+class ServiceClient:
+    """Programmatic API client with auto-refreshing M2M tokens."""
+
+    def __init__(self, client_id, client_secret, token_url, audience):
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.token_url = token_url
+        self.audience = audience
+        self._token = None
+        self._expiry = 0
+
+    def _get_token(self):
+        if self._token and time.time() < self._expiry:
+            return self._token
+
+        resp = requests.post(self.token_url, data={
+            'grant_type': 'client_credentials',
+            'client_id': self.client_id,
+            'client_secret': self.client_secret,
+            'audience': self.audience,
+        })
+        data = resp.json()
+        self._token = data['access_token']
+        self._expiry = time.time() + data['expires_in'] - 30
+        return self._token
+
+    def call(self, method, url, **kwargs):
+        headers = kwargs.pop('headers', {})
+        headers['Authorization'] = f'Bearer {self._get_token()}'
+        return requests.request(method, url, headers=headers, **kwargs)
+
+# Usage — fully automated, no human in the loop
+order_service = ServiceClient(
+    client_id='svc-order-processor',
+    client_secret=os.environ['ORDER_SVC_SECRET'],
+    token_url='https://auth.internal/oauth/token',
+    audience='https://api.internal',
+)
+users = order_service.call('GET', 'https://api.internal/users').json()</code></pre>
+
+      <!-- Programmatic Auth Flow -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">OAuth 2.0 Client Credentials Flow (M2M)</div>
+        <div class="seq-diagram">
+          <div class="seq-actors">
+            <div class="seq-actor sp">Service A<span class="seq-actor-sub">(Client)</span></div>
+            <div class="seq-actor idp">Auth Server<span class="seq-actor-sub">(OAuth 2.0)</span></div>
+            <div class="seq-actor browser">Service B<span class="seq-actor-sub">(API)</span></div>
+          </div>
+          <div class="seq-steps">
+            <div class="seq-step">
+              <div class="seq-arrow right" style="--arrow-color:#22c55e"><span class="seq-num green">1</span> POST /token (client_id + client_secret)</div>
+            </div>
+            <div class="seq-step">
+              <div></div>
+              <div class="seq-action" style="border-color:#7c3aed;color:#a78bfa">Validate credentials, generate JWT</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow left" style="--arrow-color:#7c3aed"><span class="seq-num purple">2</span> access_token (JWT with scopes)</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-right" style="--arrow-color:#3b82f6"><span class="seq-num blue">3</span> GET /api/data + Bearer token</div>
+            </div>
+            <div class="seq-step">
+              <div></div>
+              <div></div>
+              <div class="seq-action" style="border-color:#3b82f6;color:#60a5fa">Verify JWT signature + check scopes</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-left" style="--arrow-color:#3b82f6"><span class="seq-num blue">4</span> 200 OK + data &#x2705;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>mTLS + JWT (Zero-Trust / High Security)</h2>
+      <p>For the highest security environments, combine <strong>mutual TLS</strong> (transport-level identity) with <strong>JWT</strong> (application-level authorization):</p>
+      <pre><code># mTLS: Both client and server present certificates
+import requests
+
+response = requests.get(
+    'https://internal-api.example.com/sensitive-data',
+    cert=('/path/to/service-a.crt', '/path/to/service-a.key'),
+    verify='/path/to/ca-bundle.crt',
+    headers={'Authorization': f'Bearer {jwt_token}'}  # JWT for scopes
+)
+
+# The server verifies:
+# 1. TLS: Is this certificate signed by our CA? (identity)
+# 2. JWT: Does this token have the required scopes? (authorization)</code></pre>
+
+      <!-- Security Layers -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Security Layers: Transport vs Application</div>
+        <div class="layer-diagram">
+          <div class="layer-item" style="background:#22c55e">mTLS &#x2014; Transport Layer<span class="layer-item-sub">WHO is connecting? Certificate-based identity verification</span></div>
+          <div class="layer-item" style="background:#3b82f6">JWT &#x2014; Application Layer<span class="layer-item-sub">WHAT can they do? Scope-based authorization (read:users, write:orders)</span></div>
+          <div class="layer-item" style="background:#7c3aed">API Logic &#x2014; Business Layer<span class="layer-item-sub">Execute the request with verified identity and permissions</span></div>
+        </div>
+      </div>
+
+      <h2>Cloud-Native Auth (IAM / Service Accounts)</h2>
+      <p>When your services run in AWS, GCP, or Azure, skip managing secrets entirely — use <strong>cloud IAM roles</strong>:</p>
+      <pre><code># AWS: No secrets in code — the EC2 instance / Lambda / ECS task
+# automatically gets temporary credentials via its IAM role
+import boto3
+
+# boto3 automatically discovers credentials from:
+# 1. IAM role attached to the compute (EC2, Lambda, ECS)
+# 2. Environment variables (AWS_ACCESS_KEY_ID)
+# 3. ~/.aws/credentials file
+s3 = boto3.client('s3')  # No credentials passed — auto-discovered
+s3.put_object(Bucket='my-bucket', Key='data.json', Body=json_data)
+
+# Kubernetes: Workload Identity maps K8s service accounts to cloud IAM
+# Pod spec:
+#   serviceAccountName: my-service-sa
+# The pod gets cloud credentials automatically — zero secrets to manage</code></pre>
+
+      <h2>Auth Quick Reference: Which Auth for Which Scenario</h2>
+
+      <!-- Comprehensive Auth Reference -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Authentication Quick Reference (hover rows for details)</div>
+        <div class="vs-cards" style="grid-template-columns:1fr 1fr">
+          <div class="vs-card" style="border-color:#3b82f6">
+            <div class="vs-card-header" style="background:#3b82f6">&#x1F310; Headless API Scenarios</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4F0;</span>Public blog/CMS<span class="vs-row-value" style="color:#22c55e">Public API key</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F6D2;</span>E-commerce browsing<span class="vs-row-value" style="color:#22c55e">Storefront token</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F464;</span>User dashboard (SPA)<span class="vs-row-value" style="color:#3b82f6">OAuth + PKCE</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4F1;</span>Mobile app with login<span class="vs-row-value" style="color:#3b82f6">OAuth + PKCE + refresh</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F5A5;</span>SSR (Next.js/Nuxt)<span class="vs-row-value" style="color:#7c3aed">Server-side secret token</span></div>
+            </div>
+          </div>
+          <div class="vs-card" style="border-color:#22c55e">
+            <div class="vs-card-header" style="background:#22c55e">&#x1F916; Programmatic API Scenarios</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F91D;</span>Partner integration<span class="vs-row-value" style="color:#f97316">Scoped API key</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x23F0;</span>Cron job / script<span class="vs-row-value" style="color:#f97316">API key or Client Creds</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F504;</span>Microservice-to-microservice<span class="vs-row-value" style="color:#3b82f6">Client Credentials</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F512;</span>Zero-trust network<span class="vs-row-value" style="color:#22c55e">mTLS + JWT</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2601;</span>CI/CD to cloud<span class="vs-row-value" style="color:#7c3aed">IAM role / Service account</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>The Rule of Thumb</h2>
+      <ul>
+        <li><strong>Headless API auth follows the user:</strong> "Who is this person, and what can they see?" The token represents a human's identity and permissions. It's short-lived because users log out.</li>
+        <li><strong>Programmatic API auth follows the service:</strong> "Which system is this, and what can it do?" The token represents a machine's identity and scopes. It's longer-lived because machines don't take lunch breaks.</li>
+        <li><strong>Never put secrets in frontend code:</strong> SPAs and mobile apps are <em>public clients</em>. Use PKCE for user auth, public API keys for anonymous access. Reserve secret-based auth (Client Credentials, API keys) for server-side code only.</li>
+      </ul>
+
       <p>The distinction matters because it shapes your API design — response structure, caching strategy, authentication model, documentation style, and error handling all differ. A headless API optimizes for content delivery; a programmatic API optimizes for reliable machine interaction. Know which one you're building, and design accordingly.</p>
     `,
     author: 'Coder Secret',
