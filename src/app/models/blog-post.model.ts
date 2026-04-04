@@ -1844,82 +1844,34 @@ def validate_m2m_token(token):
       </ul>
       <p>The user visits your app, gets redirected to the IdP, authenticates, and gets sent back with proof of identity. Your app trusts this proof because it trusts the IdP.</p>
 
-      <!-- SSO Overview Diagram -->
-      <svg viewBox="0 0 720 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;margin:2rem auto;display:block;font-family:system-ui,sans-serif;" role="img" aria-label="SSO Overview: Login once, access all applications through the Identity Provider">
-        <rect width="720" height="400" rx="16" fill="var(--muted, #1e1e2e)" opacity="0.5"/>
-        <!-- IdP center -->
-        <rect x="260" y="30" width="200" height="70" rx="12" fill="#7c3aed" opacity="0.9"/>
-        <text x="360" y="58" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">Identity Provider</text>
-        <text x="360" y="78" text-anchor="middle" fill="#e0d4ff" font-size="11">(Okta / Azure AD / Auth0)</text>
-        <!-- User -->
-        <circle cx="360" cy="210" r="36" fill="#3b82f6" opacity="0.9"/>
-        <text x="360" y="206" text-anchor="middle" fill="#fff" font-size="22">&#x1F464;</text>
-        <text x="360" y="226" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">USER</text>
-        <!-- Login once arrow -->
-        <line x1="360" y1="174" x2="360" y2="108" stroke="#a78bfa" stroke-width="2.5" stroke-dasharray="6,4"/>
-        <polygon points="354,112 360,100 366,112" fill="#a78bfa"/>
-        <text x="380" y="145" fill="#a78bfa" font-size="11" font-weight="600">Login once</text>
-        <!-- Apps -->
-        <rect x="40" y="310" width="120" height="55" rx="10" fill="#22c55e" opacity="0.85"/>
-        <text x="100" y="338" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Slack</text>
-        <text x="100" y="354" text-anchor="middle" fill="#d4ffd4" font-size="10">&#x1F4AC; Chat</text>
-        <rect x="200" y="310" width="120" height="55" rx="10" fill="#f97316" opacity="0.85"/>
-        <text x="260" y="338" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Jira</text>
-        <text x="260" y="354" text-anchor="middle" fill="#ffe0c4" font-size="10">&#x1F4CB; Projects</text>
-        <rect x="400" y="310" width="120" height="55" rx="10" fill="#ec4899" opacity="0.85"/>
-        <text x="460" y="338" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Your App</text>
-        <text x="460" y="354" text-anchor="middle" fill="#ffd4e8" font-size="10">&#x1F680; SaaS</text>
-        <rect x="560" y="310" width="120" height="55" rx="10" fill="#3b82f6" opacity="0.85"/>
-        <text x="620" y="338" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Gmail</text>
-        <text x="620" y="354" text-anchor="middle" fill="#d4e4ff" font-size="10">&#x2709; Email</text>
-        <!-- Access arrows from user to apps -->
-        <line x1="335" y1="240" x2="100" y2="308" stroke="#22c55e" stroke-width="1.5" opacity="0.7"/>
-        <line x1="350" y1="245" x2="260" y2="308" stroke="#f97316" stroke-width="1.5" opacity="0.7"/>
-        <line x1="370" y1="245" x2="460" y2="308" stroke="#ec4899" stroke-width="1.5" opacity="0.7"/>
-        <line x1="385" y1="240" x2="620" y2="308" stroke="#3b82f6" stroke-width="1.5" opacity="0.7"/>
-        <!-- Trust lines from IdP to apps -->
-        <line x1="280" y1="100" x2="100" y2="308" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4,4" opacity="0.4"/>
-        <line x1="310" y1="100" x2="260" y2="308" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4,4" opacity="0.4"/>
-        <line x1="410" y1="100" x2="460" y2="308" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4,4" opacity="0.4"/>
-        <line x1="440" y1="100" x2="620" y2="308" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4,4" opacity="0.4"/>
-        <text x="560" y="220" fill="var(--muted-foreground, #888)" font-size="10" opacity="0.7">- - - Trust relationship</text>
-        <text x="560" y="236" fill="var(--muted-foreground, #888)" font-size="10" opacity="0.7">&#x2500;&#x2500; Access granted</text>
-      </svg>
+      <!-- SSO Overview Diagram (Interactive) -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Single Sign-On: Login Once, Access Everything</div>
+        <div class="hub-diagram">
+          <div class="hub-center">
+            Identity Provider
+            <span class="hub-center-sub">Okta / Azure AD / Auth0 / Google Workspace</span>
+          </div>
+          <div class="hub-arrow-label">
+            <span class="arrow-animated">&#x2B06;</span> Login once here
+          </div>
+          <div class="hub-user">&#x1F464;</div>
+          <div class="hub-arrow-label">
+            <span class="arrow-animated">&#x2B07;</span> Access all apps below
+          </div>
+          <div class="hub-apps">
+            <div class="hub-app"><span class="hub-app-icon">&#x1F4AC;</span>Slack<span class="hub-app-sub">Chat</span></div>
+            <div class="hub-app"><span class="hub-app-icon">&#x1F4CB;</span>Jira<span class="hub-app-sub">Projects</span></div>
+            <div class="hub-app"><span class="hub-app-icon">&#x1F680;</span>Your App<span class="hub-app-sub">SaaS</span></div>
+            <div class="hub-app"><span class="hub-app-icon">&#x2709;</span>Gmail<span class="hub-app-sub">Email</span></div>
+          </div>
+          <div class="hub-connector">
+            <span><span class="hub-dot-line"></span> Trust relationship</span>
+            <span><span class="hub-solid-line"></span> Access granted</span>
+          </div>
+        </div>
+      </div>
 
-      <!-- Trust Relationship Triangle -->
-      <svg viewBox="0 0 600 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:600px;margin:2rem auto;display:block;font-family:system-ui,sans-serif;" role="img" aria-label="Trust relationship between Identity Provider and Service Providers">
-        <rect width="600" height="320" rx="16" fill="var(--muted, #1e1e2e)" opacity="0.5"/>
-        <!-- IdP top -->
-        <rect x="220" y="20" width="160" height="60" rx="10" fill="#7c3aed" opacity="0.9"/>
-        <text x="300" y="48" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">Identity Provider</text>
-        <text x="300" y="65" text-anchor="middle" fill="#e0d4ff" font-size="10">Authenticates users</text>
-        <!-- SP 1 -->
-        <rect x="50" y="230" width="160" height="60" rx="10" fill="#3b82f6" opacity="0.9"/>
-        <text x="130" y="258" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">Service Provider 1</text>
-        <text x="130" y="275" text-anchor="middle" fill="#d4e4ff" font-size="10">Your Web App</text>
-        <!-- SP 2 -->
-        <rect x="390" y="230" width="160" height="60" rx="10" fill="#22c55e" opacity="0.9"/>
-        <text x="470" y="258" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">Service Provider 2</text>
-        <text x="470" y="275" text-anchor="middle" fill="#d4ffd4" font-size="10">Another App</text>
-        <!-- Trust lines -->
-        <line x1="250" y1="80" x2="150" y2="228" stroke="#a78bfa" stroke-width="2" stroke-dasharray="6,4"/>
-        <line x1="350" y1="80" x2="450" y2="228" stroke="#a78bfa" stroke-width="2" stroke-dasharray="6,4"/>
-        <text x="165" y="158" fill="#a78bfa" font-size="10" font-weight="600" transform="rotate(-35,165,158)">Trust (certs/secrets)</text>
-        <text x="435" y="158" fill="#a78bfa" font-size="10" font-weight="600" transform="rotate(35,435,158)">Trust (certs/secrets)</text>
-        <!-- User flow -->
-        <circle cx="300" cy="170" r="22" fill="#f97316" opacity="0.9"/>
-        <text x="300" y="175" text-anchor="middle" fill="#fff" font-size="14">&#x1F464;</text>
-        <!-- Flow arrows -->
-        <line x1="280" y1="178" x2="180" y2="228" stroke="#f97316" stroke-width="2"/>
-        <polygon points="183,222 174,232 188,230" fill="#f97316"/>
-        <text x="208" y="210" fill="#f97316" font-size="9" font-weight="600">1. Visit</text>
-        <line x1="300" y1="148" x2="300" y2="85" stroke="#f97316" stroke-width="2"/>
-        <polygon points="294,90 300,80 306,90" fill="#f97316"/>
-        <text x="314" y="120" fill="#f97316" font-size="9" font-weight="600">2. Redirect</text>
-        <line x1="350" y1="85" x2="425" y2="148" stroke="#22c55e" stroke-width="2"/>
-        <polygon points="420,142 430,150 422,154" fill="#22c55e"/>
-        <text x="400" y="108" fill="#22c55e" font-size="9" font-weight="600">3. Proof</text>
-      </svg>
 
       <h2>SAML 2.0 — The Enterprise Veteran</h2>
       <p>SAML (Security Assertion Markup Language) has been the backbone of enterprise SSO since 2005. It uses XML-based assertions passed between the IdP and SP.</p>
@@ -1936,62 +1888,53 @@ def validate_m2m_token(token):
 7. SP validates the signature, checks conditions, extracts user info
 8. SP creates a session — user is logged in</code></pre>
 
-      <!-- SAML Sequence Diagram -->
-      <svg viewBox="0 0 720 480" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;margin:2rem auto;display:block;font-family:system-ui,sans-serif;" role="img" aria-label="SAML 2.0 Authentication Flow sequence diagram">
-        <rect width="720" height="480" rx="16" fill="var(--muted, #1e1e2e)" opacity="0.5"/>
-        <!-- Column headers -->
-        <rect x="60" y="15" width="130" height="40" rx="8" fill="#3b82f6" opacity="0.9"/>
-        <text x="125" y="40" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Browser / User</text>
-        <rect x="295" y="15" width="130" height="40" rx="8" fill="#22c55e" opacity="0.9"/>
-        <text x="360" y="40" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Service Provider</text>
-        <rect x="530" y="15" width="130" height="40" rx="8" fill="#7c3aed" opacity="0.9"/>
-        <text x="595" y="40" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Identity Provider</text>
-        <!-- Lifelines -->
-        <line x1="125" y1="55" x2="125" y2="460" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.4"/>
-        <line x1="360" y1="55" x2="360" y2="460" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.4"/>
-        <line x1="595" y1="55" x2="595" y2="460" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.4"/>
-        <!-- Step 1 -->
-        <line x1="125" y1="85" x2="352" y2="85" stroke="#3b82f6" stroke-width="2"/>
-        <polygon points="346,80 358,85 346,90" fill="#3b82f6"/>
-        <text x="238" y="78" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">1. Visit app.example.com</text>
-        <!-- Step 2 -->
-        <line x1="352" y1="120" x2="133" y2="120" stroke="#22c55e" stroke-width="2"/>
-        <polygon points="139,115 127,120 139,125" fill="#22c55e"/>
-        <text x="238" y="113" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">2. Redirect + AuthnRequest (XML)</text>
-        <!-- Step 3 -->
-        <line x1="125" y1="155" x2="587" y2="155" stroke="#3b82f6" stroke-width="2"/>
-        <polygon points="581,150 593,155 581,160" fill="#3b82f6"/>
-        <text x="360" y="148" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">3. Forward AuthnRequest to IdP</text>
-        <!-- Step 4 -->
-        <line x1="587" y1="195" x2="133" y2="195" stroke="#7c3aed" stroke-width="2"/>
-        <polygon points="139,190 127,195 139,200" fill="#7c3aed"/>
-        <text x="360" y="188" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">4. Show login page (+ MFA)</text>
-        <!-- Step 5 -->
-        <line x1="125" y1="230" x2="587" y2="230" stroke="#f97316" stroke-width="2"/>
-        <polygon points="581,225 593,230 581,235" fill="#f97316"/>
-        <text x="360" y="223" text-anchor="middle" fill="#f97316" font-size="10" font-weight="600">5. User enters credentials</text>
-        <!-- Step 6 - IdP validates -->
-        <rect x="545" y="250" width="100" height="30" rx="6" fill="#7c3aed" opacity="0.3"/>
-        <text x="595" y="270" text-anchor="middle" fill="#a78bfa" font-size="9" font-weight="600">Validate &amp; sign</text>
-        <!-- Step 7 -->
-        <line x1="587" y1="305" x2="133" y2="305" stroke="#7c3aed" stroke-width="2"/>
-        <polygon points="139,300 127,305 139,310" fill="#7c3aed"/>
-        <text x="360" y="298" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">6. SAML Response (signed XML Assertion)</text>
-        <!-- Step 8 -->
-        <line x1="125" y1="340" x2="352" y2="340" stroke="#3b82f6" stroke-width="2"/>
-        <polygon points="346,335 358,340 346,345" fill="#3b82f6"/>
-        <text x="238" y="333" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">7. POST SAML Response to ACS URL</text>
-        <!-- Step 9 - SP validates -->
-        <rect x="310" y="358" width="100" height="30" rx="6" fill="#22c55e" opacity="0.3"/>
-        <text x="360" y="378" text-anchor="middle" fill="#4ade80" font-size="9" font-weight="600">Verify signature</text>
-        <!-- Step 10 -->
-        <line x1="352" y1="410" x2="133" y2="410" stroke="#22c55e" stroke-width="2"/>
-        <polygon points="139,405 127,410 139,415" fill="#22c55e"/>
-        <text x="238" y="403" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">8. Session created — logged in!</text>
-        <!-- Success indicator -->
-        <circle cx="125" cy="440" r="12" fill="#22c55e" opacity="0.8"/>
-        <text x="125" y="444" text-anchor="middle" fill="#fff" font-size="12">&#x2713;</text>
-      </svg>
+      <!-- SAML Flow (Interactive) -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">SAML 2.0 Authentication Flow</div>
+        <div class="seq-diagram">
+          <div class="seq-actors">
+            <div class="seq-actor browser">Browser / User</div>
+            <div class="seq-actor sp">Service Provider<span class="seq-actor-sub">(Your App)</span></div>
+            <div class="seq-actor idp">Identity Provider<span class="seq-actor-sub">(Okta / Azure AD)</span></div>
+          </div>
+          <div class="seq-steps">
+            <div class="seq-step">
+              <div class="seq-arrow right" style="--arrow-color:#3b82f6"><span class="seq-num blue">1</span> Visit app.example.com</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow left" style="--arrow-color:#22c55e"><span class="seq-num green">2</span> Redirect + AuthnRequest (XML)</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-right" style="--arrow-color:#3b82f6"><span class="seq-num blue">3</span> Forward AuthnRequest to IdP</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-left" style="--arrow-color:#7c3aed"><span class="seq-num purple">4</span> Show login page + MFA</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-right" style="--arrow-color:#f97316"><span class="seq-num orange">5</span> User enters credentials</div>
+            </div>
+            <div class="seq-step">
+              <div></div>
+              <div></div>
+              <div class="seq-action" style="border-color:#7c3aed;color:#a78bfa">Validate &amp; Sign Assertion</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-left" style="--arrow-color:#7c3aed"><span class="seq-num purple">6</span> SAML Response (signed XML Assertion)</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow right" style="--arrow-color:#3b82f6"><span class="seq-num blue">7</span> POST SAML Response to ACS URL</div>
+            </div>
+            <div class="seq-step">
+              <div></div>
+              <div class="seq-action" style="border-color:#22c55e;color:#4ade80">Verify signature &amp; extract user</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow left" style="--arrow-color:#22c55e"><span class="seq-num green">8</span> Session created &#x2014; logged in! &#x2705;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
 
       <h2>SAML Response Structure</h2>
       <pre><code>&lt;saml2p:Response&gt;
@@ -2082,109 +2025,90 @@ def saml_acs(request):
 
 7. App validates the id_token JWT and extracts user info</code></pre>
 
-      <!-- OIDC Sequence Diagram -->
-      <svg viewBox="0 0 720 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;margin:2rem auto;display:block;font-family:system-ui,sans-serif;" role="img" aria-label="OIDC Authorization Code Flow sequence diagram">
-        <rect width="720" height="520" rx="16" fill="var(--muted, #1e1e2e)" opacity="0.5"/>
-        <!-- Column headers -->
-        <rect x="60" y="15" width="130" height="40" rx="8" fill="#3b82f6" opacity="0.9"/>
-        <text x="125" y="40" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Browser / User</text>
-        <rect x="295" y="15" width="130" height="40" rx="8" fill="#22c55e" opacity="0.9"/>
-        <text x="360" y="33" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Your App</text>
-        <text x="360" y="48" text-anchor="middle" fill="#d4ffd4" font-size="9">(Relying Party)</text>
-        <rect x="530" y="15" width="130" height="40" rx="8" fill="#7c3aed" opacity="0.9"/>
-        <text x="595" y="40" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Identity Provider</text>
-        <!-- Lifelines -->
-        <line x1="125" y1="55" x2="125" y2="500" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.4"/>
-        <line x1="360" y1="55" x2="360" y2="500" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.4"/>
-        <line x1="595" y1="55" x2="595" y2="500" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.4"/>
-        <!-- Step 1 -->
-        <line x1="125" y1="85" x2="352" y2="85" stroke="#3b82f6" stroke-width="2"/>
-        <polygon points="346,80 358,85 346,90" fill="#3b82f6"/>
-        <text x="238" y="78" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">1. Visit app</text>
-        <!-- Step 2 -->
-        <line x1="352" y1="115" x2="133" y2="115" stroke="#22c55e" stroke-width="2"/>
-        <polygon points="139,110 127,115 139,120" fill="#22c55e"/>
-        <text x="238" y="108" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">2. Redirect to /authorize</text>
-        <!-- Step 3 -->
-        <line x1="125" y1="150" x2="587" y2="150" stroke="#3b82f6" stroke-width="2"/>
-        <polygon points="581,145 593,150 581,155" fill="#3b82f6"/>
-        <text x="360" y="143" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">3. /authorize?response_type=code&amp;scope=openid</text>
-        <!-- Step 4 -->
-        <line x1="587" y1="185" x2="133" y2="185" stroke="#7c3aed" stroke-width="2"/>
-        <polygon points="139,180 127,185 139,190" fill="#7c3aed"/>
-        <text x="360" y="178" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">4. Login page</text>
-        <!-- Step 5 -->
-        <line x1="125" y1="218" x2="587" y2="218" stroke="#f97316" stroke-width="2"/>
-        <polygon points="581,213 593,218 581,223" fill="#f97316"/>
-        <text x="360" y="211" text-anchor="middle" fill="#f97316" font-size="10" font-weight="600">5. User authenticates</text>
-        <!-- Step 6 -->
-        <line x1="587" y1="255" x2="133" y2="255" stroke="#7c3aed" stroke-width="2"/>
-        <polygon points="139,250 127,255 139,260" fill="#7c3aed"/>
-        <text x="360" y="248" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">6. Redirect to /callback?code=AUTH_CODE</text>
-        <!-- Step 7 -->
-        <line x1="125" y1="288" x2="352" y2="288" stroke="#3b82f6" stroke-width="2"/>
-        <polygon points="346,283 358,288 346,293" fill="#3b82f6"/>
-        <text x="238" y="281" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">7. Forward code to app</text>
-        <!-- Step 8 - BACK CHANNEL (highlighted) -->
-        <rect x="355" y="308" width="245" height="35" rx="6" fill="#f97316" opacity="0.15" stroke="#f97316" stroke-width="1.5" stroke-dasharray="4,3"/>
-        <line x1="368" y1="325" x2="587" y2="325" stroke="#f97316" stroke-width="2.5"/>
-        <polygon points="581,320 593,325 581,330" fill="#f97316"/>
-        <text x="478" y="318" text-anchor="middle" fill="#f97316" font-size="10" font-weight="700">8. Exchange code for tokens (server-to-server)</text>
-        <!-- Step 9 -->
-        <line x1="587" y1="370" x2="368" y2="370" stroke="#7c3aed" stroke-width="2.5"/>
-        <polygon points="374,365 362,370 374,375" fill="#7c3aed"/>
-        <text x="478" y="363" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">9. access_token + id_token (JWT)</text>
-        <!-- Tokens box -->
-        <rect x="310" y="385" width="100" height="40" rx="6" fill="#22c55e" opacity="0.2" stroke="#22c55e" stroke-width="1"/>
-        <text x="360" y="400" text-anchor="middle" fill="#4ade80" font-size="9" font-weight="600">Validate JWT</text>
-        <text x="360" y="415" text-anchor="middle" fill="#4ade80" font-size="9">Extract user info</text>
-        <!-- Step 10 -->
-        <line x1="352" y1="445" x2="133" y2="445" stroke="#22c55e" stroke-width="2"/>
-        <polygon points="139,440 127,445 139,450" fill="#22c55e"/>
-        <text x="238" y="438" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">10. Session created — logged in!</text>
-        <!-- Back channel label -->
-        <text x="660" y="328" fill="#f97316" font-size="8" font-weight="700" transform="rotate(90,660,328)">BACK CHANNEL</text>
-        <!-- Success -->
-        <circle cx="125" cy="480" r="12" fill="#22c55e" opacity="0.8"/>
-        <text x="125" y="484" text-anchor="middle" fill="#fff" font-size="12">&#x2713;</text>
-      </svg>
+      <!-- OIDC Flow (Interactive) -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">OIDC Authorization Code Flow</div>
+        <div class="seq-diagram">
+          <div class="seq-actors">
+            <div class="seq-actor browser">Browser / User</div>
+            <div class="seq-actor sp">Your App<span class="seq-actor-sub">(Relying Party)</span></div>
+            <div class="seq-actor idp">Identity Provider<span class="seq-actor-sub">(OIDC Server)</span></div>
+          </div>
+          <div class="seq-steps">
+            <div class="seq-step">
+              <div class="seq-arrow right" style="--arrow-color:#3b82f6"><span class="seq-num blue">1</span> Visit app</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow left" style="--arrow-color:#22c55e"><span class="seq-num green">2</span> Redirect to /authorize</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-right" style="--arrow-color:#3b82f6"><span class="seq-num blue">3</span> /authorize?response_type=code&amp;scope=openid</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-left" style="--arrow-color:#7c3aed"><span class="seq-num purple">4</span> Login page</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-right" style="--arrow-color:#f97316"><span class="seq-num orange">5</span> User authenticates</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-left" style="--arrow-color:#7c3aed"><span class="seq-num purple">6</span> Redirect to /callback?code=AUTH_CODE</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow right" style="--arrow-color:#3b82f6"><span class="seq-num blue">7</span> Forward code to app server</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-backchannel">
+                <span class="seq-backchannel-label">Back Channel (Server-to-Server)</span>
+                <div class="seq-arrow right-23" style="--arrow-color:#f97316"><span class="seq-num orange">8</span> Exchange code for tokens</div>
+              </div>
+            </div>
+            <div class="seq-step">
+              <div></div>
+              <div class="seq-arrow left-23" style="--arrow-color:#7c3aed"><span class="seq-num purple">9</span> access_token + id_token (JWT)</div>
+            </div>
+            <div class="seq-step">
+              <div></div>
+              <div class="seq-action" style="border-color:#22c55e;color:#4ade80">Validate JWT &amp; extract user info</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow left" style="--arrow-color:#22c55e"><span class="seq-num green">10</span> Session created &#x2014; logged in! &#x2705;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
 
       <h2>The ID Token</h2>
       <p>The key differentiator of OIDC is the <strong>ID Token</strong> — a JWT containing the authenticated user's identity:</p>
 
-      <!-- JWT Anatomy Diagram -->
-      <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:680px;margin:2rem auto;display:block;font-family:system-ui,sans-serif;" role="img" aria-label="JWT structure showing header, payload, and signature sections">
-        <rect width="680" height="200" rx="16" fill="var(--muted, #1e1e2e)" opacity="0.5"/>
-        <text x="340" y="30" text-anchor="middle" fill="var(--foreground, #eee)" font-size="13" font-weight="700">JSON Web Token (JWT) Structure</text>
-        <!-- Header -->
-        <rect x="20" y="50" width="200" height="50" rx="8" fill="#ef4444" opacity="0.85"/>
-        <text x="120" y="72" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Header</text>
-        <text x="120" y="88" text-anchor="middle" fill="#ffd4d4" font-size="9">eyJhbGciOiJSUzI1NiJ9</text>
-        <!-- Dot 1 -->
-        <text x="228" y="80" text-anchor="middle" fill="var(--foreground, #eee)" font-size="24" font-weight="900">.</text>
-        <!-- Payload -->
-        <rect x="240" y="50" width="200" height="50" rx="8" fill="#a855f7" opacity="0.85"/>
-        <text x="340" y="72" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Payload (Claims)</text>
-        <text x="340" y="88" text-anchor="middle" fill="#e8d4ff" font-size="9">eyJzdWIiOiIxMjM0NTY3...</text>
-        <!-- Dot 2 -->
-        <text x="448" y="80" text-anchor="middle" fill="var(--foreground, #eee)" font-size="24" font-weight="900">.</text>
-        <!-- Signature -->
-        <rect x="460" y="50" width="200" height="50" rx="8" fill="#3b82f6" opacity="0.85"/>
-        <text x="560" y="72" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Signature</text>
-        <text x="560" y="88" text-anchor="middle" fill="#d4e4ff" font-size="9">SflKxwRJSMeKKF2QT4fw...</text>
-        <!-- Descriptions -->
-        <line x1="120" y1="100" x2="120" y2="125" stroke="#ef4444" stroke-width="1.5"/>
-        <text x="120" y="140" text-anchor="middle" fill="#ef4444" font-size="10" font-weight="600">Algorithm</text>
-        <text x="120" y="154" text-anchor="middle" fill="var(--muted-foreground, #888)" font-size="9">{"alg":"RS256"}</text>
-        <line x1="340" y1="100" x2="340" y2="125" stroke="#a855f7" stroke-width="1.5"/>
-        <text x="340" y="140" text-anchor="middle" fill="#a855f7" font-size="10" font-weight="600">User Identity + Claims</text>
-        <text x="340" y="154" text-anchor="middle" fill="var(--muted-foreground, #888)" font-size="9">{"sub","email","name",...}</text>
-        <line x1="560" y1="100" x2="560" y2="125" stroke="#3b82f6" stroke-width="1.5"/>
-        <text x="560" y="140" text-anchor="middle" fill="#3b82f6" font-size="10" font-weight="600">Cryptographic Proof</text>
-        <text x="560" y="154" text-anchor="middle" fill="var(--muted-foreground, #888)" font-size="9">HMAC or RSA signature</text>
-        <!-- Bottom note -->
-        <text x="340" y="185" text-anchor="middle" fill="var(--muted-foreground, #888)" font-size="10">Three Base64URL-encoded parts separated by dots — compact and URL-safe</text>
-      </svg>
+      <!-- JWT Anatomy (Interactive) -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">JSON Web Token (JWT) Structure — Hover to Explore</div>
+        <div class="jwt-diagram">
+          <div class="jwt-parts">
+            <div class="jwt-part header">
+              <span class="jwt-part-label">Header</span>
+              <span class="jwt-part-code">eyJhbGciOiJSUzI1NiJ9</span>
+              <span class="jwt-part-desc">{"alg": "RS256", "typ": "JWT"}</span>
+            </div>
+            <div class="jwt-dot">.</div>
+            <div class="jwt-part payload">
+              <span class="jwt-part-label">Payload (Claims)</span>
+              <span class="jwt-part-code">eyJzdWIiOiIxMjM0NTY3...</span>
+              <span class="jwt-part-desc">{"sub", "email", "name", "exp", ...}</span>
+            </div>
+            <div class="jwt-dot">.</div>
+            <div class="jwt-part signature">
+              <span class="jwt-part-label">Signature</span>
+              <span class="jwt-part-code">SflKxwRJSMeKKF2QT4fw...</span>
+              <span class="jwt-part-desc">HMAC-SHA256 or RSA signature</span>
+            </div>
+          </div>
+          <div class="jwt-raw">
+            <span class="h">eyJhbGciOiJSUzI1NiJ9</span>.<span class="p">eyJzdWIiOiJ1c2VyLXV1aWQiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20ifQ</span>.<span class="s">SflKxwRJSMeKKF2QT4fwpM</span>
+          </div>
+        </div>
+      </div>
 
       <pre><code>// Decoded ID Token payload
 {
@@ -2220,77 +2144,62 @@ Mobile Support       Poor                  Excellent
 Discovery            Manual config         .well-known endpoint
 Standard Body        OASIS                 OpenID Foundation</code></pre>
 
-      <!-- SAML vs OIDC Visual Comparison Cards -->
-      <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;margin:2rem auto;display:block;font-family:system-ui,sans-serif;" role="img" aria-label="Visual comparison of SAML 2.0 and OIDC protocols">
-        <rect width="700" height="280" rx="16" fill="var(--muted, #1e1e2e)" opacity="0.5"/>
-        <!-- SAML Card -->
-        <rect x="20" y="20" width="318" height="240" rx="12" fill="#f97316" opacity="0.1" stroke="#f97316" stroke-width="1.5"/>
-        <rect x="20" y="20" width="318" height="45" rx="12" fill="#f97316" opacity="0.8"/>
-        <rect x="20" y="50" width="318" height="15" fill="#f97316" opacity="0.8"/>
-        <text x="179" y="48" text-anchor="middle" fill="#fff" font-size="16" font-weight="800">SAML 2.0</text>
-        <text x="50" y="90" fill="var(--foreground, #eee)" font-size="11">&#x1F4C4; Data Format: <tspan font-weight="700" fill="#f97316">XML</tspan></text>
-        <text x="50" y="115" fill="var(--foreground, #eee)" font-size="11">&#x1F4E6; Token: <tspan font-weight="700" fill="#f97316">XML Assertion</tspan></text>
-        <text x="50" y="140" fill="var(--foreground, #eee)" font-size="11">&#x1F4C5; Since: <tspan font-weight="700" fill="#f97316">2005</tspan></text>
-        <text x="50" y="165" fill="var(--foreground, #eee)" font-size="11">&#x1F3E2; Best for: <tspan font-weight="700" fill="#f97316">Enterprise SSO</tspan></text>
-        <text x="50" y="190" fill="var(--foreground, #eee)" font-size="11">&#x1F4F1; Mobile: <tspan font-weight="700" fill="#ef4444">Poor</tspan></text>
-        <text x="50" y="215" fill="var(--foreground, #eee)" font-size="11">&#x2699;&#xFE0F; Complexity: <tspan font-weight="700" fill="#f97316">High</tspan></text>
-        <text x="50" y="240" fill="var(--foreground, #eee)" font-size="11">&#x1F50D; Discovery: <tspan font-weight="700" fill="#f97316">Manual config</tspan></text>
-        <!-- OIDC Card -->
-        <rect x="362" y="20" width="318" height="240" rx="12" fill="#3b82f6" opacity="0.1" stroke="#3b82f6" stroke-width="1.5"/>
-        <rect x="362" y="20" width="318" height="45" rx="12" fill="#3b82f6" opacity="0.8"/>
-        <rect x="362" y="50" width="318" height="15" fill="#3b82f6" opacity="0.8"/>
-        <text x="521" y="48" text-anchor="middle" fill="#fff" font-size="16" font-weight="800">OpenID Connect</text>
-        <text x="392" y="90" fill="var(--foreground, #eee)" font-size="11">&#x1F4C4; Data Format: <tspan font-weight="700" fill="#3b82f6">JSON / JWT</tspan></text>
-        <text x="392" y="115" fill="var(--foreground, #eee)" font-size="11">&#x1F4E6; Token: <tspan font-weight="700" fill="#3b82f6">JWT (ID Token)</tspan></text>
-        <text x="392" y="140" fill="var(--foreground, #eee)" font-size="11">&#x1F4C5; Since: <tspan font-weight="700" fill="#3b82f6">2014</tspan></text>
-        <text x="392" y="165" fill="var(--foreground, #eee)" font-size="11">&#x1F3E2; Best for: <tspan font-weight="700" fill="#3b82f6">Modern apps, mobile</tspan></text>
-        <text x="392" y="190" fill="var(--foreground, #eee)" font-size="11">&#x1F4F1; Mobile: <tspan font-weight="700" fill="#22c55e">Excellent</tspan></text>
-        <text x="392" y="215" fill="var(--foreground, #eee)" font-size="11">&#x2699;&#xFE0F; Complexity: <tspan font-weight="700" fill="#3b82f6">Medium</tspan></text>
-        <text x="392" y="240" fill="var(--foreground, #eee)" font-size="11">&#x1F50D; Discovery: <tspan font-weight="700" fill="#22c55e">.well-known endpoint</tspan></text>
-        <!-- VS badge -->
-        <circle cx="350" cy="140" r="20" fill="var(--background, #0a0a0a)" stroke="var(--border, #333)" stroke-width="2"/>
-        <text x="350" y="145" text-anchor="middle" fill="var(--foreground, #eee)" font-size="11" font-weight="800">VS</text>
-      </svg>
+      <!-- SAML vs OIDC (Interactive Cards) -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">SAML 2.0 vs OpenID Connect — At a Glance</div>
+        <div class="vs-cards">
+          <div class="vs-card saml">
+            <div class="vs-card-header">SAML 2.0</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4C4;</span>Data Format<span class="vs-row-value" style="color:#f97316">XML</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4E6;</span>Token Type<span class="vs-row-value" style="color:#f97316">XML Assertion</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4C5;</span>Since<span class="vs-row-value" style="color:#f97316">2005</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3E2;</span>Best For<span class="vs-row-value" style="color:#f97316">Enterprise SSO</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4F1;</span>Mobile<span class="vs-row-value" style="color:#ef4444">Poor</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2699;</span>Complexity<span class="vs-row-value" style="color:#f97316">High</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F50D;</span>Discovery<span class="vs-row-value" style="color:#f97316">Manual config</span></div>
+            </div>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="vs-card oidc">
+            <div class="vs-card-header">OpenID Connect</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4C4;</span>Data Format<span class="vs-row-value" style="color:#3b82f6">JSON / JWT</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4E6;</span>Token Type<span class="vs-row-value" style="color:#3b82f6">JWT (ID Token)</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4C5;</span>Since<span class="vs-row-value" style="color:#3b82f6">2014</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3E2;</span>Best For<span class="vs-row-value" style="color:#3b82f6">Modern apps</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4F1;</span>Mobile<span class="vs-row-value" style="color:#22c55e">Excellent</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2699;</span>Complexity<span class="vs-row-value" style="color:#3b82f6">Medium</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F50D;</span>Discovery<span class="vs-row-value" style="color:#22c55e">.well-known</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <!-- Decision Tree Flowchart -->
-      <svg viewBox="0 0 700 360" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;margin:2rem auto;display:block;font-family:system-ui,sans-serif;" role="img" aria-label="Decision tree for choosing between SAML and OIDC">
-        <rect width="700" height="360" rx="16" fill="var(--muted, #1e1e2e)" opacity="0.5"/>
-        <text x="350" y="28" text-anchor="middle" fill="var(--foreground, #eee)" font-size="14" font-weight="700">Which Protocol Should You Use?</text>
-        <!-- Start -->
-        <rect x="255" y="42" width="190" height="38" rx="19" fill="#7c3aed" opacity="0.9"/>
-        <text x="350" y="66" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">What are you building?</text>
-        <!-- Branch 1: Enterprise B2B -->
-        <line x1="300" y1="80" x2="130" y2="115" stroke="#f97316" stroke-width="1.5"/>
-        <rect x="30" y="110" width="200" height="36" rx="8" fill="var(--background, #0a0a0a)" stroke="#f97316" stroke-width="1.5"/>
-        <text x="130" y="132" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">Enterprise B2B SaaS?</text>
-        <line x1="130" y1="146" x2="130" y2="175" stroke="#f97316" stroke-width="1.5"/>
-        <polygon points="124,170 130,180 136,170" fill="#f97316"/>
-        <rect x="40" y="180" width="180" height="40" rx="8" fill="#f97316" opacity="0.85"/>
-        <text x="130" y="198" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">Use SAML</text>
-        <text x="130" y="212" text-anchor="middle" fill="#ffe0c4" font-size="8">(+ OIDC optional)</text>
-        <!-- Branch 2: Modern/Mobile -->
-        <line x1="400" y1="80" x2="560" y2="115" stroke="#3b82f6" stroke-width="1.5"/>
-        <rect x="460" y="110" width="200" height="36" rx="8" fill="var(--background, #0a0a0a)" stroke="#3b82f6" stroke-width="1.5"/>
-        <text x="560" y="132" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">Consumer / Mobile app?</text>
-        <line x1="560" y1="146" x2="560" y2="175" stroke="#3b82f6" stroke-width="1.5"/>
-        <polygon points="554,170 560,180 566,170" fill="#3b82f6"/>
-        <rect x="470" y="180" width="180" height="40" rx="8" fill="#3b82f6" opacity="0.85"/>
-        <text x="560" y="198" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">Use OIDC</text>
-        <text x="560" y="212" text-anchor="middle" fill="#d4e4ff" font-size="8">(simpler, JWT-based)</text>
-        <!-- Branch 3: Both -->
-        <line x1="350" y1="80" x2="350" y2="248" stroke="#22c55e" stroke-width="1.5"/>
-        <rect x="250" y="242" width="200" height="36" rx="8" fill="var(--background, #0a0a0a)" stroke="#22c55e" stroke-width="1.5"/>
-        <text x="350" y="264" text-anchor="middle" fill="var(--foreground, #eee)" font-size="10" font-weight="600">Both enterprise + consumer?</text>
-        <line x1="350" y1="278" x2="350" y2="305" stroke="#22c55e" stroke-width="1.5"/>
-        <polygon points="344,300 350,310 356,300" fill="#22c55e"/>
-        <rect x="240" y="310" width="220" height="40" rx="8" fill="#22c55e" opacity="0.85"/>
-        <text x="350" y="328" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">Support Both</text>
-        <text x="350" y="342" text-anchor="middle" fill="#d4ffd4" font-size="8">(Use Auth0/Okta as a bridge)</text>
-        <!-- Labels on branches -->
-        <text x="60" y="100" fill="#f97316" font-size="9" font-weight="600">Yes</text>
-        <text x="620" y="100" fill="#3b82f6" font-size="9" font-weight="600">Yes</text>
-        <text x="360" y="240" fill="#22c55e" font-size="9" font-weight="600">Yes</text>
-      </svg>
+      <!-- Decision Tree (Interactive) -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Which Protocol Should You Use?</div>
+        <div class="dtree">
+          <div class="dtree-node question">What are you building?</div>
+          <div class="dtree-branches">
+            <div class="dtree-branch">
+              <div class="dtree-label">Enterprise B2B SaaS?</div>
+              <div class="dtree-connector orange"></div>
+              <div class="dtree-answer saml">Use SAML<span class="dtree-answer-sub">(+ OIDC optional)</span></div>
+            </div>
+            <div class="dtree-branch">
+              <div class="dtree-label">Both enterprise + consumer?</div>
+              <div class="dtree-connector green"></div>
+              <div class="dtree-answer both">Support Both<span class="dtree-answer-sub">(Auth0/Okta as bridge)</span></div>
+            </div>
+            <div class="dtree-branch">
+              <div class="dtree-label">Consumer / Mobile app?</div>
+              <div class="dtree-connector blue"></div>
+              <div class="dtree-answer oidc">Use OIDC<span class="dtree-answer-sub">(simpler, JWT-based)</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <h2>Security Best Practices for Both</h2>
       <ul>
