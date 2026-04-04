@@ -174,10 +174,12 @@ export class HeaderComponent {
   searchComponent = viewChild(SearchComponent);
 
   toggleTheme() {
+    document.documentElement.classList.add('theme-transition');
     const dark = !this.isDark();
     this.isDark.set(dark);
     document.documentElement.classList.toggle('dark', dark);
     localStorage.setItem('theme', dark ? 'dark' : 'light');
+    setTimeout(() => document.documentElement.classList.remove('theme-transition'), 300);
   }
 
   openSearch() {
