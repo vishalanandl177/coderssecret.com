@@ -1,7 +1,8 @@
-import { Component, inject, DestroyRef } from '@angular/core';
+import { Component, inject, DestroyRef, AfterViewChecked, ElementRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BLOG_POSTS, CATEGORIES, BlogPost } from '../../models/blog-post.model';
+import { SeoService } from '../../services/seo.service';
 
 @Component({
   selector: 'app-blog-post',
@@ -174,9 +175,12 @@ import { BLOG_POSTS, CATEGORIES, BlogPost } from '../../models/blog-post.model';
     }
   `,
 })
-export class BlogPostComponent {
+export class BlogPostComponent implements AfterViewChecked {
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private seo = inject(SeoService);
+  private el = inject(ElementRef);
+  private copyButtonsAdded = false;
   post: BlogPost | undefined;
   relatedPosts: BlogPost[] = [];
   categoryName = '';
@@ -195,12 +199,51 @@ export class BlogPostComponent {
           this.relatedPosts = BLOG_POSTS
             .filter(p => p.id !== this.post!.id && (p.category === this.post!.category || p.tags.some(t => this.post!.tags.includes(t))))
             .slice(0, 2);
+          this.copyButtonsAdded = false;
+          this.seo.update({
+            title: this.post.title,
+            description: this.post.excerpt,
+            url: `/blog/${this.post.slug}`,
+            type: 'article',
+            article: {
+              author: this.post.author,
+              publishedTime: this.post.date,
+              tags: this.post.tags,
+            },
+          });
         } else {
           this.relatedPosts = [];
           this.categoryName = '';
           this.categoryColor = '#6b7280';
         }
       });
+  }
+
+  ngAfterViewChecked() {
+    if (this.post && !this.copyButtonsAdded) {
+      const preBlocks = this.el.nativeElement.querySelectorAll('pre');
+      if (preBlocks.length > 0) {
+        this.copyButtonsAdded = true;
+        preBlocks.forEach((pre: HTMLElement) => {
+          if (pre.querySelector('.copy-btn')) return;
+          pre.style.position = 'relative';
+          const btn = document.createElement('button');
+          btn.className = 'copy-btn';
+          btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+          btn.title = 'Copy code';
+          btn.addEventListener('click', () => {
+            const code = pre.querySelector('code')?.textContent ?? pre.textContent ?? '';
+            navigator.clipboard.writeText(code).then(() => {
+              btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+              setTimeout(() => {
+                btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+              }, 2000);
+            });
+          });
+          pre.appendChild(btn);
+        });
+      }
+    }
   }
 
   getCategoryColor(slug: string): string {

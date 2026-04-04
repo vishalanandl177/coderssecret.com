@@ -1,6 +1,7 @@
-import { Component, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BLOG_POSTS, CATEGORIES, BlogPost } from '../../models/blog-post.model';
+import { SeoService } from '../../services/seo.service';
 
 @Component({
   selector: 'app-home',
@@ -270,11 +271,20 @@ import { BLOG_POSTS, CATEGORIES, BlogPost } from '../../models/blog-post.model';
   `,
 })
 export class HomeComponent {
+  private seo = inject(SeoService);
   featuredPost: BlogPost | undefined = BLOG_POSTS.find(p => p.featured);
   latestPosts = BLOG_POSTS.filter(p => p !== this.featuredPost).slice(0, 4);
   categories = CATEGORIES.filter(c => c.slug !== '');
   totalPosts = BLOG_POSTS.length;
   uniqueTags = new Set(BLOG_POSTS.flatMap(p => p.tags)).size;
+
+  constructor() {
+    this.seo.update({
+      title: 'CodersSecret',
+      description: 'Deep dives into Angular, Python, DevOps, and the modern web. Written by developers, for developers who love building things.',
+      url: '/',
+    });
+  }
 
   getCategoryColor(slug: string): string {
     const colors: Record<string, string> = {

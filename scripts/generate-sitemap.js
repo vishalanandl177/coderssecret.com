@@ -1,0 +1,87 @@
+/**
+ * Generates sitemap.xml from blog post data.
+ * Run after build: node scripts/generate-sitemap.js
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+const SITE_URL = 'https://coderssecret.com';
+const OUTPUT_DIR = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'browser');
+
+// Read the blog post model to extract slugs and dates
+const modelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'blog-post.model.ts');
+const modelContent = fs.readFileSync(modelPath, 'utf-8');
+
+// Extract slugs and dates from the model
+const slugRegex = /slug:\s*'([^']+)'/g;
+const dateRegex = /date:\s*'([^']+)'/g;
+const categoryRegex = /category:\s*'([^']+)'/g;
+
+const slugs = [];
+const dates = [];
+const categories = new Set();
+let match;
+
+while ((match = slugRegex.exec(modelContent)) !== null) {
+  slugs.push(match[1]);
+}
+while ((match = dateRegex.exec(modelContent)) !== null) {
+  dates.push(match[1]);
+}
+while ((match = categoryRegex.exec(modelContent)) !== null) {
+  categories.add(match[1]);
+}
+
+const today = new Date().toISOString().split('T')[0];
+
+let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${SITE_URL}/</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${SITE_URL}/blog</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+`;
+
+// Category pages
+for (const cat of categories) {
+  xml += `  <url>
+    <loc>${SITE_URL}/category/${cat}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+`;
+}
+
+// Blog post pages
+for (let i = 0; i < slugs.length; i++) {
+  const date = dates[i] || today;
+  xml += `  <url>
+    <loc>${SITE_URL}/blog/${slugs[i]}</loc>
+    <lastmod>${date}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+`;
+}
+
+xml += `</urlset>
+`;
+
+// Write to build output
+if (fs.existsSync(OUTPUT_DIR)) {
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'sitemap.xml'), xml);
+  console.log(`✅ Sitemap generated with ${slugs.length} blog posts and ${categories.size} categories.`);
+} else {
+  console.error('❌ Build output directory not found. Run ng build first.');
+  process.exit(1);
+}

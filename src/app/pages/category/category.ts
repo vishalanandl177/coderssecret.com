@@ -1,6 +1,7 @@
-import { Component, inject, computed, signal } from '@angular/core';
+import { Component, inject, computed, signal, effect } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BLOG_POSTS, CATEGORIES } from '../../models/blog-post.model';
+import { SeoService } from '../../services/seo.service';
 
 @Component({
   selector: 'app-category',
@@ -130,6 +131,7 @@ import { BLOG_POSTS, CATEGORIES } from '../../models/blog-post.model';
 })
 export class CategoryComponent {
   private route = inject(ActivatedRoute);
+  private seo = inject(SeoService);
   categories = CATEGORIES;
 
   categorySlug = signal(this.route.snapshot.paramMap.get('slug') ?? '');
@@ -146,6 +148,18 @@ export class CategoryComponent {
     };
     return colors[this.categorySlug()] ?? '#6b7280';
   });
+
+  constructor() {
+    effect(() => {
+      const name = this.categoryName();
+      const count = this.filteredPosts().length;
+      this.seo.update({
+        title: `${name} Articles`,
+        description: `Browse ${count} article${count !== 1 ? 's' : ''} about ${name} on CodersSecret.`,
+        url: `/category/${this.categorySlug()}`,
+      });
+    });
+  }
 
   filteredPosts = computed(() => {
     const slug = this.categorySlug();

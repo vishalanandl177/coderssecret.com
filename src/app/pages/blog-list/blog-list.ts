@@ -1,6 +1,7 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BLOG_POSTS, CATEGORIES } from '../../models/blog-post.model';
+import { SeoService } from '../../services/seo.service';
 
 @Component({
   selector: 'app-blog-list',
@@ -146,9 +147,18 @@ import { BLOG_POSTS, CATEGORIES } from '../../models/blog-post.model';
   `,
 })
 export class BlogListComponent {
+  private seo = inject(SeoService);
   categories = CATEGORIES;
   activeCategory = signal('');
   totalPosts = BLOG_POSTS.length;
+
+  constructor() {
+    this.seo.update({
+      title: 'All Articles',
+      description: 'Browse all articles on Angular, Python, DevOps, and modern web development.',
+      url: '/blog',
+    });
+  }
 
   filteredPosts = computed(() => {
     const cat = this.activeCategory();
