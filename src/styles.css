@@ -54,16 +54,16 @@
   }
   html {
     scroll-behavior: smooth;
+    text-rendering: optimizeSpeed;
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* Smooth theme transition for all elements */
-  *,
-  *::before,
-  *::after {
+  /* Smooth theme transition - only on theme toggle, not during page load */
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
     transition-property: background-color, border-color, color, box-shadow;
     transition-duration: 0.2s;
     transition-timing-function: ease;
@@ -74,15 +74,17 @@
     animation-fill-mode: both;
   }
 
-  /* Animated blob */
+  /* Animated blob - GPU accelerated */
   @keyframes blob {
-    0% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
-    100% { transform: translate(0, 0) scale(1); }
+    0% { transform: translate3d(0, 0, 0) scale(1); }
+    33% { transform: translate3d(30px, -50px, 0) scale(1.1); }
+    66% { transform: translate3d(-20px, 20px, 0) scale(0.9); }
+    100% { transform: translate3d(0, 0, 0) scale(1); }
   }
   .animate-blob {
     animation: blob 8s ease-in-out infinite;
+    will-change: transform;
+    contain: layout style paint;
   }
   .animation-delay-2000 {
     animation-delay: 2s;
@@ -100,6 +102,16 @@
   }
   .animate-ping {
     animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+    will-change: transform, opacity;
+  }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-blob,
+    .animate-ping,
+    .animate-in {
+      animation: none !important;
+    }
   }
 
   /* Line clamp utility */
@@ -114,5 +126,16 @@
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+  }
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  /* Optimize image rendering */
+  img {
+    content-visibility: auto;
   }
 }
