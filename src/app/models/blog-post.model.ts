@@ -24,12 +24,247 @@ export const CATEGORIES = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    id: '10',
+    title: 'Headless APIs vs Programmatic APIs: What They Are and When to Use Each',
+    slug: 'headless-api-vs-programmatic-api',
+    excerpt: 'Understand the difference between headless APIs and programmatic APIs, how they work under the hood, and when to choose one over the other for your architecture.',
+    category: 'backend',
+    featured: true,
+    content: `
+      <p>In modern software architecture, the word "API" gets thrown around a lot — but not all APIs serve the same purpose. Two terms that often cause confusion are <strong>headless APIs</strong> and <strong>programmatic APIs</strong>. They overlap in some ways, but they solve fundamentally different problems. Understanding the distinction will help you make better architectural decisions.</p>
+
+      <h2>What is a Headless API?</h2>
+      <p>A <strong>headless API</strong> is the backend of a system that has been <em>decoupled from its frontend</em> (the "head"). The API serves content or functionality without dictating how it's presented. The term comes from "headless CMS" but applies broadly to any system where the presentation layer is separated from the data/logic layer.</p>
+      <p>In a traditional (monolithic) architecture, the backend renders HTML pages directly. In a headless architecture, the backend only exposes APIs — and any frontend (web app, mobile app, kiosk, smartwatch) can consume them independently.</p>
+
+      <h2>Headless Architecture in Practice</h2>
+      <pre><code># Traditional (coupled) architecture:
+User → Browser → Server (renders HTML + data) → Browser displays page
+
+# Headless (decoupled) architecture:
+User → React/Angular App → Headless API (JSON) → App renders UI
+User → Mobile App ──────→ Same Headless API ──→ App renders UI
+User → Smart Display ───→ Same Headless API ──→ Display renders UI</code></pre>
+
+      <h2>Headless CMS Example</h2>
+      <p>The most common example is a <strong>headless CMS</strong> like Strapi, Contentful, or Sanity. Instead of coupling content to a specific theme or template engine, the CMS exposes content via REST or GraphQL:</p>
+      <pre><code># Strapi headless CMS — fetching blog posts
+GET https://cms.example.com/api/articles?populate=*
+
+{
+  "data": [
+    {
+      "id": 1,
+      "attributes": {
+        "title": "Getting Started with Docker",
+        "content": "Docker containers package your application...",
+        "slug": "getting-started-with-docker",
+        "publishedAt": "2026-04-01T10:00:00.000Z",
+        "author": {
+          "data": {
+            "attributes": { "name": "Jane Developer" }
+          }
+        }
+      }
+    }
+  ]
+}</code></pre>
+      <p>The same API feeds your website, mobile app, and even a digital signage display — each with its own UI.</p>
+
+      <h2>Headless Commerce Example</h2>
+      <p>E-commerce platforms like <strong>Shopify Storefront API</strong>, <strong>commercetools</strong>, and <strong>Medusa</strong> follow the same pattern:</p>
+      <pre><code># Shopify Storefront API — headless commerce
+query {
+  products(first: 10) {
+    edges {
+      node {
+        title
+        description
+        priceRange {
+          minVariantPrice { amount currencyCode }
+        }
+        images(first: 1) {
+          edges { node { url altText } }
+        }
+      }
+    }
+  }
+}</code></pre>
+      <p>You get full control over the shopping experience while the headless backend handles inventory, payments, and order management.</p>
+
+      <h2>What is a Programmatic API?</h2>
+      <p>A <strong>programmatic API</strong> is an interface designed for <em>machine-to-machine interaction</em> — it lets software systems communicate, automate tasks, and integrate with each other. The key distinction: programmatic APIs are built for developers and scripts, not for serving content to end-user interfaces.</p>
+      <p>Think of it as the difference between a restaurant menu (headless API — content for humans to consume through some interface) and a kitchen supply chain system (programmatic API — machines talking to machines).</p>
+
+      <h2>Programmatic API Examples</h2>
+      <pre><code># Stripe API — programmatic payment processing
+import stripe
+stripe.api_key = "sk_live_..."
+
+# Create a charge programmatically
+charge = stripe.PaymentIntent.create(
+    amount=2000,       # $20.00
+    currency="usd",
+    payment_method="pm_card_visa",
+    confirm=True,
+)
+
+# Twilio API — programmatic SMS
+from twilio.rest import Client
+client = Client("ACCOUNT_SID", "AUTH_TOKEN")
+
+message = client.messages.create(
+    body="Your order has shipped!",
+    from_="+15551234567",
+    to="+15559876543",
+)
+
+# AWS S3 API — programmatic file storage
+import boto3
+s3 = boto3.client('s3')
+
+# Upload a file
+s3.upload_file('report.pdf', 'my-bucket', 'reports/2026/report.pdf')
+
+# Generate a pre-signed URL
+url = s3.generate_presigned_url(
+    'get_object',
+    Params={'Bucket': 'my-bucket', 'Key': 'reports/2026/report.pdf'},
+    ExpiresIn=3600,
+)</code></pre>
+
+      <h2>Programmatic APIs for Automation</h2>
+      <p>Programmatic APIs shine in automation, CI/CD, and infrastructure management:</p>
+      <pre><code># GitHub API — automate repository management
+curl -X POST https://api.github.com/repos/owner/repo/issues \\
+  -H "Authorization: Bearer ghp_xxxx" \\
+  -d '{
+    "title": "Automated bug report",
+    "body": "Detected by monitoring at 2026-04-04T03:00:00Z",
+    "labels": ["bug", "automated"]
+  }'
+
+# Kubernetes API — programmatic cluster management
+from kubernetes import client, config
+
+config.load_kube_config()
+v1 = client.AppsV1Api()
+
+# Scale a deployment programmatically
+v1.patch_namespaced_deployment_scale(
+    name="web-app",
+    namespace="production",
+    body={"spec": {"replicas": 5}},
+)</code></pre>
+
+      <h2>The Key Differences</h2>
+      <pre><code>Aspect               Headless API                  Programmatic API
+──────────────────   ───────────────────────────   ───────────────────────────
+Primary Purpose      Serve content/data to UIs     Enable machine-to-machine
+                                                   interaction and automation
+Consumer             Frontend apps (web, mobile)   Backend services, scripts,
+                                                   CI/CD pipelines
+Data Flow            Content out to displays       Commands and data between
+                                                   systems
+Examples             Headless CMS, headless         Payment APIs, cloud APIs,
+                     commerce, headless auth        messaging APIs, CI/CD APIs
+Response Format      Content-rich JSON/GraphQL     Action-oriented responses
+                     (articles, products, users)   (receipts, status, tokens)
+Who Initiates?       End user (via frontend)       Another system or script
+Caching              Heavy (content rarely changes) Light (actions are unique)
+Idempotency          GET-heavy (reads)              POST/PUT-heavy (writes)</code></pre>
+
+      <h2>Where They Overlap</h2>
+      <p>The lines blur in practice. Many systems expose <em>both</em> types of API:</p>
+      <ul>
+        <li><strong>Shopify</strong> has a <em>Storefront API</em> (headless — serve products to your custom frontend) and an <em>Admin API</em> (programmatic — manage inventory, fulfill orders, create discounts).</li>
+        <li><strong>Stripe</strong> has a <em>Payment Intents API</em> (programmatic — process payments) but also <em>Stripe Elements</em> that consume a headless-style API to render payment forms.</li>
+        <li><strong>Auth0/Firebase Auth</strong> provides <em>headless authentication</em> (bring your own login UI) and <em>programmatic management APIs</em> (create users, assign roles via scripts).</li>
+      </ul>
+
+      <h2>Building a Headless API</h2>
+      <p>If you're building a headless API, design it for content delivery:</p>
+      <pre><code># Django REST Framework — headless blog API
+from rest_framework import serializers, viewsets
+from .models import Article
+
+class ArticleSerializer(serializers.ModelSerializer):
+    author_name = serializers.CharField(source='author.name', read_only=True)
+
+    class Meta:
+        model = Article
+        fields = ['id', 'title', 'slug', 'content', 'excerpt',
+                  'author_name', 'published_at', 'tags', 'cover_image']
+
+class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Article.objects.filter(status='published').order_by('-published_at')
+    serializer_class = ArticleSerializer
+    lookup_field = 'slug'</code></pre>
+      <p>Key design principles for headless APIs:</p>
+      <ul>
+        <li><strong>Content-first responses:</strong> Return rich, structured content ready for rendering.</li>
+        <li><strong>Flexible querying:</strong> Support filtering, pagination, field selection, and content relationships.</li>
+        <li><strong>CDN-friendly:</strong> Set proper cache headers. Headless content is highly cacheable.</li>
+        <li><strong>Multi-channel ready:</strong> Don't assume any particular frontend — return data that works for web, mobile, and IoT.</li>
+      </ul>
+
+      <h2>Building a Programmatic API</h2>
+      <p>If you're building a programmatic API, design it for automation:</p>
+      <pre><code># FastAPI — programmatic deployment API
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class DeployRequest(BaseModel):
+    service: str
+    version: str
+    environment: str  # staging, production
+    replicas: int = 2
+
+class DeployResponse(BaseModel):
+    deployment_id: str
+    status: str
+    message: str
+
+@app.post("/api/v1/deployments", response_model=DeployResponse)
+async def create_deployment(req: DeployRequest):
+    deployment_id = trigger_deployment(req)
+    return DeployResponse(
+        deployment_id=deployment_id,
+        status="in_progress",
+        message=f"Deploying {req.service}:{req.version} to {req.environment}",
+    )</code></pre>
+      <p>Key design principles for programmatic APIs:</p>
+      <ul>
+        <li><strong>Idempotency keys:</strong> Allow clients to safely retry requests without duplicate side effects.</li>
+        <li><strong>Webhooks:</strong> Notify callers when async operations complete instead of requiring polling.</li>
+        <li><strong>Rate limiting:</strong> Protect against runaway scripts or misconfigured automations.</li>
+        <li><strong>Versioning:</strong> Programmatic consumers can't "see" breaking changes. Use versioned URLs or headers.</li>
+        <li><strong>SDKs:</strong> Provide client libraries in popular languages. Programmatic consumers prefer typed SDKs over raw HTTP.</li>
+      </ul>
+
+      <h2>When to Use Which</h2>
+      <ul>
+        <li><strong>Use a headless API when:</strong> You want to decouple your content/data from the presentation layer. You need to serve the same content to multiple frontends (website, app, smart device). You're building a CMS, e-commerce store, or any content-driven application.</li>
+        <li><strong>Use a programmatic API when:</strong> You need systems to talk to each other. You're building integrations, automations, or developer tools. The consumer is a script, a CI/CD pipeline, or another backend service — not a human looking at a screen.</li>
+        <li><strong>Use both when:</strong> You're building a platform. Expose headless APIs for frontend developers building UIs, and programmatic APIs for backend developers building automations and integrations.</li>
+      </ul>
+
+      <p>The distinction matters because it shapes your API design — response structure, caching strategy, authentication model, documentation style, and error handling all differ. A headless API optimizes for content delivery; a programmatic API optimizes for reliable machine interaction. Know which one you're building, and design accordingly.</p>
+    `,
+    author: 'Coder Secret',
+    date: '2026-04-04',
+    readTime: '14 min read',
+    tags: ['API Design', 'Headless', 'Backend', 'Architecture', 'REST'],
+    coverImage: '',
+  },
+  {
     id: '9',
     title: 'Kubernetes Operators: Build Your Own Operator Using Golang',
     slug: 'kubernetes-operators-build-your-own-with-golang',
     excerpt: 'Learn what Kubernetes Operators are, why they matter, and how to build your own custom operator from scratch using Golang and the Operator SDK.',
     category: 'devops',
-    featured: true,
     content: `
       <p>Kubernetes has become the de facto standard for container orchestration, but managing complex stateful applications on Kubernetes often requires more than just Deployments and Services. That's where <strong>Kubernetes Operators</strong> come in — they encode human operational knowledge into software that extends the Kubernetes API itself.</p>
 
