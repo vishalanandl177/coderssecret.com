@@ -77,9 +77,20 @@ for (let i = 0; i < slugs.length; i++) {
 xml += `</urlset>
 `;
 
+// Sitemap index (so both /sitemap.xml and /sitemap_index.xml work)
+const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>${SITE_URL}/sitemap.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+</sitemapindex>
+`;
+
 // Write to build output
 if (fs.existsSync(OUTPUT_DIR)) {
   fs.writeFileSync(path.join(OUTPUT_DIR, 'sitemap.xml'), xml);
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'sitemap_index.xml'), sitemapIndex);
   console.log(`✅ Sitemap generated with ${slugs.length} blog posts and ${categories.size} categories.`);
 } else {
   console.error('❌ Build output directory not found. Run ng build first.');

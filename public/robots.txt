@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://coderssecret.com/sitemap.xml
+Sitemap: https://coderssecret.com/sitemap_index.xml
