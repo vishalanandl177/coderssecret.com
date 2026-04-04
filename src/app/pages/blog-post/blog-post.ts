@@ -108,10 +108,10 @@ import { DOCUMENT } from '@angular/common';
             <ul class="px-5 pb-4 space-y-1">
               @for (item of toc; track item.id) {
                 <li>
-                  <a [href]="'#' + item.id"
-                     class="block rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent/50">
+                  <button (click)="scrollToHeading(item.id)"
+                     class="block w-full text-left rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent/50 cursor-pointer">
                     {{ item.text }}
-                  </a>
+                  </button>
                 </li>
               }
             </ul>
@@ -373,6 +373,13 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
           pre.appendChild(btn);
         });
       }
+    }
+  }
+
+  scrollToHeading(id: string) {
+    const el = this.doc.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 
