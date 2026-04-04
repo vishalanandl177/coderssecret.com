@@ -2998,6 +2998,393 @@ crontab -r
 # Edit crontab for a specific user (requires root)
 crontab -u username -e</code></pre>
 
+      <h2>Cron Jobs on Different Platforms</h2>
+      <p>Cron syntax is universal, but the setup differs across operating systems and environments. Here's how to get cron running on each platform.</p>
+
+      <!-- Platform Pipeline -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Cron Across Platforms</div>
+        <div class="pipeline">
+          <div class="pipeline-step" style="background:#f97316;--i:0"><span class="pipeline-step-icon">&#x1F427;</span>Linux<span class="pipeline-step-sub">crontab (built-in)</span></div>
+          <div class="pipeline-step" style="background:#6b7280;--i:1"><span class="pipeline-step-icon">&#x1F34E;</span>macOS<span class="pipeline-step-sub">crontab + launchd</span></div>
+          <div class="pipeline-step" style="background:#3b82f6;--i:2"><span class="pipeline-step-icon">&#x1FA9F;</span>Windows<span class="pipeline-step-sub">Task Scheduler</span></div>
+          <div class="pipeline-step" style="background:#22c55e;--i:3"><span class="pipeline-step-icon">&#x1F433;</span>Docker<span class="pipeline-step-sub">Entrypoint cron</span></div>
+          <div class="pipeline-step" style="background:#7c3aed;--i:4"><span class="pipeline-step-icon">&#x2638;</span>Kubernetes<span class="pipeline-step-sub">CronJob resource</span></div>
+        </div>
+      </div>
+
+      <h2>Linux (Ubuntu / Debian / CentOS / RHEL)</h2>
+      <p>Cron is pre-installed on virtually all Linux distributions. The cron daemon (<code>crond</code> or <code>cron</code>) runs automatically.</p>
+      <pre><code># Check if cron is running
+systemctl status cron        # Ubuntu/Debian
+systemctl status crond       # CentOS/RHEL
+
+# If not running, start and enable it
+sudo systemctl start cron
+sudo systemctl enable cron
+
+# Edit your crontab
+crontab -e
+
+# Add your jobs — e.g., backup every night at 2 AM
+0 2 * * * /home/deploy/scripts/backup.sh >> /var/log/backup.log 2>&1
+
+# System-wide cron jobs go in /etc/crontab or /etc/cron.d/
+# These require specifying the user:
+# min hour day month dow USER command
+0 3 * * * root /usr/local/bin/cleanup.sh
+
+# You can also drop scripts into these directories:
+# /etc/cron.daily/    — runs once a day
+# /etc/cron.hourly/   — runs once an hour
+# /etc/cron.weekly/   — runs once a week
+# /etc/cron.monthly/  — runs once a month
+sudo cp my-script.sh /etc/cron.daily/
+sudo chmod +x /etc/cron.daily/my-script.sh</code></pre>
+
+      <h2>macOS</h2>
+      <p>macOS has cron built-in, but Apple recommends <code>launchd</code> for modern scheduling. Both work — here's how to use each.</p>
+      <pre><code># Option 1: crontab (works exactly like Linux)
+crontab -e
+# Add: 0 9 * * 1-5 /Users/you/scripts/morning-report.sh
+
+# ⚠️ macOS may prompt for "Full Disk Access" — grant it in:
+# System Settings → Privacy & Security → Full Disk Access → cron
+
+# Option 2: launchd (Apple's recommended approach)
+# Create a plist file:
+cat > ~/Library/LaunchAgents/com.you.backup.plist << 'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.you.backup</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/you/scripts/backup.sh</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>2</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/tmp/backup.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/backup-error.log</string>
+</dict>
+</plist>
+PLIST
+
+# Load the job
+launchctl load ~/Library/LaunchAgents/com.you.backup.plist
+
+# Unload (disable)
+launchctl unload ~/Library/LaunchAgents/com.you.backup.plist
+
+# List all loaded jobs
+launchctl list | grep com.you</code></pre>
+
+      <h2>Windows</h2>
+      <p>Windows doesn't have cron, but <strong>Task Scheduler</strong> provides the same functionality. You can set it up via GUI or command line.</p>
+      <pre><code># PowerShell: Create a scheduled task (equivalent of a cron job)
+
+# Example: Run a Python script every day at 3 AM
+\$action = New-ScheduledTaskAction \`
+  -Execute "C:\\Python312\\python.exe" \`
+  -Argument "C:\\scripts\\daily-backup.py"
+
+\$trigger = New-ScheduledTaskTrigger -Daily -At 3:00AM
+
+\$settings = New-ScheduledTaskSettingsSet \`
+  -StartWhenAvailable \`
+  -DontStopOnIdleEnd
+
+Register-ScheduledTask \`
+  -TaskName "DailyBackup" \`
+  -Action \$action \`
+  -Trigger \$trigger \`
+  -Settings \$settings \`
+  -Description "Runs daily backup at 3 AM"
+
+# List all scheduled tasks
+Get-ScheduledTask | Where-Object {\$_.TaskName -like "*Backup*"}
+
+# Run a task immediately (for testing)
+Start-ScheduledTask -TaskName "DailyBackup"
+
+# Delete a task
+Unregister-ScheduledTask -TaskName "DailyBackup" -Confirm:\$false
+
+# ─────────────────────────────────────────────
+# Alternative: Use schtasks.exe (works in CMD too)
+schtasks /create /tn "DailyBackup" /tr "python C:\\scripts\\backup.py" ^
+  /sc daily /st 03:00
+
+# Using WSL? You can use Linux cron inside WSL:
+wsl crontab -e</code></pre>
+
+      <h2>Docker</h2>
+      <p>Running cron inside Docker requires a slightly different approach since containers are single-process by default.</p>
+      <pre><code># Dockerfile with cron
+FROM python:3.12-slim
+
+# Install cron
+RUN apt-get update && apt-get install -y cron && rm -rf /var/lib/apt/lists/*
+
+# Copy your scripts
+COPY scripts/ /app/scripts/
+RUN chmod +x /app/scripts/*.sh
+
+# Create the crontab file
+COPY crontab /etc/cron.d/app-cron
+RUN chmod 0644 /etc/cron.d/app-cron
+RUN crontab /etc/cron.d/app-cron
+
+# Create log file
+RUN touch /var/log/cron.log
+
+# Start cron in the foreground + tail logs
+CMD cron && tail -f /var/log/cron.log</code></pre>
+      <pre><code># crontab file (placed at project root)
+# Note: cron in Docker doesn't inherit ENV vars — pass them explicitly
+
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+
+# Run every 5 minutes
+*/5 * * * * /app/scripts/health-check.sh >> /var/log/cron.log 2>&1
+
+# Daily backup at midnight
+0 0 * * * /app/scripts/backup.sh >> /var/log/cron.log 2>&1
+
+# IMPORTANT: Must have an empty line at the end
+</code></pre>
+      <pre><code># Better approach: Use Docker's --restart with a lightweight scheduler
+# or use a sidecar pattern in Docker Compose:
+
+# docker-compose.yml
+version: '3.8'
+services:
+  app:
+    build: .
+    # ... your main app
+
+  scheduler:
+    build: .
+    command: cron -f  # Run cron in foreground
+    volumes:
+      - ./scripts:/app/scripts
+    depends_on:
+      - app</code></pre>
+
+      <h2>Kubernetes CronJob</h2>
+      <p>Kubernetes has a first-class <strong>CronJob</strong> resource that runs Jobs on a cron schedule. This is the production-grade way to run scheduled tasks in a cluster — no need to install cron in your containers.</p>
+
+      <!-- K8s CronJob Architecture -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Kubernetes CronJob Architecture</div>
+        <div class="layer-diagram">
+          <div class="layer-item" style="background:#7c3aed">CronJob Resource<span class="layer-item-sub">Defines the schedule (cron syntax) and the Job template</span></div>
+          <div class="layer-item" style="background:#3b82f6">CronJob Controller<span class="layer-item-sub">Watches the clock, creates Jobs when the schedule matches</span></div>
+          <div class="layer-item" style="background:#f97316">Job<span class="layer-item-sub">Created automatically, manages Pod lifecycle and retries</span></div>
+          <div class="layer-item" style="background:#22c55e">Pod<span class="layer-item-sub">Runs your container to completion, then exits</span></div>
+        </div>
+      </div>
+
+      <pre><code># cronjob.yaml — Kubernetes CronJob manifest
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: database-backup
+  namespace: production
+spec:
+  schedule: "0 3 * * *"              # Every day at 3 AM (same cron syntax!)
+  timeZone: "America/New_York"       # K8s 1.27+ supports time zones
+  concurrencyPolicy: Forbid          # Don't start new if previous still running
+  successfulJobsHistoryLimit: 3      # Keep last 3 successful runs
+  failedJobsHistoryLimit: 5          # Keep last 5 failed runs
+  startingDeadlineSeconds: 600       # Skip if more than 10 min late
+  jobTemplate:
+    spec:
+      backoffLimit: 3                # Retry up to 3 times on failure
+      activeDeadlineSeconds: 3600    # Kill if running longer than 1 hour
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: backup
+            image: your-registry/db-backup:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Starting backup at $(date)"
+              pg_dump \$DATABASE_URL > /backups/db-\$(date +%Y%m%d-%H%M%S).sql
+              echo "Backup completed at $(date)"
+            env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: url
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backups
+          volumes:
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: backup-pvc</code></pre>
+
+      <pre><code># Apply it
+kubectl apply -f cronjob.yaml
+
+# Check the CronJob
+kubectl get cronjobs -n production
+# NAME              SCHEDULE    SUSPEND   ACTIVE   LAST SCHEDULE
+# database-backup   0 3 * * *   False     0        3h
+
+# List Jobs created by this CronJob
+kubectl get jobs -n production -l job-name=database-backup
+# NAME                         COMPLETIONS   DURATION   AGE
+# database-backup-28571234     1/1           45s        3h
+
+# Check logs from the latest run
+kubectl logs job/database-backup-28571234 -n production
+
+# Trigger a manual run (useful for testing)
+kubectl create job --from=cronjob/database-backup manual-backup-test -n production
+
+# Suspend a CronJob (pause without deleting)
+kubectl patch cronjob database-backup -n production -p '{"spec":{"suspend":true}}'
+
+# Resume
+kubectl patch cronjob database-backup -n production -p '{"spec":{"suspend":false}}'
+
+# Delete
+kubectl delete cronjob database-backup -n production</code></pre>
+
+      <h2>Kubernetes CronJob — Advanced Patterns</h2>
+      <pre><code># Pattern 1: CronJob with resource limits and monitoring
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: report-generator
+spec:
+  schedule: "0 9 * * 1"   # Every Monday at 9 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: report
+            image: your-registry/reports:latest
+            resources:
+              requests:
+                cpu: "500m"
+                memory: "512Mi"
+              limits:
+                cpu: "1"
+                memory: "1Gi"
+            envFrom:
+            - configMapRef:
+                name: report-config
+            - secretRef:
+                name: report-secrets
+
+---
+# Pattern 2: CronJob with init container (wait for dependency)
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: data-sync
+spec:
+  schedule: "*/30 * * * *"   # Every 30 minutes
+  concurrencyPolicy: Replace  # Kill previous if still running
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          initContainers:
+          - name: wait-for-api
+            image: busybox
+            command: ['sh', '-c', 'until wget -q -O- http://api-service:8080/health; do sleep 2; done']
+          containers:
+          - name: sync
+            image: your-registry/data-sync:latest
+            command: ["python", "sync.py"]
+
+---
+# Pattern 3: CronJob that sends Slack alerts on failure
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: health-monitor
+spec:
+  schedule: "*/5 * * * *"    # Every 5 minutes
+  jobTemplate:
+    spec:
+      backoffLimit: 0        # Don't retry — alert immediately
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: monitor
+            image: curlimages/curl
+            command:
+            - /bin/sh
+            - -c
+            - |
+              STATUS=\$(curl -s -o /dev/null -w "%{http_code}" https://api.example.com/health)
+              if [ "\$STATUS" != "200" ]; then
+                curl -X POST \$SLACK_WEBHOOK -H 'Content-Type: application/json' \\
+                  -d "{\"text\": \"&#x1F6A8; API health check failed! Status: \$STATUS\"}"
+                exit 1
+              fi
+              echo "Health check passed: \$STATUS"
+            env:
+            - name: SLACK_WEBHOOK
+              valueFrom:
+                secretKeyRef:
+                  name: slack-config
+                  key: webhook-url</code></pre>
+
+      <h2>Cron vs Kubernetes CronJob — When to Use Which</h2>
+
+      <!-- Cron vs K8s Decision -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Cron vs Kubernetes CronJob</div>
+        <div class="vs-cards">
+          <div class="vs-card" style="border-color:#f97316">
+            <div class="vs-card-header" style="background:#f97316">&#x23F0; Traditional Cron</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4BB;</span>Runs on<span class="vs-row-value" style="color:#f97316">Single machine</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F504;</span>Retries<span class="vs-row-value" style="color:#ef4444">Manual</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4CA;</span>Monitoring<span class="vs-row-value" style="color:#ef4444">DIY (logs)</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F512;</span>Secrets<span class="vs-row-value" style="color:#f97316">Env vars / files</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2699;</span>Best for<span class="vs-row-value" style="color:#f97316">Simple servers, VMs</span></div>
+            </div>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="vs-card" style="border-color:#7c3aed">
+            <div class="vs-card-header" style="background:#7c3aed">&#x2638; K8s CronJob</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4BB;</span>Runs on<span class="vs-row-value" style="color:#22c55e">Any cluster node</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F504;</span>Retries<span class="vs-row-value" style="color:#22c55e">Automatic (backoffLimit)</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4CA;</span>Monitoring<span class="vs-row-value" style="color:#22c55e">Built-in (kubectl, events)</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F512;</span>Secrets<span class="vs-row-value" style="color:#22c55e">K8s Secrets + RBAC</span></div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2699;</span>Best for<span class="vs-row-value" style="color:#7c3aed">Production, microservices</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <h2>Common Mistakes to Avoid</h2>
       <ul>
         <li><strong>Forgetting the full path:</strong> Cron runs with a minimal environment. Always use absolute paths like <code>/usr/bin/python3</code> instead of just <code>python3</code>.</li>

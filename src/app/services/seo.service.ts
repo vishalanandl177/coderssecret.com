@@ -27,7 +27,7 @@ export class SeoService {
 
   private readonly siteName = 'CodersSecret';
   private readonly siteUrl = 'https://coderssecret.com';
-  private readonly defaultDescription = 'Deep dives into Angular, Python, DevOps, and the modern web. Written by developers, for developers who love building things.';
+  private readonly defaultDescription = 'Battle-tested guides on Python, DevOps, APIs, and system design — written by engineers, for engineers who ship.';
   private readonly defaultImage = `${this.siteUrl}/og-image.svg`;
   private readonly defaultImageWidth = 1200;
   private readonly defaultImageHeight = 630;

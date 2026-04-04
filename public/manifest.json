@@ -1,7 +1,7 @@
 {
   "name": "CodersSecret - Modern Web Development Blog",
   "short_name": "CodersSecret",
-  "description": "Deep dives into Angular, Python, DevOps, and the modern web.",
+  "description": "Battle-tested guides on Python, DevOps, APIs, and system design — written by engineers, for engineers who ship.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",

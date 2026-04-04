@@ -36,7 +36,7 @@ import { SeoService } from '../../services/seo.service';
           </h1>
 
           <p class="mt-6 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-            Deep dives into Angular, Python, DevOps, and the modern web. Written by developers, for developers who love building things.
+            Battle-tested guides on Python, DevOps, APIs, and system design — written by engineers, for engineers who ship.
           </p>
 
           <!-- CTA buttons -->
@@ -281,7 +281,7 @@ export class HomeComponent {
   constructor() {
     this.seo.update({
       title: 'CodersSecret',
-      description: 'Deep dives into Angular, Python, DevOps, and the modern web. Written by developers, for developers who love building things.',
+      description: 'Battle-tested guides on Python, DevOps, APIs, and system design — written by engineers, for engineers who ship.',
       url: '/',
     });
   }
