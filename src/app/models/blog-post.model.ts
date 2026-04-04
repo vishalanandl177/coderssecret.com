@@ -1526,28 +1526,72 @@ s3.put_object(Bucket='my-bucket', Key='data.json', Body=json_data)
 
       <!-- Comprehensive Auth Reference -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">Authentication Quick Reference (hover rows for details)</div>
-        <div class="vs-cards" style="grid-template-columns:1fr 1fr">
-          <div class="vs-card" style="border-color:#3b82f6">
-            <div class="vs-card-header" style="background:#3b82f6">&#x1F310; Headless API Scenarios</div>
-            <div class="vs-card-body">
-              <div class="vs-row"><span class="vs-row-icon">&#x1F4F0;</span>Public blog/CMS<span class="vs-row-value" style="color:#22c55e">Public API key</span></div>
-              <div class="vs-row"><span class="vs-row-icon">&#x1F6D2;</span>E-commerce browsing<span class="vs-row-value" style="color:#22c55e">Storefront token</span></div>
-              <div class="vs-row"><span class="vs-row-icon">&#x1F464;</span>User dashboard (SPA)<span class="vs-row-value" style="color:#3b82f6">OAuth + PKCE</span></div>
-              <div class="vs-row"><span class="vs-row-icon">&#x1F4F1;</span>Mobile app with login<span class="vs-row-value" style="color:#3b82f6">OAuth + PKCE + refresh</span></div>
-              <div class="vs-row"><span class="vs-row-icon">&#x1F5A5;</span>SSR (Next.js/Nuxt)<span class="vs-row-value" style="color:#7c3aed">Server-side secret token</span></div>
-            </div>
-          </div>
-          <div class="vs-card" style="border-color:#22c55e">
-            <div class="vs-card-header" style="background:#22c55e">&#x1F916; Programmatic API Scenarios</div>
-            <div class="vs-card-body">
-              <div class="vs-row"><span class="vs-row-icon">&#x1F91D;</span>Partner integration<span class="vs-row-value" style="color:#f97316">Scoped API key</span></div>
-              <div class="vs-row"><span class="vs-row-icon">&#x23F0;</span>Cron job / script<span class="vs-row-value" style="color:#f97316">API key or Client Creds</span></div>
-              <div class="vs-row"><span class="vs-row-icon">&#x1F504;</span>Microservice-to-microservice<span class="vs-row-value" style="color:#3b82f6">Client Credentials</span></div>
-              <div class="vs-row"><span class="vs-row-icon">&#x1F512;</span>Zero-trust network<span class="vs-row-value" style="color:#22c55e">mTLS + JWT</span></div>
-              <div class="vs-row"><span class="vs-row-icon">&#x2601;</span>CI/CD to cloud<span class="vs-row-value" style="color:#7c3aed">IAM role / Service account</span></div>
-            </div>
-          </div>
+        <div class="flow-diagram-title">Authentication Quick Reference</div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:0.8rem;min-width:500px">
+            <thead>
+              <tr>
+                <th style="text-align:left;padding:0.6rem 0.75rem;background:#3b82f6;color:#fff;border-radius:0.5rem 0 0 0">Scenario</th>
+                <th style="text-align:left;padding:0.6rem 0.75rem;background:#3b82f6;color:#fff">Type</th>
+                <th style="text-align:left;padding:0.6rem 0.75rem;background:#3b82f6;color:#fff;border-radius:0 0.5rem 0 0">Recommended Auth</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:0.5rem 0.75rem;color:var(--foreground)">&#x1F4F0; Public blog / CMS</td>
+                <td style="padding:0.5rem 0.75rem;color:#3b82f6;font-weight:600">Headless</td>
+                <td style="padding:0.5rem 0.75rem;color:#22c55e;font-weight:700">Public API key</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:0.5rem 0.75rem;color:var(--foreground)">&#x1F6D2; E-commerce browsing</td>
+                <td style="padding:0.5rem 0.75rem;color:#3b82f6;font-weight:600">Headless</td>
+                <td style="padding:0.5rem 0.75rem;color:#22c55e;font-weight:700">Storefront token</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:0.5rem 0.75rem;color:var(--foreground)">&#x1F464; User dashboard (SPA)</td>
+                <td style="padding:0.5rem 0.75rem;color:#3b82f6;font-weight:600">Headless</td>
+                <td style="padding:0.5rem 0.75rem;color:#3b82f6;font-weight:700">OAuth 2.0 + PKCE</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:0.5rem 0.75rem;color:var(--foreground)">&#x1F4F1; Mobile app with login</td>
+                <td style="padding:0.5rem 0.75rem;color:#3b82f6;font-weight:600">Headless</td>
+                <td style="padding:0.5rem 0.75rem;color:#3b82f6;font-weight:700">OAuth + PKCE + refresh</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:0.5rem 0.75rem;color:var(--foreground)">&#x1F5A5; SSR (Next.js / Nuxt)</td>
+                <td style="padding:0.5rem 0.75rem;color:#3b82f6;font-weight:600">Headless</td>
+                <td style="padding:0.5rem 0.75rem;color:#7c3aed;font-weight:700">Server-side secret token</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border);background:var(--muted)">
+                <td colspan="3" style="padding:0.3rem 0.75rem;font-size:0.65rem;color:var(--muted-foreground);text-align:center;font-weight:600">&#x2500;&#x2500;&#x2500; Programmatic &#x2500;&#x2500;&#x2500;</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:0.5rem 0.75rem;color:var(--foreground)">&#x1F91D; Partner integration</td>
+                <td style="padding:0.5rem 0.75rem;color:#22c55e;font-weight:600">Programmatic</td>
+                <td style="padding:0.5rem 0.75rem;color:#f97316;font-weight:700">Scoped API key</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:0.5rem 0.75rem;color:var(--foreground)">&#x23F0; Cron job / script</td>
+                <td style="padding:0.5rem 0.75rem;color:#22c55e;font-weight:600">Programmatic</td>
+                <td style="padding:0.5rem 0.75rem;color:#f97316;font-weight:700">API key or Client Creds</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:0.5rem 0.75rem;color:var(--foreground)">&#x1F504; Microservice-to-microservice</td>
+                <td style="padding:0.5rem 0.75rem;color:#22c55e;font-weight:600">Programmatic</td>
+                <td style="padding:0.5rem 0.75rem;color:#3b82f6;font-weight:700">Client Credentials (JWT)</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:0.5rem 0.75rem;color:var(--foreground)">&#x1F512; Zero-trust / service mesh</td>
+                <td style="padding:0.5rem 0.75rem;color:#22c55e;font-weight:600">Programmatic</td>
+                <td style="padding:0.5rem 0.75rem;color:#22c55e;font-weight:700">mTLS + JWT</td>
+              </tr>
+              <tr>
+                <td style="padding:0.5rem 0.75rem;color:var(--foreground)">&#x2601; CI/CD to cloud</td>
+                <td style="padding:0.5rem 0.75rem;color:#22c55e;font-weight:600">Programmatic</td>
+                <td style="padding:0.5rem 0.75rem;color:#7c3aed;font-weight:700">IAM role / Service account</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
