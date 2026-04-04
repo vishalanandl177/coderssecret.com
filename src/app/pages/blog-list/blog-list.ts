@@ -39,7 +39,7 @@ import { SeoService } from '../../services/seo.service';
         <!-- Category filter pills -->
         <div class="flex flex-wrap gap-2 mb-10 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
           @for (cat of categories; track cat.slug) {
-            <button (click)="activeCategory.set(cat.slug)"
+            <button (click)="activeCategory.set(cat.slug); currentPage.set(1)"
                     class="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 active:scale-[0.96]"
                     [class]="activeCategory() === cat.slug ?
                       'bg-primary text-primary-foreground shadow-lg shadow-primary/25' :
@@ -135,13 +135,24 @@ import { SeoService } from '../../services/seo.service';
                 </svg>
               </div>
               <p class="text-muted-foreground text-lg font-medium">No posts found in this category.</p>
-              <button (click)="activeCategory.set('')"
+              <button (click)="activeCategory.set(''); currentPage.set(1)"
                       class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline underline-offset-4">
                 View all posts
               </button>
             </div>
           }
         </div>
+
+        <!-- Load more -->
+        @if (hasMore()) {
+          <div class="mt-10 text-center">
+            <button (click)="loadMore()"
+                    class="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 backdrop-blur-sm px-8 py-3.5 text-sm font-semibold text-foreground transition-all duration-300 hover:bg-accent hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97]">
+              Load more articles
+              <span class="text-xs text-muted-foreground">({{ allFilteredPosts().length - filteredPosts().length }} remaining)</span>
+            </button>
+          </div>
+        }
       </div>
     </section>
   `,
@@ -150,6 +161,8 @@ export class BlogListComponent {
   private seo = inject(SeoService);
   categories = CATEGORIES;
   activeCategory = signal('');
+  currentPage = signal(1);
+  postsPerPage = 10;
   totalPosts = BLOG_POSTS.length;
 
   constructor() {
@@ -160,11 +173,25 @@ export class BlogListComponent {
     });
   }
 
-  filteredPosts = computed(() => {
+  allFilteredPosts = computed(() => {
     const cat = this.activeCategory();
     if (!cat) return BLOG_POSTS;
     return BLOG_POSTS.filter(post => post.category === cat);
   });
+
+  filteredPosts = computed(() => {
+    const all = this.allFilteredPosts();
+    const page = this.currentPage();
+    return all.slice(0, page * this.postsPerPage);
+  });
+
+  hasMore = computed(() => {
+    return this.filteredPosts().length < this.allFilteredPosts().length;
+  });
+
+  loadMore() {
+    this.currentPage.set(this.currentPage() + 1);
+  }
 
   getCount(slug: string): number {
     if (!slug) return BLOG_POSTS.length;

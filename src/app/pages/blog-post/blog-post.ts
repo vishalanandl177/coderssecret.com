@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BLOG_POSTS, CATEGORIES, BlogPost } from '../../models/blog-post.model';
 import { SeoService } from '../../services/seo.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { DOCUMENT } from '@angular/common';
 
 @Component({
@@ -85,6 +86,34 @@ import { DOCUMENT } from '@angular/common';
       <div class="container max-w-4xl mx-auto px-6">
         <div class="h-[1px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
       </div>
+
+      <!-- Table of Contents -->
+      @if (toc.length > 2) {
+        <nav class="container max-w-3xl mx-auto px-6 pt-10 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150"
+             aria-label="Table of contents">
+          <details class="rounded-xl border border-border/60 bg-card/50 backdrop-blur-sm">
+            <summary class="flex items-center gap-2 cursor-pointer px-5 py-4 text-sm font-semibold text-foreground select-none">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground">
+                <line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/>
+                <line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/>
+              </svg>
+              Table of Contents
+              <span class="text-xs text-muted-foreground font-normal">({{ toc.length }} sections)</span>
+            </summary>
+            <ul class="px-5 pb-4 space-y-1">
+              @for (item of toc; track item.id) {
+                <li>
+                  <a [href]="'#' + item.id"
+                     class="block rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent/50">
+                    {{ item.text }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </details>
+        </nav>
+      }
 
       <!-- Article content -->
       <article class="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
@@ -214,12 +243,16 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   private seo = inject(SeoService);
   private el = inject(ElementRef);
   private doc = inject(DOCUMENT);
+  private analytics = inject(AnalyticsService);
   private copyButtonsAdded = false;
+  private imagesProcessed = false;
+  private scrollMilestones = new Set<number>();
   readingProgress = signal(0);
   linkCopied = signal(false);
   encodeURIComponent = encodeURIComponent;
   post: BlogPost | undefined;
   relatedPosts: BlogPost[] = [];
+  toc: { id: string; text: string }[] = [];
   categoryName = '';
   categoryColor = '#6b7280';
 
@@ -237,6 +270,17 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
             .filter(p => p.id !== this.post!.id && (p.category === this.post!.category || p.tags.some(t => this.post!.tags.includes(t))))
             .slice(0, 2);
           this.copyButtonsAdded = false;
+          this.imagesProcessed = false;
+          this.scrollMilestones.clear();
+          // Generate TOC from h2 tags in content
+          const h2Regex = /<h2>(.*?)<\/h2>/g;
+          this.toc = [];
+          let tocMatch;
+          let tocIndex = 0;
+          while ((tocMatch = h2Regex.exec(this.post.content)) !== null) {
+            const text = tocMatch[1].replace(/<[^>]+>/g, '');
+            this.toc.push({ id: `heading-${tocIndex++}`, text });
+          }
           this.seo.update({
             title: this.post.title,
             description: this.post.excerpt,
@@ -261,7 +305,17 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
     const el = this.doc.documentElement;
     const scrollTop = el.scrollTop || this.doc.body.scrollTop;
     const scrollHeight = el.scrollHeight - el.clientHeight;
-    this.readingProgress.set(scrollHeight > 0 ? Math.min((scrollTop / scrollHeight) * 100, 100) : 0);
+    const progress = scrollHeight > 0 ? Math.min((scrollTop / scrollHeight) * 100, 100) : 0;
+    this.readingProgress.set(progress);
+    // Track scroll depth milestones
+    if (this.post) {
+      for (const milestone of [25, 50, 75, 100]) {
+        if (progress >= milestone && !this.scrollMilestones.has(milestone)) {
+          this.scrollMilestones.add(milestone);
+          this.analytics.trackScrollDepth(milestone, this.post.slug);
+        }
+      }
+    }
   }
 
   ngOnDestroy() {
@@ -269,8 +323,24 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   }
 
   ngAfterViewChecked() {
+    if (this.post && !this.imagesProcessed) {
+      const images = this.el.nativeElement.querySelectorAll('article img');
+      if (images.length > 0) {
+        this.imagesProcessed = true;
+        images.forEach((img: HTMLImageElement) => {
+          img.setAttribute('loading', 'lazy');
+          img.setAttribute('decoding', 'async');
+        });
+      }
+    }
     if (this.post && !this.copyButtonsAdded) {
       const preBlocks = this.el.nativeElement.querySelectorAll('pre');
+      const h2s = this.el.nativeElement.querySelectorAll('article h2');
+      if (h2s.length > 0) {
+        h2s.forEach((h2: HTMLElement, i: number) => {
+          if (!h2.id) h2.id = `heading-${i}`;
+        });
+      }
       if (preBlocks.length > 0) {
         this.copyButtonsAdded = true;
         preBlocks.forEach((pre: HTMLElement) => {

@@ -13,6 +13,14 @@ export interface BlogPost {
   featured?: boolean;
 }
 
+/** Calculate read time from HTML content (~200 words per minute) */
+function calcReadTime(html: string): string {
+  const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const words = text.split(' ').length;
+  const minutes = Math.max(1, Math.round(words / 200));
+  return `${minutes} min read`;
+}
+
 export const CATEGORIES = [
   { name: 'All', slug: '' },
   { name: 'Frontend', slug: 'frontend' },
@@ -2286,3 +2294,8 @@ method_stats = APILogsModel.objects.values('method').annotate(
     coverImage: '',
   },
 ];
+
+// Auto-calculate readTime from content for all posts
+BLOG_POSTS.forEach(post => {
+  post.readTime = calcReadTime(post.content);
+});

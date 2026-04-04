@@ -1,6 +1,7 @@
-import { Component, signal, computed, HostListener } from '@angular/core';
+import { Component, signal, computed, HostListener, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BLOG_POSTS, BlogPost } from '../../models/blog-post.model';
+import { AnalyticsService } from '../../services/analytics.service';
 
 @Component({
   selector: 'app-search',
@@ -81,6 +82,8 @@ export class SearchComponent {
     );
   });
 
+  private analytics = inject(AnalyticsService);
+
   constructor(private router: Router) {}
 
   @HostListener('document:keydown', ['$event'])
@@ -138,6 +141,7 @@ export class SearchComponent {
   }
 
   navigateTo(post: BlogPost) {
+    this.analytics.trackSearch(this.query(), this.results().length);
     this.close();
     this.router.navigate(['/blog', post.slug]);
   }
