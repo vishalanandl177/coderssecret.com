@@ -1,14 +1,19 @@
-import { Component, inject, DestroyRef, AfterViewChecked, ElementRef } from '@angular/core';
+import { Component, inject, DestroyRef, AfterViewChecked, OnDestroy, ElementRef, signal, HostListener } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BLOG_POSTS, CATEGORIES, BlogPost } from '../../models/blog-post.model';
 import { SeoService } from '../../services/seo.service';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-blog-post',
   imports: [RouterLink],
   template: `
     @if (post) {
+      <!-- Reading progress bar -->
+      <div class="fixed top-0 left-0 z-[60] h-[3px] bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 transition-all duration-150"
+           [style.width.%]="readingProgress()"></div>
+
       <!-- Hero header -->
       <section class="relative overflow-hidden">
         <div class="absolute inset-0 -z-10">
@@ -104,6 +109,34 @@ import { SeoService } from '../../services/seo.service';
       <div class="container max-w-4xl mx-auto px-6 pb-20">
         <div class="h-[1px] bg-gradient-to-r from-transparent via-border to-transparent mb-12"></div>
 
+        <!-- Share buttons -->
+        <div class="flex items-center gap-4 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <span class="text-sm font-semibold text-muted-foreground">Share this article</span>
+          <div class="flex gap-2">
+            <a [href]="'https://twitter.com/intent/tweet?text=' + encodeURIComponent(post.title) + '&url=' + encodeURIComponent('https://coderssecret.com/blog/' + post.slug)"
+               target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center justify-center h-9 w-9 rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-all duration-300 hover:bg-accent hover:text-foreground hover:border-accent"
+               aria-label="Share on X (Twitter)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a [href]="'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent('https://coderssecret.com/blog/' + post.slug)"
+               target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center justify-center h-9 w-9 rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-all duration-300 hover:bg-accent hover:text-foreground hover:border-accent"
+               aria-label="Share on LinkedIn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            </a>
+            <button (click)="copyLink()"
+                    class="inline-flex items-center justify-center h-9 w-9 rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-all duration-300 hover:bg-accent hover:text-foreground hover:border-accent"
+                    [attr.aria-label]="linkCopied() ? 'Link copied!' : 'Copy link'">
+              @if (linkCopied()) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              }
+            </button>
+          </div>
+        </div>
+
         <!-- Related posts -->
         @if (relatedPosts.length > 0) {
           <div class="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -175,12 +208,16 @@ import { SeoService } from '../../services/seo.service';
     }
   `,
 })
-export class BlogPostComponent implements AfterViewChecked {
+export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
   private seo = inject(SeoService);
   private el = inject(ElementRef);
+  private doc = inject(DOCUMENT);
   private copyButtonsAdded = false;
+  readingProgress = signal(0);
+  linkCopied = signal(false);
+  encodeURIComponent = encodeURIComponent;
   post: BlogPost | undefined;
   relatedPosts: BlogPost[] = [];
   categoryName = '';
@@ -219,6 +256,18 @@ export class BlogPostComponent implements AfterViewChecked {
       });
   }
 
+  @HostListener('window:scroll')
+  onScroll() {
+    const el = this.doc.documentElement;
+    const scrollTop = el.scrollTop || this.doc.body.scrollTop;
+    const scrollHeight = el.scrollHeight - el.clientHeight;
+    this.readingProgress.set(scrollHeight > 0 ? Math.min((scrollTop / scrollHeight) * 100, 100) : 0);
+  }
+
+  ngOnDestroy() {
+    this.readingProgress.set(0);
+  }
+
   ngAfterViewChecked() {
     if (this.post && !this.copyButtonsAdded) {
       const preBlocks = this.el.nativeElement.querySelectorAll('pre');
@@ -243,6 +292,15 @@ export class BlogPostComponent implements AfterViewChecked {
           pre.appendChild(btn);
         });
       }
+    }
+  }
+
+  copyLink() {
+    if (this.post) {
+      navigator.clipboard.writeText(`https://coderssecret.com/blog/${this.post.slug}`).then(() => {
+        this.linkCopied.set(true);
+        setTimeout(() => this.linkCopied.set(false), 2000);
+      });
     }
   }
 

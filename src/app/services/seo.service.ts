@@ -72,6 +72,31 @@ export class SeoService {
 
     // Canonical URL
     this.updateCanonical(url);
+
+    // JSON-LD structured data
+    if (config.type === 'article' && config.article) {
+      this.updateJsonLd({
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        'headline': config.title,
+        'description': description,
+        'url': url,
+        'image': image,
+        'datePublished': config.article.publishedTime,
+        'author': {
+          '@type': 'Person',
+          'name': config.article.author,
+        },
+        'publisher': {
+          '@type': 'Organization',
+          'name': this.siteName,
+          'url': this.siteUrl,
+        },
+        'keywords': config.article.tags?.join(', '),
+      });
+    } else {
+      this.removeJsonLd();
+    }
   }
 
   private updateCanonical(url: string) {
@@ -82,5 +107,20 @@ export class SeoService {
       this.doc.head.appendChild(link);
     }
     link.setAttribute('href', url);
+  }
+
+  private updateJsonLd(data: Record<string, unknown>) {
+    let script: HTMLScriptElement | null = this.doc.querySelector('script[type="application/ld+json"]');
+    if (!script) {
+      script = this.doc.createElement('script');
+      script.setAttribute('type', 'application/ld+json');
+      this.doc.head.appendChild(script);
+    }
+    script.textContent = JSON.stringify(data);
+  }
+
+  private removeJsonLd() {
+    const script = this.doc.querySelector('script[type="application/ld+json"]');
+    script?.remove();
   }
 }
