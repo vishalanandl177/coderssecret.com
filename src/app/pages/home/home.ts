@@ -180,6 +180,71 @@ import { SeoService } from '../../services/seo.service';
       </div>
     </section>
 
+    <!-- Most Popular — Ranked by traffic -->
+    @if (popularPosts.length > 0) {
+      <section class="py-16 animate-in fade-in duration-700">
+        <div class="container max-w-6xl mx-auto px-6">
+          <div class="flex items-end justify-between mb-10">
+            <div>
+              <h2 class="text-3xl font-extrabold tracking-tight">Most Popular</h2>
+              <p class="mt-2 text-muted-foreground">Top reads from our community</p>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-3 gap-4">
+            @for (post of popularPosts; track post.id; let i = $index) {
+              <article class="group">
+                <a [routerLink]="['/blog', post.slug]" class="block h-full">
+                  <div class="relative h-full rounded-2xl border border-border/60 bg-card overflow-hidden transition-all duration-500 hover:shadow-xl hover:-translate-y-1 hover:border-primary/20">
+                    <!-- Rank badge -->
+                    <div class="absolute top-3 left-3 z-10 inline-flex items-center justify-center h-8 w-8 rounded-full font-extrabold text-sm"
+                         [class]="i === 0 ? 'bg-yellow-500 text-yellow-950' : i === 1 ? 'bg-gray-300 text-gray-700' : i === 2 ? 'bg-orange-400 text-orange-950' : 'bg-muted text-muted-foreground'">
+                      #{{ i + 1 }}
+                    </div>
+                    <!-- Top accent bar -->
+                    <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                         [style.background-image]="'linear-gradient(to right, transparent, ' + getCategoryColor(post.category) + ', transparent)'"></div>
+
+                    <div class="p-6 pt-14 flex flex-col justify-between h-full">
+                      <div>
+                        <div class="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-3">
+                          <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                                [style.background-color]="getCategoryColor(post.category) + '15'"
+                                [style.color]="getCategoryColor(post.category)">
+                            {{ post.category }}
+                          </span>
+                          <span>{{ post.readTime }}</span>
+                        </div>
+                        <h3 class="font-bold text-lg tracking-tight leading-snug transition-colors duration-300 group-hover:text-primary line-clamp-2">
+                          {{ post.title }}
+                        </h3>
+                        <p class="mt-2 text-sm text-muted-foreground line-clamp-2">{{ post.excerpt }}</p>
+                      </div>
+                      <div class="mt-4 flex items-center justify-between">
+                        <div class="flex flex-wrap gap-1.5">
+                          @for (tag of post.tags.slice(0, 2); track tag) {
+                            <span class="inline-flex items-center rounded-full border border-border/40 bg-muted/50 px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                              {{ tag }}
+                            </span>
+                          }
+                        </div>
+                        <div class="shrink-0 ml-4 inline-flex items-center justify-center rounded-full h-8 w-8 bg-muted/50 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </article>
+            }
+          </div>
+        </div>
+      </section>
+    }
+
     <!-- Latest Posts — Modern card grid -->
     <section class="py-16 animate-in fade-in duration-700">
       <div class="container max-w-6xl mx-auto px-6">
@@ -273,6 +338,7 @@ import { SeoService } from '../../services/seo.service';
 export class HomeComponent {
   private seo = inject(SeoService);
   featuredPost: BlogPost | undefined = BLOG_POSTS.find(p => p.featured);
+  popularPosts = BLOG_POSTS.filter(p => p.popularRank != null).sort((a, b) => (a.popularRank ?? 99) - (b.popularRank ?? 99)).slice(0, 6);
   latestPosts = BLOG_POSTS.filter(p => p !== this.featuredPost).slice(0, 4);
   categories = CATEGORIES.filter(c => c.slug !== '');
   totalPosts = BLOG_POSTS.length;

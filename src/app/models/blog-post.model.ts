@@ -11,6 +11,8 @@ export interface BlogPost {
   category: string;
   coverImage: string;
   featured?: boolean;
+  /** Popularity rank from GA data. Lower = more popular. Update from GA dashboard. */
+  popularRank?: number;
 }
 
 /** Calculate read time from HTML content (~200 words per minute) */
@@ -35,6 +37,7 @@ export const BLOG_POSTS: BlogPost[] = [
     id: '17',
     title: 'gRPC: The High-Performance RPC Framework Every Backend Developer Should Know',
     slug: 'grpc-high-performance-rpc-tutorial',
+    popularRank: 5,
     excerpt: 'A practical guide to gRPC — protocol buffers, service definitions, streaming, interceptors, and why gRPC is 10x faster than REST for service-to-service communication.',
     category: 'backend',
     featured: true,
@@ -1664,6 +1667,7 @@ server.connect(transport);</code></pre>
     id: '14',
     title: 'Ethical Hacking for Beginners: A Hands-On Tutorial',
     slug: 'ethical-hacking-beginners-tutorial',
+    popularRank: 1,
     excerpt: 'Learn ethical hacking from scratch — reconnaissance, scanning, exploitation, and reporting. A beginner-friendly, hands-on guide with real tools, safe labs, and responsible disclosure practices.',
     category: 'tutorials',
     content: `
@@ -4106,6 +4110,7 @@ s3.put_object(Bucket='my-bucket', Key='data.json', Body=json_data)
     id: '9',
     title: 'Kubernetes Operators: Build Your Own Operator Using Golang',
     slug: 'kubernetes-operators-build-your-own-with-golang',
+    popularRank: 6,
     excerpt: 'Learn what Kubernetes Operators are, why they matter, and how to build your own custom operator from scratch using Golang and the Operator SDK.',
     category: 'devops',
     content: `
@@ -4317,6 +4322,7 @@ kubectl get pods -n appservice-operator-system</code></pre>
     id: '8',
     title: 'Improving Python Code Performance: Practical Tips That Actually Work',
     slug: 'improving-python-code-performance',
+    popularRank: 4,
     excerpt: 'From profiling bottlenecks to leveraging built-in optimizations, learn proven techniques to make your Python code run significantly faster.',
     category: 'backend',
     content: `
@@ -4935,6 +4941,7 @@ def validate_m2m_token(token):
     id: '6',
     title: 'SSO Demystified: A Practical Guide to SAML and OIDC',
     slug: 'sso-saml-oidc-practical-guide',
+    popularRank: 3,
     excerpt: 'Understand how Single Sign-On works under the hood. Compare SAML and OpenID Connect, learn the authentication flows, and know when to use each protocol.',
     category: 'backend',
     content: `
@@ -5328,6 +5335,7 @@ Standard Body        OASIS                 OpenID Foundation</code></pre>
     id: '5',
     title: 'Cron Jobs Explained: The Complete Guide with Real-World Examples',
     slug: 'cron-jobs-complete-guide-with-examples',
+    popularRank: 2,
     excerpt: 'Everything you need to know about cron jobs — from basic syntax to advanced scheduling patterns. Packed with practical examples anyone can follow.',
     category: 'devops',
     content: `
