@@ -5,7 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "build:prod": "ng build --configuration production && node scripts/generate-sitemap.js",
+    "build:prod": "ng build --configuration production && node scripts/generate-sitemap.js && node scripts/generate-routes.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "check:vulnerabilities": "npm audit --audit-level=high --omit=dev",
