@@ -1,14 +1,14 @@
 /**
- * Generates static route files for GitHub Pages SPA routing.
+ * Generates pre-rendered static HTML for all SPA routes.
  *
- * Problem: GitHub Pages returns 404 for SPA routes like /blog/my-post
- * because no physical file exists at that path. Google crawler sees 404
- * and refuses to index the page.
+ * Each route gets an index.html with:
+ * - Route-specific <title> and <meta description>
+ * - Route-specific Open Graph tags
+ * - Real text content inside <app-root> for Google to read
+ * - Canonical URL
  *
- * Solution: For every route (blog posts, categories, /blog), create a
- * directory with an index.html that's a copy of the main index.html.
- * GitHub Pages serves directory/index.html automatically with 200 OK.
- * Angular's router then bootstraps and renders the correct content.
+ * This prevents "Soft 404" from Google (empty page = not indexable).
+ * Angular hydrates on top when JS loads and replaces the static content.
  *
  * Run after build: node scripts/generate-routes.js
  */
@@ -16,53 +16,201 @@
 const fs = require('fs');
 const path = require('path');
 
+const SITE_URL = 'https://coderssecret.com';
 const OUTPUT_DIR = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'browser');
 
-// Read the blog post model to extract slugs and categories
+// Read the blog post model
 const modelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'blog-post.model.ts');
 const modelContent = fs.readFileSync(modelPath, 'utf-8');
 
-const slugRegex = /slug:\s*'([^']+)'/g;
+// Extract post data — handle titles with escaped quotes
+const posts = [];
+const lines = modelContent.split('\n');
+let currentPost = {};
+
+for (let i = 0; i < lines.length; i++) {
+  const line = lines[i].trim();
+
+  const idMatch = line.match(/^id:\s*'(\d+)'/);
+  if (idMatch) {
+    currentPost = { id: idMatch[1] };
+    continue;
+  }
+
+  if (currentPost.id) {
+    const titleMatch = line.match(/^title:\s*'(.+)',?\s*$/);
+    if (titleMatch) {
+      currentPost.title = titleMatch[1].replace(/\\'/g, "'");
+      continue;
+    }
+
+    const slugMatch = line.match(/^slug:\s*'([^']+)'/);
+    if (slugMatch) {
+      currentPost.slug = slugMatch[1];
+      continue;
+    }
+
+    const excerptMatch = line.match(/^excerpt:\s*'(.+)',?\s*$/);
+    if (excerptMatch) {
+      currentPost.excerpt = excerptMatch[1].replace(/\\'/g, "'");
+      continue;
+    }
+
+    const catMatch = line.match(/^category:\s*'([^']+)'/);
+    if (catMatch && !currentPost.category) {
+      currentPost.category = catMatch[1];
+    }
+
+    if (currentPost.id && currentPost.title && currentPost.slug && currentPost.excerpt) {
+      posts.push({ ...currentPost });
+      currentPost = {};
+    }
+  }
+}
+
+// Extract categories
 const categoryRegex = /category:\s*'([^']+)'/g;
-
-const slugs = [];
 const categories = new Set();
-let match;
+while ((m = categoryRegex.exec(modelContent)) !== null) {
+  categories.add(m[1]);
+}
 
-while ((match = slugRegex.exec(modelContent)) !== null) {
-  slugs.push(match[1]);
-}
-while ((match = categoryRegex.exec(modelContent)) !== null) {
-  categories.add(match[1]);
-}
+// Category display names
+const categoryNames = {
+  frontend: 'Frontend',
+  backend: 'Backend',
+  devops: 'DevOps',
+  tutorials: 'Tutorials',
+  'open-source': 'Open Source',
+};
 
 // Read the built index.html
-const indexHtml = fs.readFileSync(path.join(OUTPUT_DIR, 'index.html'), 'utf-8');
+const baseHtml = fs.readFileSync(path.join(OUTPUT_DIR, 'index.html'), 'utf-8');
 
-// Collect all routes that need static files
-const routes = [
-  'blog',
-  ...slugs.map(slug => `blog/${slug}`),
-  ...Array.from(categories).map(cat => `category/${cat}`),
-];
+function makeHtml(options) {
+  const { title, description, url, content } = options;
+  const fullTitle = `${title} | CodersSecret`;
+  const canonical = `${SITE_URL}${url}`;
+
+  let html = baseHtml;
+
+  // Replace <title>
+  html = html.replace(
+    /<title>[^<]*<\/title>/,
+    `<title>${fullTitle}</title>`
+  );
+
+  // Replace meta description
+  html = html.replace(
+    /<meta name="description" content="[^"]*">/,
+    `<meta name="description" content="${description}">`
+  );
+
+  // Add canonical link before </head>
+  html = html.replace(
+    '</head>',
+    `  <link rel="canonical" href="${canonical}">\n` +
+    `  <meta property="og:title" content="${fullTitle}">\n` +
+    `  <meta property="og:description" content="${description}">\n` +
+    `  <meta property="og:url" content="${canonical}">\n` +
+    `  <meta property="og:type" content="website">\n` +
+    `  <meta name="twitter:card" content="summary_large_image">\n` +
+    `  <meta name="twitter:title" content="${fullTitle}">\n` +
+    `  <meta name="twitter:description" content="${description}">\n` +
+    '</head>'
+  );
+
+  // Inject real content inside <app-root> so Google can read it
+  html = html.replace(
+    '<app-root></app-root>',
+    `<app-root>${content}</app-root>`
+  );
+
+  return html;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
 let created = 0;
 
-for (const route of routes) {
-  const dir = path.join(OUTPUT_DIR, route);
-  const filePath = path.join(dir, 'index.html');
+// ── Blog list page (/blog) ────────────────────
+const blogListContent = `
+  <h1>All Articles — CodersSecret</h1>
+  <p>Battle-tested guides on Python, DevOps, APIs, and system design.</p>
+  <ul>
+    ${posts.map(p => `<li><a href="/blog/${p.slug}">${escapeHtml(p.title)}</a> — ${escapeHtml(p.excerpt)}</li>`).join('\n    ')}
+  </ul>
+`;
+const blogDir = path.join(OUTPUT_DIR, 'blog');
+fs.mkdirSync(blogDir, { recursive: true });
+fs.writeFileSync(path.join(blogDir, 'index.html'), makeHtml({
+  title: 'All Articles',
+  description: 'Browse all articles on Python, DevOps, APIs, Kubernetes, security, and modern web development.',
+  url: '/blog',
+  content: blogListContent,
+}));
+created++;
 
-  // Skip if file already exists (from a previous build or Angular prerender)
-  if (fs.existsSync(filePath)) continue;
-
-  // Create directory and write index.html
+// ── Individual blog posts (/blog/:slug) ───────
+for (const post of posts) {
+  const dir = path.join(OUTPUT_DIR, 'blog', post.slug);
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(filePath, indexHtml);
+
+  const content = `
+    <article>
+      <h1>${escapeHtml(post.title)}</h1>
+      <p>${escapeHtml(post.excerpt)}</p>
+      <p>Read the full article on <a href="/blog/${post.slug}">CodersSecret</a>.</p>
+    </article>
+  `;
+
+  fs.writeFileSync(path.join(dir, 'index.html'), makeHtml({
+    title: post.title,
+    description: post.excerpt,
+    url: `/blog/${post.slug}`,
+    content,
+  }));
   created++;
 }
 
-console.log(`✅ Generated ${created} route files (${routes.length} total routes).`);
-console.log(`   Blog posts: ${slugs.length}`);
+// ── Category pages (/category/:slug) ──────────
+for (const cat of categories) {
+  const dir = path.join(OUTPUT_DIR, 'category', cat);
+  fs.mkdirSync(dir, { recursive: true });
+
+  const catName = categoryNames[cat] || cat;
+  const catPosts = posts.filter(p => p.category === cat);
+
+  const description = {
+    frontend: 'Tutorials and deep dives into Angular, React, TypeScript, CSS, and modern frontend development.',
+    backend: 'Practical guides on Python, Django, APIs, authentication, and backend architecture patterns.',
+    devops: 'Learn Kubernetes, Docker, CI/CD, cron jobs, and infrastructure automation for production systems.',
+    tutorials: 'Step-by-step workshops and hands-on tutorials for developers at every level.',
+    'open-source': 'Discover and contribute to open-source projects, tools, and libraries.',
+  }[cat] || `Browse articles about ${catName} on CodersSecret.`;
+
+  const content = `
+    <h1>${catName} Articles — CodersSecret</h1>
+    <p>${description}</p>
+    <ul>
+      ${catPosts.map(p => `<li><a href="/blog/${p.slug}">${escapeHtml(p.title)}</a> — ${escapeHtml(p.excerpt)}</li>`).join('\n      ')}
+    </ul>
+  `;
+
+  fs.writeFileSync(path.join(dir, 'index.html'), makeHtml({
+    title: `${catName} Articles`,
+    description,
+    url: `/category/${cat}`,
+    content,
+  }));
+  created++;
+}
+
+console.log(`✅ Pre-rendered ${created} route files with SEO content.`);
+console.log(`   Blog posts: ${posts.length}`);
 console.log(`   Categories: ${categories.size}`);
-console.log(`   Static pages: 1 (/blog)`);
-console.log(`   Google will now see 200 OK for all routes instead of 404!`);
+console.log(`   Blog list: 1`);
+console.log(`   Each page has: unique <title>, meta description, OG tags, canonical URL, and real HTML content.`);
+console.log(`   Google will see real content (not empty <app-root>) for every route!`);
