@@ -1,5 +1,5 @@
 import { Component, signal, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BLOG_POSTS, CATEGORIES } from '../../models/blog-post.model';
 import { SeoService } from '../../services/seo.service';
 
@@ -36,6 +36,20 @@ import { SeoService } from '../../services/seo.service';
     <!-- Filters + Posts -->
     <section class="pb-20">
       <div class="container max-w-6xl mx-auto px-6">
+        <!-- Active tag filter -->
+        @if (activeTag()) {
+          <div class="flex items-center gap-2 mb-6 animate-in fade-in duration-300">
+            <span class="text-sm text-muted-foreground">Filtered by tag:</span>
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground">
+              {{ activeTag() }}
+              <button (click)="clearTag()" class="ml-1 hover:opacity-70" aria-label="Clear tag filter">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              </button>
+            </span>
+            <span class="text-xs text-muted-foreground">({{ allFilteredPosts().length }} articles)</span>
+          </div>
+        }
+
         <!-- Category filter pills -->
         <div class="flex flex-wrap gap-2 mb-10 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
           @for (cat of categories; track cat.slug) {
@@ -159,24 +173,44 @@ import { SeoService } from '../../services/seo.service';
 })
 export class BlogListComponent {
   private seo = inject(SeoService);
+  private route = inject(ActivatedRoute);
   categories = CATEGORIES;
   activeCategory = signal('');
+  activeTag = signal('');
   currentPage = signal(1);
   postsPerPage = 10;
   totalPosts = BLOG_POSTS.length;
 
   constructor() {
+    // Read tag from query parameter: /blog?tag=Python
+    const tag = this.route.snapshot.queryParamMap.get('tag');
+    if (tag) {
+      this.activeTag.set(tag);
+    }
     this.seo.update({
-      title: 'All Articles',
-      description: 'Browse all articles on Angular, Python, DevOps, and modern web development.',
+      title: tag ? `Articles tagged "${tag}"` : 'All Articles',
+      description: tag
+        ? `Browse all articles tagged with ${tag} on CodersSecret.`
+        : 'Browse all articles on Angular, Python, DevOps, and modern web development.',
       url: '/blog',
     });
   }
 
+  clearTag() {
+    this.activeTag.set('');
+  }
+
   allFilteredPosts = computed(() => {
+    let posts = BLOG_POSTS;
     const cat = this.activeCategory();
-    if (!cat) return BLOG_POSTS;
-    return BLOG_POSTS.filter(post => post.category === cat);
+    const tag = this.activeTag();
+    if (cat) {
+      posts = posts.filter(post => post.category === cat);
+    }
+    if (tag) {
+      posts = posts.filter(post => post.tags.some(t => t.toLowerCase() === tag.toLowerCase()));
+    }
+    return posts;
   });
 
   filteredPosts = computed(() => {
