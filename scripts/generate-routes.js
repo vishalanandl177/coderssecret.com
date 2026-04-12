@@ -208,9 +208,24 @@ for (const cat of categories) {
   created++;
 }
 
-console.log(`✅ Pre-rendered ${created} route files with SEO content.`);
+// ── Generate 404.html with Angular app (no redirect!) ──
+const notFoundHtml = makeHtml({
+  title: 'Page Not Found',
+  description: 'The page you are looking for does not exist.',
+  url: '/',
+  content: `
+    <h1>Page Not Found</h1>
+    <p>The page you are looking for does not exist or has been moved.</p>
+    <p><a href="/">Go to Home</a> | <a href="/blog">Browse Blog</a></p>
+  `,
+});
+// Add noindex meta tag so Google ignores 404 pages
+const notFoundFinal = notFoundHtml.replace('</head>', '  <meta name="robots" content="noindex">\n</head>');
+fs.writeFileSync(path.join(OUTPUT_DIR, '404.html'), notFoundFinal);
+
+console.log(`✅ Pre-rendered ${created} route files + 404.html with SEO content.`);
 console.log(`   Blog posts: ${posts.length}`);
 console.log(`   Categories: ${categories.size}`);
 console.log(`   Blog list: 1`);
+console.log(`   404.html: Angular app with noindex (no redirect!)`);
 console.log(`   Each page has: unique <title>, meta description, OG tags, canonical URL, and real HTML content.`);
-console.log(`   Google will see real content (not empty <app-root>) for every route!`);
