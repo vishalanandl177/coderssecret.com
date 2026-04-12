@@ -34,12 +34,625 @@ export const CATEGORIES = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    id: '27',
+    title: 'SOLID Principles in Practice: Write Code That Doesn\'t Rot',
+    slug: 'solid-principles-practical-examples',
+    excerpt: 'Learn the 5 SOLID principles through real-world Python and TypeScript examples. See bad code, understand why it breaks, then refactor it into clean, maintainable architecture.',
+    category: 'tutorials',
+    featured: true,
+    content: `
+      <p>You've heard of SOLID principles but every tutorial shows abstract <code>Shape</code> and <code>Animal</code> examples that don't match real codebases. This guide teaches SOLID through <strong>real-world code</strong> — the kind you actually write at work. For each principle, you'll see bad code, understand <em>why</em> it causes problems, and refactor it into something maintainable.</p>
+
+      <h2>What is SOLID?</h2>
+      <p>SOLID is a set of 5 design principles that help you write code that's <strong>easy to change, easy to test, and easy to understand</strong>. They were coined by Robert C. Martin (Uncle Bob) and have stood the test of time across every object-oriented language.</p>
+
+      <!-- SOLID Overview -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">The 5 SOLID Principles</div>
+        <div class="pipeline">
+          <div class="pipeline-step" style="background:#3b82f6;--i:0"><span class="pipeline-step-icon">S</span>Single<span class="pipeline-step-sub">Responsibility</span></div>
+          <div class="pipeline-step" style="background:#22c55e;--i:1"><span class="pipeline-step-icon">O</span>Open<span class="pipeline-step-sub">Closed</span></div>
+          <div class="pipeline-step" style="background:#a855f7;--i:2"><span class="pipeline-step-icon">L</span>Liskov<span class="pipeline-step-sub">Substitution</span></div>
+          <div class="pipeline-step" style="background:#f97316;--i:3"><span class="pipeline-step-icon">I</span>Interface<span class="pipeline-step-sub">Segregation</span></div>
+          <div class="pipeline-step" style="background:#ef4444;--i:4"><span class="pipeline-step-icon">D</span>Dependency<span class="pipeline-step-sub">Inversion</span></div>
+        </div>
+      </div>
+
+      <h2>S — Single Responsibility Principle</h2>
+      <p><strong>"A class should have only one reason to change."</strong></p>
+      <p>If a class handles user authentication AND sends emails AND logs to a file, changing any one of those features risks breaking the others. Each class should do one thing well.</p>
+
+      <pre><code># &#x274C; BAD: One class doing everything
+class UserService:
+    def register(self, email, password):
+        # Validate input
+        if not re.match(r'^[\\w.-]+@[\\w.-]+\\.\\w+', email):
+            raise ValueError("Invalid email")
+
+        # Hash password
+        hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+
+        # Save to database
+        db.execute("INSERT INTO users (email, password) VALUES (?, ?)",
+                   (email, hashed))
+
+        # Send welcome email
+        smtp = smtplib.SMTP('smtp.gmail.com', 587)
+        smtp.starttls()
+        smtp.login('noreply@app.com', 'password')
+        smtp.sendmail('noreply@app.com', email, 'Welcome!')
+        smtp.quit()
+
+        # Log the event
+        with open('app.log', 'a') as f:
+            f.write(f"{datetime.now()}: User registered: {email}\\n")
+
+# Problem: If you change email provider, you edit UserService.
+# If you change logging format, you edit UserService.
+# If you change database, you edit UserService.
+# One class, 4 reasons to change = guaranteed bugs.</code></pre>
+
+      <pre><code># &#x2705; GOOD: Each class has one responsibility
+class UserValidator:
+    def validate_email(self, email: str) -> bool:
+        return bool(re.match(r'^[\\w.-]+@[\\w.-]+\\.\\w+', email))
+
+class PasswordHasher:
+    def hash(self, password: str) -> bytes:
+        return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+
+class UserRepository:
+    def __init__(self, db):
+        self.db = db
+    def save(self, email: str, password_hash: bytes):
+        self.db.execute("INSERT INTO users ...", (email, password_hash))
+
+class EmailService:
+    def send_welcome(self, email: str):
+        # Email logic isolated here — change provider without touching users
+        pass
+
+class UserService:
+    def __init__(self, validator, hasher, repo, emailer):
+        self.validator = validator
+        self.hasher = hasher
+        self.repo = repo
+        self.emailer = emailer
+
+    def register(self, email: str, password: str):
+        if not self.validator.validate_email(email):
+            raise ValueError("Invalid email")
+        password_hash = self.hasher.hash(password)
+        self.repo.save(email, password_hash)
+        self.emailer.send_welcome(email)
+
+# Now UserService orchestrates, but each piece changes independently.
+# Change email provider? Edit EmailService only.
+# Change database? Edit UserRepository only.
+# Each class has ONE reason to change.</code></pre>
+
+      <h2>O — Open/Closed Principle</h2>
+      <p><strong>"Software entities should be open for extension, but closed for modification."</strong></p>
+      <p>You should be able to add new behavior <em>without changing existing code</em>. This prevents introducing bugs in working features when adding new ones.</p>
+
+      <pre><code># &#x274C; BAD: Adding a new payment method requires modifying existing code
+class PaymentProcessor:
+    def process(self, payment_type: str, amount: float):
+        if payment_type == "credit_card":
+            # Process credit card
+            stripe.charge(amount)
+        elif payment_type == "paypal":
+            # Process PayPal
+            paypal.send(amount)
+        elif payment_type == "crypto":
+            # Every new payment method = modify this function
+            # Risk breaking credit card and PayPal logic!
+            bitcoin.transfer(amount)
+
+# Every new payment method adds another elif.
+# The function grows forever. Testing becomes a nightmare.</code></pre>
+
+      <pre><code># &#x2705; GOOD: Open for extension, closed for modification
+from abc import ABC, abstractmethod
+
+class PaymentMethod(ABC):
+    @abstractmethod
+    def process(self, amount: float) -> bool:
+        pass
+
+class CreditCardPayment(PaymentMethod):
+    def process(self, amount: float) -> bool:
+        return stripe.charge(amount)
+
+class PayPalPayment(PaymentMethod):
+    def process(self, amount: float) -> bool:
+        return paypal.send(amount)
+
+# Adding crypto? Just add a NEW class. No existing code modified!
+class CryptoPayment(PaymentMethod):
+    def process(self, amount: float) -> bool:
+        return bitcoin.transfer(amount)
+
+class PaymentProcessor:
+    def process(self, method: PaymentMethod, amount: float):
+        return method.process(amount)
+
+# Usage:
+processor = PaymentProcessor()
+processor.process(CreditCardPayment(), 99.99)
+processor.process(CryptoPayment(), 0.005)
+# Adding new payment methods never touches PaymentProcessor!</code></pre>
+
+      <h2>L — Liskov Substitution Principle</h2>
+      <p><strong>"Subtypes must be substitutable for their base types without breaking the program."</strong></p>
+      <p>If your code works with a base class, it should work with <em>any</em> subclass without surprises. A subclass that changes the expected behavior violates LSP.</p>
+
+      <pre><code># &#x274C; BAD: Square violates Rectangle's contract
+class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    def area(self):
+        return self.width * self.height
+
+class Square(Rectangle):
+    def __init__(self, side):
+        super().__init__(side, side)
+
+    # Override to keep width == height (Square invariant)
+    @property
+    def width(self):
+        return self._side
+    @width.setter
+    def width(self, value):
+        self._side = value  # Also changes height!
+
+# Code that works with Rectangle breaks with Square:
+def double_width(rect: Rectangle):
+    rect.width = rect.width * 2
+    return rect.area()
+    # Expected: width*2 * height (unchanged)
+    # With Square: side*2 * side*2 = 4x area (WRONG!)</code></pre>
+
+      <pre><code># &#x2705; GOOD: Use composition or separate interfaces
+from abc import ABC, abstractmethod
+
+class Shape(ABC):
+    @abstractmethod
+    def area(self) -> float:
+        pass
+
+class Rectangle(Shape):
+    def __init__(self, width: float, height: float):
+        self.width = width
+        self.height = height
+    def area(self) -> float:
+        return self.width * self.height
+
+class Square(Shape):
+    def __init__(self, side: float):
+        self.side = side
+    def area(self) -> float:
+        return self.side * self.side
+
+# Both are Shapes. Both have area(). Neither pretends to be the other.
+# Any code using Shape works correctly with both.</code></pre>
+
+      <h2>I — Interface Segregation Principle</h2>
+      <p><strong>"No client should be forced to depend on methods it doesn't use."</strong></p>
+
+      <pre><code># &#x274C; BAD: Fat interface forces unnecessary implementations
+class Worker(ABC):
+    @abstractmethod
+    def code(self): pass
+    @abstractmethod
+    def test(self): pass
+    @abstractmethod
+    def design(self): pass
+    @abstractmethod
+    def manage_team(self): pass
+
+class JuniorDeveloper(Worker):
+    def code(self): return "Writing Python"
+    def test(self): return "Writing tests"
+    def design(self): raise NotImplementedError("Juniors don't design!")
+    def manage_team(self): raise NotImplementedError("Juniors don't manage!")
+    # Forced to implement methods that make no sense!</code></pre>
+
+      <pre><code># &#x2705; GOOD: Small, focused interfaces
+class Coder(ABC):
+    @abstractmethod
+    def code(self): pass
+
+class Tester(ABC):
+    @abstractmethod
+    def test(self): pass
+
+class Designer(ABC):
+    @abstractmethod
+    def design(self): pass
+
+class TeamLead(ABC):
+    @abstractmethod
+    def manage_team(self): pass
+
+# Each role implements only what it actually does:
+class JuniorDev(Coder, Tester):
+    def code(self): return "Writing Python"
+    def test(self): return "Writing unit tests"
+
+class SeniorDev(Coder, Tester, Designer):
+    def code(self): return "Writing Python + Go"
+    def test(self): return "Writing integration tests"
+    def design(self): return "System architecture"
+
+class TechLead(Coder, Designer, TeamLead):
+    def code(self): return "Reviewing PRs"
+    def design(self): return "Technical decisions"
+    def manage_team(self): return "Sprint planning"</code></pre>
+
+      <h2>D — Dependency Inversion Principle</h2>
+      <p><strong>"High-level modules should not depend on low-level modules. Both should depend on abstractions."</strong></p>
+
+      <pre><code># &#x274C; BAD: High-level OrderService depends directly on low-level MySQLDatabase
+class MySQLDatabase:
+    def save_order(self, order):
+        # MySQL-specific code
+        pass
+
+class OrderService:
+    def __init__(self):
+        self.db = MySQLDatabase()  # Hardcoded dependency!
+
+    def create_order(self, items):
+        order = {"items": items, "total": sum(i["price"] for i in items)}
+        self.db.save_order(order)
+        return order
+
+# Problem: Can't switch to PostgreSQL without rewriting OrderService.
+# Can't unit test without a real MySQL database.</code></pre>
+
+      <pre><code># &#x2705; GOOD: Both depend on abstraction (interface)
+class OrderRepository(ABC):
+    @abstractmethod
+    def save(self, order: dict) -> str: pass
+
+class MySQLOrderRepo(OrderRepository):
+    def save(self, order: dict) -> str:
+        # MySQL implementation
+        return "mysql-order-id"
+
+class PostgresOrderRepo(OrderRepository):
+    def save(self, order: dict) -> str:
+        # PostgreSQL implementation
+        return "pg-order-id"
+
+class InMemoryOrderRepo(OrderRepository):
+    """For unit testing — no database needed!"""
+    def __init__(self):
+        self.orders = []
+    def save(self, order: dict) -> str:
+        self.orders.append(order)
+        return f"mem-{len(self.orders)}"
+
+class OrderService:
+    def __init__(self, repo: OrderRepository):  # Depends on abstraction!
+        self.repo = repo
+
+    def create_order(self, items):
+        order = {"items": items, "total": sum(i["price"] for i in items)}
+        order_id = self.repo.save(order)
+        return {"id": order_id, **order}
+
+# Production:
+service = OrderService(PostgresOrderRepo())
+
+# Testing (no database!):
+service = OrderService(InMemoryOrderRepo())
+result = service.create_order([{"name": "Widget", "price": 9.99}])
+assert result["total"] == 9.99  # Fast, isolated test!</code></pre>
+
+      <h2>SOLID Cheat Sheet</h2>
+
+      <!-- Cheat Sheet -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">SOLID Quick Reference</div>
+        <div class="timeline">
+          <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">S — Single Responsibility</div><div class="timeline-item-desc">One class = one job. If you describe a class with "AND", split it.</div></div>
+          <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">O — Open/Closed</div><div class="timeline-item-desc">Add new features by adding new code, not changing existing code. Use polymorphism.</div></div>
+          <div class="timeline-item" style="--c:#a855f7"><div class="timeline-item-title" style="color:#a855f7">L — Liskov Substitution</div><div class="timeline-item-desc">Subclasses must work wherever the parent class works. No surprises.</div></div>
+          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">I — Interface Segregation</div><div class="timeline-item-desc">Many small interfaces &gt; one fat interface. Don't force classes to implement unused methods.</div></div>
+          <div class="timeline-item" style="--c:#ef4444"><div class="timeline-item-title" style="color:#ef4444">D — Dependency Inversion</div><div class="timeline-item-desc">Depend on abstractions (interfaces), not concretions (specific implementations). Inject dependencies.</div></div>
+        </div>
+      </div>
+
+      <p>SOLID principles aren't about writing perfect code — they're about writing code that <strong>survives contact with reality</strong>. Requirements change, teams change, and bugs happen. SOLID gives your codebase the flexibility to handle all of that without collapsing. Start with Single Responsibility and Dependency Inversion — they give the biggest payoff with the least effort. The rest will follow naturally as your design sense improves.</p>
+    `,
+    author: 'Coder Secret',
+    date: '2026-04-08',
+    readTime: '18 min read',
+    tags: ['SOLID', 'Design Patterns', 'Python', 'Clean Code', 'Tutorial'],
+    coverImage: '',
+  },
+  {
+    id: '28',
+    title: 'Separation of Concerns: The Architecture Principle Behind Every Clean Codebase',
+    slug: 'separation-of-concerns-architecture-guide',
+    excerpt: 'Understand why mixing business logic with database queries and HTTP handling creates unmaintainable code. Learn SoC through layered architecture, MVC, microservices, and frontend patterns — with real refactoring examples.',
+    category: 'backend',
+    content: `
+      <p>You open a 500-line Django view function that validates input, queries the database, applies business rules, calls an external API, formats the response, and sends an email. You need to change the email provider. Good luck finding the email code without breaking everything else. This is what happens when you ignore <strong>Separation of Concerns</strong> — the most fundamental architecture principle in software engineering.</p>
+
+      <h2>What is Separation of Concerns?</h2>
+      <p><strong>Separation of Concerns (SoC)</strong> means organizing code so that each section handles <strong>one distinct responsibility</strong>. The HTTP handler handles HTTP. The business logic handles rules. The database layer handles persistence. They don't know about each other's internals.</p>
+
+      <!-- SoC Overview -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Separation of Concerns: Before vs After</div>
+        <div class="vs-cards">
+          <div class="vs-card" style="border-color:#ef4444">
+            <div class="vs-card-header" style="background:#ef4444">&#x1F6AB; No SoC (Spaghetti Code)</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F35D;</span>Everything in one function/file</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4A3;</span>Change one thing, break three others</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F6AB;</span>Can't test business logic without database</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F92F;</span>New devs take weeks to understand</div>
+            </div>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="vs-card" style="border-color:#22c55e">
+            <div class="vs-card-header" style="background:#22c55e">&#x2705; With SoC (Clean Architecture)</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4E6;</span>Each module has one responsibility</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F6E1;</span>Changes are isolated to one layer</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>Test each layer independently</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F680;</span>New devs productive in days</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>The Classic Example: A Web API Endpoint</h2>
+      <pre><code># &#x274C; BAD: Everything jammed into one view function
+@app.route("/api/orders", methods=["POST"])
+def create_order():
+    # HTTP concern: parse request
+    data = request.json
+    if not data.get("items"):
+        return jsonify({"error": "items required"}), 400
+
+    # Business logic concern: calculate total
+    total = 0
+    for item in data["items"]:
+        product = db.execute("SELECT price FROM products WHERE id = ?",
+                            (item["product_id"],)).fetchone()
+        if not product:
+            return jsonify({"error": f"Product {item['product_id']} not found"}), 404
+        total += product["price"] * item["quantity"]
+
+    # Business rule: apply discount
+    if total > 100:
+        total *= 0.9  # 10% discount over $100
+
+    # Database concern: save order
+    order_id = str(uuid.uuid4())
+    db.execute("INSERT INTO orders (id, user_id, total, status) VALUES (?, ?, ?, ?)",
+              (order_id, data["user_id"], total, "pending"))
+    for item in data["items"]:
+        db.execute("INSERT INTO order_items (order_id, product_id, qty) VALUES (?, ?, ?)",
+                  (order_id, item["product_id"], item["quantity"]))
+    db.commit()
+
+    # External API concern: charge payment
+    stripe.PaymentIntent.create(amount=int(total * 100), currency="usd")
+
+    # Email concern: send confirmation
+    send_email(data["user_id"], f"Order {order_id} confirmed! Total: \${total:.2f}")
+
+    # HTTP concern: format response
+    return jsonify({"order_id": order_id, "total": total}), 201
+
+# This function has 6 concerns mixed together.
+# Testing any one requires ALL dependencies (database, Stripe, email).</code></pre>
+
+      <h2>Refactored: Layered Architecture</h2>
+
+      <!-- Layers -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Layered Architecture (Separation of Concerns)</div>
+        <div class="layer-diagram">
+          <div class="layer-item" style="background:#3b82f6">Presentation Layer (HTTP/API)<span class="layer-item-sub">Parse requests, validate input, format responses. Knows nothing about business rules.</span></div>
+          <div class="layer-item" style="background:#7c3aed">Service Layer (Business Logic)<span class="layer-item-sub">Apply business rules, orchestrate operations. Knows nothing about HTTP or databases.</span></div>
+          <div class="layer-item" style="background:#f97316">Repository Layer (Data Access)<span class="layer-item-sub">Query and persist data. Knows nothing about business rules or HTTP.</span></div>
+          <div class="layer-item" style="background:#22c55e">Infrastructure (External Services)<span class="layer-item-sub">Email, payments, file storage, message queues. Isolated behind interfaces.</span></div>
+        </div>
+      </div>
+
+      <pre><code># &#x2705; GOOD: Each layer has one concern
+
+# ── Repository Layer (data access only) ────────
+class ProductRepository:
+    def __init__(self, db):
+        self.db = db
+    def get_by_id(self, product_id: str):
+        return self.db.execute("SELECT * FROM products WHERE id = ?",
+                               (product_id,)).fetchone()
+
+class OrderRepository:
+    def __init__(self, db):
+        self.db = db
+    def save(self, order: dict, items: list):
+        self.db.execute("INSERT INTO orders ...", (order["id"], order["total"]))
+        for item in items:
+            self.db.execute("INSERT INTO order_items ...", (order["id"], item["product_id"]))
+        self.db.commit()
+
+# ── Service Layer (business logic only) ────────
+class OrderService:
+    def __init__(self, product_repo, order_repo, payment, emailer):
+        self.product_repo = product_repo
+        self.order_repo = order_repo
+        self.payment = payment
+        self.emailer = emailer
+
+    def create_order(self, user_id: str, items: list) -> dict:
+        # Calculate total (business logic)
+        total = 0
+        for item in items:
+            product = self.product_repo.get_by_id(item["product_id"])
+            if not product:
+                raise ValueError(f"Product {item['product_id']} not found")
+            total += product["price"] * item["quantity"]
+
+        # Apply discount (business rule)
+        if total > 100:
+            total *= 0.9
+
+        # Persist
+        order = {"id": str(uuid.uuid4()), "user_id": user_id, "total": total}
+        self.order_repo.save(order, items)
+
+        # Side effects
+        self.payment.charge(int(total * 100))
+        self.emailer.send_confirmation(user_id, order["id"], total)
+
+        return order
+
+# ── Presentation Layer (HTTP only) ─────────────
+@app.route("/api/orders", methods=["POST"])
+def create_order_endpoint():
+    data = request.json
+
+    # Validate input (HTTP concern)
+    if not data.get("items"):
+        return jsonify({"error": "items required"}), 400
+
+    try:
+        order = order_service.create_order(data["user_id"], data["items"])
+        return jsonify({"order_id": order["id"], "total": order["total"]}), 201
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+
+# Each layer is independently testable:
+# - Test OrderService with mock repos (no database!)
+# - Test endpoint with mock OrderService (no business logic!)
+# - Test ProductRepository against a test database (no HTTP!)</code></pre>
+
+      <h2>SoC in Frontend (Angular / React)</h2>
+
+      <!-- Frontend SoC -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Frontend Separation of Concerns</div>
+        <div class="pipeline">
+          <div class="pipeline-step" style="background:#3b82f6;--i:0"><span class="pipeline-step-icon">&#x1F5BC;</span>Component<span class="pipeline-step-sub">UI rendering only</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#7c3aed;--i:1"><span class="pipeline-step-icon">&#x1F9E0;</span>Service<span class="pipeline-step-sub">Business logic</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#f97316;--i:2"><span class="pipeline-step-icon">&#x1F4E1;</span>API Client<span class="pipeline-step-sub">HTTP calls</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#22c55e;--i:3"><span class="pipeline-step-icon">&#x1F4BE;</span>State<span class="pipeline-step-sub">Data management</span></div>
+        </div>
+      </div>
+
+      <pre><code>// &#x274C; BAD: Component does everything
+@Component({ template: '...' })
+export class OrderComponent {
+  orders = [];
+  async loadOrders() {
+    const res = await fetch('/api/orders');   // HTTP concern
+    this.orders = await res.json();
+    this.orders = this.orders.filter(o => o.status !== 'cancelled');  // Business logic
+    this.orders.sort((a, b) => b.total - a.total);  // Business logic
+    localStorage.setItem('lastView', new Date().toISOString());  // Storage concern
+  }
+}
+
+// &#x2705; GOOD: Each concern separated
+// api.service.ts — HTTP only
+@Injectable({ providedIn: 'root' })
+export class OrderApi {
+  private http = inject(HttpClient);
+  getOrders() { return this.http.get&lt;Order[]&gt;('/api/orders'); }
+}
+
+// order.service.ts — Business logic only
+@Injectable({ providedIn: 'root' })
+export class OrderService {
+  private api = inject(OrderApi);
+  getActiveOrders() {
+    return this.api.getOrders().pipe(
+      map(orders => orders.filter(o => o.status !== 'cancelled')),
+      map(orders => orders.sort((a, b) => b.total - a.total)),
+    );
+  }
+}
+
+// order.component.ts — UI rendering only
+@Component({ template: '...' })
+export class OrderComponent {
+  private orderService = inject(OrderService);
+  orders = toSignal(this.orderService.getActiveOrders());
+}</code></pre>
+
+      <h2>SoC in Microservices</h2>
+
+      <!-- Microservices SoC -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Microservices: Separation at the System Level</div>
+        <div class="hub-diagram">
+          <div class="hub-center" style="background:#7c3aed;box-shadow:0 0 30px rgba(124,58,237,0.3)">API Gateway<span class="hub-center-sub">Routes requests to the right service</span></div>
+          <div class="hub-arrow-label"><span class="arrow-animated">&#x2B07;</span> Each service owns one business domain</div>
+          <div class="hub-apps">
+            <div class="hub-app"><span class="hub-app-icon">&#x1F464;</span>User Service<span class="hub-app-sub">Auth, profiles</span></div>
+            <div class="hub-app" style="background:#f97316"><span class="hub-app-icon">&#x1F6D2;</span>Order Service<span class="hub-app-sub">Cart, checkout</span></div>
+            <div class="hub-app" style="background:#a855f7"><span class="hub-app-icon">&#x1F4B3;</span>Payment Service<span class="hub-app-sub">Stripe, invoices</span></div>
+            <div class="hub-app" style="background:#ef4444"><span class="hub-app-icon">&#x1F4E7;</span>Notification<span class="hub-app-sub">Email, SMS, push</span></div>
+          </div>
+        </div>
+      </div>
+
+      <h2>SoC Patterns You Should Know</h2>
+
+      <!-- Patterns Table -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">SoC Patterns at Every Level</div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:0.78rem;min-width:500px">
+            <thead>
+              <tr>
+                <th style="text-align:left;padding:0.6rem;background:#7c3aed;color:#fff;border-radius:0.4rem 0 0 0">Level</th>
+                <th style="text-align:left;padding:0.6rem;background:#7c3aed;color:#fff">Pattern</th>
+                <th style="text-align:left;padding:0.6rem;background:#7c3aed;color:#fff;border-radius:0 0.4rem 0 0">What It Separates</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">Function</td><td style="padding:0.5rem">Single Responsibility</td><td style="padding:0.5rem">One function = one task</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">Class</td><td style="padding:0.5rem">SOLID Principles</td><td style="padding:0.5rem">Behavior, data, dependencies</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">Module</td><td style="padding:0.5rem">Layered Architecture</td><td style="padding:0.5rem">HTTP, business logic, data access</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">Frontend</td><td style="padding:0.5rem">Component + Service + State</td><td style="padding:0.5rem">UI rendering, logic, data management</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">API</td><td style="padding:0.5rem">MVC / Clean Architecture</td><td style="padding:0.5rem">Controller, Service, Repository</td></tr>
+              <tr><td style="padding:0.5rem;color:var(--foreground);font-weight:700">System</td><td style="padding:0.5rem">Microservices</td><td style="padding:0.5rem">Each service owns one business domain</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p>Separation of Concerns is not about creating more files — it's about creating <strong>boundaries that protect you from change</strong>. When your email provider changes, only the email module changes. When your database changes, only the repository changes. When your UI framework changes, only the components change. Build these boundaries from day one, and your codebase will scale with your team instead of against it.</p>
+    `,
+    author: 'Coder Secret',
+    date: '2026-04-08',
+    readTime: '16 min read',
+    tags: ['Architecture', 'Clean Code', 'Design Patterns', 'SoC', 'Backend'],
+    coverImage: '',
+  },
+
+  {
     id: '26',
     title: 'Compression Algorithms Explained: From Gzip to Zstd with Real Benchmarks',
     slug: 'compression-algorithms-benchmarks-guide',
     excerpt: 'Understand how compression works, compare every major algorithm (gzip, brotli, zstd, lz4, snappy, bzip2, xz), and see real benchmarks. Learn exactly which one to use for your specific use case.',
     category: 'backend',
-    featured: true,
     content: `
       <p>Every time you visit a website, download a package, or store a database backup, compression is saving bandwidth, disk space, and time. But choosing the wrong algorithm can mean your API responses are 3x larger than needed, or your build pipeline takes 10 minutes instead of 1. This guide explains <strong>how compression actually works</strong>, benchmarks every major algorithm, and tells you exactly which one to use.</p>
 
