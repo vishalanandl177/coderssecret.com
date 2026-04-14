@@ -7,9 +7,9 @@ import { RouterLink } from '@angular/router';
   template: `
     <footer class="border-t border-border bg-card/50">
       <div class="container max-w-5xl mx-auto px-6 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
           <!-- Brand -->
-          <div>
+          <div class="col-span-2 md:col-span-1">
             <a routerLink="/" class="inline-flex items-center gap-2 font-bold text-lg tracking-tight">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" class="h-7 w-7">
                 <defs>
@@ -43,18 +43,30 @@ import { RouterLink } from '@angular/router';
             </ul>
           </div>
 
+          <!-- Legal -->
+          <div>
+            <h3 class="text-sm font-semibold text-foreground mb-3">Legal</h3>
+            <ul class="space-y-2 text-sm">
+              <li><a routerLink="/privacy" class="text-muted-foreground transition-colors hover:text-foreground">Privacy Policy</a></li>
+              <li><a routerLink="/terms" class="text-muted-foreground transition-colors hover:text-foreground">Terms of Service</a></li>
+              <li><a routerLink="/cookies" class="text-muted-foreground transition-colors hover:text-foreground">Cookie Policy</a></li>
+            </ul>
+          </div>
+
           <!-- Links -->
           <div>
             <h3 class="text-sm font-semibold text-foreground mb-3">Connect</h3>
             <ul class="space-y-2 text-sm">
               <li><a href="https://instagram.com/vis_naz" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">Instagram</a></li>
               <li><a href="https://linkedin.com/in/vishal-techlead" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">LinkedIn</a></li>
+              <li><a href="https://github.com/vishalanandl177/coderssecret.com" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">GitHub</a></li>
             </ul>
           </div>
         </div>
 
-        <div class="mt-10 pt-6 border-t border-border text-center text-xs text-muted-foreground">
+        <div class="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
           <p>&copy; {{ currentYear }} CodersSecret. All rights reserved.</p>
+          <p>No ads &middot; No tracking &middot; Privacy-first</p>
         </div>
       </div>
     </footer>

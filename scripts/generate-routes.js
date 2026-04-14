@@ -208,6 +208,49 @@ for (const cat of categories) {
   created++;
 }
 
+// ── Legal pages (privacy, terms, cookies) ────
+const legalPages = [
+  {
+    slug: 'privacy',
+    title: 'Privacy Policy',
+    description: 'CodersSecret Privacy Policy — we collect minimal anonymous analytics data, no personal information, no advertising cookies.',
+    content: `
+      <h1>Privacy Policy</h1>
+      <p>CodersSecret does not collect personal information. We use Google Analytics for anonymous usage data. We do not sell data to advertisers. Read the full privacy policy on the site.</p>
+    `,
+  },
+  {
+    slug: 'terms',
+    title: 'Terms of Service',
+    description: 'CodersSecret Terms of Service — rules for using the site, content licensing, and user responsibilities.',
+    content: `
+      <h1>Terms of Service</h1>
+      <p>By using CodersSecret, you agree to our terms. Content is provided for educational purposes. Code examples are MIT-licensed. Read the full terms on the site.</p>
+    `,
+  },
+  {
+    slug: 'cookies',
+    title: 'Cookie Policy',
+    description: 'CodersSecret Cookie Policy — we use minimal cookies for anonymous analytics and theme preference. No advertising, no tracking pixels.',
+    content: `
+      <h1>Cookie Policy</h1>
+      <p>CodersSecret uses minimal cookies for anonymous analytics (Google Analytics) and your theme preference (localStorage). No advertising cookies, no tracking pixels. Read the full cookie policy on the site.</p>
+    `,
+  },
+];
+
+for (const page of legalPages) {
+  const dir = path.join(OUTPUT_DIR, page.slug);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'index.html'), makeHtml({
+    title: page.title,
+    description: page.description,
+    url: `/${page.slug}`,
+    content: page.content,
+  }));
+  created++;
+}
+
 // ── Generate 404.html with Angular app (no redirect!) ──
 const notFoundHtml = makeHtml({
   title: 'Page Not Found',

@@ -18,6 +18,18 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/category/category').then(m => m.CategoryComponent),
   },
   {
+    path: 'privacy',
+    loadComponent: () => import('./pages/privacy/privacy').then(m => m.PrivacyComponent),
+  },
+  {
+    path: 'terms',
+    loadComponent: () => import('./pages/terms/terms').then(m => m.TermsComponent),
+  },
+  {
+    path: 'cookies',
+    loadComponent: () => import('./pages/cookies/cookies').then(m => m.CookiesComponent),
+  },
+  {
     path: '**',
     loadComponent: () => import('./pages/not-found/not-found').then(m => m.NotFoundComponent),
   },
