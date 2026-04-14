@@ -171,6 +171,15 @@ import { DOCUMENT } from '@angular/common';
           </div>
         </div>
 
+        <!-- Comments (Giscus) -->
+        <div class="mb-16 animate-in fade-in duration-700">
+          <h2 class="text-2xl font-extrabold tracking-tight mb-6">Discussion</h2>
+          <p class="text-sm text-muted-foreground mb-6">
+            Comments are powered by <a href="https://giscus.app" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Giscus</a> and GitHub Discussions. You'll need a GitHub account to comment.
+          </p>
+          <div #giscus class="giscus-container"></div>
+        </div>
+
         <!-- Related posts -->
         @if (relatedPosts.length > 0) {
           <div class="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -251,6 +260,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   private analytics = inject(AnalyticsService);
   private copyButtonsAdded = false;
   private imagesProcessed = false;
+  private giscusAdded = false;
   private scrollMilestones = new Set<number>();
   readingProgress = signal(0);
   linkCopied = signal(false);
@@ -276,6 +286,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
             .slice(0, 2);
           this.copyButtonsAdded = false;
           this.imagesProcessed = false;
+          this.giscusAdded = false;
           this.scrollMilestones.clear();
           // Generate TOC from h2 tags in content
           const h2Regex = /<h2>(.*?)<\/h2>/g;
@@ -335,6 +346,32 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   }
 
   ngAfterViewChecked() {
+    // Load Giscus comments
+    if (this.post && !this.giscusAdded) {
+      const container = this.el.nativeElement.querySelector('.giscus-container');
+      if (container) {
+        this.giscusAdded = true;
+        // Clear any existing Giscus iframe (for navigation between posts)
+        container.innerHTML = '';
+        const script = document.createElement('script');
+        script.src = 'https://giscus.app/client.js';
+        script.setAttribute('data-repo', 'vishalanandl177/coderssecret.com');
+        script.setAttribute('data-repo-id', 'R_kgDOR5J1Dw');
+        script.setAttribute('data-category', 'General');
+        script.setAttribute('data-category-id', 'DIC_kwDOR5J1D84C62V5');
+        script.setAttribute('data-mapping', 'title');
+        script.setAttribute('data-strict', '1');
+        script.setAttribute('data-reactions-enabled', '1');
+        script.setAttribute('data-emit-metadata', '1');
+        script.setAttribute('data-input-position', 'bottom');
+        script.setAttribute('data-theme', 'preferred_color_scheme');
+        script.setAttribute('data-lang', 'en');
+        script.setAttribute('data-loading', 'lazy');
+        script.setAttribute('crossorigin', 'anonymous');
+        script.async = true;
+        container.appendChild(script);
+      }
+    }
     if (this.post && !this.imagesProcessed) {
       const images = this.el.nativeElement.querySelectorAll('article img');
       if (images.length > 0) {
