@@ -18,6 +18,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/category/category').then(m => m.CategoryComponent),
   },
   {
+    path: 'about',
+    loadComponent: () => import('./pages/about/about').then(m => m.AboutComponent),
+  },
+  {
     path: 'privacy',
     loadComponent: () => import('./pages/privacy/privacy').then(m => m.PrivacyComponent),
   },

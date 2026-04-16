@@ -37,6 +37,11 @@ import { SearchComponent } from '../search/search';
               Blog
             </a>
 
+            <a routerLink="/about" routerLinkActive="text-foreground bg-accent"
+               class="rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
+              About
+            </a>
+
             <!-- Categories dropdown -->
             <div class="relative">
               <button (click)="categoriesOpen.set(!categoriesOpen())"

@@ -17,6 +17,7 @@ interface SeoConfig {
     section?: string;
   };
   breadcrumbs?: { name: string; url: string }[];
+  itemList?: { name: string; url: string; description?: string }[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -162,6 +163,27 @@ export class SeoService {
           'name': crumb.name,
           'item': `${this.siteUrl}${crumb.url}`,
         })),
+      });
+    }
+
+    // ItemList schema (for blog list and category pages)
+    if (config.itemList && config.itemList.length > 0) {
+      schemas.push({
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        'name': config.title,
+        'description': config.description,
+        'url': url,
+        'mainEntity': {
+          '@type': 'ItemList',
+          'numberOfItems': config.itemList.length,
+          'itemListElement': config.itemList.map((item, i) => ({
+            '@type': 'ListItem',
+            'position': i + 1,
+            'url': `${this.siteUrl}${item.url}`,
+            'name': item.name,
+          })),
+        },
       });
     }
 

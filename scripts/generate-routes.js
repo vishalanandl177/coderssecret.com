@@ -158,11 +158,21 @@ for (const post of posts) {
   const dir = path.join(OUTPUT_DIR, 'blog', post.slug);
   fs.mkdirSync(dir, { recursive: true });
 
+  // Find related posts by category/tags
+  const related = posts
+    .filter(p => p.slug !== post.slug && (p.category === post.category))
+    .slice(0, 3);
+  const tags = post.tags || [];
+
   const content = `
     <article>
+      <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/blog">Blog</a> / ${escapeHtml(post.title)}</nav>
       <h1>${escapeHtml(post.title)}</h1>
+      <p>By Coder Secret | ${post.date || ''} | Category: ${post.category || ''}</p>
       <p>${escapeHtml(post.excerpt)}</p>
+      ${tags.length > 0 ? '<p>Tags: ' + tags.map(t => `<a href="/blog?tag=${encodeURIComponent(t)}">${escapeHtml(t)}</a>`).join(', ') + '</p>' : ''}
       <p>Read the full article on <a href="/blog/${post.slug}">CodersSecret</a>.</p>
+      ${related.length > 0 ? '<h2>Related Articles</h2><ul>' + related.map(r => `<li><a href="/blog/${r.slug}">${escapeHtml(r.title)}</a></li>`).join('') + '</ul>' : ''}
     </article>
   `;
 
@@ -209,6 +219,22 @@ for (const cat of categories) {
 }
 
 // ── Legal pages (privacy, terms, cookies) ────
+// ── About page (/about) ──────────────────────
+const aboutDir = path.join(OUTPUT_DIR, 'about');
+fs.mkdirSync(aboutDir, { recursive: true });
+fs.writeFileSync(path.join(aboutDir, 'index.html'), makeHtml({
+  title: 'About CodersSecret — Vishal Anand',
+  description: 'CodersSecret is a technical blog by Vishal Anand covering Python, Kubernetes, security, and system design with battle-tested, production-grade tutorials.',
+  url: '/about',
+  content: `
+    <h1>About CodersSecret</h1>
+    <p>CodersSecret is written by Vishal Anand — a software engineer and tech lead with experience building production systems at scale. The blog covers backend architecture, DevOps, security, Kubernetes, Python, and system design with practical, production-grade tutorials.</p>
+    <p>${posts.length} articles published across ${categories.size} categories.</p>
+    <p><a href="/blog">Browse all articles</a></p>
+  `,
+}));
+created++;
+
 const legalPages = [
   {
     slug: 'privacy',

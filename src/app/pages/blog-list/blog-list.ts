@@ -188,11 +188,16 @@ export class BlogListComponent {
       this.activeTag.set(tag);
     }
     this.seo.update({
-      title: tag ? `Articles tagged "${tag}"` : 'All Articles',
+      title: tag ? `Articles tagged "${tag}"` : 'All Articles — Developer Tutorials & Guides',
       description: tag
-        ? `Browse all articles tagged with ${tag} on CodersSecret.`
-        : 'Browse all articles on Angular, Python, DevOps, and modern web development.',
+        ? `Browse all articles tagged with ${tag} on CodersSecret — practical tutorials, deep dives, and real-world examples.`
+        : 'In-depth tutorials on Python, Kubernetes, API security, gRPC, encryption, ethical hacking, and modern web development. Written by engineers, for engineers.',
       url: '/blog',
+      itemList: BLOG_POSTS.slice(0, 20).map(p => ({
+        name: p.title,
+        url: `/blog/${p.slug}`,
+        description: p.excerpt,
+      })),
     });
   }
 

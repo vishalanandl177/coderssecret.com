@@ -174,8 +174,9 @@ export class CategoryComponent {
       const count = this.filteredPosts().length;
       const desc = this.categoryDescriptions[slug]
         || `Browse ${count} article${count !== 1 ? 's' : ''} about ${name} on CodersSecret.`;
+      const posts = this.filteredPosts();
       this.seo.update({
-        title: `${name} Articles`,
+        title: `${name} Articles — Tutorials & Guides`,
         description: desc,
         url: `/category/${slug}`,
         breadcrumbs: [
@@ -183,6 +184,11 @@ export class CategoryComponent {
           { name: 'Blog', url: '/blog' },
           { name: name, url: `/category/${slug}` },
         ],
+        itemList: posts.map(p => ({
+          name: p.title,
+          url: `/blog/${p.slug}`,
+          description: p.excerpt,
+        })),
       });
     });
   }
