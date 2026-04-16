@@ -34,12 +34,394 @@ export const CATEGORIES = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    id: '35',
+    title: 'How a CPU Actually Works: Architecture Explained for Software Engineers',
+    slug: 'cpu-architecture-explained-for-developers',
+    excerpt: 'Understand what happens inside the CPU when your code runs — the fetch-decode-execute cycle, pipelining, branch prediction, out-of-order execution, and why your single-threaded Python code uses only 1 of 16 cores.',
+    category: 'backend',
+    featured: true,
+    content: `
+      <p>You write code every day that runs on a CPU, but do you actually know what happens inside that chip when your <code>for</code> loop executes? Understanding CPU architecture doesn't just satisfy curiosity — it explains <em>why</em> certain code patterns are fast and others are slow. This guide gives you a developer-friendly mental model of how modern CPUs work, without requiring an electrical engineering degree.</p>
+
+      <h2>The Big Picture: What a CPU Does</h2>
+      <p>At its core (pun intended), a CPU does exactly three things, billions of times per second:</p>
+
+      <!-- Fetch-Decode-Execute -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">The Fetch-Decode-Execute Cycle</div>
+        <div class="pipeline">
+          <div class="pipeline-step" style="background:#3b82f6;--i:0"><span class="pipeline-step-icon">&#x1F4E5;</span>Fetch<span class="pipeline-step-sub">Get next instruction from memory</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#7c3aed;--i:1"><span class="pipeline-step-icon">&#x1F50D;</span>Decode<span class="pipeline-step-sub">Figure out what it means</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#22c55e;--i:2"><span class="pipeline-step-icon">&#x26A1;</span>Execute<span class="pipeline-step-sub">Do the math / move the data</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#f97316;--i:3"><span class="pipeline-step-icon">&#x1F4BE;</span>Write Back<span class="pipeline-step-sub">Store the result</span></div>
+        </div>
+      </div>
+
+      <p>That's it. Every program you've ever written — from "Hello World" to a Kubernetes controller — boils down to this cycle running billions of times per second. A modern CPU at 5 GHz does this cycle 5,000,000,000 times per second. Per core.</p>
+
+      <h2>Inside a Modern CPU Core</h2>
+
+      <!-- CPU Core Architecture -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Anatomy of a Single CPU Core</div>
+        <div class="layer-diagram">
+          <div class="layer-item" style="background:#3b82f6">Front End (Fetch + Decode)<span class="layer-item-sub">Instruction cache (L1i), instruction decoder, branch predictor, micro-op queue</span></div>
+          <div class="layer-item" style="background:#7c3aed">Scheduler / Rename Unit<span class="layer-item-sub">Reorders instructions for maximum throughput. Maps logical to physical registers.</span></div>
+          <div class="layer-item" style="background:#22c55e">Execution Units (Back End)<span class="layer-item-sub">ALU (math), FPU (floating point), SIMD (vector), AGU (memory addresses), branch unit</span></div>
+          <div class="layer-item" style="background:#f97316">Memory Subsystem<span class="layer-item-sub">L1d cache (data), load/store buffers, TLB (virtual memory translation)</span></div>
+          <div class="layer-item" style="background:#ef4444">Retirement Unit<span class="layer-item-sub">Commits results in program order. Handles exceptions and mispredictions.</span></div>
+        </div>
+      </div>
+
+      <h2>Key Concept 1: Pipelining</h2>
+      <p>Instead of finishing one instruction completely before starting the next, CPUs overlap them — like a factory assembly line. While instruction 1 is being executed, instruction 2 is being decoded, and instruction 3 is being fetched. A modern CPU has 15-20 pipeline stages.</p>
+
+      <pre><code>// Without pipelining (1 instruction at a time):
+// Clock 1: Fetch A
+// Clock 2: Decode A
+// Clock 3: Execute A
+// Clock 4: Fetch B        &#x2190; B waits for A to finish
+// Clock 5: Decode B
+// 3 instructions = 9 clocks
+
+// With pipelining (overlap stages):
+// Clock 1: Fetch A
+// Clock 2: Decode A  |  Fetch B
+// Clock 3: Execute A |  Decode B  |  Fetch C
+// Clock 4: Write A   |  Execute B |  Decode C
+// 3 instructions = 4 clocks (after pipeline fills)
+
+// The pipeline is WHY branch mispredictions are expensive:
+// If the CPU guessed the wrong branch, it has to FLUSH
+// 15-20 stages of work and start over. ~15 wasted cycles.</code></pre>
+
+      <h2>Key Concept 2: Branch Prediction</h2>
+      <p>When the CPU hits an <code>if</code> statement, it doesn't wait to evaluate the condition — it <strong>guesses</strong> which branch will be taken and starts executing it speculatively. Modern branch predictors guess correctly <strong>95-99% of the time</strong>.</p>
+
+      <pre><code>// Why sorted data is faster to process (famous Stack Overflow question):
+
+// Unsorted: [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8...]
+// Branch: if (x > 5) { sum += x; }
+// Pattern: N,N,N,N,Y,Y,N,Y,N,N,Y,Y  &#x2190; Random! Predictor ~50% accuracy
+// 50% misprediction = 50% * 15 cycles penalty = SLOW
+
+// Sorted: [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 8, 9...]
+// Pattern: N,N,N,N,N,N,N,N,N,Y,Y,Y  &#x2190; Predictable! ~99% accuracy
+// Almost no mispredictions = FAST
+
+// In C:
+// Sorted array:   sum loop takes ~2.5s
+// Unsorted array: sum loop takes ~12.0s
+// 5x slower — same data, same algorithm, just unsorted!</code></pre>
+
+      <h2>Key Concept 3: Out-of-Order Execution</h2>
+      <p>Modern CPUs don't execute instructions in the order you wrote them. They look at upcoming instructions and execute whichever ones are ready — even if they appear later in the program:</p>
+
+      <pre><code>// Your code:
+a = load(x)      // Takes 300 cycles if x is in RAM
+b = load(y)      // Also 300 cycles (independent of a)
+c = a + 1        // Depends on a
+d = b + 2        // Depends on b
+e = c + d        // Depends on both
+
+// CPU's execution (out of order):
+// Cycle 1:   Start loading x AND y simultaneously (both independent!)
+// Cycle 300: a and b arrive from RAM
+// Cycle 301: Compute c=a+1 AND d=b+2 simultaneously
+// Cycle 302: Compute e=c+d
+// Total: ~302 cycles
+
+// Without OoO (in order):
+// Cycle 1:   Start loading x
+// Cycle 300: a arrives. Start loading y
+// Cycle 600: b arrives. Compute c, then d, then e
+// Total: ~603 cycles — 2x slower!</code></pre>
+
+      <h2>Key Concept 4: SIMD (Single Instruction, Multiple Data)</h2>
+      <p>Modern CPUs have special registers (128-bit SSE, 256-bit AVX, 512-bit AVX-512) that can process 4, 8, or 16 values in a single instruction:</p>
+
+      <pre><code>// Normal: add 4 numbers one by one
+a[0] += b[0];  // 1 cycle
+a[1] += b[1];  // 1 cycle
+a[2] += b[2];  // 1 cycle
+a[3] += b[3];  // 1 cycle
+// Total: 4 cycles
+
+// SIMD (AVX): add 4 numbers in ONE instruction
+__m256 va = _mm256_load_ps(a);
+__m256 vb = _mm256_load_ps(b);
+__m256 vc = _mm256_add_ps(va, vb);  // 1 cycle for ALL 4!
+_mm256_store_ps(a, vc);
+// Total: ~1 cycle (4x speedup)
+
+// NumPy uses SIMD internally — that's why:
+// numpy.add(a, b) is 10-50x faster than a Python for loop
+// It's doing the same math but 8 numbers at a time via AVX</code></pre>
+
+      <h2>Multi-Core: Why More Cores != Proportionally Faster</h2>
+
+      <!-- Core Scaling -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Why Adding Cores Has Diminishing Returns (Amdahl's Law)</div>
+        <div class="bar-chart">
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-25 bar-blue" data-value="1x"></div><div class="bar-chart-label">1 core</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-45 bar-blue" data-value="1.8x"></div><div class="bar-chart-label">2 cores</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-60 bar-green" data-value="3.2x"></div><div class="bar-chart-label">4 cores</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-70 bar-green" data-value="5.5x"></div><div class="bar-chart-label">8 cores</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-78 bar-purple" data-value="7x"></div><div class="bar-chart-label">16 cores</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-82 bar-orange" data-value="8x"></div><div class="bar-chart-label">32 cores</div></div>
+        </div>
+      </div>
+
+      <p><strong>Amdahl's Law:</strong> If 20% of your program is sequential (can't be parallelized), then even with infinite cores, you can only get a maximum 5x speedup. That sequential 20% becomes the bottleneck.</p>
+
+      <h2>What This Means for Your Code</h2>
+
+      <!-- Practical Implications -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">CPU Architecture Implications for Developers</div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:0.78rem;min-width:500px">
+            <thead>
+              <tr>
+                <th style="text-align:left;padding:0.6rem;background:#7c3aed;color:#fff;border-radius:0.4rem 0 0 0">CPU Feature</th>
+                <th style="text-align:left;padding:0.6rem;background:#7c3aed;color:#fff">What to Do in Your Code</th>
+                <th style="text-align:left;padding:0.6rem;background:#7c3aed;color:#fff;border-radius:0 0.4rem 0 0">What to Avoid</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">Pipelining</td><td style="padding:0.5rem">Write branchless code in hot loops</td><td style="padding:0.5rem;color:#ef4444">Unpredictable branches in tight loops</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">Branch Prediction</td><td style="padding:0.5rem">Sort data before processing; use lookup tables</td><td style="padding:0.5rem;color:#ef4444">Random branching patterns</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">Out-of-Order</td><td style="padding:0.5rem">Keep computations independent when possible</td><td style="padding:0.5rem;color:#ef4444">Long dependency chains</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">SIMD</td><td style="padding:0.5rem">Use NumPy, BLAS, vectorized ops; align data</td><td style="padding:0.5rem;color:#ef4444">Scalar loops over large arrays</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">Cache</td><td style="padding:0.5rem">Sequential memory access; keep working set small</td><td style="padding:0.5rem;color:#ef4444">Random access; pointer chasing</td></tr>
+              <tr><td style="padding:0.5rem;color:var(--foreground);font-weight:700">Multi-core</td><td style="padding:0.5rem">Parallelize independent work; minimize shared state</td><td style="padding:0.5rem;color:#ef4444">Lock contention; false sharing</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p>You don't need to think about this for every line of code. But for performance-critical paths — inner loops, data pipelines, real-time systems — understanding your CPU is the difference between "fast enough" and "10x faster than the competition."</p>
+    `,
+    author: 'Coder Secret',
+    date: '2026-04-11',
+    readTime: '18 min read',
+    tags: ['CPU', 'Architecture', 'Performance', 'SIMD', 'Backend'],
+    coverImage: '',
+  },
+  {
+    id: '36',
+    title: 'x86 vs ARM: The Architecture War That Shapes Every Device You Own',
+    slug: 'x86-vs-arm-architecture-comparison',
+    excerpt: 'Understand the real differences between x86 (Intel/AMD) and ARM (Apple Silicon, Snapdragon, Graviton) — CISC vs RISC, power efficiency, performance, and why ARM is winning the future of computing.',
+    category: 'backend',
+    content: `
+      <p>Your laptop probably runs x86 (Intel or AMD). Your phone definitely runs ARM (Qualcomm, Apple, MediaTek). Your cloud server might be either. The M4 MacBook runs ARM. AWS Graviton runs ARM. Windows runs on both. These two architectures power every computing device on the planet — and understanding the difference helps you make better decisions about hardware, cloud instances, and even how to write your code.</p>
+
+      <h2>The Fundamental Difference: CISC vs RISC</h2>
+
+      <!-- CISC vs RISC -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">x86 (CISC) vs ARM (RISC) — Philosophy</div>
+        <div class="vs-cards">
+          <div class="vs-card" style="border-color:#3b82f6">
+            <div class="vs-card-header" style="background:#3b82f6">x86 (CISC)</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4DA;</span>Complex Instruction Set Computer</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F528;</span>"One instruction does a LOT of work"</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4BB;</span>Variable-length instructions (1-15 bytes)</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x26A1;</span>High single-thread performance</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F525;</span>Higher power consumption</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3E2;</span>Intel, AMD</div>
+            </div>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="vs-card" style="border-color:#22c55e">
+            <div class="vs-card-header" style="background:#22c55e">ARM (RISC)</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4D6;</span>Reduced Instruction Set Computer</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F52A;</span>"Many simple instructions, each very fast"</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4BB;</span>Fixed-length instructions (4 bytes)</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F50B;</span>Best performance per watt</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2744;</span>Much lower power consumption</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3E2;</span>Apple, Qualcomm, AWS, Ampere</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>The Real-World Comparison (2026)</h2>
+
+      <!-- Detailed Comparison Table -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">x86 vs ARM — Head-to-Head (2026)</div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:0.78rem;min-width:550px">
+            <thead>
+              <tr>
+                <th style="text-align:left;padding:0.6rem;background:var(--muted);color:var(--foreground);border-radius:0.4rem 0 0 0">Aspect</th>
+                <th style="text-align:center;padding:0.6rem;background:#3b82f6;color:#fff">x86 (Intel/AMD)</th>
+                <th style="text-align:center;padding:0.6rem;background:#22c55e;color:#fff;border-radius:0 0.4rem 0 0">ARM</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:600">Market</td><td style="padding:0.5rem;text-align:center">Desktops, servers, gaming</td><td style="padding:0.5rem;text-align:center">Phones, tablets, MacBooks, cloud</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:600">Power efficiency</td><td style="padding:0.5rem;text-align:center;color:#f97316">65-350W (desktop/server)</td><td style="padding:0.5rem;text-align:center;color:#22c55e;font-weight:700">5-60W (phone to server)</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:600">Single-thread perf</td><td style="padding:0.5rem;text-align:center;color:#3b82f6;font-weight:700">Excellent (i9, Ryzen 9)</td><td style="padding:0.5rem;text-align:center;color:#22c55e;font-weight:700">Excellent (Apple M4, X Elite)</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:600">Multi-thread perf</td><td style="padding:0.5rem;text-align:center;color:#3b82f6;font-weight:700">Excellent (64+ core EPYC)</td><td style="padding:0.5rem;text-align:center;color:#22c55e">Great (128-core Ampere)</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:600">Software compat</td><td style="padding:0.5rem;text-align:center;color:#22c55e;font-weight:700">Everything (40 years)</td><td style="padding:0.5rem;text-align:center;color:#f97316">Most things (growing fast)</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:600">AI/ML hardware</td><td style="padding:0.5rem;text-align:center">AVX-512, AMX (Intel)</td><td style="padding:0.5rem;text-align:center;color:#22c55e;font-weight:700">Neural Engine (Apple), SVE2</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:600">Licensing model</td><td style="padding:0.5rem;text-align:center">Intel and AMD design + manufacture</td><td style="padding:0.5rem;text-align:center">ARM Ltd licenses; anyone can customize</td></tr>
+              <tr><td style="padding:0.5rem;color:var(--foreground);font-weight:600">Cloud cost</td><td style="padding:0.5rem;text-align:center">Baseline</td><td style="padding:0.5rem;text-align:center;color:#22c55e;font-weight:700">20-40% cheaper (Graviton)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h2>Performance Benchmarks (2026)</h2>
+
+      <!-- Single-Thread -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Single-Thread Performance (Geekbench 6 — higher is better)</div>
+        <div class="bar-chart">
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-90 bar-green" data-value="~3800"></div><div class="bar-chart-label">Apple M4 Pro (ARM)</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-80 bar-blue" data-value="~3400"></div><div class="bar-chart-label">Intel i9-14900K (x86)</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-75 bar-red" data-value="~3200"></div><div class="bar-chart-label">AMD Ryzen 9 7950X (x86)</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-65 bar-purple" data-value="~2800"></div><div class="bar-chart-label">Snapdragon X Elite (ARM)</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-40 bar-orange" data-value="~1700"></div><div class="bar-chart-label">AWS Graviton 4 (ARM)</div></div>
+        </div>
+      </div>
+
+      <!-- Power Efficiency -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Performance Per Watt (higher = more efficient)</div>
+        <div class="bar-chart">
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-90 bar-green" data-value="Best"></div><div class="bar-chart-label">Apple M4 (ARM)</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-75 bar-purple" data-value="Great"></div><div class="bar-chart-label">Graviton 4 (ARM)</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-55 bar-orange" data-value="Good"></div><div class="bar-chart-label">Snapdragon X (ARM)</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-35 bar-blue" data-value="OK"></div><div class="bar-chart-label">AMD Ryzen 9 (x86)</div></div>
+          <div class="bar-chart-item"><div class="bar-chart-bar bar-h-25 bar-red" data-value="Poor"></div><div class="bar-chart-label">Intel i9 (x86)</div></div>
+        </div>
+      </div>
+
+      <h2>For Developers: What Actually Changes?</h2>
+
+      <pre><code># For most developers: NOTHING changes in your day-to-day code.
+# Python, JavaScript, Go, Java, C# — all run on both architectures.
+# The runtime/VM/interpreter handles the differences.
+
+# What DOES change:
+
+# 1. Docker images need multi-arch builds
+docker buildx build --platform linux/amd64,linux/arm64 -t myapp:latest .
+
+# 2. Compiled languages need cross-compilation
+# Go:
+GOOS=linux GOARCH=arm64 go build -o myapp-arm64
+GOOS=linux GOARCH=amd64 go build -o myapp-x86
+
+# Rust:
+rustup target add aarch64-unknown-linux-gnu
+cargo build --target aarch64-unknown-linux-gnu
+
+# C/C++:
+aarch64-linux-gnu-gcc -o myapp-arm64 main.c
+
+# 3. Cloud: ARM instances are 20-40% cheaper
+# AWS: c7g (Graviton 3) vs c7i (Intel) — same specs, 20% cheaper
+# GCP: T2A (Ampere) vs N2 (Intel) — similar savings
+
+# 4. CI/CD: Build for both platforms
+# GitHub Actions:
+# runs-on: [ubuntu-latest, ubuntu-latest-arm64]
+
+# 5. Native extensions may need recompilation
+# pip install numpy  # Works on both (pre-built wheels exist)
+# pip install obscure-c-library  # Might fail on ARM, needs building</code></pre>
+
+      <h2>AWS: Graviton vs Intel/AMD (Real Cloud Cost)</h2>
+
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">AWS Instance Cost: Same Workload, Different Architecture</div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:0.78rem;min-width:500px">
+            <thead>
+              <tr>
+                <th style="text-align:left;padding:0.6rem;background:#f97316;color:#fff;border-radius:0.4rem 0 0 0">Instance</th>
+                <th style="text-align:center;padding:0.6rem;background:#f97316;color:#fff">Architecture</th>
+                <th style="text-align:center;padding:0.6rem;background:#f97316;color:#fff">vCPUs</th>
+                <th style="text-align:center;padding:0.6rem;background:#f97316;color:#fff">Price/hr</th>
+                <th style="text-align:center;padding:0.6rem;background:#f97316;color:#fff;border-radius:0 0.4rem 0 0">Monthly</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">c7i.xlarge</td><td style="padding:0.5rem;text-align:center;color:#3b82f6">x86 (Intel)</td><td style="padding:0.5rem;text-align:center">4</td><td style="padding:0.5rem;text-align:center">\\$0.178</td><td style="padding:0.5rem;text-align:center">~\\$130</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">c7a.xlarge</td><td style="padding:0.5rem;text-align:center;color:#ef4444">x86 (AMD)</td><td style="padding:0.5rem;text-align:center">4</td><td style="padding:0.5rem;text-align:center">\\$0.165</td><td style="padding:0.5rem;text-align:center">~\\$120</td></tr>
+              <tr style="background:var(--accent)"><td style="padding:0.5rem;color:#22c55e;font-weight:700">c7g.xlarge &#x2B50;</td><td style="padding:0.5rem;text-align:center;color:#22c55e;font-weight:700">ARM (Graviton)</td><td style="padding:0.5rem;text-align:center">4</td><td style="padding:0.5rem;text-align:center;color:#22c55e;font-weight:700">\\$0.136</td><td style="padding:0.5rem;text-align:center;color:#22c55e;font-weight:700">~\\$99</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p>That's a <strong>24% savings</strong> switching from Intel to Graviton — for the same or better performance. At scale (100 instances), that's \\$3,700/month saved. Per year: \\$44,000. For doing nothing but changing the instance type.</p>
+
+      <h2>When to Choose x86 vs ARM</h2>
+
+      <!-- Decision -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">x86 vs ARM: When to Choose Each</div>
+        <div class="vs-cards">
+          <div class="vs-card" style="border-color:#3b82f6">
+            <div class="vs-card-header" style="background:#3b82f6">Choose x86 When</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3AE;</span>Gaming (most games x86-optimized)</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F6E0;</span>Legacy x86-only software</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4BB;</span>Windows desktop apps</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4CA;</span>Maximum single-thread perf needed</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F52C;</span>Scientific software (MATLAB, some HPC)</div>
+            </div>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="vs-card" style="border-color:#22c55e">
+            <div class="vs-card-header" style="background:#22c55e">Choose ARM When</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x2601;</span>Cloud servers (Graviton = cheapest)</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4F1;</span>Mobile/tablet development</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F50B;</span>Battery matters (laptops, edge devices)</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F34E;</span>macOS development (M-series native)</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4B0;</span>Cost optimization at scale</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>The Future: ARM Is Winning</h2>
+      <ul>
+        <li><strong>Apple Silicon proved ARM can match x86</strong> — M1 (2020) shocked the industry. M4 (2025) beats Intel's best at half the power.</li>
+        <li><strong>Cloud is going ARM</strong> — AWS Graviton handles ~30% of EC2 workloads. Google and Azure are following.</li>
+        <li><strong>Windows on ARM</strong> — Snapdragon X Elite laptops run Windows natively. Microsoft is all-in on ARM.</li>
+        <li><strong>AI on ARM</strong> — Apple Neural Engine, Qualcomm NPU. On-device AI is ARM's game.</li>
+        <li><strong>x86 isn't dying</strong> — it still dominates gaming, legacy enterprise, and high-frequency trading. But it's no longer the default.</li>
+      </ul>
+
+      <p>The best architecture is the one that fits your workload. x86 still wins for raw single-thread speed and legacy compatibility. ARM wins for power efficiency and cost. But the gap is closing fast — and for most cloud workloads in 2026, ARM (Graviton, Ampere) is the smarter default choice.</p>
+    `,
+    author: 'Coder Secret',
+    date: '2026-04-11',
+    readTime: '16 min read',
+    tags: ['x86', 'ARM', 'CPU', 'Architecture', 'Cloud'],
+    coverImage: '',
+  },
+
+  {
     id: '34',
     title: 'CPU Cache Layers Explained: Why Your Code Is Slower Than You Think',
     slug: 'cpu-cache-layers-l1-l2-l3-practical-guide',
     excerpt: 'An honest, practical walkthrough of CPU cache — L1, L2, L3 layers, cache lines, and why that innocent 2D array iteration is destroying your performance. Real benchmarks in C and Python included.',
     category: 'backend',
-    featured: true,
     content: `
       <p>So you wrote a program. It works fine. But when you try to scale it up, suddenly it becomes slow like anything. You check the algorithm, it's O(n) only. You check the database, nothing wrong there. Then what is happening, yaar? Most of the time, the answer is one simple thing — <strong>your code is fighting with the CPU cache</strong>, and the cache is winning.</p>
 
