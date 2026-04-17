@@ -75,6 +75,32 @@ import { SeoService } from '../../services/seo.service';
       </div>
     </section>
 
+    <!-- What We Cover — keyword-rich intro for SEO -->
+    <section class="py-12 md:py-16 animate-in fade-in duration-700">
+      <div class="container max-w-4xl mx-auto px-6">
+        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-center mb-6">What You'll Learn Here</h2>
+        <div class="text-center text-muted-foreground leading-relaxed text-base md:text-lg space-y-4">
+          <p>
+            CodersSecret publishes <strong class="text-foreground">production-grade engineering tutorials</strong> covering the full modern stack &mdash; from Python performance optimization and gRPC microservices to Kubernetes operators, mTLS security, and running large language models locally.
+          </p>
+          <p>
+            Whether you're debugging a Kubernetes networking issue at 3 AM, choosing between Firebase and PostgreSQL for your next project, or trying to understand how CPU cache layers actually affect your code &mdash; you'll find <strong class="text-foreground">deep, practical guides written from real production experience</strong>, not surface-level tutorials.
+          </p>
+          <p>
+            Every article includes working code examples, interactive diagrams, real benchmarks, and honest discussion of trade-offs. No fluff. No padding. No "you'll figure it out from the docs."
+          </p>
+        </div>
+        <div class="flex flex-wrap justify-center gap-2 mt-8">
+          @for (cat of categories; track cat.slug) {
+            <a [routerLink]="['/category', cat.slug]"
+               class="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/60 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:text-foreground hover:bg-accent">
+              {{ cat.name }}
+            </a>
+          }
+        </div>
+      </div>
+    </section>
+
     <!-- Featured Post — Full-width spotlight -->
     @if (featuredPost) {
       <section class="py-16 md:py-20 animate-in fade-in duration-700">
@@ -333,6 +359,114 @@ import { SeoService } from '../../services/seo.service';
       </div>
     </section>
 
+    <!-- Trending Tags -->
+    <section class="py-16 animate-in fade-in duration-700">
+      <div class="container max-w-6xl mx-auto px-6">
+        <div class="mb-10">
+          <h2 class="text-3xl font-extrabold tracking-tight">Trending Topics</h2>
+          <p class="mt-2 text-muted-foreground">Click any tag to find related articles</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          @for (tag of trendingTags; track tag.name) {
+            <a [routerLink]="['/blog']" [queryParams]="{tag: tag.name}"
+               class="group inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 backdrop-blur-sm px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-md hover:-translate-y-0.5"
+               [style.fontSize.px]="11 + tag.count">
+              <span>{{ tag.name }}</span>
+              <span class="text-xs opacity-60 group-hover:opacity-100">{{ tag.count }}</span>
+            </a>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-16 animate-in fade-in duration-700">
+      <div class="container max-w-6xl mx-auto px-6">
+        <div class="rounded-2xl border border-border/60 bg-gradient-to-br from-purple-500/5 via-card to-blue-500/5 p-10 md:p-16">
+          <div class="text-center mb-10">
+            <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Built for Engineers, by an Engineer</h2>
+            <p class="mt-3 text-muted-foreground max-w-2xl mx-auto">Real production knowledge, not surface-level tutorials. Every article is written from hands-on experience and tested against real-world systems.</p>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div class="text-center">
+              <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">{{ totalPosts }}+</div>
+              <div class="mt-2 text-sm text-muted-foreground">In-Depth Articles</div>
+            </div>
+            <div class="text-center">
+              <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">{{ avgReadTime }}</div>
+              <div class="mt-2 text-sm text-muted-foreground">Avg Read Time (min)</div>
+            </div>
+            <div class="text-center">
+              <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-pink-500 to-orange-500 bg-clip-text text-transparent">{{ uniqueTags }}+</div>
+              <div class="mt-2 text-sm text-muted-foreground">Topics Covered</div>
+            </div>
+            <div class="text-center">
+              <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">100%</div>
+              <div class="mt-2 text-sm text-muted-foreground">Free, Open Source</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Author Teaser -->
+    <section class="py-16 animate-in fade-in duration-700">
+      <div class="container max-w-6xl mx-auto px-6">
+        <a routerLink="/about" class="group block">
+          <div class="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-8 md:p-10 transition-all duration-500 hover:shadow-xl hover:border-primary/20 hover:-translate-y-1">
+            <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+              <div class="flex items-center justify-center h-20 w-20 md:h-24 md:w-24 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 text-white text-3xl md:text-4xl font-bold flex-shrink-0">
+                V
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Written By</span>
+                </div>
+                <h3 class="text-2xl font-extrabold tracking-tight transition-colors duration-300 group-hover:text-primary">Vishal Anand</h3>
+                <p class="mt-2 text-muted-foreground leading-relaxed max-w-2xl">
+                  Software engineer and tech lead with hands-on experience building production systems at scale. Writing about backend architecture, DevOps, security, Kubernetes, and the Python ecosystem &mdash; the kind of practical knowledge you only get from years on the job.
+                </p>
+                <div class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                  Learn more about CodersSecret
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                       class="transition-transform duration-300 group-hover:translate-x-1">
+                    <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-16 animate-in fade-in duration-700">
+      <div class="container max-w-3xl mx-auto px-6">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Frequently Asked Questions</h2>
+          <p class="mt-3 text-muted-foreground">Common questions about CodersSecret and our content</p>
+        </div>
+
+        <div class="space-y-3">
+          @for (faq of faqs; track faq.q) {
+            <details class="group rounded-xl border border-border/60 bg-card/50 backdrop-blur-sm overflow-hidden">
+              <summary class="flex items-center justify-between gap-4 cursor-pointer px-6 py-5 text-base font-semibold text-foreground select-none hover:bg-accent/30 transition-colors">
+                <span>{{ faq.q }}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                     class="text-muted-foreground transition-transform duration-300 group-open:rotate-180 flex-shrink-0">
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </summary>
+              <div class="px-6 pb-5 pt-0 text-sm text-muted-foreground leading-relaxed" [innerHTML]="faq.a"></div>
+            </details>
+          }
+        </div>
+      </div>
+    </section>
+
   `,
 })
 export class HomeComponent {
@@ -343,6 +477,59 @@ export class HomeComponent {
   categories = CATEGORIES.filter(c => c.slug !== '');
   totalPosts = BLOG_POSTS.length;
   uniqueTags = new Set(BLOG_POSTS.flatMap(p => p.tags)).size;
+  avgReadTime = Math.round(
+    BLOG_POSTS.reduce((sum, p) => {
+      const m = p.readTime.match(/(\d+)/);
+      return sum + (m ? parseInt(m[1], 10) : 0);
+    }, 0) / Math.max(BLOG_POSTS.length, 1)
+  );
+
+  // Trending tags — top 20 most-used tags with counts
+  trendingTags = (() => {
+    const counts: Record<string, number> = {};
+    for (const p of BLOG_POSTS) {
+      for (const t of p.tags) counts[t] = (counts[t] || 0) + 1;
+    }
+    return Object.entries(counts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 20);
+  })();
+
+  faqs = [
+    {
+      q: 'What topics does CodersSecret cover?',
+      a: 'We publish in-depth tutorials on backend engineering (Python, gRPC, APIs), DevOps (Kubernetes, Docker, Karpenter), security (mTLS, encryption, ethical hacking), system design (SOLID principles, compression algorithms, CPU architecture), AI (running LLMs locally, MCP servers), and modern web development (Angular, Tailwind CSS).',
+    },
+    {
+      q: 'Are the tutorials free to read?',
+      a: `Yes, every article is 100% free and ad-free. The site is open source and supported by the author. There's no paywall, no signup wall, and no tracking beyond anonymous Google Analytics.`,
+    },
+    {
+      q: 'Who writes the content?',
+      a: 'All articles are written by <a href="/about" class="text-primary underline">Vishal Anand</a>, a software engineer and tech lead with hands-on experience building production systems at scale. The content reflects real-world engineering, not textbook theory.',
+    },
+    {
+      q: 'How often do you publish new articles?',
+      a: 'New articles are published regularly — typically 2-4 per week covering current engineering topics, deep dives, and practical tutorials. Check the <a href="/blog" class="text-primary underline">blog page</a> for the latest posts.',
+    },
+    {
+      q: 'Can I use the code examples in my own projects?',
+      a: 'Absolutely. All code snippets in the articles are released under the <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer" class="text-primary underline">MIT License</a>. Use them in commercial or personal projects without restriction.',
+    },
+    {
+      q: 'Do you accept guest posts or contributions?',
+      a: 'The blog is open source on <a href="https://github.com/vishalanandl177/coderssecret.com" target="_blank" rel="noopener noreferrer" class="text-primary underline">GitHub</a>. You can suggest topics, fix typos via pull requests, or open issues for discussion.',
+    },
+    {
+      q: 'What makes CodersSecret different from other tech blogs?',
+      a: 'Three things: (1) <strong>Practical depth</strong> — articles average 2,500+ words with working code examples, not surface-level intros. (2) <strong>Interactive diagrams</strong> — complex flows like SSO, mTLS, and Kubernetes networking are explained with animated visual diagrams, not static images. (3) <strong>Honest trade-offs</strong> — we cover limitations and when NOT to use a technology, not just the happy path.',
+    },
+    {
+      q: 'How do you handle privacy and tracking?',
+      a: 'We use only Google Analytics for anonymous page views. No advertising cookies, no tracking pixels, no user accounts required. Comments use GitHub Discussions (only loads if you choose to comment). Read the full <a href="/privacy" class="text-primary underline">privacy policy</a>.',
+    },
+  ];
 
   constructor() {
     this.seo.update({
@@ -350,6 +537,30 @@ export class HomeComponent {
       description: 'Battle-tested guides on Python, DevOps, APIs, and system design — written by engineers, for engineers who ship.',
       url: '/',
     });
+    // Inject FAQPage JSON-LD schema for rich snippets in Google search
+    this.injectFaqSchema();
+  }
+
+  private injectFaqSchema() {
+    if (typeof document === 'undefined') return;
+    const existing = document.getElementById('faq-schema');
+    if (existing) existing.remove();
+    const script = document.createElement('script');
+    script.id = 'faq-schema';
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      'mainEntity': this.faqs.map(f => ({
+        '@type': 'Question',
+        'name': f.q,
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': f.a.replace(/<[^>]+>/g, ''),
+        },
+      })),
+    });
+    document.head.appendChild(script);
   }
 
   getCategoryColor(slug: string): string {
