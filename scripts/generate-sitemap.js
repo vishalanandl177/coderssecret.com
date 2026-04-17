@@ -56,6 +56,48 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>${SITE_URL}/games</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${SITE_URL}/games/guess-output</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${SITE_URL}/games/spot-the-bug</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${SITE_URL}/games/devops-scenario</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${SITE_URL}/games/typing-test</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${SITE_URL}/games/salary-calculator</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${SITE_URL}/games/linux-challenge</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>${SITE_URL}/privacy</loc>
     <lastmod>${today}</lastmod>
     <changefreq>yearly</changefreq>

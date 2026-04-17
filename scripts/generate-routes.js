@@ -219,6 +219,76 @@ for (const cat of categories) {
 }
 
 // ── Legal pages (privacy, terms, cookies) ────
+// ── Games pages (/games, /games/:slug) ──────
+const games = [
+  {
+    slug: '',
+    title: 'Developer Games — Coding Challenges & Interactive Tools',
+    description: 'Fun coding challenges for developers: spot bugs, guess code outputs, debug production scenarios, test typing speed, and more. Sharpen your skills while having fun.',
+    heading: 'Developer Games',
+    content: 'Interactive games and tools for software engineers: Guess the Output, Spot the Bug, DevOps Scenario Simulator, Code Typing Speed Test, Tech Salary Calculator, and Linux Command Challenge.',
+  },
+  {
+    slug: 'guess-output',
+    title: 'Guess the Output — Python & JavaScript Code Quiz',
+    description: 'Test your knowledge with tricky Python and JavaScript code snippets. Can you predict the output? 10 questions covering classic language quirks.',
+    heading: 'Guess the Output',
+    content: 'Predict what Python and JavaScript code snippets will print. Covers classic language quirks: mutable defaults, closure captures, floating-point math, type coercion, and more.',
+  },
+  {
+    slug: 'spot-the-bug',
+    title: 'Spot the Bug — Code Review Challenge Game',
+    description: 'Find bugs in real code snippets — race conditions, off-by-one errors, N+1 queries, and more. Test your code review skills.',
+    heading: 'Spot the Bug',
+    content: 'Find the bug in each code snippet. Tests your code review skills on real-world issues: off-by-one errors, race conditions, N+1 queries, memory leaks, and more.',
+  },
+  {
+    slug: 'devops-scenario',
+    title: 'DevOps Scenario Simulator — Production Incident Game',
+    description: 'Practice production incident response. Kubernetes crashes, database outages, TLS expiry, memory leaks — what would you do? Interactive SRE training.',
+    heading: 'DevOps Scenario Simulator',
+    content: 'Practice real production incident response. Debug Kubernetes CrashLoopBackOff, database outages, TLS certificate expiry, memory leaks, and slow CI pipelines. Interactive SRE training.',
+  },
+  {
+    slug: 'typing-test',
+    title: 'Code Typing Speed Test — Real Code Snippets',
+    description: 'Test your typing speed with real code from Python, JavaScript, Go, Rust, TypeScript, and SQL. Measure WPM and accuracy on production code.',
+    heading: 'Code Typing Speed Test',
+    content: 'Test your typing speed on real code snippets in Python, JavaScript, Go, Rust, TypeScript, and SQL. Measures words per minute and accuracy.',
+  },
+  {
+    slug: 'salary-calculator',
+    title: 'Tech Salary Calculator — Software Engineer Compensation',
+    description: 'Estimate software engineer salaries by role, experience, location, and company type. Data from Levels.fyi, Glassdoor, and industry reports.',
+    heading: 'Tech Salary Calculator',
+    content: 'Estimate software engineer compensation by role (SWE, SRE, ML engineer, etc.), experience level, location (SF, NYC, London, Bangalore, etc.), and company type.',
+  },
+  {
+    slug: 'linux-challenge',
+    title: 'Linux Command Challenge — Test Your Shell Skills',
+    description: 'Interactive Linux command-line challenges. Find files, kill processes, manage permissions, and more. Practice real sysadmin tasks.',
+    heading: 'Linux Command Challenge',
+    content: 'Interactive Linux command-line challenges covering real sysadmin tasks: finding files, killing processes on ports, managing permissions, grep, sed, watch, and more.',
+  },
+];
+
+for (const game of games) {
+  const gameDir = game.slug ? path.join(OUTPUT_DIR, 'games', game.slug) : path.join(OUTPUT_DIR, 'games');
+  fs.mkdirSync(gameDir, { recursive: true });
+  fs.writeFileSync(path.join(gameDir, 'index.html'), makeHtml({
+    title: game.title,
+    description: game.description,
+    url: game.slug ? `/games/${game.slug}` : '/games',
+    content: `
+      <nav><a href="/">Home</a> / <a href="/games">Games</a>${game.slug ? ` / ${game.heading}` : ''}</nav>
+      <h1>${game.heading}</h1>
+      <p>${game.content}</p>
+      ${!game.slug ? '<ul>' + games.filter(g => g.slug).map(g => `<li><a href="/games/${g.slug}">${g.heading}</a></li>`).join('') + '</ul>' : '<p><a href="/games">← Back to all games</a></p>'}
+    `,
+  }));
+  created++;
+}
+
 // ── About page (/about) ──────────────────────
 const aboutDir = path.join(OUTPUT_DIR, 'about');
 fs.mkdirSync(aboutDir, { recursive: true });
