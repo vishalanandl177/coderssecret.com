@@ -50,6 +50,31 @@ export const routes: Routes = [
     path: 'games/linux-challenge',
     loadComponent: () => import('./pages/games/linux-challenge/linux-challenge').then(m => m.LinuxChallengeComponent),
   },
+  // Cheat Sheets — all lazy-loaded
+  {
+    path: 'cheatsheets',
+    loadComponent: () => import('./pages/cheatsheets/hub/hub').then(m => m.CheatsheetsHubComponent),
+  },
+  {
+    path: 'cheatsheets/python',
+    loadComponent: () => import('./pages/cheatsheets/python/python').then(m => m.PythonCheatsheetComponent),
+  },
+  {
+    path: 'cheatsheets/kubernetes',
+    loadComponent: () => import('./pages/cheatsheets/kubernetes/kubernetes').then(m => m.KubernetesCheatsheetComponent),
+  },
+  {
+    path: 'cheatsheets/git',
+    loadComponent: () => import('./pages/cheatsheets/git/git').then(m => m.GitCheatsheetComponent),
+  },
+  {
+    path: 'cheatsheets/docker',
+    loadComponent: () => import('./pages/cheatsheets/docker/docker').then(m => m.DockerCheatsheetComponent),
+  },
+  {
+    path: 'cheatsheets/sql',
+    loadComponent: () => import('./pages/cheatsheets/sql/sql').then(m => m.SqlCheatsheetComponent),
+  },
   {
     path: 'privacy',
     loadComponent: () => import('./pages/privacy/privacy').then(m => m.PrivacyComponent),

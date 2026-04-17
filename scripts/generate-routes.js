@@ -289,6 +289,27 @@ for (const game of games) {
   created++;
 }
 
+// ── Cheatsheets pages ────────────────────────
+const cheatsheets = [
+  { slug: '', name: 'Developer Cheat Sheets', desc: 'Quick-reference cheat sheets for Python, Kubernetes, Git, Docker, and SQL.' },
+  { slug: 'python', name: 'Python Cheat Sheet', desc: 'Essential Python syntax: data types, strings, lists, dicts, functions, classes, file I/O, and more.' },
+  { slug: 'kubernetes', name: 'Kubernetes Cheat Sheet', desc: 'Essential kubectl commands: pods, deployments, services, debugging, config, and cluster ops.' },
+  { slug: 'git', name: 'Git Cheat Sheet', desc: 'Git commands: branch, merge, rebase, stash, reset, log, cherry-pick, and undoing mistakes.' },
+  { slug: 'docker', name: 'Docker Cheat Sheet', desc: 'Docker commands: build, run, compose, volumes, networks, debugging, and cleanup.' },
+  { slug: 'sql', name: 'SQL Cheat Sheet', desc: 'SQL reference: SELECT, JOIN, GROUP BY, window functions, CTEs, indexes, and performance.' },
+];
+for (const cs of cheatsheets) {
+  const csDir = cs.slug ? path.join(OUTPUT_DIR, 'cheatsheets', cs.slug) : path.join(OUTPUT_DIR, 'cheatsheets');
+  fs.mkdirSync(csDir, { recursive: true });
+  fs.writeFileSync(path.join(csDir, 'index.html'), makeHtml({
+    title: cs.name,
+    description: cs.desc,
+    url: cs.slug ? `/cheatsheets/${cs.slug}` : '/cheatsheets',
+    content: `<h1>${cs.name}</h1><p>${cs.desc}</p>${!cs.slug ? '<ul>' + cheatsheets.filter(c => c.slug).map(c => `<li><a href="/cheatsheets/${c.slug}">${c.name}</a></li>`).join('') + '</ul>' : '<p><a href="/cheatsheets">← All Cheat Sheets</a></p>'}`,
+  }));
+  created++;
+}
+
 // ── About page (/about) ──────────────────────
 const aboutDir = path.join(OUTPUT_DIR, 'about');
 fs.mkdirSync(aboutDir, { recursive: true });

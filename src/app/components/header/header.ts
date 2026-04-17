@@ -41,6 +41,10 @@ import { SearchComponent } from '../search/search';
                class="rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
               Games
             </a>
+            <a routerLink="/cheatsheets" routerLinkActive="text-foreground bg-accent"
+               class="rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
+              Cheat Sheets
+            </a>
             <a routerLink="/about" routerLinkActive="text-foreground bg-accent"
                class="rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
               About
@@ -146,6 +150,12 @@ import { SearchComponent } from '../search/search';
                class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">Home</a>
             <a routerLink="/blog" (click)="mobileMenuOpen.set(false)"
                class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">Blog</a>
+            <a routerLink="/games" (click)="mobileMenuOpen.set(false)"
+               class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">Games</a>
+            <a routerLink="/cheatsheets" (click)="mobileMenuOpen.set(false)"
+               class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">Cheat Sheets</a>
+            <a routerLink="/about" (click)="mobileMenuOpen.set(false)"
+               class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">About</a>
             <div class="border-t border-border my-2"></div>
             <p class="px-3 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Categories</p>
             <a routerLink="/category/frontend" (click)="mobileMenuOpen.set(false)"
