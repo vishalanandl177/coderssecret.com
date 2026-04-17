@@ -467,6 +467,45 @@ import { SeoService } from '../../services/seo.service';
       </div>
     </section>
 
+    <!-- Support / Buy Me a Coffee -->
+    <section class="py-16 animate-in fade-in duration-700">
+      <div class="container max-w-4xl mx-auto px-6">
+        <div class="relative rounded-3xl overflow-hidden border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-pink-500/10 p-10 md:p-16">
+          <!-- Decorative background -->
+          <div class="absolute inset-0 -z-10">
+            <div class="absolute top-[-30%] right-[-10%] h-[300px] w-[300px] rounded-full bg-yellow-400/20 blur-[100px] animate-blob"></div>
+            <div class="absolute bottom-[-20%] left-[-10%] h-[250px] w-[250px] rounded-full bg-orange-400/20 blur-[100px] animate-blob animation-delay-2000"></div>
+          </div>
+
+          <div class="text-center">
+            <div class="text-6xl md:text-7xl mb-6 animate-bounce-slow">&#x2615;</div>
+            <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
+              Support This Blog
+            </h2>
+            <p class="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-2">
+              CodersSecret is <strong class="text-foreground">100% free and ad-free</strong> &mdash; no paywalls, no signup walls, no tracking beyond anonymous analytics.
+            </p>
+            <p class="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
+              If these articles have helped you ship better software or land a job, consider buying me a coffee. It keeps the content coming and the servers running.
+            </p>
+            <a href="https://buymeacoffee.com/riptechlead" target="_blank" rel="noopener noreferrer"
+               class="group inline-flex items-center gap-3 rounded-full bg-yellow-500 hover:bg-yellow-400 text-yellow-950 font-bold px-8 py-4 text-base md:text-lg shadow-xl shadow-yellow-500/30 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 active:scale-[0.97]">
+              <span class="text-2xl">&#x2615;</span>
+              Buy me a coffee
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                   class="transition-transform duration-300 group-hover:translate-x-1">
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+              </svg>
+            </a>
+            <p class="mt-6 text-sm text-muted-foreground">
+              Or just share a post that helped you &mdash; that helps too. &#x1F64C;
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
   `,
 })
 export class HomeComponent {

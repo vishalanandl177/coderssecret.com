@@ -60,11 +60,31 @@ import { RouterLink } from '@angular/router';
               <li><a href="https://instagram.com/vis_naz" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">Instagram</a></li>
               <li><a href="https://linkedin.com/in/vishal-techlead" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">LinkedIn</a></li>
               <li><a href="https://github.com/vishalanandl177/coderssecret.com" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">GitHub</a></li>
+              <li><a href="https://buymeacoffee.com/riptechlead" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-yellow-600 dark:text-yellow-500 font-semibold transition-colors hover:text-yellow-700 dark:hover:text-yellow-400">
+                &#x2615; Buy me a coffee
+              </a></li>
             </ul>
           </div>
         </div>
 
-        <div class="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+        <!-- Support banner -->
+        <div class="mt-10 rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-pink-500/5 p-6 md:p-8">
+          <div class="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
+            <div class="text-4xl flex-shrink-0">&#x2615;</div>
+            <div class="flex-1">
+              <h3 class="text-base md:text-lg font-bold mb-1">Enjoying the content?</h3>
+              <p class="text-sm text-muted-foreground">
+                This blog is 100% free and ad-free. If you find it useful, a coffee goes a long way in keeping it that way.
+              </p>
+            </div>
+            <a href="https://buymeacoffee.com/riptechlead" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-2 rounded-full bg-yellow-500 hover:bg-yellow-600 text-yellow-950 font-bold px-5 py-2.5 text-sm shadow-lg shadow-yellow-500/25 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.97] flex-shrink-0">
+              &#x2615; Buy me a coffee
+            </a>
+          </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
           <p>&copy; {{ currentYear }} CodersSecret. All rights reserved.</p>
           <p>No ads &middot; No tracking &middot; Privacy-first</p>
         </div>
