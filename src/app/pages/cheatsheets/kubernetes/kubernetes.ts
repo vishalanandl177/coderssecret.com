@@ -301,7 +301,80 @@ export class KubernetesCheatsheetComponent {
                 "desc": "Delete all pods"
             }
         ]
-    }
+    },
+    {
+      title: "RBAC & Security",
+      items: [
+        { cmd: "kubectl get clusterroles", desc: "List cluster roles" },
+        { cmd: "kubectl get rolebindings -A", desc: "All role bindings" },
+        { cmd: "kubectl auth can-i create pods --as user", desc: "Test permissions" },
+        { cmd: "kubectl create sa my-sa", desc: "Create service account" },
+        { cmd: "kubectl get psp", desc: "Pod security policies" },
+        { cmd: "kubectl get networkpolicy -A", desc: "All network policies" },
+        { cmd: "kubectl create secret tls NAME --cert=c --key=k", desc: "Create TLS secret" },
+      ],
+    },
+    {
+      title: "Autoscaling",
+      items: [
+        { cmd: "kubectl autoscale deploy NAME --min=2 --max=10 --cpu-percent=80", desc: "Create HPA" },
+        { cmd: "kubectl get hpa", desc: "List horizontal pod autoscalers" },
+        { cmd: "kubectl describe hpa NAME", desc: "HPA details + events" },
+        { cmd: "kubectl get vpa", desc: "Vertical pod autoscalers" },
+        { cmd: "kubectl get nodeclaims", desc: "Karpenter-managed nodes" },
+        { cmd: "kubectl get nodepool", desc: "Karpenter node pools" },
+      ],
+    },
+    {
+      title: "Helm",
+      items: [
+        { cmd: "helm repo add NAME URL", desc: "Add chart repository" },
+        { cmd: "helm search repo nginx", desc: "Search for charts" },
+        { cmd: "helm install NAME chart --namespace ns", desc: "Install release" },
+        { cmd: "helm upgrade NAME chart", desc: "Upgrade release" },
+        { cmd: "helm rollback NAME 1", desc: "Rollback to revision" },
+        { cmd: "helm list -A", desc: "All releases" },
+        { cmd: "helm uninstall NAME", desc: "Delete release" },
+        { cmd: "helm template NAME chart", desc: "Render templates locally" },
+        { cmd: "helm show values chart", desc: "Show default values" },
+      ],
+    },
+    {
+      title: "CRDs & Custom Resources",
+      items: [
+        { cmd: "kubectl get crd", desc: "List custom resource definitions" },
+        { cmd: "kubectl get crd NAME -o yaml", desc: "CRD definition" },
+        { cmd: "kubectl get RESOURCE -A", desc: "List custom resources" },
+        { cmd: "kubectl explain RESOURCE.spec", desc: "Show resource schema" },
+        { cmd: "kubectl api-versions", desc: "All API versions" },
+        { cmd: "kubectl api-resources --verbs=list --namespaced", desc: "Namespaced resources" },
+      ],
+    },
+    {
+      title: "Advanced Debugging",
+      items: [
+        { cmd: "kubectl debug pod/NAME -it --image=busybox", desc: "Ephemeral debug container" },
+        { cmd: "kubectl run debug --image=nicolaka/netshoot -it --rm -- bash", desc: "Network debug pod" },
+        { cmd: "kubectl get events --sort-by=.lastTimestamp -A", desc: "Cluster-wide events" },
+        { cmd: "kubectl get pod NAME -o jsonpath='{.status.conditions}'", desc: "Pod conditions" },
+        { cmd: "kubectl logs -l app=NAME --all-containers", desc: "Logs by label" },
+        { cmd: "kubectl cp pod:/path ./local", desc: "Copy from pod" },
+        { cmd: "kubectl attach pod/NAME -c container -it", desc: "Attach to process" },
+        { cmd: "kubectl proxy", desc: "API server proxy (localhost:8001)" },
+      ],
+    },
+    {
+      title: "Jobs & CronJobs",
+      items: [
+        { cmd: "kubectl create job NAME --image=img -- cmd", desc: "Create one-time job" },
+        { cmd: "kubectl get jobs", desc: "List jobs" },
+        { cmd: "kubectl get cronjobs", desc: "List cron jobs" },
+        { cmd: "kubectl create job test --from=cronjob/NAME", desc: "Manual trigger" },
+        { cmd: "kubectl delete job NAME", desc: "Delete job + pods" },
+        { cmd: "kubectl logs job/NAME", desc: "Job logs" },
+      ],
+    },
+  
 ];
 
   constructor() {

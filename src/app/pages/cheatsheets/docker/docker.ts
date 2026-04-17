@@ -267,7 +267,67 @@ export class DockerCheatsheetComponent {
                 "desc": "Remove unused volumes"
             }
         ]
-    }
+    },
+    {
+      title: "Multi-Stage Builds",
+      items: [
+        { cmd: "FROM node:22 AS builder", desc: "Named build stage" },
+        { cmd: "FROM node:22-slim AS runtime", desc: "Smaller runtime image" },
+        { cmd: "COPY --from=builder /app/dist .", desc: "Copy from build stage" },
+        { cmd: "COPY --from=0 /app .", desc: "Copy from stage index" },
+        { cmd: "RUN --mount=type=cache,target=/root/.npm npm ci", desc: "BuildKit cache mount" },
+      ],
+    },
+    {
+      title: "BuildKit & Performance",
+      items: [
+        { cmd: "DOCKER_BUILDKIT=1 docker build .", desc: "Enable BuildKit" },
+        { cmd: "docker buildx build --platform linux/amd64,linux/arm64 .", desc: "Multi-arch build" },
+        { cmd: "docker buildx create --use", desc: "Create buildx builder" },
+        { cmd: "--build-arg VAR=val", desc: "Pass build argument" },
+        { cmd: ".dockerignore", desc: "Exclude files from build context" },
+        { cmd: "docker build --cache-from img:latest .", desc: "Use remote cache" },
+        { cmd: "docker build --progress=plain .", desc: "Show full build output" },
+      ],
+    },
+    {
+      title: "Security Best Practices",
+      items: [
+        { cmd: "USER nonroot:nonroot", desc: "Don't run as root" },
+        { cmd: "COPY --chown=nonroot:nonroot . .", desc: "Set file ownership" },
+        { cmd: "RUN apt-get update && apt-get install -y --no-install-recommends", desc: "Minimal packages" },
+        { cmd: "docker scan img:tag", desc: "Scan for vulnerabilities" },
+        { cmd: "docker scout quickview img", desc: "Docker Scout analysis" },
+        { cmd: "FROM scratch", desc: "Empty base image (Go/Rust binaries)" },
+        { cmd: "HEALTHCHECK CMD curl -f http://localhost/ || exit 1", desc: "Container health check" },
+      ],
+    },
+    {
+      title: "Docker Compose Advanced",
+      items: [
+        { cmd: "depends_on: svc: condition: service_healthy", desc: "Wait for health check" },
+        { cmd: "deploy: resources: limits: cpus: '0.5'", desc: "Resource limits" },
+        { cmd: "profiles: [debug]", desc: "Optional service profiles" },
+        { cmd: "docker compose --profile debug up", desc: "Start with profile" },
+        { cmd: "docker compose config", desc: "Validate compose file" },
+        { cmd: "docker compose watch", desc: "Auto-rebuild on changes" },
+        { cmd: "extends: file: base.yml service: web", desc: "Extend base config" },
+      ],
+    },
+    {
+      title: "Troubleshooting",
+      items: [
+        { cmd: "docker logs --tail 100 -f NAME", desc: "Last 100 lines + follow" },
+        { cmd: "docker inspect --format '{{.State.ExitCode}}' NAME", desc: "Exit code" },
+        { cmd: "docker events", desc: "Real-time Docker events" },
+        { cmd: "docker history img:tag", desc: "Image layer history" },
+        { cmd: "docker export NAME > fs.tar", desc: "Export filesystem" },
+        { cmd: "docker commit NAME new-img", desc: "Create image from container" },
+        { cmd: "docker save img > img.tar", desc: "Save image to file" },
+        { cmd: "docker load < img.tar", desc: "Load image from file" },
+      ],
+    },
+  
 ];
 
   constructor() {

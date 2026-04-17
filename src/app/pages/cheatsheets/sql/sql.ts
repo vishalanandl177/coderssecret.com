@@ -289,7 +289,78 @@ export class SqlCheatsheetComponent {
                 "desc": "Delete table"
             }
         ]
-    }
+    },
+    {
+      title: "Advanced Window Functions",
+      items: [
+        { cmd: "NTILE(4) OVER (ORDER BY score)", desc: "Split into 4 equal buckets" },
+        { cmd: "PERCENT_RANK() OVER (...)", desc: "Percentile rank (0-1)" },
+        { cmd: "CUME_DIST() OVER (...)", desc: "Cumulative distribution" },
+        { cmd: "FIRST_VALUE(col) OVER (... ROWS UNBOUNDED PRECEDING)", desc: "First value in window" },
+        { cmd: "LAST_VALUE(col) OVER (... ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)", desc: "Last value in window" },
+        { cmd: "SUM(amt) OVER (ORDER BY date ROWS 6 PRECEDING)", desc: "Rolling 7-day sum" },
+        { cmd: "AVG(price) OVER (PARTITION BY category ORDER BY date ROWS 2 PRECEDING)", desc: "Moving average per group" },
+      ],
+    },
+    {
+      title: "JSON Operations (PostgreSQL)",
+      items: [
+        { cmd: "data->>'name'", desc: "Get JSON text value" },
+        { cmd: "data->'address'->>'city'", desc: "Nested JSON access" },
+        { cmd: "data @> '{\"status\":\"active\"}'", desc: "JSON containment check" },
+        { cmd: "jsonb_array_elements(data->'items')", desc: "Unnest JSON array" },
+        { cmd: "jsonb_set(data, '{key}', '\"val\"')", desc: "Update JSON field" },
+        { cmd: "row_to_json(t)", desc: "Row to JSON object" },
+        { cmd: "json_agg(col)", desc: "Aggregate rows to JSON array" },
+      ],
+    },
+    {
+      title: "Recursive CTEs",
+      items: [
+        { cmd: "WITH RECURSIVE cte AS (base UNION ALL recursive)", desc: "Recursive CTE pattern" },
+        { cmd: "-- Employee hierarchy (find all reports)", desc: "Manager-employee tree" },
+        { cmd: "-- Category tree (parent_id self-join)", desc: "Nested categories" },
+        { cmd: "-- Generate series (1,2,3...N)", desc: "Number generation" },
+        { cmd: "-- Graph traversal (shortest path)", desc: "BFS/DFS in SQL" },
+      ],
+    },
+    {
+      title: "Performance Tuning",
+      items: [
+        { cmd: "EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT) SELECT ...", desc: "Full query plan" },
+        { cmd: "CREATE INDEX CONCURRENTLY idx ON t(col)", desc: "Non-blocking index" },
+        { cmd: "CREATE INDEX idx ON t(a) WHERE status='active'", desc: "Partial index" },
+        { cmd: "CREATE INDEX idx ON t USING GIN(col)", desc: "Full-text/JSONB index" },
+        { cmd: "CREATE INDEX idx ON t(a) INCLUDE (b,c)", desc: "Covering index" },
+        { cmd: "VACUUM ANALYZE t", desc: "Update table statistics" },
+        { cmd: "SET enable_seqscan = off", desc: "Force index scan (debug only)" },
+        { cmd: "SELECT pg_size_pretty(pg_total_relation_size('t'))", desc: "Table size" },
+      ],
+    },
+    {
+      title: "Transactions & Locking",
+      items: [
+        { cmd: "BEGIN; ... COMMIT;", desc: "Explicit transaction" },
+        { cmd: "ROLLBACK;", desc: "Abort transaction" },
+        { cmd: "SAVEPOINT sp1; ... ROLLBACK TO sp1;", desc: "Nested savepoint" },
+        { cmd: "SELECT ... FOR UPDATE", desc: "Row-level write lock" },
+        { cmd: "SELECT ... FOR SHARE", desc: "Row-level read lock" },
+        { cmd: "SELECT ... FOR UPDATE SKIP LOCKED", desc: "Skip locked rows (queue pattern)" },
+        { cmd: "SET TRANSACTION ISOLATION LEVEL SERIALIZABLE", desc: "Strictest isolation" },
+      ],
+    },
+    {
+      title: "Partitioning",
+      items: [
+        { cmd: "CREATE TABLE t (...) PARTITION BY RANGE (date)", desc: "Range partition" },
+        { cmd: "CREATE TABLE t_2026 PARTITION OF t FOR VALUES FROM ('2026-01-01') TO ('2027-01-01')", desc: "Create partition" },
+        { cmd: "CREATE TABLE t (...) PARTITION BY LIST (region)", desc: "List partition" },
+        { cmd: "CREATE TABLE t (...) PARTITION BY HASH (id)", desc: "Hash partition" },
+        { cmd: "ALTER TABLE t DETACH PARTITION t_old", desc: "Detach old partition" },
+        { cmd: "SELECT * FROM pg_partitions WHERE tablename='t'", desc: "List partitions" },
+      ],
+    },
+  
 ];
 
   constructor() {

@@ -317,7 +317,71 @@ export class GitCheatsheetComponent {
                 "desc": "Delete local tag"
             }
         ]
-    }
+    },
+    {
+      title: "Worktrees",
+      items: [
+        { cmd: "git worktree add ../feature-wt feature", desc: "Create worktree for branch" },
+        { cmd: "git worktree list", desc: "List all worktrees" },
+        { cmd: "git worktree remove ../feature-wt", desc: "Remove worktree" },
+        { cmd: "git worktree prune", desc: "Clean stale worktrees" },
+      ],
+    },
+    {
+      title: "Bisect (Find Bug Commits)",
+      items: [
+        { cmd: "git bisect start", desc: "Begin binary search" },
+        { cmd: "git bisect bad", desc: "Mark current as broken" },
+        { cmd: "git bisect good HASH", desc: "Mark known good commit" },
+        { cmd: "git bisect run ./test.sh", desc: "Auto-bisect with script" },
+        { cmd: "git bisect reset", desc: "End bisect session" },
+      ],
+    },
+    {
+      title: "Submodules",
+      items: [
+        { cmd: "git submodule add URL path", desc: "Add submodule" },
+        { cmd: "git submodule update --init --recursive", desc: "Clone submodules" },
+        { cmd: "git submodule foreach git pull", desc: "Update all submodules" },
+        { cmd: "git submodule status", desc: "Show submodule commits" },
+        { cmd: "git rm --cached path && rm -rf path", desc: "Remove submodule" },
+      ],
+    },
+    {
+      title: "Hooks & Automation",
+      items: [
+        { cmd: ".git/hooks/pre-commit", desc: "Runs before each commit" },
+        { cmd: ".git/hooks/pre-push", desc: "Runs before each push" },
+        { cmd: ".git/hooks/commit-msg", desc: "Validate commit message" },
+        { cmd: "chmod +x .git/hooks/pre-commit", desc: "Make hook executable" },
+        { cmd: "npx husky install", desc: "Husky: managed git hooks" },
+        { cmd: "npx lint-staged", desc: "Run linters on staged files" },
+      ],
+    },
+    {
+      title: "Advanced Recovery",
+      items: [
+        { cmd: "git reflog", desc: "Full history of HEAD movements" },
+        { cmd: "git fsck --lost-found", desc: "Find dangling commits" },
+        { cmd: "git stash drop stash@{0}", desc: "Delete specific stash" },
+        { cmd: "git checkout HASH -- file.txt", desc: "Restore file from commit" },
+        { cmd: "git reset --hard ORIG_HEAD", desc: "Undo last reset/merge" },
+        { cmd: "git clean -fd", desc: "Remove untracked files+dirs" },
+        { cmd: "git gc --prune=now", desc: "Garbage collect objects" },
+      ],
+    },
+    {
+      title: "Interactive & Patch Mode",
+      items: [
+        { cmd: "git add -p", desc: "Stage hunks interactively" },
+        { cmd: "git checkout -p", desc: "Discard hunks interactively" },
+        { cmd: "git stash -p", desc: "Stash specific hunks" },
+        { cmd: "git rebase -i HEAD~5", desc: "Squash/reorder last 5 commits" },
+        { cmd: "git commit --fixup=HASH", desc: "Mark as fixup for rebase" },
+        { cmd: "git rebase -i --autosquash", desc: "Auto-apply fixup commits" },
+      ],
+    },
+  
 ];
 
   constructor() {
