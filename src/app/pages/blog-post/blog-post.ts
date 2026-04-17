@@ -92,52 +92,50 @@ import { DOCUMENT } from '@angular/common';
         <div class="h-[1px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
       </div>
 
-      <!-- Table of Contents -->
-      @if (toc.length > 2) {
-        <nav class="container max-w-3xl mx-auto px-6 pt-10 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150"
-             aria-label="Table of contents">
-          <details class="rounded-xl border border-border/60 bg-card/50 backdrop-blur-sm">
-            <summary class="flex items-center gap-2 cursor-pointer px-5 py-4 text-sm font-semibold text-foreground select-none">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground">
-                <line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/>
-                <line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/>
-              </svg>
-              Table of Contents
-              <span class="text-xs text-muted-foreground font-normal">({{ toc.length }} sections)</span>
-            </summary>
-            <ul class="px-5 pb-4 space-y-1">
-              @for (item of toc; track item.id) {
-                <li>
-                  <button (click)="scrollToHeading(item.id)"
-                     class="block w-full text-left rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent/50 cursor-pointer">
-                    {{ item.text }}
-                  </button>
-                </li>
-              }
-            </ul>
-          </details>
-        </nav>
-      }
+      <!-- Article + Right-side TOC layout -->
+      <div class="container max-w-6xl mx-auto px-6">
+        <div class="flex gap-10">
 
-      <!-- Article content -->
-      <article class="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-        <div class="container max-w-3xl mx-auto px-6 py-12 md:py-16">
-          <div class="prose prose-neutral max-w-none
-                      [&>p]:text-foreground [&>p]:leading-[1.8] [&>p]:mb-6 [&>p]:text-[15px]
-                      [&>h2]:text-2xl [&>h2]:font-extrabold [&>h2]:tracking-tight [&>h2]:mt-14 [&>h2]:mb-5 [&>h2]:text-foreground
-                      [&>ul]:text-foreground [&>ul]:mb-6 [&>ul]:ml-6 [&>ul]:list-disc [&>ul>li]:mb-2.5 [&>ul>li]:leading-[1.7] [&>ul>li]:text-[15px]
-                      [&>ol]:text-foreground [&>ol]:mb-6 [&>ol]:ml-6 [&>ol]:list-decimal [&>ol>li]:mb-2.5
-                      [&>pre]:bg-muted [&>pre]:rounded-xl [&>pre]:p-5 [&>pre]:mb-6 [&>pre]:overflow-x-auto [&>pre]:text-sm [&>pre]:border [&>pre]:border-border/40
-                      [&>code]:bg-muted [&>code]:px-1.5 [&>code]:py-0.5 [&>code]:rounded-md [&>code]:text-sm [&>code]:font-mono
-                      [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded-md [&_code]:text-sm [&_code]:font-mono
-                      [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:text-primary/80
-                      [&>pre_code]:bg-transparent [&>pre_code]:p-0
-                      [&>img]:rounded-xl [&>img]:border [&>img]:border-border/40 [&>img]:my-8 [&>img]:w-full [&>img]:shadow-md"
-               [innerHTML]="post.content">
-          </div>
+          <!-- Article content (left) -->
+          <article class="flex-1 min-w-0 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+            <div class="max-w-3xl mx-auto py-12 md:py-16">
+              <div class="prose prose-neutral max-w-none
+                          [&>p]:text-foreground [&>p]:leading-[1.8] [&>p]:mb-6 [&>p]:text-[15px]
+                          [&>h2]:text-2xl [&>h2]:font-extrabold [&>h2]:tracking-tight [&>h2]:mt-14 [&>h2]:mb-5 [&>h2]:text-foreground
+                          [&>ul]:text-foreground [&>ul]:mb-6 [&>ul]:ml-6 [&>ul]:list-disc [&>ul>li]:mb-2.5 [&>ul>li]:leading-[1.7] [&>ul>li]:text-[15px]
+                          [&>ol]:text-foreground [&>ol]:mb-6 [&>ol]:ml-6 [&>ol]:list-decimal [&>ol>li]:mb-2.5
+                          [&>pre]:bg-muted [&>pre]:rounded-xl [&>pre]:p-5 [&>pre]:mb-6 [&>pre]:overflow-x-auto [&>pre]:text-sm [&>pre]:border [&>pre]:border-border/40
+                          [&>code]:bg-muted [&>code]:px-1.5 [&>code]:py-0.5 [&>code]:rounded-md [&>code]:text-sm [&>code]:font-mono
+                          [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded-md [&_code]:text-sm [&_code]:font-mono
+                          [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:text-primary/80
+                          [&>pre_code]:bg-transparent [&>pre_code]:p-0
+                          [&>img]:rounded-xl [&>img]:border [&>img]:border-border/40 [&>img]:my-8 [&>img]:w-full [&>img]:shadow-md"
+                   [innerHTML]="post.content">
+              </div>
+            </div>
+          </article>
+
+          <!-- Right-side TOC (desktop only, sticky) -->
+          @if (toc.length > 2) {
+            <nav class="hidden xl:block w-64 flex-shrink-0 animate-in fade-in duration-500 delay-300"
+                 aria-label="On this page">
+              <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto py-12">
+                <h3 class="text-xs font-bold text-foreground uppercase tracking-wider mb-4 px-1">On this page</h3>
+                <ul class="space-y-0.5 border-l-2 border-border/40">
+                  @for (item of toc; track item.id) {
+                    <li>
+                      <button (click)="scrollToHeading(item.id)"
+                         class="block w-full text-left px-4 py-1.5 text-[13px] leading-snug text-muted-foreground transition-colors hover:text-foreground hover:border-l-primary border-l-2 border-transparent -ml-[2px] cursor-pointer">
+                        {{ item.text }}
+                      </button>
+                    </li>
+                  }
+                </ul>
+              </div>
+            </nav>
+          }
         </div>
-      </article>
+      </div>
 
       <!-- Share + related -->
       <div class="container max-w-4xl mx-auto px-6 pb-20">
