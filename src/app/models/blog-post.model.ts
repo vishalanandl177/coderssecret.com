@@ -35,9 +35,9 @@ export const CATEGORIES = [
 export const BLOG_POSTS: BlogPost[] = [
   {
     id: '39',
-    title: 'M2M Authentication in Go: Secure Service-to-Service Calls with m2mauth',
+    title: 'M2M Authentication in Go: m2mauth, SPIFFE, and SPIRE for Production Workloads',
     slug: 'm2m-authentication-golang-m2mauth-library',
-    excerpt: 'Learn how to implement Machine-to-Machine (M2M) authentication in Go using the m2mauth library. Covers mTLS, certificate-based auth, and secure microservice communication with practical code examples.',
+    excerpt: 'Implement M2M authentication in Go using the m2mauth library, then scale to production with SPIFFE and SPIRE for automatic identity management. Covers mTLS, SVIDs, workload attestation, and Kubernetes deployment.',
     category: 'backend',
     content: `
       <p>When your microservices talk to each other, how do you ensure that only <strong>authorized services</strong> can make those calls? API keys leak. JWTs expire and need refresh infrastructure. The most robust solution is <strong>certificate-based M2M authentication</strong> — and there's a Go library that makes it straightforward: <a href="https://github.com/vishalanandl177/m2mauth" target="_blank" rel="noopener noreferrer"><strong>m2mauth</strong></a>.</p>
@@ -285,12 +285,233 @@ spec:
         <li><strong>Compliance requirements:</strong> PCI-DSS, HIPAA, or SOC 2 often require mutual authentication for sensitive data access.</li>
       </ul>
 
-      <p>The <code>m2mauth</code> library removes the boilerplate of setting up mTLS in Go so you can focus on your business logic. Check out the full source code and documentation at <a href="https://github.com/vishalanandl177/m2mauth" target="_blank" rel="noopener noreferrer">github.com/vishalanandl177/m2mauth</a>.</p>
+      <h2>Scaling M2M Auth: SPIFFE and SPIRE</h2>
+
+      <p>The <code>m2mauth</code> library is perfect for small-to-medium deployments where you manage certificates manually. But what happens when you have 200 services across 5 clusters? Manually rotating certificates becomes impossible. That's where <strong>SPIFFE</strong> and <strong>SPIRE</strong> come in.</p>
+
+      <h2>What is SPIFFE?</h2>
+
+      <p><strong>SPIFFE</strong> (Secure Production Identity Framework for Everyone) is an open standard that defines how services identify themselves to each other. Instead of each service managing its own certificates, SPIFFE provides a <strong>universal identity system</strong> for workloads.</p>
+
+      <p>The core concept is the <strong>SPIFFE ID</strong> — a URI that uniquely identifies a workload:</p>
+
+      <pre><code># SPIFFE ID format:
+spiffe://trust-domain/path
+
+# Examples:
+spiffe://mycompany.com/ns/production/sa/payment-service
+spiffe://mycompany.com/ns/staging/sa/user-api
+spiffe://mycompany.com/cluster/us-east/node/worker-3
+
+# The trust domain (mycompany.com) is like a CA scope
+# The path identifies the specific workload</code></pre>
+
+      <p>The identity is carried in an <strong>SVID</strong> (SPIFFE Verifiable Identity Document) — which is essentially an X.509 certificate or a JWT with the SPIFFE ID embedded.</p>
+
+      <!-- SPIFFE Architecture -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">SPIFFE Identity Architecture</div>
+        <div class="layer-diagram">
+          <div class="layer-item" style="background:#7c3aed">Trust Domain (spiffe://mycompany.com)<span class="layer-item-sub">The root of trust — all workloads in this domain can verify each other</span></div>
+          <div class="layer-item" style="background:#3b82f6">SPIRE Server (Certificate Authority)<span class="layer-item-sub">Issues and rotates SVIDs automatically. Stores registration entries.</span></div>
+          <div class="layer-item" style="background:#f97316">SPIRE Agent (runs on each node)<span class="layer-item-sub">Attests workloads, fetches SVIDs from server, exposes Workload API</span></div>
+          <div class="layer-item" style="background:#22c55e">Workload (your service)<span class="layer-item-sub">Calls Workload API to get its SVID. No certificate files to manage!</span></div>
+        </div>
+      </div>
+
+      <h2>What is SPIRE?</h2>
+
+      <p><strong>SPIRE</strong> (SPIFFE Runtime Environment) is the production implementation of SPIFFE. It's the actual software you deploy. Think of SPIFFE as the standard (like HTTP) and SPIRE as the implementation (like nginx).</p>
+
+      <h2>How SPIRE Works in Practice</h2>
+
+      <!-- SPIRE Flow -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">SPIRE: Automatic Identity Lifecycle</div>
+        <div class="seq-diagram">
+          <div class="seq-actors">
+            <div class="seq-actor browser">Your Service<span class="seq-actor-sub">(Workload)</span></div>
+            <div class="seq-actor idp">SPIRE Agent<span class="seq-actor-sub">(Node-level)</span></div>
+            <div class="seq-actor sp">SPIRE Server<span class="seq-actor-sub">(Control plane)</span></div>
+          </div>
+          <div class="seq-steps">
+            <div class="seq-step">
+              <div class="seq-arrow right" style="--arrow-color:#3b82f6"><span class="seq-num blue">1</span> Service starts, calls Workload API</div>
+            </div>
+            <div class="seq-step">
+              <div></div>
+              <div class="seq-action" style="border-color:#7c3aed;color:#a78bfa">Agent attests workload (K8s pod? Docker? PID?)</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow right-23" style="--arrow-color:#f97316"><span class="seq-num orange">2</span> Agent requests SVID from Server</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow left-23" style="--arrow-color:#22c55e"><span class="seq-num green">3</span> Server issues X.509 SVID (short-lived cert)</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow left" style="--arrow-color:#22c55e"><span class="seq-num green">4</span> Agent delivers SVID to workload</div>
+            </div>
+            <div class="seq-step">
+              <div></div>
+              <div class="seq-action" style="border-color:#3b82f6;color:#60a5fa">Auto-rotates before expiry. No manual cert management!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>SPIRE on Kubernetes — Full Setup</h2>
+
+      <pre><code># Deploy SPIRE on Kubernetes using Helm
+
+# 1. Add the SPIFFE helm repo
+helm repo add spiffe https://spiffe.github.io/helm-charts-hardened/
+helm repo update
+
+# 2. Install SPIRE server
+helm install spire-server spiffe/spire-server \\
+  --namespace spire-system --create-namespace \\
+  --set trustDomain=mycompany.com
+
+# 3. Install SPIRE agent (DaemonSet — runs on every node)
+helm install spire-agent spiffe/spire-agent \\
+  --namespace spire-system
+
+# 4. Register a workload (tell SPIRE which pods get which identity)
+kubectl exec -n spire-system spire-server-0 -- \\
+  spire-server entry create \\
+  -spiffeID spiffe://mycompany.com/ns/production/sa/payment-service \\
+  -parentID spiffe://mycompany.com/spire/agent/k8s_psat/default \\
+  -selector k8s:ns:production \\
+  -selector k8s:sa:payment-service
+
+# Now any pod in namespace=production with serviceAccount=payment-service
+# automatically gets the SPIFFE ID: spiffe://mycompany.com/ns/production/sa/payment-service</code></pre>
+
+      <h2>Using SPIRE SVIDs in Go</h2>
+
+      <pre><code>package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+    "net/http"
+
+    "github.com/spiffe/go-spiffe/v2/spiffetls"
+    "github.com/spiffe/go-spiffe/v2/spiffetls/tlsconfig"
+    "github.com/spiffe/go-spiffe/v2/workloadapi"
+)
+
+func main() {
+    ctx := context.Background()
+
+    // Connect to SPIRE Workload API (auto-discovers via socket)
+    source, err := workloadapi.NewX509Source(ctx)
+    if err != nil {
+        log.Fatalf("Unable to create X509Source: %v", err)
+    }
+    defer source.Close()
+
+    // Get our own SVID (identity)
+    svid, err := source.GetX509SVID()
+    if err != nil {
+        log.Fatalf("Unable to get SVID: %v", err)
+    }
+    fmt.Printf("My identity: %s\\n", svid.ID)
+    // Output: My identity: spiffe://mycompany.com/ns/production/sa/payment-service
+
+    // ── Server: Accept connections only from trusted SPIFFE IDs ──
+    listener, err := spiffetls.Listen(ctx, "tcp", ":8443",
+        tlsconfig.AuthorizeID(
+            spiffeid.RequireIDFromString("spiffe://mycompany.com/ns/production/sa/order-service"),
+        ),
+    )
+    if err != nil {
+        log.Fatalf("Unable to create TLS listener: %v", err)
+    }
+
+    http.HandleFunc("/api/charge", func(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprintln(w, "Payment processed! Caller is verified.")
+    })
+    log.Println("Payment service listening on :8443 (SPIFFE mTLS)")
+    log.Fatal(http.Serve(listener, nil))
+}
+
+// ── Client: Connect to another service using SPIFFE ──
+func callPaymentService(ctx context.Context) {
+    conn, err := spiffetls.Dial(ctx, "tcp", "payment-service:8443",
+        tlsconfig.AuthorizeID(
+            spiffeid.RequireIDFromString("spiffe://mycompany.com/ns/production/sa/payment-service"),
+        ),
+    )
+    if err != nil {
+        log.Fatalf("Unable to connect: %v", err)
+    }
+    defer conn.Close()
+    // Connection is mTLS-protected with auto-rotated certificates
+    // No certificate files to manage. No rotation cron jobs.
+}</code></pre>
+
+      <h2>m2mauth vs SPIFFE/SPIRE — When to Use Which</h2>
+
+      <!-- Comparison -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">m2mauth vs SPIFFE/SPIRE</div>
+        <div class="vs-cards">
+          <div class="vs-card" style="border-color:#3b82f6">
+            <div class="vs-card-header" style="background:#3b82f6">m2mauth (Simple)</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>No infrastructure to deploy</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>Works with static cert files</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>5 minutes to set up</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x26A0;</span>Manual certificate rotation</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3AF;</span>Best for: 2-20 services, dev/staging</div>
+            </div>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="vs-card" style="border-color:#22c55e">
+            <div class="vs-card-header" style="background:#22c55e">SPIFFE/SPIRE (Production)</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>Automatic identity assignment</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>Auto cert rotation (no downtime)</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>Cross-cluster federation</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x26A0;</span>Requires SPIRE infrastructure</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3AF;</span>Best for: 20-1000+ services, production</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>Production Use Cases</h2>
+
+      <ul>
+        <li><strong>Uber</strong> uses SPIFFE/SPIRE to issue identities for thousands of microservices across multiple data centres. Every service-to-service call is mTLS-authenticated with SVIDs that rotate every hour.</li>
+        <li><strong>Bloomberg</strong> deployed SPIRE to replace static service account credentials across their trading platform — eliminating credential leaks as a threat vector.</li>
+        <li><strong>ByteDance (TikTok)</strong> uses SPIRE for workload identity across their global Kubernetes infrastructure, enabling zero-trust networking across regions.</li>
+        <li><strong>HPE (Hewlett Packard Enterprise)</strong> acquired the SPIFFE/SPIRE project creators and uses it across their hybrid cloud products.</li>
+        <li><strong>Square/Block</strong> uses SPIFFE for payment processing services — every transaction flows through mTLS-authenticated connections with automatically rotated certificates.</li>
+      </ul>
+
+      <h2>Getting Started: The Practical Path</h2>
+
+      <!-- Path -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Your M2M Auth Journey</div>
+        <div class="pipeline">
+          <div class="pipeline-step" style="background:#3b82f6;--i:0"><span class="pipeline-step-icon">1</span>m2mauth<span class="pipeline-step-sub">Start here. Static certs.</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#7c3aed;--i:1"><span class="pipeline-step-icon">2</span>cert-manager<span class="pipeline-step-sub">Auto-rotate in K8s</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#22c55e;--i:2"><span class="pipeline-step-icon">3</span>SPIFFE/SPIRE<span class="pipeline-step-sub">Full identity platform</span></div>
+        </div>
+      </div>
+
+      <p>Start with <a href="https://github.com/vishalanandl177/m2mauth" target="_blank" rel="noopener noreferrer"><strong>m2mauth</strong></a> to get mTLS working in your Go services today. When you outgrow static certificates (20+ services, multi-cluster, compliance requirements), graduate to SPIFFE/SPIRE for automatic identity management. Both solve the same fundamental problem — proving "I am who I say I am" — at different scales.</p>
     `,
     author: 'Coder Secret',
     date: '2026-04-18',
-    readTime: '14 min read',
-    tags: ['Go', 'mTLS', 'M2M', 'Security', 'Open Source'],
+    readTime: '22 min read',
+    tags: ['Go', 'mTLS', 'SPIFFE', 'SPIRE', 'Security'],
     coverImage: '',
   },
 
