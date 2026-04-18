@@ -34,12 +34,272 @@ export const CATEGORIES = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    id: '39',
+    title: 'M2M Authentication in Go: Secure Service-to-Service Calls with m2mauth',
+    slug: 'm2m-authentication-golang-m2mauth-library',
+    excerpt: 'Learn how to implement Machine-to-Machine (M2M) authentication in Go using the m2mauth library. Covers mTLS, certificate-based auth, and secure microservice communication with practical code examples.',
+    category: 'backend',
+    content: `
+      <p>When your microservices talk to each other, how do you ensure that only <strong>authorized services</strong> can make those calls? API keys leak. JWTs expire and need refresh infrastructure. The most robust solution is <strong>certificate-based M2M authentication</strong> — and there's a Go library that makes it straightforward: <a href="https://github.com/vishalanandl177/m2mauth" target="_blank" rel="noopener noreferrer"><strong>m2mauth</strong></a>.</p>
+
+      <h2>Why m2mauth?</h2>
+      <p>Building mTLS from scratch in Go means dealing with TLS config, certificate loading, peer verification, and error handling yourself. The <code>m2mauth</code> library wraps all of this into a clean API focused specifically on service-to-service authentication.</p>
+
+      <!-- Why m2mauth -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">DIY mTLS vs m2mauth Library</div>
+        <div class="vs-cards">
+          <div class="vs-card" style="border-color:#ef4444">
+            <div class="vs-card-header" style="background:#ef4444">&#x1F6AB; Rolling Your Own</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4CB;</span>50+ lines of TLS config boilerplate</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x26A0;</span>Easy to misconfigure (skip verify, wrong ciphers)</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F504;</span>Certificate rotation logic is your problem</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F41B;</span>Subtle security bugs in peer validation</div>
+            </div>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="vs-card" style="border-color:#22c55e">
+            <div class="vs-card-header" style="background:#22c55e">&#x2705; Using m2mauth</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x26A1;</span>Clean API — few lines to set up</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F512;</span>Secure defaults (TLS 1.2+, strong ciphers)</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>Handles certificate loading and validation</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4E6;</span>Open source, auditable, community-maintained</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>Installation</h2>
+      <pre><code>go get github.com/vishalanandl177/m2mauth</code></pre>
+
+      <h2>How M2M Auth Works</h2>
+
+      <!-- M2M Auth Flow -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">M2M Authentication Flow</div>
+        <div class="seq-diagram">
+          <div class="seq-actors">
+            <div class="seq-actor browser">Service A<span class="seq-actor-sub">(Client)</span></div>
+            <div class="seq-actor idp">mTLS Handshake<span class="seq-actor-sub">(m2mauth)</span></div>
+            <div class="seq-actor sp">Service B<span class="seq-actor-sub">(Server)</span></div>
+          </div>
+          <div class="seq-steps">
+            <div class="seq-step">
+              <div class="seq-arrow full-right" style="--arrow-color:#3b82f6"><span class="seq-num blue">1</span> Connect with client certificate</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-left" style="--arrow-color:#22c55e"><span class="seq-num green">2</span> Server sends its certificate</div>
+            </div>
+            <div class="seq-step">
+              <div></div>
+              <div class="seq-action" style="border-color:#7c3aed;color:#a78bfa">Both verify certificates against shared CA</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-right" style="--arrow-color:#f97316"><span class="seq-num orange">3</span> Encrypted request (identity proven)</div>
+            </div>
+            <div class="seq-step">
+              <div class="seq-arrow full-left" style="--arrow-color:#22c55e"><span class="seq-num green">4</span> Encrypted response &#x2705;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>Setting Up the Server</h2>
+      <pre><code>package main
+
+import (
+    "fmt"
+    "log"
+    "net/http"
+
+    "github.com/vishalanandl177/m2mauth"
+)
+
+func main() {
+    // Create M2M auth configuration
+    config := m2mauth.Config{
+        CertFile: "certs/server-cert.pem",   // Server's certificate
+        KeyFile:  "certs/server-key.pem",     // Server's private key
+        CAFile:   "certs/ca-cert.pem",        // CA to verify client certs
+    }
+
+    // Your HTTP handler
+    mux := http.NewServeMux()
+    mux.HandleFunc("/api/data", func(w http.ResponseWriter, r *http.Request) {
+        // At this point, the client's certificate has been verified
+        // by m2mauth — only trusted services reach this handler
+        fmt.Fprintf(w, "Hello from Service B! You are authenticated.")
+    })
+
+    mux.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
+        w.WriteHeader(http.StatusOK)
+        fmt.Fprintf(w, "OK")
+    })
+
+    // Start mTLS server using m2mauth
+    server, err := m2mauth.NewServer(config, mux)
+    if err != nil {
+        log.Fatalf("Failed to create M2M server: %v", err)
+    }
+
+    log.Println("M2M server listening on :8443 (mTLS required)")
+    log.Fatal(server.ListenAndServeTLS(":8443"))
+}</code></pre>
+
+      <h2>Setting Up the Client</h2>
+      <pre><code>package main
+
+import (
+    "fmt"
+    "io"
+    "log"
+    "net/http"
+
+    "github.com/vishalanandl177/m2mauth"
+)
+
+func main() {
+    // Client M2M auth configuration
+    config := m2mauth.Config{
+        CertFile: "certs/client-cert.pem",   // Client's certificate
+        KeyFile:  "certs/client-key.pem",     // Client's private key
+        CAFile:   "certs/ca-cert.pem",        // CA to verify server cert
+    }
+
+    // Create authenticated HTTP client
+    client, err := m2mauth.NewClient(config)
+    if err != nil {
+        log.Fatalf("Failed to create M2M client: %v", err)
+    }
+
+    // Make authenticated request — certificate is sent automatically
+    resp, err := client.Get("https://localhost:8443/api/data")
+    if err != nil {
+        log.Fatalf("Request failed: %v", err)
+    }
+    defer resp.Body.Close()
+
+    body, _ := io.ReadAll(resp.Body)
+    fmt.Printf("Status: %d\\n", resp.StatusCode)
+    fmt.Printf("Body: %s\\n", body)
+    // Output:
+    // Status: 200
+    // Body: Hello from Service B! You are authenticated.
+}</code></pre>
+
+      <h2>Generating Certificates</h2>
+      <p>For development/testing, generate your own CA and certificates:</p>
+      <pre><code># Generate CA (Certificate Authority)
+openssl genrsa -out certs/ca-key.pem 4096
+openssl req -new -x509 -key certs/ca-key.pem -sha256 \\
+  -subj "/CN=My Internal CA" -days 3650 -out certs/ca-cert.pem
+
+# Generate Server certificate
+openssl genrsa -out certs/server-key.pem 4096
+openssl req -new -key certs/server-key.pem \\
+  -subj "/CN=service-b.local" -out certs/server.csr
+openssl x509 -req -in certs/server.csr \\
+  -CA certs/ca-cert.pem -CAkey certs/ca-key.pem \\
+  -CAcreateserial -days 365 -sha256 \\
+  -extfile &lt;(echo "subjectAltName=DNS:localhost,IP:127.0.0.1") \\
+  -out certs/server-cert.pem
+
+# Generate Client certificate
+openssl genrsa -out certs/client-key.pem 4096
+openssl req -new -key certs/client-key.pem \\
+  -subj "/CN=service-a" -out certs/client.csr
+openssl x509 -req -in certs/client.csr \\
+  -CA certs/ca-cert.pem -CAkey certs/ca-key.pem \\
+  -CAcreateserial -days 365 -sha256 \\
+  -out certs/client-cert.pem</code></pre>
+
+      <h2>Using with gRPC</h2>
+      <pre><code>package main
+
+import (
+    "log"
+    "google.golang.org/grpc"
+    "github.com/vishalanandl177/m2mauth"
+)
+
+func main() {
+    config := m2mauth.Config{
+        CertFile: "certs/server-cert.pem",
+        KeyFile:  "certs/server-key.pem",
+        CAFile:   "certs/ca-cert.pem",
+    }
+
+    // Get TLS credentials for gRPC
+    tlsCreds, err := m2mauth.NewGRPCServerCredentials(config)
+    if err != nil {
+        log.Fatalf("Failed to create gRPC credentials: %v", err)
+    }
+
+    // Create gRPC server with mTLS
+    grpcServer := grpc.NewServer(grpc.Creds(tlsCreds))
+
+    // Register your gRPC services here...
+    // pb.RegisterMyServiceServer(grpcServer, &myService{})
+
+    log.Println("gRPC server with mTLS on :50051")
+}</code></pre>
+
+      <h2>Kubernetes Deployment</h2>
+      <pre><code># Mount certificates from Kubernetes Secrets
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-b
+spec:
+  template:
+    spec:
+      containers:
+        - name: service-b
+          image: myregistry/service-b:latest
+          ports:
+            - containerPort: 8443
+          volumeMounts:
+            - name: tls-certs
+              mountPath: /certs
+              readOnly: true
+      volumes:
+        - name: tls-certs
+          secret:
+            secretName: service-b-tls
+
+# Create the secret from cert files:
+# kubectl create secret generic service-b-tls \\
+#   --from-file=server-cert.pem=certs/server-cert.pem \\
+#   --from-file=server-key.pem=certs/server-key.pem \\
+#   --from-file=ca-cert.pem=certs/ca-cert.pem
+
+# For production: use cert-manager to auto-generate and rotate certs</code></pre>
+
+      <h2>When to Use m2mauth</h2>
+      <ul>
+        <li><strong>Microservice-to-microservice:</strong> Internal APIs within your cluster where API keys aren't secure enough.</li>
+        <li><strong>Zero-trust environments:</strong> Every connection must prove identity cryptographically — not just "I have the right API key."</li>
+        <li><strong>Cross-cluster communication:</strong> Services in different Kubernetes clusters or VPCs that need to trust each other.</li>
+        <li><strong>Compliance requirements:</strong> PCI-DSS, HIPAA, or SOC 2 often require mutual authentication for sensitive data access.</li>
+      </ul>
+
+      <p>The <code>m2mauth</code> library removes the boilerplate of setting up mTLS in Go so you can focus on your business logic. Check out the full source code and documentation at <a href="https://github.com/vishalanandl177/m2mauth" target="_blank" rel="noopener noreferrer">github.com/vishalanandl177/m2mauth</a>.</p>
+    `,
+    author: 'Coder Secret',
+    date: '2026-04-18',
+    readTime: '14 min read',
+    tags: ['Go', 'mTLS', 'M2M', 'Security', 'Open Source'],
+    coverImage: '',
+  },
+
+  {
     id: '38',
     title: 'Claude Code Prompting Guide: Build Better Software 10x Faster',
     slug: 'claude-code-prompting-guide-build-faster',
     excerpt: 'Master the art of prompting Claude Code. Learn the patterns, structures, and techniques that turn vague instructions into production-grade code — with real before/after examples from building this very blog.',
     category: 'tutorials',
-    featured: true,
     content: `
       <p>I built this entire blog — 35+ articles, 6 interactive games, 5 cheat sheets, SEO optimization, GitHub Pages deployment, Giscus comments — using Claude Code in a single session. Not by luck. By learning how to prompt it properly. The difference between a vague prompt and a precise one is the difference between "it kind of works" and "ship it to production."</p>
 
