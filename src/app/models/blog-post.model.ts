@@ -492,6 +492,313 @@ func callPaymentService(ctx context.Context) {
         <li><strong>Square/Block</strong> uses SPIFFE for payment processing services — every transaction flows through mTLS-authenticated connections with automatically rotated certificates.</li>
       </ul>
 
+      <h2>Practical Example: E-Commerce Platform with m2mauth + SPIFFE</h2>
+
+      <p>Let's walk through a real production architecture. You're building an e-commerce platform with 5 microservices. Here's how you'd secure every service-to-service call.</p>
+
+      <!-- Architecture Diagram -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">E-Commerce M2M Architecture</div>
+        <div class="hub-diagram">
+          <div class="hub-center" style="background:#7c3aed;box-shadow:0 0 30px rgba(124,58,237,0.3)">
+            SPIRE Server
+            <span class="hub-center-sub">Issues SVIDs to all services</span>
+          </div>
+          <div class="hub-arrow-label"><span class="arrow-animated">&#x2B07;</span> mTLS-authenticated connections</div>
+          <div class="hub-apps">
+            <div class="hub-app"><span class="hub-app-icon">&#x1F310;</span>API Gateway<span class="hub-app-sub">Public entry</span></div>
+            <div class="hub-app" style="background:#f97316"><span class="hub-app-icon">&#x1F6D2;</span>Order Service<span class="hub-app-sub">Processes orders</span></div>
+            <div class="hub-app" style="background:#a855f7"><span class="hub-app-icon">&#x1F4B3;</span>Payment Service<span class="hub-app-sub">Charges cards</span></div>
+            <div class="hub-app" style="background:#ef4444"><span class="hub-app-icon">&#x1F4E6;</span>Inventory Service<span class="hub-app-sub">Stock management</span></div>
+          </div>
+        </div>
+      </div>
+
+      <pre><code>// ── Example 1: Order Service calling Payment Service ──
+// The Order Service needs to charge a customer's card.
+// It must prove its identity to the Payment Service.
+
+package main
+
+import (
+    "bytes"
+    "context"
+    "encoding/json"
+    "fmt"
+    "log"
+    "net/http"
+
+    "github.com/vishalanandl177/m2mauth"
+)
+
+// ChargeRequest represents a payment request
+type ChargeRequest struct {
+    OrderID  string  \u0060json:"order_id"\u0060
+    Amount   float64 \u0060json:"amount"\u0060
+    Currency string  \u0060json:"currency"\u0060
+    UserID   string  \u0060json:"user_id"\u0060
+}
+
+// OrderService calls PaymentService with mTLS authentication
+func chargeCustomer(order ChargeRequest) error {
+    // Create authenticated M2M client
+    config := m2mauth.Config{
+        CertFile: "/certs/order-service-cert.pem",
+        KeyFile:  "/certs/order-service-key.pem",
+        CAFile:   "/certs/ca-cert.pem",
+    }
+
+    client, err := m2mauth.NewClient(config)
+    if err != nil {
+        return fmt.Errorf("failed to create M2M client: %w", err)
+    }
+
+    // Marshal the request
+    body, _ := json.Marshal(order)
+
+    // Call Payment Service — mTLS proves we ARE the Order Service
+    resp, err := client.Post(
+        "https://payment-service.internal:8443/api/charge",
+        "application/json",
+        bytes.NewReader(body),
+    )
+    if err != nil {
+        return fmt.Errorf("payment request failed: %w", err)
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        return fmt.Errorf("payment failed with status: %d", resp.StatusCode)
+    }
+
+    log.Printf("Payment successful for order %s", order.OrderID)
+    return nil
+}
+
+// ── Example 2: Payment Service (server side) ──
+// Only accepts calls from Order Service — rejects everything else
+
+func main() {
+    config := m2mauth.Config{
+        CertFile: "/certs/payment-service-cert.pem",
+        KeyFile:  "/certs/payment-service-key.pem",
+        CAFile:   "/certs/ca-cert.pem",
+    }
+
+    mux := http.NewServeMux()
+
+    mux.HandleFunc("/api/charge", func(w http.ResponseWriter, r *http.Request) {
+        // At this point, mTLS has already verified the caller's certificate.
+        // The caller IS the Order Service (or whoever holds the client cert
+        // signed by our CA). No API key needed, no JWT needed.
+
+        var req ChargeRequest
+        if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+            http.Error(w, "Invalid request", http.StatusBadRequest)
+            return
+        }
+
+        // Process the payment
+        log.Printf("Processing payment: order=%s amount=%.2f %s",
+            req.OrderID, req.Amount, req.Currency)
+
+        // In production: call Stripe, validate amount, check fraud, etc.
+
+        w.WriteHeader(http.StatusOK)
+        json.NewEncoder(w).Encode(map[string]string{
+            "status":     "success",
+            "payment_id": "pay_" + req.OrderID,
+        })
+    })
+
+    mux.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprintln(w, "OK")
+    })
+
+    server, err := m2mauth.NewServer(config, mux)
+    if err != nil {
+        log.Fatalf("Failed to create server: %v", err)
+    }
+
+    log.Println("Payment Service running on :8443 (mTLS required)")
+    log.Fatal(server.ListenAndServeTLS(":8443"))
+}</code></pre>
+
+      <h2>Example: Inventory Check with Circuit Breaker</h2>
+
+      <pre><code>// Real production pattern: m2mauth + circuit breaker + retry
+// Order Service checks inventory before placing an order
+
+package main
+
+import (
+    "context"
+    "encoding/json"
+    "fmt"
+    "log"
+    "net/http"
+    "time"
+
+    "github.com/vishalanandl177/m2mauth"
+)
+
+type InventoryClient struct {
+    httpClient *http.Client
+    baseURL    string
+}
+
+func NewInventoryClient(certFile, keyFile, caFile, baseURL string) (*InventoryClient, error) {
+    config := m2mauth.Config{
+        CertFile: certFile,
+        KeyFile:  keyFile,
+        CAFile:   caFile,
+    }
+
+    client, err := m2mauth.NewClient(config)
+    if err != nil {
+        return nil, err
+    }
+
+    // Add timeout (production-critical)
+    client.Timeout = 5 * time.Second
+
+    return &InventoryClient{
+        httpClient: client,
+        baseURL:    baseURL,
+    }, nil
+}
+
+type StockResponse struct {
+    ProductID string \u0060json:"product_id"\u0060
+    Available int    \u0060json:"available"\u0060
+    Reserved  int    \u0060json:"reserved"\u0060
+}
+
+func (ic *InventoryClient) CheckStock(ctx context.Context, productID string) (*StockResponse, error) {
+    url := fmt.Sprintf("%s/api/stock/%s", ic.baseURL, productID)
+
+    req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+    if err != nil {
+        return nil, err
+    }
+
+    resp, err := ic.httpClient.Do(req)
+    if err != nil {
+        return nil, fmt.Errorf("inventory service unreachable: %w", err)
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        return nil, fmt.Errorf("inventory check failed: status %d", resp.StatusCode)
+    }
+
+    var stock StockResponse
+    if err := json.NewDecoder(resp.Body).Decode(&stock); err != nil {
+        return nil, err
+    }
+
+    return &stock, nil
+}
+
+func (ic *InventoryClient) ReserveStock(ctx context.Context, productID string, qty int) error {
+    url := fmt.Sprintf("%s/api/stock/%s/reserve", ic.baseURL, productID)
+    body := fmt.Sprintf(\u0060{"quantity": %d}\u0060, qty)
+
+    req, err := http.NewRequestWithContext(ctx, "POST", url,
+        bytes.NewBufferString(body))
+    if err != nil {
+        return err
+    }
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, err := ic.httpClient.Do(req)
+    if err != nil {
+        return fmt.Errorf("reserve failed: %w", err)
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        return fmt.Errorf("reserve failed: status %d", resp.StatusCode)
+    }
+    return nil
+}
+
+// Usage in Order Service:
+// inventory, _ := NewInventoryClient(
+//     "/certs/order-cert.pem", "/certs/order-key.pem",
+//     "/certs/ca-cert.pem", "https://inventory-service.internal:8443",
+// )
+// stock, err := inventory.CheckStock(ctx, "PROD-123")
+// if stock.Available >= orderQty {
+//     inventory.ReserveStock(ctx, "PROD-123", orderQty)
+// }</code></pre>
+
+      <h2>Example: SPIFFE + m2mauth Migration (Gradual)</h2>
+
+      <p>You don't need to switch from m2mauth to SPIRE all at once. Here's how to migrate gradually — one service at a time:</p>
+
+      <pre><code>// service_auth.go — Abstraction that supports both m2mauth and SPIFFE
+package auth
+
+import (
+    "crypto/tls"
+    "net/http"
+    "os"
+
+    "github.com/vishalanandl177/m2mauth"
+    "github.com/spiffe/go-spiffe/v2/workloadapi"
+)
+
+// NewAuthenticatedClient returns an mTLS HTTP client.
+// Uses SPIFFE if SPIFFE_ENDPOINT_SOCKET is set, otherwise m2mauth.
+func NewAuthenticatedClient() (*http.Client, error) {
+    spiffeSocket := os.Getenv("SPIFFE_ENDPOINT_SOCKET")
+
+    if spiffeSocket != "" {
+        // Production: Use SPIFFE/SPIRE (auto-rotated certificates)
+        source, err := workloadapi.NewX509Source(context.Background())
+        if err != nil {
+            return nil, fmt.Errorf("SPIFFE source failed: %w", err)
+        }
+        tlsConfig := tlsconfig.MTLSClientConfig(source, source,
+            tlsconfig.AuthorizeAny())
+        return &http.Client{
+            Transport: &http.Transport{TLSClientConfig: tlsConfig},
+        }, nil
+    }
+
+    // Development/staging: Use m2mauth (static certificates)
+    config := m2mauth.Config{
+        CertFile: os.Getenv("TLS_CERT_FILE"),
+        KeyFile:  os.Getenv("TLS_KEY_FILE"),
+        CAFile:   os.Getenv("TLS_CA_FILE"),
+    }
+    return m2mauth.NewClient(config)
+}
+
+// In your service code — works with both:
+// client, err := auth.NewAuthenticatedClient()
+// resp, err := client.Get("https://payment-service:8443/api/charge")
+
+// Migration strategy:
+// 1. Deploy SPIRE to your cluster
+// 2. Set SPIFFE_ENDPOINT_SOCKET on ONE service
+// 3. That service uses SPIRE, all others still use m2mauth
+// 4. Both work because they're both mTLS — compatible!
+// 5. Gradually migrate all services to SPIRE
+// 6. Remove static cert files when all services are on SPIRE</code></pre>
+
+      <!-- Migration Strategy -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Gradual Migration: m2mauth &#x2192; SPIFFE/SPIRE</div>
+        <div class="timeline">
+          <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">Phase 1: All services use m2mauth (static certs)</div><div class="timeline-item-desc">Quick setup. Works for dev, staging, and small production. Manual cert rotation.</div></div>
+          <div class="timeline-item" style="--c:#7c3aed"><div class="timeline-item-title" style="color:#7c3aed">Phase 2: Deploy SPIRE, migrate first service</div><div class="timeline-item-desc">Install SPIRE server + agents. Migrate one non-critical service. Both still talk mTLS — fully compatible.</div></div>
+          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Phase 3: Migrate remaining services one at a time</div><div class="timeline-item-desc">Each service switches from static certs to SPIRE SVIDs. No downtime — mTLS works with both cert sources.</div></div>
+          <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">Phase 4: Full SPIRE — remove static certs</div><div class="timeline-item-desc">All services on SPIRE. Auto-rotation, cross-cluster federation, zero manual cert management.</div></div>
+        </div>
+      </div>
+
       <h2>Getting Started: The Practical Path</h2>
 
       <!-- Path -->
