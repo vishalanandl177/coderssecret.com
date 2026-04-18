@@ -424,7 +424,7 @@ import { SeoService } from '../../services/seo.service';
                 </div>
                 <h3 class="text-2xl font-extrabold tracking-tight transition-colors duration-300 group-hover:text-primary">Vishal Anand</h3>
                 <p class="mt-2 text-muted-foreground leading-relaxed max-w-2xl">
-                  Software engineer and tech lead with hands-on experience building production systems at scale. Writing about backend architecture, DevOps, security, Kubernetes, and the Python ecosystem &mdash; the kind of practical knowledge you only get from years on the job.
+                  Senior Product Engineer and Tech Lead with hands-on experience building production systems at scale. Writing about backend architecture, DevOps, security, Kubernetes, and the Python ecosystem &mdash; the kind of practical knowledge you only get from years on the job.
                 </p>
                 <div class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
                   Learn more about CodersSecret
@@ -546,7 +546,7 @@ export class HomeComponent {
     },
     {
       q: 'Who writes the content?',
-      a: 'All articles are written by <a href="/about" class="text-primary underline">Vishal Anand</a>, a software engineer and tech lead with hands-on experience building production systems at scale. The content reflects real-world engineering, not textbook theory.',
+      a: 'All articles are written by <a href="/about" class="text-primary underline">Vishal Anand</a>, a Senior Product Engineer and Tech Lead with hands-on experience building production systems at scale. The content reflects real-world engineering, not textbook theory.',
     },
     {
       q: 'How often do you publish new articles?',

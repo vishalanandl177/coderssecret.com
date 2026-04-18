@@ -31,7 +31,7 @@ import { BLOG_POSTS, CATEGORIES } from '../../models/blog-post.model';
             </div>
             <div>
               <h2 class="mt-0 mb-1">Vishal Anand</h2>
-              <p class="mt-0 mb-2 text-muted-foreground text-sm">Founder & Author</p>
+              <p class="mt-0 mb-2 text-muted-foreground text-sm">Senior Product Engineer & Tech Lead</p>
               <div class="flex gap-3 text-sm">
                 <a href="https://linkedin.com/in/vishal-techlead" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                 <a href="https://instagram.com/vis_naz" target="_blank" rel="noopener noreferrer">Instagram</a>
@@ -41,7 +41,7 @@ import { BLOG_POSTS, CATEGORIES } from '../../models/blog-post.model';
           </div>
 
           <h2>Who Writes This Blog?</h2>
-          <p>CodersSecret is written by <strong>Vishal Anand</strong> — a software engineer and tech lead with experience building production systems at scale. The blog covers topics I've learned from building real software: backend architecture, DevOps, security, Kubernetes, and Python.</p>
+          <p>CodersSecret is written by <strong>Vishal Anand</strong> — a Senior Product Engineer and Tech Lead with experience building production systems at scale. The blog covers topics I've learned from building real software: backend architecture, DevOps, security, Kubernetes, and Python.</p>
 
           <h2>Why This Blog Exists</h2>
           <p>Most technical tutorials are either too theoretical (textbook explanations that don't help in practice) or too shallow (5-minute introductions that don't cover edge cases). CodersSecret fills the gap with <strong>battle-tested, production-grade tutorials</strong> written from hands-on experience — the kind of knowledge you normally only get from years on the job.</p>
@@ -93,7 +93,7 @@ export class AboutComponent {
   constructor() {
     this.seo.update({
       title: 'About CodersSecret — Vishal Anand',
-      description: 'CodersSecret is a technical blog by Vishal Anand covering Python, Kubernetes, security, and system design with battle-tested, production-grade tutorials.',
+      description: 'CodersSecret is a technical blog by Vishal Anand, Senior Product Engineer and Tech Lead, covering Python, Kubernetes, security, and system design with production-grade tutorials.',
       url: '/about',
       breadcrumbs: [
         { name: 'Home', url: '/' },

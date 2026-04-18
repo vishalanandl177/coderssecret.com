@@ -315,11 +315,11 @@ const aboutDir = path.join(OUTPUT_DIR, 'about');
 fs.mkdirSync(aboutDir, { recursive: true });
 fs.writeFileSync(path.join(aboutDir, 'index.html'), makeHtml({
   title: 'About CodersSecret — Vishal Anand',
-  description: 'CodersSecret is a technical blog by Vishal Anand covering Python, Kubernetes, security, and system design with battle-tested, production-grade tutorials.',
+  description: 'CodersSecret is a technical blog by Vishal Anand, Senior Product Engineer and Tech Lead, covering Python, Kubernetes, security, and system design with production-grade tutorials.',
   url: '/about',
   content: `
     <h1>About CodersSecret</h1>
-    <p>CodersSecret is written by Vishal Anand — a software engineer and tech lead with experience building production systems at scale. The blog covers backend architecture, DevOps, security, Kubernetes, Python, and system design with practical, production-grade tutorials.</p>
+    <p>CodersSecret is written by Vishal Anand — a Senior Product Engineer and Tech Lead with experience building production systems at scale. The blog covers backend architecture, DevOps, security, Kubernetes, Python, and system design with practical, production-grade tutorials.</p>
     <p>${posts.length} articles published across ${categories.size} categories.</p>
     <p><a href="/blog">Browse all articles</a></p>
   `,
