@@ -23,14 +23,24 @@ const dates = [];
 const categories = new Set();
 let match;
 
-while ((match = slugRegex.exec(modelContent)) !== null) {
-  slugs.push(match[1]);
-}
-while ((match = dateRegex.exec(modelContent)) !== null) {
-  dates.push(match[1]);
-}
+// Extract categories first
 while ((match = categoryRegex.exec(modelContent)) !== null) {
   categories.add(match[1]);
+}
+
+// Extract blog post slugs — only after BLOG_POSTS starts
+const blogPostsStart = modelContent.indexOf('BLOG_POSTS');
+const blogSection = blogPostsStart > 0 ? modelContent.substring(blogPostsStart) : modelContent;
+const blogSlugRegex = /slug:\s*'([^']+)'/g;
+while ((match = blogSlugRegex.exec(blogSection)) !== null) {
+  const s = match[1];
+  // Skip category slugs that get matched
+  if (s && !categories.has(s)) {
+    slugs.push(s);
+  }
+}
+while ((match = dateRegex.exec(blogSection)) !== null) {
+  dates.push(match[1]);
 }
 
 const today = new Date().toISOString().split('T')[0];
