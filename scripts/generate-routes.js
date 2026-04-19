@@ -88,7 +88,7 @@ const categoryNames = {
 const baseHtml = fs.readFileSync(path.join(OUTPUT_DIR, 'index.html'), 'utf-8');
 
 function makeHtml(options) {
-  const { title, description, url, content } = options;
+  const { title, description, url, content, jsonLd } = options;
   const fullTitle = `${title} | CodersSecret`;
   const canonical = `${SITE_URL}${url}`;
 
@@ -117,6 +117,8 @@ function makeHtml(options) {
     `  <meta name="twitter:card" content="summary_large_image">\n` +
     `  <meta name="twitter:title" content="${fullTitle}">\n` +
     `  <meta name="twitter:description" content="${description}">\n` +
+    `  <link rel="alternate" hreflang="en" href="${canonical}">\n` +
+    (jsonLd ? `  <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>\n` : '') +
     '</head>'
   );
 
@@ -176,11 +178,38 @@ for (const post of posts) {
     </article>
   `;
 
+  // BlogPosting JSON-LD for Google rich results
+  const blogJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    'headline': post.title,
+    'description': post.excerpt,
+    'url': `${SITE_URL}/blog/${post.slug}`,
+    'datePublished': post.date || '',
+    'author': {
+      '@type': 'Person',
+      'name': 'Vishal Anand',
+      'url': `${SITE_URL}/about`,
+    },
+    'publisher': {
+      '@type': 'Organization',
+      'name': 'CodersSecret',
+      'url': SITE_URL,
+    },
+    'mainEntityOfPage': {
+      '@type': 'WebPage',
+      '@id': `${SITE_URL}/blog/${post.slug}`,
+    },
+    'keywords': (post.tags || []).join(', '),
+    'articleSection': post.category || '',
+  };
+
   fs.writeFileSync(path.join(dir, 'index.html'), makeHtml({
     title: post.title,
     description: post.excerpt,
     url: `/blog/${post.slug}`,
     content,
+    jsonLd: blogJsonLd,
   }));
   created++;
 }
