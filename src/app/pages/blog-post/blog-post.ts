@@ -54,6 +54,30 @@ import { DOCUMENT } from '@angular/common';
                 <time class="font-mono text-xs" [attr.datetime]="post.date">{{ post.date }}</time>
                 <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
                 <span>{{ post.readTime }}</span>
+                <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
+                <!-- Listen button -->
+                <button (click)="toggleSpeech()"
+                        class="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/60 px-3 py-1 text-xs font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent hover:border-accent cursor-pointer"
+                        [attr.aria-label]="isSpeaking() ? 'Pause reading' : 'Listen to article'">
+                  @if (isSpeaking()) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                    Pause
+                  } @else if (speechPaused()) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Resume
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                    Listen
+                  }
+                </button>
+                @if (isSpeaking() || speechPaused()) {
+                  <button (click)="stopSpeech()"
+                          class="inline-flex items-center gap-1 rounded-full border border-border/60 bg-card/60 px-2.5 py-1 text-xs text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent cursor-pointer"
+                          aria-label="Stop reading">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                    Stop
+                  </button>
+                }
               </div>
             </div>
 
@@ -262,6 +286,8 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   private scrollMilestones = new Set<number>();
   readingProgress = signal(0);
   linkCopied = signal(false);
+  isSpeaking = signal(false);
+  speechPaused = signal(false);
   encodeURIComponent = encodeURIComponent;
   post: BlogPost | undefined;
   relatedPosts: BlogPost[] = [];
@@ -286,6 +312,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
           this.imagesProcessed = false;
           this.giscusAdded = false;
           this.scrollMilestones.clear();
+          this.stopSpeech();
           // Generate TOC from h2 tags in content
           const h2Regex = /<h2>(.*?)<\/h2>/g;
           this.toc = [];
@@ -341,6 +368,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
 
   ngOnDestroy() {
     this.readingProgress.set(0);
+    this.stopSpeech();
   }
 
   ngAfterViewChecked() {
@@ -410,6 +438,101 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
         });
       }
     }
+  }
+
+  toggleSpeech() {
+    if (typeof speechSynthesis === 'undefined') return;
+
+    if (this.isSpeaking()) {
+      speechSynthesis.pause();
+      this.isSpeaking.set(false);
+      this.speechPaused.set(true);
+      return;
+    }
+
+    if (this.speechPaused()) {
+      speechSynthesis.resume();
+      this.isSpeaking.set(true);
+      this.speechPaused.set(false);
+      return;
+    }
+
+    // Start fresh — extract text from article content
+    const article = this.el.nativeElement.querySelector('article');
+    if (!article) return;
+
+    // Get clean text: strip code blocks, get readable content
+    const clone = article.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll('pre, code, .flow-diagram, .copy-btn, svg').forEach((el: Element) => el.remove());
+    const text = clone.textContent?.replace(/\s+/g, ' ').trim() || '';
+
+    if (!text) return;
+
+    // Cancel any existing speech
+    speechSynthesis.cancel();
+
+    // Split into chunks (browsers have a ~5000 char limit per utterance)
+    const chunks = this.splitText(text, 4000);
+    let currentChunk = 0;
+
+    const speakNext = () => {
+      if (currentChunk >= chunks.length) {
+        this.isSpeaking.set(false);
+        this.speechPaused.set(false);
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(chunks[currentChunk]);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      utterance.lang = 'en-US';
+
+      // Try to use a natural-sounding voice
+      const voices = speechSynthesis.getVoices();
+      const preferred = voices.find(v => v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha'));
+      if (preferred) utterance.voice = preferred;
+
+      utterance.onend = () => {
+        currentChunk++;
+        speakNext();
+      };
+
+      utterance.onerror = () => {
+        this.isSpeaking.set(false);
+        this.speechPaused.set(false);
+      };
+
+      speechSynthesis.speak(utterance);
+    };
+
+    this.isSpeaking.set(true);
+    this.speechPaused.set(false);
+    speakNext();
+  }
+
+  stopSpeech() {
+    if (typeof speechSynthesis === 'undefined') return;
+    speechSynthesis.cancel();
+    this.isSpeaking.set(false);
+    this.speechPaused.set(false);
+  }
+
+  private splitText(text: string, maxLength: number): string[] {
+    const chunks: string[] = [];
+    let remaining = text;
+    while (remaining.length > 0) {
+      if (remaining.length <= maxLength) {
+        chunks.push(remaining);
+        break;
+      }
+      // Find a good break point (period, question mark, exclamation)
+      let breakAt = remaining.lastIndexOf('. ', maxLength);
+      if (breakAt < maxLength * 0.5) breakAt = remaining.lastIndexOf(' ', maxLength);
+      if (breakAt < 0) breakAt = maxLength;
+      chunks.push(remaining.substring(0, breakAt + 1));
+      remaining = remaining.substring(breakAt + 1).trim();
+    }
+    return chunks;
   }
 
   scrollToHeading(id: string) {
