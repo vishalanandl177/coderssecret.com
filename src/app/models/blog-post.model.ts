@@ -3044,6 +3044,48 @@ func callPaymentService(ctx context.Context) {
         <li><strong>Square/Block</strong> uses SPIFFE for payment processing services — every transaction flows through mTLS-authenticated connections with automatically rotated certificates.</li>
       </ul>
 
+      <h2>The "Bottom Turtle" Problem</h2>
+
+      <p>There's a famous analogy in the SPIFFE community (so famous they <a href="https://spiffe.io/book/" target="_blank" rel="noopener noreferrer">named a book after it</a>). It goes like this:</p>
+
+      <p>In an old story, someone insists the world rests on the back of a giant turtle. "What's the turtle standing on?" they're asked. "Another turtle." And that one? <em>"It's turtles all the way down!"</em></p>
+
+      <p>Computer security has the same problem. You protect your APIs with secrets (passwords, API keys). You protect the secrets with encryption keys. You protect the encryption keys with a secrets vault. You protect the vault with... more secrets. <strong>It's secrets all the way down.</strong></p>
+
+      <p>SPIFFE and SPIRE aim to be the <strong>bottom turtle</strong> — the foundational layer of trust that everything else stands on. Instead of cascading secrets, you have cryptographic identity rooted in platform attestation (the node's identity is verified by the cloud provider or kernel, the workload's identity is verified by the node). No secrets to leak because there are no secrets — just cryptographic proofs.</p>
+
+      <h2>Think of It as MFA for Workloads</h2>
+
+      <p>You know how multi-factor authentication (MFA) works for humans — you prove your identity with something you know (password) AND something you have (phone/hardware key). SPIFFE/SPIRE does the same thing for workloads:</p>
+
+      <ul>
+        <li><strong>Something the workload IS:</strong> its process attributes (PID, container image hash, Kubernetes service account)</li>
+        <li><strong>Something the workload's node HAS:</strong> the node's attestation proof (AWS instance identity document, GCP VM identity token, Kubernetes node certificate)</li>
+        <li><strong>Combined result:</strong> a short-lived, cryptographically signed SVID that proves identity without any stored secrets</li>
+      </ul>
+
+      <h2>Beyond Microservices: Where SPIFFE/SPIRE Is Going</h2>
+
+      <!-- Emerging Use Cases -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Emerging SPIFFE/SPIRE Use Cases (2025-2026)</div>
+        <div class="timeline">
+          <div class="timeline-item" style="--c:#7c3aed"><div class="timeline-item-title" style="color:#7c3aed">AI Agent Identity</div><div class="timeline-item-desc">AI agents that interact with sensitive systems (databases, APIs, cloud resources) need verifiable, short-lived identities — not long-lived API keys. SPIFFE SVIDs provide exactly this: the agent gets an identity, does its work, the identity expires automatically.</div></div>
+          <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">Edge Computing Security</div><div class="timeline-item-desc">Edge nodes in retail stores, factories, and cell towers need to authenticate with central cloud services. SPIRE extends the identity control plane to the edge — same cryptographic verification model, even on far-flung devices with intermittent connectivity.</div></div>
+          <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">Service Mesh Trust Foundation</div><div class="timeline-item-desc">Service meshes like Istio and Linkerd already use SPIFFE under the hood for mTLS between sidecars. But SPIRE can serve as a trust foundation ACROSS meshes — different clusters, different mesh implementations, same identity framework.</div></div>
+          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Virtual Machine Identity (KubeVirt)</div><div class="timeline-item-desc">Not everything runs in containers. VMs managed by KubeVirt (or OpenShift Virtualization) can get SPIFFE identities too — same attestation model, same SVIDs, same trust domains. One identity system for containers AND VMs.</div></div>
+          <div class="timeline-item" style="--c:#ef4444"><div class="timeline-item-title" style="color:#ef4444">Cross-Organisation Federation</div><div class="timeline-item-desc">Two companies exchanging trust bundles can authenticate each other's workloads without sharing any secrets. Your payment service calls your partner's fraud API — both sides verify with SPIFFE, no API keys exchanged, no secrets vault shared.</div></div>
+        </div>
+      </div>
+
+      <h2>SPIFFE/SPIRE in 3 Key Facts</h2>
+
+      <ul>
+        <li><strong>Graduated CNCF project:</strong> Same maturity level as Kubernetes, Prometheus, and Envoy. Production-proven at the highest scale.</li>
+        <li><strong>Platform-agnostic:</strong> Works on Kubernetes, VMs, bare metal, Docker, edge devices. Node and workload attestors exist for AWS, GCP, Azure, and more.</li>
+        <li><strong>Enterprise-ready:</strong> Red Hat offers an enterprise SPIFFE/SPIRE implementation as the <strong>Red Hat Zero Trust Workload Identity Manager</strong> (OpenShift operator). HashiCorp, HPE, and others offer commercial SPIRE distributions too.</li>
+      </ul>
+
       <h2>Practical Example: E-Commerce Platform with m2mauth + SPIFFE</h2>
 
       <p>Let's walk through a real production architecture. You're building an e-commerce platform with 5 microservices. Here's how you'd secure every service-to-service call.</p>
