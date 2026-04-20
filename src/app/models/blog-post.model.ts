@@ -2713,77 +2713,191 @@ spec:
 
       <h2>Scaling M2M Auth: SPIFFE and SPIRE</h2>
 
-      <p>The <code>m2mauth</code> library is perfect for small-to-medium deployments where you manage certificates manually. But what happens when you have 200 services across 5 clusters? Manually rotating certificates becomes impossible. That's where <strong>SPIFFE</strong> and <strong>SPIRE</strong> come in.</p>
+      <p>The <code>m2mauth</code> library is perfect for small-to-medium deployments where you manage certificates manually. But there's a fundamental problem it can't solve: <strong>the identity bootstrapping problem</strong>.</p>
+
+      <p>When a new pod starts in Kubernetes, how does it prove who it is? It can't show a certificate — it doesn't have one yet. It can't use a password — where would you store it securely before the pod exists? This chicken-and-egg problem is exactly what SPIFFE and SPIRE were designed to solve.</p>
 
       <h2>What is SPIFFE?</h2>
 
-      <p><strong>SPIFFE</strong> (Secure Production Identity Framework for Everyone) is an open standard that defines how services identify themselves to each other. Instead of each service managing its own certificates, SPIFFE provides a <strong>universal identity system</strong> for workloads.</p>
+      <p><strong>SPIFFE</strong> (Secure Production Identity Framework for Everyone) is not a tool — it's an <strong>open standard</strong> (a set of specifications) that defines how workloads identify themselves to each other. Think of it like how HTTPS is a standard that defines secure web connections. SPIFFE is a standard that defines secure workload identity.</p>
 
-      <p>The core concept is the <strong>SPIFFE ID</strong> — a URI that uniquely identifies a workload:</p>
+      <p>SPIFFE answers three questions:</p>
+      <ul>
+        <li><strong>How do you name a workload?</strong> → SPIFFE ID (a URI)</li>
+        <li><strong>How do you prove a workload's identity?</strong> → SVID (a signed document — X.509 cert or JWT)</li>
+        <li><strong>How does a workload get its identity?</strong> → Workload API (a local Unix socket)</li>
+      </ul>
+
+      <h2>SPIFFE IDs: Naming Workloads</h2>
+
+      <p>Every workload in a SPIFFE-enabled system has a <strong>SPIFFE ID</strong> — a URI that uniquely identifies it:</p>
 
       <pre><code># SPIFFE ID format:
 spiffe://trust-domain/path
 
-# Examples:
-spiffe://mycompany.com/ns/production/sa/payment-service
-spiffe://mycompany.com/ns/staging/sa/user-api
-spiffe://mycompany.com/cluster/us-east/node/worker-3
+# The trust domain is like a realm or scope:
+spiffe://mycompany.com/payments/charge-service
+spiffe://mycompany.com/orders/api
+spiffe://staging.mycompany.com/payments/charge-service
 
-# The trust domain (mycompany.com) is like a CA scope
-# The path identifies the specific workload</code></pre>
+# Real-world naming patterns:
+# By namespace + service account (Kubernetes):
+spiffe://prod.acme.com/ns/production/sa/payment-service
 
-      <p>The identity is carried in an <strong>SVID</strong> (SPIFFE Verifiable Identity Document) — which is essentially an X.509 certificate or a JWT with the SPIFFE ID embedded.</p>
+# By cluster + service:
+spiffe://acme.com/cluster/us-east/service/order-api
 
-      <!-- SPIFFE Architecture -->
+# By environment + team + service:
+spiffe://acme.com/env/prod/team/platform/service/gateway</code></pre>
+
+      <p>The SPIFFE ID is embedded inside the identity document (SVID). When Service A talks to Service B, they exchange SVIDs and verify each other's SPIFFE ID — not IP addresses, not hostnames, not API keys. This is cryptographic proof of identity.</p>
+
+      <h2>SVIDs: Proving Identity</h2>
+
+      <p>An <strong>SVID</strong> (SPIFFE Verifiable Identity Document) is the actual proof of identity. SPIFFE supports two types:</p>
+
+      <!-- SVID Types -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">SPIFFE Identity Architecture</div>
-        <div class="layer-diagram">
-          <div class="layer-item" style="background:#7c3aed">Trust Domain (spiffe://mycompany.com)<span class="layer-item-sub">The root of trust — all workloads in this domain can verify each other</span></div>
-          <div class="layer-item" style="background:#3b82f6">SPIRE Server (Certificate Authority)<span class="layer-item-sub">Issues and rotates SVIDs automatically. Stores registration entries.</span></div>
-          <div class="layer-item" style="background:#f97316">SPIRE Agent (runs on each node)<span class="layer-item-sub">Attests workloads, fetches SVIDs from server, exposes Workload API</span></div>
-          <div class="layer-item" style="background:#22c55e">Workload (your service)<span class="layer-item-sub">Calls Workload API to get its SVID. No certificate files to manage!</span></div>
+        <div class="flow-diagram-title">Two Types of SPIFFE Identity Documents</div>
+        <div class="vs-cards">
+          <div class="vs-card" style="border-color:#3b82f6">
+            <div class="vs-card-header" style="background:#3b82f6">X.509 SVID (Certificate)</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F512;</span>Standard X.509 certificate with SPIFFE ID in SAN</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F504;</span>Short-lived (typically 1 hour, auto-rotated)</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F310;</span>Works with ANY TLS library (no SPIFFE SDK needed)</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3AF;</span>Best for: mTLS between services (most common)</div>
+            </div>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="vs-card" style="border-color:#22c55e">
+            <div class="vs-card-header" style="background:#22c55e">JWT SVID (Token)</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4DD;</span>Standard JWT with SPIFFE ID in sub claim</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x23F1;</span>Very short-lived (typically 5 minutes)</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F310;</span>Works over HTTP headers (no mTLS needed)</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3AF;</span>Best for: L7 proxies, API gateways, cross-boundary</div>
+            </div>
+          </div>
         </div>
       </div>
 
       <h2>What is SPIRE?</h2>
 
-      <p><strong>SPIRE</strong> (SPIFFE Runtime Environment) is the production implementation of SPIFFE. It's the actual software you deploy. Think of SPIFFE as the standard (like HTTP) and SPIRE as the implementation (like nginx).</p>
+      <p><strong>SPIRE</strong> (SPIFFE Runtime Environment) is the production implementation of the SPIFFE standard. If SPIFFE is the specification, SPIRE is the software you actually deploy. It has two components:</p>
 
-      <h2>How SPIRE Works in Practice</h2>
-
-      <!-- SPIRE Flow -->
+      <!-- SPIRE Architecture -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">SPIRE: Automatic Identity Lifecycle</div>
+        <div class="flow-diagram-title">SPIRE Architecture</div>
+        <div class="layer-diagram">
+          <div class="layer-item" style="background:#7c3aed">SPIRE Server (Control Plane)<span class="layer-item-sub">Central authority. Signs SVIDs. Stores registration entries. Manages trust bundles. Runs as a Deployment in K8s.</span></div>
+          <div class="layer-item" style="background:#3b82f6">SPIRE Agent (Per-Node Daemon)<span class="layer-item-sub">Runs on every node (DaemonSet). Attests workloads. Caches SVIDs locally. Exposes the Workload API.</span></div>
+          <div class="layer-item" style="background:#22c55e">Workload API (Unix Socket)<span class="layer-item-sub">A local gRPC endpoint (/run/spire/sockets/agent.sock) that workloads call to get their SVID. No secrets needed to call it.</span></div>
+          <div class="layer-item" style="background:#f97316">Workload (Your Service)<span class="layer-item-sub">Calls the Workload API on startup. Gets its SVID. Uses it for mTLS connections. Never sees a private key file.</span></div>
+        </div>
+      </div>
+
+      <h2>Workload Attestation: How SPIRE Knows Who's Asking</h2>
+
+      <p>This is the clever part — how does SPIRE know which identity to give a workload? It uses <strong>attestation</strong>: verifying properties of the workload's environment to determine its identity.</p>
+
+      <!-- Attestation Flow -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Workload Attestation: "Who Are You?"</div>
         <div class="seq-diagram">
           <div class="seq-actors">
-            <div class="seq-actor browser">Your Service<span class="seq-actor-sub">(Workload)</span></div>
-            <div class="seq-actor idp">SPIRE Agent<span class="seq-actor-sub">(Node-level)</span></div>
-            <div class="seq-actor sp">SPIRE Server<span class="seq-actor-sub">(Control plane)</span></div>
+            <div class="seq-actor browser">Workload<span class="seq-actor-sub">(Your pod)</span></div>
+            <div class="seq-actor idp">SPIRE Agent<span class="seq-actor-sub">(On same node)</span></div>
+            <div class="seq-actor sp">SPIRE Server<span class="seq-actor-sub">(Central)</span></div>
           </div>
           <div class="seq-steps">
             <div class="seq-step">
-              <div class="seq-arrow right" style="--arrow-color:#3b82f6"><span class="seq-num blue">1</span> Service starts, calls Workload API</div>
+              <div class="seq-arrow right" style="--arrow-color:#3b82f6"><span class="seq-num blue">1</span> Connect to /run/spire/sockets/agent.sock</div>
             </div>
             <div class="seq-step">
               <div></div>
-              <div class="seq-action" style="border-color:#7c3aed;color:#a78bfa">Agent attests workload (K8s pod? Docker? PID?)</div>
+              <div class="seq-action" style="border-color:#7c3aed;color:#a78bfa">Agent inspects caller: PID &#x2192; K8s API &#x2192; pod name, namespace, SA, labels</div>
             </div>
             <div class="seq-step">
-              <div class="seq-arrow right-23" style="--arrow-color:#f97316"><span class="seq-num orange">2</span> Agent requests SVID from Server</div>
+              <div class="seq-arrow right-23" style="--arrow-color:#f97316"><span class="seq-num orange">2</span> "Pod in ns:production, sa:payment-service — match?"</div>
             </div>
             <div class="seq-step">
-              <div class="seq-arrow left-23" style="--arrow-color:#22c55e"><span class="seq-num green">3</span> Server issues X.509 SVID (short-lived cert)</div>
+              <div class="seq-arrow left-23" style="--arrow-color:#22c55e"><span class="seq-num green">3</span> "Yes — issue SVID: spiffe://acme.com/.../payment-service"</div>
             </div>
             <div class="seq-step">
-              <div class="seq-arrow left" style="--arrow-color:#22c55e"><span class="seq-num green">4</span> Agent delivers SVID to workload</div>
+              <div class="seq-arrow left" style="--arrow-color:#22c55e"><span class="seq-num green">4</span> X.509 SVID + private key + trust bundle</div>
             </div>
             <div class="seq-step">
               <div></div>
-              <div class="seq-action" style="border-color:#3b82f6;color:#60a5fa">Auto-rotates before expiry. No manual cert management!</div>
+              <div class="seq-action" style="border-color:#3b82f6;color:#60a5fa">Auto-rotates before expiry. Workload never manages keys.</div>
             </div>
           </div>
         </div>
       </div>
+
+      <p>SPIRE supports multiple <strong>attestors</strong> — plugins that verify workload identity on different platforms:</p>
+
+      <pre><code># Kubernetes attestor selectors:
+-selector k8s:ns:production               # Pod is in namespace "production"
+-selector k8s:sa:payment-service           # Pod uses service account "payment-service"
+-selector k8s:pod-label:app:payments       # Pod has label app=payments
+-selector k8s:container-name:main          # Specific container in the pod
+
+# AWS attestor selectors:
+-selector aws:iamrole:arn:aws:iam::123:role/my-role  # EC2 instance role
+-selector aws:sgid:sg-12345                           # Security group
+-selector aws:tag:env:production                      # Instance tag
+
+# Docker attestor selectors:
+-selector docker:image-id:sha256:abc123    # Specific image hash
+-selector docker:label:service:payments    # Docker label
+
+# The beauty: SPIRE doesn't care WHERE your workload runs.
+# Kubernetes, VMs, Docker, bare metal — same identity system.</code></pre>
+
+      <h2>Trust Domains and Federation</h2>
+
+      <p>A <strong>trust domain</strong> is a zone of trust — all workloads within a trust domain share the same root certificates and can verify each other. But what if Service A in <code>us-east.acme.com</code> needs to call Service B in <code>eu-west.acme.com</code>? That's where <strong>federation</strong> comes in.</p>
+
+      <!-- Federation Diagram -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">SPIFFE Federation: Cross-Cluster Trust</div>
+        <div class="hub-diagram">
+          <div class="hub-center" style="background:#7c3aed;box-shadow:0 0 30px rgba(124,58,237,0.3)">
+            Federation
+            <span class="hub-center-sub">Trust bundle exchange</span>
+          </div>
+          <div class="hub-arrow-label"><span class="arrow-animated">&#x2B07;</span> Workloads in different domains can verify each other</div>
+          <div class="hub-apps">
+            <div class="hub-app"><span class="hub-app-icon">&#x1F1FA;&#x1F1F8;</span>us-east.acme.com<span class="hub-app-sub">US East cluster</span></div>
+            <div class="hub-app" style="background:#f97316"><span class="hub-app-icon">&#x1F1EA;&#x1F1FA;</span>eu-west.acme.com<span class="hub-app-sub">EU West cluster</span></div>
+            <div class="hub-app" style="background:#a855f7"><span class="hub-app-icon">&#x1F3E2;</span>partner.bigcorp.com<span class="hub-app-sub">Partner company</span></div>
+            <div class="hub-app" style="background:#ef4444"><span class="hub-app-icon">&#x1F4BB;</span>onprem.acme.com<span class="hub-app-sub">On-prem datacenter</span></div>
+          </div>
+        </div>
+      </div>
+
+      <pre><code># Set up federation between two SPIRE servers:
+
+# On us-east SPIRE server: trust eu-west
+spire-server bundle set \\
+  -id spiffe://eu-west.acme.com \\
+  -path /path/to/eu-west-bundle.json
+
+# On eu-west SPIRE server: trust us-east
+spire-server bundle set \\
+  -id spiffe://us-east.acme.com \\
+  -path /path/to/us-east-bundle.json
+
+# Now workloads in us-east can verify SVIDs from eu-west and vice versa.
+# Service A in US can call Service B in EU with full mTLS verification.
+# No shared secrets. No VPN. Just cryptographic trust.
+
+# For partner companies:
+# Exchange trust bundles out-of-band (email, secure portal).
+# Now your payment service can call BigCorp's API with mTLS,
+# and both sides cryptographically verify the other's identity.
+# No API keys to rotate. No shared credentials to leak.</code></pre>
 
       <h2>SPIRE on Kubernetes — Full Setup</h2>
 
@@ -2802,7 +2916,7 @@ helm install spire-server spiffe/spire-server \\
 helm install spire-agent spiffe/spire-agent \\
   --namespace spire-system
 
-# 4. Register a workload (tell SPIRE which pods get which identity)
+# 4. Register workloads (tell SPIRE which pods get which identity)
 kubectl exec -n spire-system spire-server-0 -- \\
   spire-server entry create \\
   -spiffeID spiffe://mycompany.com/ns/production/sa/payment-service \\
@@ -2810,8 +2924,14 @@ kubectl exec -n spire-system spire-server-0 -- \\
   -selector k8s:ns:production \\
   -selector k8s:sa:payment-service
 
-# Now any pod in namespace=production with serviceAccount=payment-service
-# automatically gets the SPIFFE ID: spiffe://mycompany.com/ns/production/sa/payment-service</code></pre>
+# Any pod in namespace=production with serviceAccount=payment-service
+# automatically gets: spiffe://mycompany.com/ns/production/sa/payment-service
+
+# 5. Verify it works:
+kubectl exec -n production payment-service-pod -- \\
+  /opt/spire/bin/spire-agent api fetch x509 \\
+  -socketPath /run/spire/sockets/agent.sock
+# Shows the X.509 SVID with the SPIFFE ID embedded</code></pre>
 
       <h2>Using SPIRE SVIDs in Go</h2>
 
@@ -2825,6 +2945,7 @@ import (
 
     "github.com/spiffe/go-spiffe/v2/spiffetls"
     "github.com/spiffe/go-spiffe/v2/spiffetls/tlsconfig"
+    "github.com/spiffe/go-spiffe/v2/spiffeid"
     "github.com/spiffe/go-spiffe/v2/workloadapi"
 )
 
@@ -2844,39 +2965,44 @@ func main() {
         log.Fatalf("Unable to get SVID: %v", err)
     }
     fmt.Printf("My identity: %s\\n", svid.ID)
-    // Output: My identity: spiffe://mycompany.com/ns/production/sa/payment-service
 
-    // ── Server: Accept connections only from trusted SPIFFE IDs ──
+    // ── Server: Accept connections only from specific SPIFFE IDs ──
+    authorizedCaller := spiffeid.RequireIDFromString(
+        "spiffe://mycompany.com/ns/production/sa/order-service",
+    )
+
     listener, err := spiffetls.Listen(ctx, "tcp", ":8443",
-        tlsconfig.AuthorizeID(
-            spiffeid.RequireIDFromString("spiffe://mycompany.com/ns/production/sa/order-service"),
-        ),
+        tlsconfig.AuthorizeID(authorizedCaller),
     )
     if err != nil {
         log.Fatalf("Unable to create TLS listener: %v", err)
     }
 
     http.HandleFunc("/api/charge", func(w http.ResponseWriter, r *http.Request) {
-        fmt.Fprintln(w, "Payment processed! Caller is verified.")
+        // The caller's SPIFFE ID has been verified by SPIRE
+        fmt.Fprintln(w, "Payment processed! Caller verified.")
     })
-    log.Println("Payment service listening on :8443 (SPIFFE mTLS)")
+    log.Println("Payment service on :8443 (SPIFFE mTLS)")
     log.Fatal(http.Serve(listener, nil))
 }
 
-// ── Client: Connect to another service using SPIFFE ──
+// ── Client: Connect using SPIFFE identity ──
 func callPaymentService(ctx context.Context) {
+    targetID := spiffeid.RequireIDFromString(
+        "spiffe://mycompany.com/ns/production/sa/payment-service",
+    )
+
     conn, err := spiffetls.Dial(ctx, "tcp", "payment-service:8443",
-        tlsconfig.AuthorizeID(
-            spiffeid.RequireIDFromString("spiffe://mycompany.com/ns/production/sa/payment-service"),
-        ),
+        tlsconfig.AuthorizeID(targetID),
     )
     if err != nil {
         log.Fatalf("Unable to connect: %v", err)
     }
     defer conn.Close()
     // Connection is mTLS-protected with auto-rotated certificates
-    // No certificate files to manage. No rotation cron jobs.
+    // Zero certificate files. Zero rotation scripts.
 }</code></pre>
+
 
       <h2>m2mauth vs SPIFFE/SPIRE — When to Use Which</h2>
 
