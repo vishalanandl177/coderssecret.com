@@ -33,10 +33,15 @@ interface Question {
         </div>
 
         @if (!gameEnded()) {
-          <div class="rounded-2xl border border-border/60 bg-card p-6 md:p-8 mb-6">
+          <div class="rounded-2xl border border-border/60 bg-card p-6 md:p-8 mb-6" [class.correct-flash]="flashCorrect()" [class.wrong-shake]="flashWrong()">
             <div class="flex items-center justify-between text-sm text-muted-foreground mb-4">
               <span>Question {{ currentIndex() + 1 }} of {{ questions.length }}</span>
-              <span>Score: <strong class="text-foreground">{{ score() }} / {{ currentIndex() + (answered() ? 1 : 0) }}</strong></span>
+              <div class="flex items-center gap-3">
+                @if (streak() >= 2) {
+                  <span class="streak-fire text-orange-500 font-bold text-xs">🔥 {{ streak() }} streak!</span>
+                }
+                <span [class.score-pop]="flashCorrect()">Score: <strong class="text-foreground">{{ score() }} / {{ currentIndex() + (answered() ? 1 : 0) }}</strong></span>
+              </div>
             </div>
             <div class="h-2 bg-muted rounded-full overflow-hidden mb-6">
               <div class="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-500"
@@ -56,7 +61,7 @@ interface Question {
                 <button (click)="selectAnswer(i)"
                         [disabled]="answered()"
                         [class]="getOptionClass(i)"
-                        class="w-full text-left px-4 py-3 rounded-lg border transition-all duration-200 font-mono text-sm">
+                        class="game-option w-full text-left px-4 py-3 rounded-lg border font-mono text-sm">
                   <span class="inline-block w-6 h-6 rounded mr-3 text-xs font-bold text-center leading-6 bg-muted">{{ ['A','B','C','D'][i] }}</span>
                   {{ option }}
                 </button>
@@ -64,11 +69,11 @@ interface Question {
             </div>
 
             @if (answered()) {
-              <div class="mt-6 p-4 rounded-lg"
+              <div class="mt-6 p-4 rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-300"
                    [class]="selectedIndex() === currentQuestion().correctIndex ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'">
                 <p class="font-semibold mb-2">
                   @if (selectedIndex() === currentQuestion().correctIndex) {
-                    ✓ Correct!
+                    ✓ Correct! @if (streak() >= 3) { <span class="text-orange-500">🔥 On fire!</span> }
                   } @else {
                     ✗ Wrong. The answer is <code class="bg-muted px-2 py-0.5 rounded">{{ currentQuestion().options[currentQuestion().correctIndex] }}</code>
                   }
@@ -86,12 +91,18 @@ interface Question {
             }
           </div>
         } @else {
-          <div class="rounded-2xl border border-border/60 bg-card p-8 md:p-12 text-center">
+          <div class="rounded-2xl border border-border/60 bg-card p-8 md:p-12 text-center animate-in fade-in zoom-in-95 duration-500">
             <div class="text-6xl mb-4">{{ finalEmoji() }}</div>
             <h2 class="text-3xl font-extrabold tracking-tight mb-2">{{ finalMessage() }}</h2>
-            <p class="text-xl text-muted-foreground mb-8">
+            <p class="text-xl text-muted-foreground mb-4">
               You scored <strong class="text-foreground">{{ score() }} / {{ questions.length }}</strong>
             </p>
+            @if (maxStreak() >= 2) {
+              <p class="text-sm text-orange-500 font-semibold mb-6">🔥 Best streak: {{ maxStreak() }} in a row</p>
+            }
+            <div class="h-3 bg-muted rounded-full overflow-hidden max-w-xs mx-auto mb-8">
+              <div class="h-full bg-gradient-to-r from-purple-500 to-blue-500 xp-bar-fill rounded-full" [style.width.%]="(score() / questions.length) * 100"></div>
+            </div>
             <div class="flex flex-wrap justify-center gap-3">
               <button (click)="restart()"
                       class="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
@@ -214,12 +225,50 @@ console.log(typeof NaN);`,
       correctIndex: 1,
       explanation: 'typeof null returns "object" — a 25+ year old JavaScript bug that will never be fixed for backwards compatibility. NaN is a Number type (Not-a-Number is still a number).',
     },
+    {
+      language: 'Python',
+      code: 'print(type([]) == list)\nprint(type([]) is list)',
+      options: ['True, True', 'True, False', 'False, True', 'Error'],
+      correctIndex: 0,
+      explanation: 'Both == and is return True when comparing types. type([]) returns <class list> which is the same object as the list builtin. This is one case where is and == agree.',
+    },
+    {
+      language: 'JavaScript',
+      code: 'console.log("b" + "a" + + "a" + "a")',
+      options: ['"baaaa"', '"baNaNa"', '"ba a a"', 'Error'],
+      correctIndex: 1,
+      explanation: 'The + before "a" tries to convert it to a number, producing NaN. String concatenation then gives "b" + "a" + NaN + "a" = "baNaNa". A classic JS quirk.',
+    },
+    {
+      language: 'Python',
+      code: 'x = (1)\ny = (1,)\nprint(type(x).__name__, type(y).__name__)',
+      options: ['tuple tuple', 'int tuple', 'int int', 'tuple int'],
+      correctIndex: 1,
+      explanation: 'Parentheses alone dont make a tuple — the COMMA does. (1) is just the integer 1 with parentheses. (1,) is a tuple with one element.',
+    },
+    {
+      language: 'JavaScript',
+      code: 'let a = [1, 2, 3];\nlet b = [1, 2, 3];\nconsole.log(a == b);\nconsole.log(a === b);',
+      options: ['true, true', 'false, false', 'true, false', 'false, true'],
+      correctIndex: 1,
+      explanation: 'Arrays are objects in JavaScript. Two different arrays are two different object references. Both == and === compare references, not values. They will never be equal unless they point to the same array.',
+    },
+    {
+      language: 'Python',
+      code: 'print({True: "yes", 1: "no", 1.0: "maybe"})',
+      options: ['{True: "yes", 1: "no", 1.0: "maybe"}', '{True: "maybe"}', '{1: "maybe"}', 'Error'],
+      correctIndex: 1,
+      explanation: 'In Python, True == 1 == 1.0, so they are the same dictionary key. The first key (True) is kept, but the value is overwritten by each subsequent assignment. Final result: {True: "maybe"}.',
+    },
+  
   ];
 
   currentIndex = signal(0);
   selectedIndex = signal<number | null>(null);
   answered = signal(false);
   score = signal(0);
+  streak = signal(0);
+  maxStreak = signal(0);
   gameEnded = signal(false);
 
   currentQuestion = computed(() => this.questions[this.currentIndex()]);
@@ -253,18 +302,29 @@ console.log(typeof NaN);`,
     });
   }
 
+  flashCorrect = signal(false);
+  flashWrong = signal(false);
+
   selectAnswer(idx: number) {
     if (this.answered()) return;
     this.selectedIndex.set(idx);
     this.answered.set(true);
     if (idx === this.currentQuestion().correctIndex) {
       this.score.update(s => s + 1);
+      this.streak.update(s => s + 1);
+      if (this.streak() > this.maxStreak()) this.maxStreak.set(this.streak());
+      this.flashCorrect.set(true);
+      setTimeout(() => this.flashCorrect.set(false), 800);
+    } else {
+      this.streak.set(0);
+      this.flashWrong.set(true);
+      setTimeout(() => this.flashWrong.set(false), 400);
     }
   }
 
   getOptionClass(idx: number): string {
     if (!this.answered()) {
-      return 'border-border hover:border-primary hover:bg-accent cursor-pointer';
+      return 'border-border';
     }
     if (idx === this.currentQuestion().correctIndex) {
       return 'border-green-500 bg-green-500/10 text-foreground';
@@ -290,6 +350,8 @@ console.log(typeof NaN);`,
     this.selectedIndex.set(null);
     this.answered.set(false);
     this.score.set(0);
+    this.streak.set(0);
+    this.maxStreak.set(0);
     this.gameEnded.set(false);
   }
 }

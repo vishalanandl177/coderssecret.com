@@ -34,10 +34,15 @@ interface Scenario {
         </div>
 
         @if (!gameEnded()) {
-          <div class="rounded-2xl border border-orange-500/30 bg-card p-6 md:p-8 mb-6">
+          <div class="rounded-2xl border border-orange-500/30 bg-card p-6 md:p-8 mb-6" [class.correct-flash]="flashCorrect()" [class.wrong-shake]="flashWrong()">
             <div class="flex items-center justify-between text-sm text-muted-foreground mb-4">
               <span>Incident {{ currentIndex() + 1 }} of {{ scenarios.length }}</span>
-              <span>Score: <strong class="text-foreground">{{ score() }}</strong></span>
+              <div class="flex items-center gap-3">
+                @if (streak() >= 2) {
+                  <span class="streak-fire text-orange-500 font-bold text-xs">🔥 {{ streak() }} streak!</span>
+                }
+                <span [class.score-pop]="flashCorrect()">Score: <strong class="text-foreground">{{ score() }}</strong></span>
+              </div>
             </div>
             <div class="h-2 bg-muted rounded-full overflow-hidden mb-6">
               <div class="h-full bg-gradient-to-r from-orange-500 to-red-500 transition-all duration-500"
@@ -72,7 +77,7 @@ interface Scenario {
                 <button (click)="selectAnswer(i)"
                         [disabled]="answered()"
                         [class]="getOptionClass(i)"
-                        class="w-full text-left px-4 py-3 rounded-lg border transition-all duration-200 text-sm">
+                        class="game-option w-full text-left px-4 py-3 rounded-lg border text-sm">
                   <span class="inline-block w-6 h-6 rounded mr-3 text-xs font-bold text-center leading-6 bg-muted">{{ ['A','B','C','D'][i] }}</span>
                   {{ option }}
                 </button>
@@ -80,11 +85,11 @@ interface Scenario {
             </div>
 
             @if (answered()) {
-              <div class="mt-6 p-4 rounded-lg"
+              <div class="mt-6 p-4 rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-300"
                    [class]="selectedIndex() === currentScenario().correctIndex ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'">
                 <p class="font-semibold mb-2">
                   @if (selectedIndex() === currentScenario().correctIndex) {
-                    ✓ Solid call, SRE!
+                    ✓ Solid call, SRE! @if (streak() >= 3) { <span class="text-orange-500">🔥 On fire!</span> }
                   } @else {
                     ✗ The right move: <strong>{{ currentScenario().options[currentScenario().correctIndex] }}</strong>
                   }
@@ -102,12 +107,18 @@ interface Scenario {
             }
           </div>
         } @else {
-          <div class="rounded-2xl border border-border/60 bg-card p-8 md:p-12 text-center">
+          <div class="rounded-2xl border border-border/60 bg-card p-8 md:p-12 text-center animate-in fade-in zoom-in-95 duration-500">
             <div class="text-6xl mb-4">{{ finalEmoji() }}</div>
             <h2 class="text-3xl font-extrabold tracking-tight mb-2">{{ finalMessage() }}</h2>
-            <p class="text-xl text-muted-foreground mb-8">
+            <p class="text-xl text-muted-foreground mb-4">
               You resolved <strong class="text-foreground">{{ score() }} / {{ scenarios.length }}</strong> incidents
             </p>
+            @if (maxStreak() >= 2) {
+              <p class="text-sm text-orange-500 font-semibold mb-6">🔥 Best streak: {{ maxStreak() }} in a row</p>
+            }
+            <div class="h-3 bg-muted rounded-full overflow-hidden max-w-xs mx-auto mb-8">
+              <div class="h-full bg-gradient-to-r from-orange-500 to-red-500 xp-bar-fill rounded-full" [style.width.%]="(score() / scenarios.length) * 100"></div>
+            </div>
             <div class="flex flex-wrap justify-center gap-3">
               <button (click)="restart()"
                       class="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
@@ -236,12 +247,69 @@ export class DevopsScenarioComponent {
       correctIndex: 1,
       explanation: 'Low-hanging fruit: BuildKit layer caching cuts Docker builds from 10min to 30s. Test parallelization (pytest-xdist, jest --parallel) can quarter runtime. Don\'t throw money at it until you\'ve optimized.',
     },
+    {
+      title: 'DNS Resolution Failing Intermittently',
+      situation: 'Users report that the app works sometimes and fails with "DNS_PROBE_FINISHED_NXDOMAIN" other times. Internal services also see intermittent connection failures.',
+      symptoms: [
+        'kubectl exec debug -- nslookup api-service sometimes returns NXDOMAIN',
+        'CoreDNS pods are running but CPU is at 95%',
+        'ndots setting in resolv.conf is 5 (default)',
+        'Pod DNS queries show 6 lookups per hostname',
+      ],
+      options: [
+        'Restart CoreDNS pods',
+        'Scale up CoreDNS replicas and set ndots:2 in dnsPolicy',
+        'Switch to Google DNS (8.8.8.8)',
+        'Disable DNS caching',
+      ],
+      correctIndex: 1,
+      explanation: 'Default ndots:5 in K8s means every DNS lookup tries 5 different suffixes before the actual hostname. api-service becomes 6 queries (with .default.svc.cluster.local, .svc.cluster.local, etc.). CoreDNS is overwhelmed. Fix: scale CoreDNS replicas AND set ndots:2 to reduce query amplification.',
+    },
+    {
+      title: 'Disk Space at 100% on Production Node',
+      situation: 'Alerts fire: node disk usage at 100%. New pods cant be scheduled. Existing pods start failing with "no space left on device".',
+      symptoms: [
+        'df -h shows /var/lib/docker at 100%',
+        'Container logs consuming 40GB',
+        'Old Docker images consuming 25GB',
+        'No log rotation configured',
+      ],
+      options: [
+        'Add a bigger disk to the node',
+        'docker system prune + configure log rotation + set imagePullPolicy',
+        'Migrate all pods to a different node',
+        'Delete /var/lib/docker and restart Docker',
+      ],
+      correctIndex: 1,
+      explanation: 'Immediate fix: docker system prune -af removes unused images/containers. Long-term: configure Docker log rotation in daemon.json (max-size: 10m, max-file: 3), set imagePullPolicy to prevent hoarding, and add a DaemonSet that cleans up periodically.',
+    },
+    {
+      title: 'Database Connection Pool Exhausted',
+      situation: 'Your API returns 500 errors with "too many connections" from PostgreSQL. The connection pool is at max capacity.',
+      symptoms: [
+        'PostgreSQL shows 200 active connections (max is 200)',
+        'Many connections in idle state',
+        'Connection pool size set to 20 per pod, 10 pods = 200',
+        'Slow queries holding connections for 30+ seconds',
+      ],
+      options: [
+        'Increase max_connections to 500',
+        'Fix slow queries + add PgBouncer + reduce pool size per pod',
+        'Restart all pods to clear connections',
+        'Switch to a bigger database instance',
+      ],
+      correctIndex: 1,
+      explanation: 'Root cause is slow queries holding connections too long. Fix: optimize the slow queries (EXPLAIN ANALYZE), add PgBouncer as a connection pooler between app and DB (handles thousands of connections with only 20 to PG), reduce per-pod pool size to 5 (5 x 10 pods = 50 actual PG connections).',
+    },
+  
   ];
 
   currentIndex = signal(0);
   selectedIndex = signal<number | null>(null);
   answered = signal(false);
   score = signal(0);
+  streak = signal(0);
+  maxStreak = signal(0);
   gameEnded = signal(false);
 
   currentScenario = computed(() => this.scenarios[this.currentIndex()]);
@@ -275,18 +343,29 @@ export class DevopsScenarioComponent {
     });
   }
 
+  flashCorrect = signal(false);
+  flashWrong = signal(false);
+
   selectAnswer(idx: number) {
     if (this.answered()) return;
     this.selectedIndex.set(idx);
     this.answered.set(true);
     if (idx === this.currentScenario().correctIndex) {
       this.score.update(s => s + 1);
+      this.streak.update(s => s + 1);
+      if (this.streak() > this.maxStreak()) this.maxStreak.set(this.streak());
+      this.flashCorrect.set(true);
+      setTimeout(() => this.flashCorrect.set(false), 800);
+    } else {
+      this.streak.set(0);
+      this.flashWrong.set(true);
+      setTimeout(() => this.flashWrong.set(false), 400);
     }
   }
 
   getOptionClass(idx: number): string {
     if (!this.answered()) {
-      return 'border-border hover:border-primary hover:bg-accent cursor-pointer';
+      return 'border-border';
     }
     if (idx === this.currentScenario().correctIndex) {
       return 'border-green-500 bg-green-500/10 text-foreground';
@@ -312,6 +391,8 @@ export class DevopsScenarioComponent {
     this.selectedIndex.set(null);
     this.answered.set(false);
     this.score.set(0);
+    this.streak.set(0);
+    this.maxStreak.set(0);
     this.gameEnded.set(false);
   }
 }
