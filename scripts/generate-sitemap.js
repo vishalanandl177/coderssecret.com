@@ -8,7 +8,7 @@ const path = require('path');
 
 const SITE_URL = 'https://coderssecret.com';
 const OUTPUT_DIR = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'browser');
-const SUPPORTED_LOCALES = ['en', 'es'];
+const SUPPORTED_LOCALES = ['en', 'es', 'hi'];
 
 function hreflangLinks(path) {
   return SUPPORTED_LOCALES.map(locale => {

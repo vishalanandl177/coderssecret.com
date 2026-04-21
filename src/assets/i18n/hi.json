@@ -1,0 +1,153 @@
+{
+  "nav": {
+    "home": "होम",
+    "blog": "ब्लॉग",
+    "games": "गेम्स",
+    "cheatsheets": "चीट शीट्स",
+    "about": "हमारे बारे में",
+    "categories": "श्रेणियाँ",
+    "search": "खोजें",
+    "skipToContent": "मुख्य सामग्री पर जाएं",
+    "backToTop": "ऊपर जाएं",
+    "switchLight": "लाइट मोड पर स्विच करें",
+    "switchDark": "डार्क मोड पर स्विच करें"
+  },
+  "categories": {
+    "frontend": "फ्रंटएंड",
+    "backend": "बैकएंड",
+    "devops": "DevOps",
+    "tutorials": "ट्यूटोरियल",
+    "openSource": "ओपन सोर्स"
+  },
+  "footer": {
+    "tagline": "आधुनिक वेब डेवलपमेंट की खोज, एक पोस्ट एक बार।",
+    "categoriesHeading": "श्रेणियाँ",
+    "legalHeading": "कानूनी",
+    "connectHeading": "जुड़ें",
+    "privacy": "गोपनीयता नीति",
+    "terms": "सेवा की शर्तें",
+    "cookies": "कुकी नीति",
+    "buyMeCoffee": "मुझे एक कॉफी पिलाएं",
+    "enjoyingContent": "सामग्��ी पसंद आ रही है?",
+    "enjoyingDescription": "यह ब्लॉग 100% मुफ्त और विज्ञापन-मुक्त है। अगर आपको यह उपयोगी लगता है, तो एक कॉफी इसे बनाए रखने में बहुत मदद करती है।",
+    "copyright": "CodersSecret. सर्वाधिकार सुरक्षित।",
+    "noAds": "कोई विज्ञापन नहीं",
+    "noTracking": "कोई ट्रैकिंग नहीं",
+    "privacyFirst": "गोपनीयत�� पहले"
+  },
+  "common": {
+    "readMore": "और पढ़ें",
+    "minRead": "मिनट पढ़ने का समय",
+    "score": "स्कोर",
+    "streak": "लगातार!",
+    "onFire": "शानदार!",
+    "bestStreak": "सर्वश्रेष्ठ लगातार: {{count}} एक पंक्ति म��ं",
+    "playAgain": "फिर से खेलें",
+    "tryOtherGames": "अन्य गेम्स आज़माएं",
+    "allGames": "सभी गेम्स",
+    "next": "अगला",
+    "submit": "सबमिट करें",
+    "hint": "संकेत",
+    "hide": "छुपाएं",
+    "skip": "छोड़ें",
+    "seeResults": "परिणाम देखें",
+    "correct": "सही!",
+    "wrong": "गलत।",
+    "theAnswerIs": "सही उत्तर है",
+    "language": "भाषा"
+  },
+  "home": {
+    "heroTitle": "जहाँ कोड रचनात्मकता से मिलता है",
+    "heroSubtitle": "Python, DevOps, APIs, और सिस्टम डिज़ाइन पर युद्ध-परीक्षित गाइड — इंजीनियरों द्वारा, इंजीनियरों के लिए लिखी गई।",
+    "startReading": "पढ़ना शुरू करें",
+    "browseTutorials": "ट्यूटोरियल देखें",
+    "whatYoullLearn": "आप क्या सीखेंगे",
+    "exploreTopics": "विषय खोजें",
+    "mostPopular": "सबसे लोकप्रिय",
+    "latestArticles": "नवीनतम लेख",
+    "trendingTags": "ट्रेंडिंग टैग",
+    "byTheNumbers": "संख्याओं में",
+    "articles": "लेख",
+    "topics": "विषय",
+    "featuredPost": "विशेष लेख",
+    "faq": "अक्सर पूछे जाने वाले प्रश्न",
+    "aboutAuthor": "लेखक के बारे में"
+  },
+  "blog": {
+    "allArticles": "सभी लेख",
+    "searchPlaceholder": "लेख खोजें...",
+    "noResults": "कोई लेख नहीं मिला।",
+    "filterByTag": "टैग से फ़िल्टर करें"
+  },
+  "games": {
+    "guessOutput": {
+      "title": "आउटपुट का अनुमान लगाएं",
+      "subtitle": "क्या आप अनुमान लगा सकते ��ैं कि ये को��� स्निपेट क्या प्रिंट करते हैं?",
+      "questionLabel": "यह कोड क्या प्रिंट करता है?",
+      "nextQuestion": "अगला प्रश्न"
+    },
+    "spotTheBug": {
+      "title": "बग ढूंढें",
+      "subtitle": "हर कोड स्निपेट में बग ढूंढें। अपनी कोड रिव्यू स्किल्स परखें।",
+      "questionLabel": "बग कहाँ है?",
+      "nextBug": "अगला बग",
+      "youCaughtIt": "आपने पकड़ लिया!",
+      "actualBugWas": "असली बग था:"
+    },
+    "devopsScenario": {
+      "title": "DevOps सिनेरियो सिम्युलेटर",
+      "subtitle": "प्रोडक्शन इंसिडेंट। आप ऑन-कॉल हैं। आपका अगला कदम क्या है?",
+      "incident": "इंसिडेंट",
+      "symptoms": "लक्षण",
+      "whatDoYouDo": "आप पहले क्या करेंगे?",
+      "solidCall": "बढ़िया फैसला, SRE!",
+      "rightMove": "सही कदम:",
+      "nextIncident": "अगला इंसिडेंट",
+      "resolved": "आपने हल किया"
+    },
+    "typingTest": {
+      "title": "कोड टाइपिंग स्पीड टेस्ट",
+      "subtitle": "आप कितनी तेज़ी से असली कोड टाइप कर सकते हैं?",
+      "time": "समय",
+      "wpm": "WPM",
+      "accuracy": "सटीकता",
+      "wordsMin": "शब्द/मिनट",
+      "duration": "अवधि",
+      "clickToStart": "शुरू करने के लिए ऊपर क्लिक करें या टाइप करना शुरू करें",
+      "tryAnother": "दूसरा स्निपेट आज़माएं"
+    },
+    "salaryCalculator": {
+      "title": "टेक सैलरी कैलकुलेटर",
+      "subtitle": "भूमिका, अनुभव और स्थान के अनुसार वेतन का अनुमान लगाएं",
+      "role": "भूमिका",
+      "experienceLevel": "अनुभव स्तर",
+      "location": "स्थान",
+      "companyType": "कंपनी का प्रकार",
+      "estimatedCompensation": "अनुमानित वार्षिक वेतन",
+      "range": "सीमा",
+      "baseSalary": "आधार वेतन",
+      "bonus": "बोनस (अनुमानित)",
+      "equity": "इक्विटी (अनुमानित)",
+      "disclaimer": "Levels.fyi, Glassdoor, और h1bdata.info के सार्वजनिक डेटा पर आधारित अनुमान। वास्तविक वेतन कंपनी, कौशल और बातचीत के आधार पर भिन्न हो सकता है।"
+    },
+    "linuxChallenge": {
+      "title": "Linux कमांड चैलेंज",
+      "subtitle": "सही कमांड टाइप करें। कई मान्य उत्तर स्वीकार किए जाते हैं।",
+      "yourTask": "आपका कार्य",
+      "typePlaceholder": "अपना कमांड टाइप करें...",
+      "nextChallenge": "अगला चैलेंज",
+      "validAnswers": "बिल्कुल नहीं। मान्य उत्तरों में शामिल हैं:",
+      "gotRight": "आपने सही किया"
+    }
+  },
+  "notFound": {
+    "title": "पेज नहीं मिला",
+    "description": "जो पेज आप ढूंढ रहे हैं वह मौजूद नहीं है या स्थानांतरित कर दिया गया है।",
+    "goHome": "होम पर जाएं"
+  },
+  "search": {
+    "placeholder": "ब्लॉग पोस्ट खोजें...",
+    "noResults": "कोई परिणाम नहीं मिला",
+    "close": "बंद करें"
+  }
+}

@@ -18,7 +18,8 @@ const path = require('path');
 
 const SITE_URL = 'https://coderssecret.com';
 const OUTPUT_DIR = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'browser');
-const SUPPORTED_LOCALES = ['en', 'es'];
+const SUPPORTED_LOCALES = ['en', 'es', 'hi'];
+const NON_DEFAULT_LOCALES = SUPPORTED_LOCALES.filter(l => l !== 'en');
 
 // Read the blog post model
 const modelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'blog-post.model.ts');
@@ -130,7 +131,7 @@ function makeHtml(options) {
     `  <meta property="og:description" content="${description}">\n` +
     `  <meta property="og:url" content="${canonical}">\n` +
     `  <meta property="og:type" content="website">\n` +
-    `  <meta property="og:locale" content="${lang === 'es' ? 'es_ES' : 'en_US'}">\n` +
+    `  <meta property="og:locale" content="${{es: 'es_ES', hi: 'hi_IN'}[lang] || 'en_US'}">\n` +
     `  <meta name="twitter:card" content="summary_large_image">\n` +
     `  <meta name="twitter:title" content="${fullTitle}">\n` +
     `  <meta name="twitter:description" content="${description}">\n` +
@@ -430,9 +431,135 @@ const notFoundHtml = makeHtml({
 const notFoundFinal = notFoundHtml.replace('</head>', '  <meta name="robots" content="noindex">\n</head>');
 fs.writeFileSync(path.join(OUTPUT_DIR, '404.html'), notFoundFinal);
 
+// ── Generate locale-prefixed routes for non-English locales ──
+// Each locale gets a copy of every page so GitHub Pages doesn't 404
+for (const locale of NON_DEFAULT_LOCALES) {
+  // Home
+  const localeHome = path.join(OUTPUT_DIR, locale);
+  fs.mkdirSync(localeHome, { recursive: true });
+  fs.writeFileSync(path.join(localeHome, 'index.html'), makeHtml({
+    title: 'CodersSecret',
+    description: 'Battle-tested guides on Python, DevOps, APIs, and system design.',
+    url: `/${locale}`,
+    content: `<h1>CodersSecret</h1><p>Battle-tested guides for modern engineers.</p>`,
+    lang: locale,
+  }));
+  created++;
+
+  // Blog list
+  const localeBlog = path.join(OUTPUT_DIR, locale, 'blog');
+  fs.mkdirSync(localeBlog, { recursive: true });
+  fs.writeFileSync(path.join(localeBlog, 'index.html'), makeHtml({
+    title: 'All Articles',
+    description: 'Browse all articles on Python, DevOps, APIs, Kubernetes, security, and modern web development.',
+    url: `/${locale}/blog`,
+    content: `<h1>All Articles</h1><ul>${posts.map(p => `<li><a href="/${locale}/blog/${p.slug}">${escapeHtml(p.title)}</a></li>`).join('')}</ul>`,
+    lang: locale,
+  }));
+  created++;
+
+  // Individual blog posts
+  for (const post of posts) {
+    const dir = path.join(OUTPUT_DIR, locale, 'blog', post.slug);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'index.html'), makeHtml({
+      title: post.title,
+      description: post.excerpt,
+      url: `/${locale}/blog/${post.slug}`,
+      content: `<article><h1>${escapeHtml(post.title)}</h1><p>${escapeHtml(post.excerpt)}</p></article>`,
+      lang: locale,
+      jsonLd: {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        'headline': post.title,
+        'description': post.excerpt,
+        'url': `${SITE_URL}/${locale}/blog/${post.slug}`,
+        'inLanguage': locale,
+        'author': { '@type': 'Person', 'name': 'Vishal Anand' },
+        'publisher': { '@type': 'Organization', 'name': 'CodersSecret', 'url': SITE_URL },
+      },
+    }));
+    created++;
+  }
+
+  // Categories
+  for (const cat of categories) {
+    const dir = path.join(OUTPUT_DIR, locale, 'category', cat);
+    fs.mkdirSync(dir, { recursive: true });
+    const catName = categoryNames[cat] || cat;
+    fs.writeFileSync(path.join(dir, 'index.html'), makeHtml({
+      title: `${catName} Articles`,
+      description: `Browse ${catName} articles on CodersSecret.`,
+      url: `/${locale}/category/${cat}`,
+      content: `<h1>${catName} Articles</h1>`,
+      lang: locale,
+    }));
+    created++;
+  }
+
+  // Games
+  for (const game of games) {
+    const gameDir = game.slug
+      ? path.join(OUTPUT_DIR, locale, 'games', game.slug)
+      : path.join(OUTPUT_DIR, locale, 'games');
+    fs.mkdirSync(gameDir, { recursive: true });
+    fs.writeFileSync(path.join(gameDir, 'index.html'), makeHtml({
+      title: game.title,
+      description: game.description,
+      url: game.slug ? `/${locale}/games/${game.slug}` : `/${locale}/games`,
+      content: `<h1>${game.heading}</h1><p>${game.content}</p>`,
+      lang: locale,
+    }));
+    created++;
+  }
+
+  // Cheatsheets
+  for (const cs of cheatsheets) {
+    const csDir = cs.slug
+      ? path.join(OUTPUT_DIR, locale, 'cheatsheets', cs.slug)
+      : path.join(OUTPUT_DIR, locale, 'cheatsheets');
+    fs.mkdirSync(csDir, { recursive: true });
+    fs.writeFileSync(path.join(csDir, 'index.html'), makeHtml({
+      title: cs.name,
+      description: cs.desc,
+      url: cs.slug ? `/${locale}/cheatsheets/${cs.slug}` : `/${locale}/cheatsheets`,
+      content: `<h1>${cs.name}</h1><p>${cs.desc}</p>`,
+      lang: locale,
+    }));
+    created++;
+  }
+
+  // About
+  const localeAbout = path.join(OUTPUT_DIR, locale, 'about');
+  fs.mkdirSync(localeAbout, { recursive: true });
+  fs.writeFileSync(path.join(localeAbout, 'index.html'), makeHtml({
+    title: 'About CodersSecret',
+    description: 'CodersSecret is a technical blog by Vishal Anand.',
+    url: `/${locale}/about`,
+    content: `<h1>About CodersSecret</h1>`,
+    lang: locale,
+  }));
+  created++;
+
+  // Legal pages
+  for (const page of legalPages) {
+    const dir = path.join(OUTPUT_DIR, locale, page.slug);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'index.html'), makeHtml({
+      title: page.title,
+      description: page.description,
+      url: `/${locale}/${page.slug}`,
+      content: page.content,
+      lang: locale,
+    }));
+    created++;
+  }
+}
+
 console.log(`✅ Pre-rendered ${created} route files + 404.html with SEO content.`);
 console.log(`   Blog posts: ${posts.length}`);
 console.log(`   Categories: ${categories.size}`);
+console.log(`   Locales: ${SUPPORTED_LOCALES.join(', ')}`);
 console.log(`   Blog list: 1`);
 console.log(`   404.html: Angular app with noindex (no redirect!)`);
-console.log(`   Each page has: unique <title>, meta description, OG tags, canonical URL, and real HTML content.`);
+console.log(`   Each page has: unique <title>, meta description, OG tags, hreflang, canonical URL, and real HTML content.`);

@@ -98,6 +98,12 @@ export const routes: Routes = [
     data: { lang: 'es' },
     children: appRoutes(),
   },
+  {
+    path: 'hi',
+    canActivate: [localeGuard],
+    data: { lang: 'hi' },
+    children: appRoutes(),
+  },
   // Default English routes (no prefix — preserves all existing URLs)
   ...appRoutes(),
   {

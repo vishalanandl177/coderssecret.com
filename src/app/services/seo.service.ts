@@ -25,6 +25,7 @@ interface SeoConfig {
 const LOCALE_OG_MAP: Record<string, string> = {
   en: 'en_US',
   es: 'es_ES',
+  hi: 'hi_IN',
 };
 
 @Injectable({ providedIn: 'root' })

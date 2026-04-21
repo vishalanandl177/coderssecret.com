@@ -2,12 +2,13 @@ import { Injectable, inject, signal } from '@angular/core';
 import { TranslocoService, getBrowserLang } from '@jsverse/transloco';
 import { DOCUMENT } from '@angular/common';
 
-export const SUPPORTED_LOCALES = ['en', 'es'] as const;
+export const SUPPORTED_LOCALES = ['en', 'es', 'hi'] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 export const LOCALE_LABELS: Record<SupportedLocale, string> = {
   en: 'English',
   es: 'Espanol',
+  hi: 'Hindi',
 };
 
 @Injectable({ providedIn: 'root' })
