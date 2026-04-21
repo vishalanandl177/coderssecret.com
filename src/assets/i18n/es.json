@@ -1,0 +1,153 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "blog": "Blog",
+    "games": "Juegos",
+    "cheatsheets": "Hojas de Referencia",
+    "about": "Acerca de",
+    "categories": "Categorias",
+    "search": "Buscar",
+    "skipToContent": "Saltar al contenido principal",
+    "backToTop": "Volver arriba",
+    "switchLight": "Cambiar a modo claro",
+    "switchDark": "Cambiar a modo oscuro"
+  },
+  "categories": {
+    "frontend": "Frontend",
+    "backend": "Backend",
+    "devops": "DevOps",
+    "tutorials": "Tutoriales",
+    "openSource": "Codigo Abierto"
+  },
+  "footer": {
+    "tagline": "Explorando el desarrollo web moderno, un articulo a la vez.",
+    "categoriesHeading": "Categorias",
+    "legalHeading": "Legal",
+    "connectHeading": "Conectar",
+    "privacy": "Politica de Privacidad",
+    "terms": "Terminos de Servicio",
+    "cookies": "Politica de Cookies",
+    "buyMeCoffee": "Invitame un cafe",
+    "enjoyingContent": "Disfrutando el contenido?",
+    "enjoyingDescription": "Este blog es 100% gratuito y sin anuncios. Si lo encuentras util, un cafe ayuda mucho a mantenerlo asi.",
+    "copyright": "CodersSecret. Todos los derechos reservados.",
+    "noAds": "Sin anuncios",
+    "noTracking": "Sin rastreo",
+    "privacyFirst": "Privacidad primero"
+  },
+  "common": {
+    "readMore": "Leer mas",
+    "minRead": "min de lectura",
+    "score": "Puntuacion",
+    "streak": "racha!",
+    "onFire": "En llamas!",
+    "bestStreak": "Mejor racha: {{count}} seguidas",
+    "playAgain": "Jugar de Nuevo",
+    "tryOtherGames": "Probar Otros Juegos",
+    "allGames": "Todos los Juegos",
+    "next": "Siguiente",
+    "submit": "Enviar",
+    "hint": "Pista",
+    "hide": "Ocultar",
+    "skip": "Saltar",
+    "seeResults": "Ver Resultados",
+    "correct": "Correcto!",
+    "wrong": "Incorrecto.",
+    "theAnswerIs": "La respuesta es",
+    "language": "Idioma"
+  },
+  "home": {
+    "heroTitle": "Donde el Codigo se Encuentra con la Creatividad",
+    "heroSubtitle": "Guias probadas en batalla sobre Python, DevOps, APIs y diseno de sistemas — escritas por ingenieros, para ingenieros que producen.",
+    "startReading": "Empezar a Leer",
+    "browseTutorials": "Ver Tutoriales",
+    "whatYoullLearn": "Lo que Aprenderas",
+    "exploreTopics": "Explorar Temas",
+    "mostPopular": "Mas Populares",
+    "latestArticles": "Ultimos Articulos",
+    "trendingTags": "Etiquetas en Tendencia",
+    "byTheNumbers": "En Numeros",
+    "articles": "Articulos",
+    "topics": "Temas",
+    "featuredPost": "Articulo Destacado",
+    "faq": "Preguntas Frecuentes",
+    "aboutAuthor": "Sobre el Autor"
+  },
+  "blog": {
+    "allArticles": "Todos los Articulos",
+    "searchPlaceholder": "Buscar articulos...",
+    "noResults": "No se encontraron articulos.",
+    "filterByTag": "Filtrar por etiqueta"
+  },
+  "games": {
+    "guessOutput": {
+      "title": "Adivina la Salida",
+      "subtitle": "Puedes predecir lo que imprimen estos fragmentos de codigo?",
+      "questionLabel": "Que imprime este codigo?",
+      "nextQuestion": "Siguiente Pregunta"
+    },
+    "spotTheBug": {
+      "title": "Encuentra el Bug",
+      "subtitle": "Encuentra el error en cada fragmento de codigo. Pon a prueba tus habilidades de revision.",
+      "questionLabel": "Donde esta el bug?",
+      "nextBug": "Siguiente Bug",
+      "youCaughtIt": "Lo encontraste!",
+      "actualBugWas": "El bug real era:"
+    },
+    "devopsScenario": {
+      "title": "Simulador de Escenarios DevOps",
+      "subtitle": "Incidentes en produccion. Estas de guardia. Cual es tu siguiente paso?",
+      "incident": "Incidente",
+      "symptoms": "Sintomas",
+      "whatDoYouDo": "Que haces primero?",
+      "solidCall": "Buena decision, SRE!",
+      "rightMove": "La decision correcta:",
+      "nextIncident": "Siguiente Incidente",
+      "resolved": "Resolviste"
+    },
+    "typingTest": {
+      "title": "Prueba de Velocidad de Escritura de Codigo",
+      "subtitle": "Que tan rapido puedes escribir codigo real? Sin atajos de retroceso.",
+      "time": "Tiempo",
+      "wpm": "PPM",
+      "accuracy": "Precision",
+      "wordsMin": "Palabras/min",
+      "duration": "Duracion",
+      "clickToStart": "Haz clic arriba o empieza a escribir para comenzar",
+      "tryAnother": "Probar Otro Fragmento"
+    },
+    "salaryCalculator": {
+      "title": "Calculadora de Salarios Tech",
+      "subtitle": "Estima la compensacion por rol, experiencia y ubicacion",
+      "role": "Rol",
+      "experienceLevel": "Nivel de Experiencia",
+      "location": "Ubicacion",
+      "companyType": "Tipo de Empresa",
+      "estimatedCompensation": "Compensacion Anual Estimada",
+      "range": "Rango",
+      "baseSalary": "Salario Base",
+      "bonus": "Bono (est.)",
+      "equity": "Acciones (est.)",
+      "disclaimer": "Estimaciones basadas en datos publicos agregados de Levels.fyi, Glassdoor y h1bdata.info. La compensacion individual varia segun la empresa, habilidades y negociacion. Usar como punto de partida, no como cifras exactas."
+    },
+    "linuxChallenge": {
+      "title": "Desafio de Comandos Linux",
+      "subtitle": "Escribe el comando correcto. Se aceptan multiples respuestas validas.",
+      "yourTask": "Tu Tarea",
+      "typePlaceholder": "escribe tu comando...",
+      "nextChallenge": "Siguiente Desafio",
+      "validAnswers": "No exactamente. Las respuestas validas incluyen:",
+      "gotRight": "Acertaste"
+    }
+  },
+  "notFound": {
+    "title": "Pagina No Encontrada",
+    "description": "La pagina que buscas no existe o ha sido movida.",
+    "goHome": "Ir al Inicio"
+  },
+  "search": {
+    "placeholder": "Buscar articulos del blog...",
+    "noResults": "No se encontraron resultados",
+    "close": "Cerrar"
+  }
+}

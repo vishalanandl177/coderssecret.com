@@ -1,10 +1,12 @@
-import { Component, signal, viewChild } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject, signal, viewChild } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { SearchComponent } from '../search/search';
+import { LocaleService, SUPPORTED_LOCALES, LOCALE_LABELS } from '../../services/locale.service';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, RouterLinkActive, SearchComponent],
+  imports: [RouterLink, RouterLinkActive, SearchComponent, TranslocoPipe],
   template: `
     <header class="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300">
       <div class="container flex h-16 max-w-5xl items-center justify-between mx-auto px-6">
@@ -30,24 +32,24 @@ import { SearchComponent } from '../search/search';
           <nav class="hidden md:flex items-center gap-1 text-sm font-medium">
             <a routerLink="/" routerLinkActive="text-foreground bg-accent" [routerLinkActiveOptions]="{ exact: true }"
                class="rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
-              Home
+              {{ 'nav.home' | transloco }}
             </a>
             <a routerLink="/blog" routerLinkActive="text-foreground bg-accent"
                class="rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
-              Blog
+              {{ 'nav.blog' | transloco }}
             </a>
 
             <a routerLink="/games" routerLinkActive="text-foreground bg-accent"
                class="rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
-              Games
+              {{ 'nav.games' | transloco }}
             </a>
             <a routerLink="/cheatsheets" routerLinkActive="text-foreground bg-accent"
                class="rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
-              Cheat Sheets
+              {{ 'nav.cheatsheets' | transloco }}
             </a>
             <a routerLink="/about" routerLinkActive="text-foreground bg-accent"
                class="rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
-              About
+              {{ 'nav.about' | transloco }}
             </a>
 
             <!-- Categories dropdown -->
@@ -55,7 +57,7 @@ import { SearchComponent } from '../search/search';
               <button (click)="categoriesOpen.set(!categoriesOpen())"
                       (blur)="closeCategoriesDelayed()"
                       class="flex items-center gap-1 rounded-md px-3 py-2 text-sm text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
-                Categories
+                {{ 'nav.categories' | transloco }}
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                      class="transition-transform duration-200"
@@ -68,23 +70,23 @@ import { SearchComponent } from '../search/search';
                      (mousedown)="$event.preventDefault()">
                   <a routerLink="/category/frontend" (click)="categoriesOpen.set(false)"
                      class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-                    <span class="h-2 w-2 rounded-full bg-blue-500"></span> Frontend
+                    <span class="h-2 w-2 rounded-full bg-blue-500"></span> {{ 'categories.frontend' | transloco }}
                   </a>
                   <a routerLink="/category/backend" (click)="categoriesOpen.set(false)"
                      class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-                    <span class="h-2 w-2 rounded-full bg-green-500"></span> Backend
+                    <span class="h-2 w-2 rounded-full bg-green-500"></span> {{ 'categories.backend' | transloco }}
                   </a>
                   <a routerLink="/category/devops" (click)="categoriesOpen.set(false)"
                      class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-                    <span class="h-2 w-2 rounded-full bg-orange-500"></span> DevOps
+                    <span class="h-2 w-2 rounded-full bg-orange-500"></span> {{ 'categories.devops' | transloco }}
                   </a>
                   <a routerLink="/category/tutorials" (click)="categoriesOpen.set(false)"
                      class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-                    <span class="h-2 w-2 rounded-full bg-purple-500"></span> Tutorials
+                    <span class="h-2 w-2 rounded-full bg-purple-500"></span> {{ 'categories.tutorials' | transloco }}
                   </a>
                   <a routerLink="/category/open-source" (click)="categoriesOpen.set(false)"
                      class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-                    <span class="h-2 w-2 rounded-full bg-pink-500"></span> Open Source
+                    <span class="h-2 w-2 rounded-full bg-pink-500"></span> {{ 'categories.openSource' | transloco }}
                   </a>
                 </div>
               }
@@ -98,11 +100,47 @@ import { SearchComponent } from '../search/search';
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
             </svg>
-            <span class="hidden sm:inline">Search</span>
+            <span class="hidden sm:inline">{{ 'nav.search' | transloco }}</span>
             <kbd class="hidden md:inline-flex items-center rounded border border-border bg-background px-1 py-0.5 text-[10px] font-medium">
               Ctrl+K
             </kbd>
           </button>
+
+          <!-- Language switcher -->
+          <div class="relative">
+            <button (click)="langOpen.set(!langOpen())"
+                    (blur)="closeLangDelayed()"
+                    class="inline-flex items-center gap-1.5 rounded-md p-2 text-muted-foreground transition-all duration-200 hover:bg-accent hover:text-accent-foreground"
+                    aria-label="Switch language">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+                <path d="M2 12h20"/>
+              </svg>
+              <span class="text-xs font-semibold uppercase">{{ localeService.currentLocale() }}</span>
+            </button>
+            @if (langOpen()) {
+              <div class="absolute right-0 top-full mt-2 w-40 rounded-lg border border-border bg-card p-1.5 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200"
+                   (mousedown)="$event.preventDefault()">
+                @for (lang of supportedLocales; track lang) {
+                  <button (click)="switchLocale(lang)"
+                          class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
+                          [class.text-foreground]="localeService.currentLocale() === lang"
+                          [class.font-semibold]="localeService.currentLocale() === lang"
+                          [class.text-muted-foreground]="localeService.currentLocale() !== lang">
+                    {{ localeLabels[lang] }}
+                    @if (localeService.currentLocale() === lang) {
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto">
+                        <path d="M20 6 9 17l-5-5"/>
+                      </svg>
+                    }
+                  </button>
+                }
+              </div>
+            }
+          </div>
 
           <!-- Theme toggle -->
           <button (click)="toggleTheme()"
@@ -147,37 +185,54 @@ import { SearchComponent } from '../search/search';
         <div class="md:hidden border-t border-border animate-in slide-in-from-top-2 duration-200">
           <nav class="container max-w-5xl mx-auto px-6 py-4 flex flex-col gap-1">
             <a routerLink="/" (click)="mobileMenuOpen.set(false)"
-               class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">Home</a>
+               class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">{{ 'nav.home' | transloco }}</a>
             <a routerLink="/blog" (click)="mobileMenuOpen.set(false)"
-               class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">Blog</a>
+               class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">{{ 'nav.blog' | transloco }}</a>
             <a routerLink="/games" (click)="mobileMenuOpen.set(false)"
-               class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">Games</a>
+               class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">{{ 'nav.games' | transloco }}</a>
             <a routerLink="/cheatsheets" (click)="mobileMenuOpen.set(false)"
-               class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">Cheat Sheets</a>
+               class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">{{ 'nav.cheatsheets' | transloco }}</a>
             <a routerLink="/about" (click)="mobileMenuOpen.set(false)"
-               class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">About</a>
+               class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">{{ 'nav.about' | transloco }}</a>
             <div class="border-t border-border my-2"></div>
-            <p class="px-3 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Categories</p>
+            <p class="px-3 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{{ 'nav.categories' | transloco }}</p>
             <a routerLink="/category/frontend" (click)="mobileMenuOpen.set(false)"
                class="flex items-center gap-2 rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <span class="h-2 w-2 rounded-full bg-blue-500"></span> Frontend
+              <span class="h-2 w-2 rounded-full bg-blue-500"></span> {{ 'categories.frontend' | transloco }}
             </a>
             <a routerLink="/category/backend" (click)="mobileMenuOpen.set(false)"
                class="flex items-center gap-2 rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <span class="h-2 w-2 rounded-full bg-green-500"></span> Backend
+              <span class="h-2 w-2 rounded-full bg-green-500"></span> {{ 'categories.backend' | transloco }}
             </a>
             <a routerLink="/category/devops" (click)="mobileMenuOpen.set(false)"
                class="flex items-center gap-2 rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <span class="h-2 w-2 rounded-full bg-orange-500"></span> DevOps
+              <span class="h-2 w-2 rounded-full bg-orange-500"></span> {{ 'categories.devops' | transloco }}
             </a>
             <a routerLink="/category/tutorials" (click)="mobileMenuOpen.set(false)"
                class="flex items-center gap-2 rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <span class="h-2 w-2 rounded-full bg-purple-500"></span> Tutorials
+              <span class="h-2 w-2 rounded-full bg-purple-500"></span> {{ 'categories.tutorials' | transloco }}
             </a>
             <a routerLink="/category/open-source" (click)="mobileMenuOpen.set(false)"
                class="flex items-center gap-2 rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <span class="h-2 w-2 rounded-full bg-pink-500"></span> Open Source
+              <span class="h-2 w-2 rounded-full bg-pink-500"></span> {{ 'categories.openSource' | transloco }}
             </a>
+            <div class="border-t border-border my-2"></div>
+            <p class="px-3 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{{ 'common.language' | transloco }}</p>
+            @for (lang of supportedLocales; track lang) {
+              <button (click)="switchLocale(lang); mobileMenuOpen.set(false)"
+                      class="flex items-center gap-2 rounded-md px-3 py-2.5 text-left transition-colors hover:bg-accent"
+                      [class.text-foreground]="localeService.currentLocale() === lang"
+                      [class.font-semibold]="localeService.currentLocale() === lang"
+                      [class.text-muted-foreground]="localeService.currentLocale() !== lang">
+                {{ localeLabels[lang] }}
+                @if (localeService.currentLocale() === lang) {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto">
+                    <path d="M20 6 9 17l-5-5"/>
+                  </svg>
+                }
+              </button>
+            }
           </nav>
         </div>
       }
@@ -187,10 +242,17 @@ import { SearchComponent } from '../search/search';
   `,
 })
 export class HeaderComponent {
+  localeService = inject(LocaleService);
+  private router = inject(Router);
+
   mobileMenuOpen = signal(false);
   categoriesOpen = signal(false);
+  langOpen = signal(false);
   isDark = signal(typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
   searchComponent = viewChild(SearchComponent);
+
+  supportedLocales = SUPPORTED_LOCALES;
+  localeLabels = LOCALE_LABELS;
 
   toggleTheme() {
     document.documentElement.classList.add('theme-transition');
@@ -207,5 +269,16 @@ export class HeaderComponent {
 
   closeCategoriesDelayed() {
     setTimeout(() => this.categoriesOpen.set(false), 150);
+  }
+
+  closeLangDelayed() {
+    setTimeout(() => this.langOpen.set(false), 150);
+  }
+
+  switchLocale(lang: string) {
+    this.localeService.setLocale(lang);
+    this.langOpen.set(false);
+    const localizedPath = this.localeService.localizeRoute(this.router.url);
+    this.router.navigateByUrl(localizedPath);
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { DOCUMENT } from '@angular/common';
+import { SUPPORTED_LOCALES } from './locale.service';
 
 interface SeoConfig {
   title: string;
@@ -16,9 +17,15 @@ interface SeoConfig {
     tags?: string[];
     section?: string;
   };
+  locale?: string;
   breadcrumbs?: { name: string; url: string }[];
   itemList?: { name: string; url: string; description?: string }[];
 }
+
+const LOCALE_OG_MAP: Record<string, string> = {
+  en: 'en_US',
+  es: 'es_ES',
+};
 
 @Injectable({ providedIn: 'root' })
 export class SeoService {
@@ -89,6 +96,21 @@ export class SeoService {
     // Canonical URL
     this.updateCanonical(url);
 
+    // Hreflang alternate links
+    if (config.url) {
+      this.updateHreflang(config.url);
+    }
+
+    // og:locale tags
+    const currentLocale = config.locale || 'en';
+    this.meta.updateTag({ property: 'og:locale', content: LOCALE_OG_MAP[currentLocale] || 'en_US' });
+    this.removeMetaTags('og:locale:alternate');
+    for (const locale of SUPPORTED_LOCALES) {
+      if (locale !== currentLocale) {
+        this.meta.addTag({ property: 'og:locale:alternate', content: LOCALE_OG_MAP[locale] || locale });
+      }
+    }
+
     // JSON-LD structured data
     const schemas: Record<string, unknown>[] = [];
 
@@ -101,6 +123,7 @@ export class SeoService {
         'description': description,
         'url': url,
         'image': image,
+        'inLanguage': currentLocale,
         'datePublished': config.article.publishedTime,
         'author': {
           '@type': 'Person',
@@ -217,5 +240,37 @@ export class SeoService {
   private removeJsonLd() {
     const script = this.doc.querySelector('script[type="application/ld+json"]');
     script?.remove();
+  }
+
+  updateHreflang(path: string) {
+    // Remove any existing hreflang tags
+    const existing = this.doc.querySelectorAll('link[rel="alternate"][hreflang]');
+    existing.forEach(el => el.remove());
+
+    // Add hreflang for each supported locale
+    for (const locale of SUPPORTED_LOCALES) {
+      const link = this.doc.createElement('link');
+      link.setAttribute('rel', 'alternate');
+      link.setAttribute('hreflang', locale);
+      if (locale === 'en') {
+        link.setAttribute('href', `${this.siteUrl}${path}`);
+      } else {
+        link.setAttribute('href', `${this.siteUrl}/${locale}${path}`);
+      }
+      this.doc.head.appendChild(link);
+    }
+
+    // Add x-default pointing to English (default) version
+    const xDefault = this.doc.createElement('link');
+    xDefault.setAttribute('rel', 'alternate');
+    xDefault.setAttribute('hreflang', 'x-default');
+    xDefault.setAttribute('href', `${this.siteUrl}${path}`);
+    this.doc.head.appendChild(xDefault);
+  }
+
+  private removeMetaTags(property: string) {
+    const selector = `meta[property="${property}"]`;
+    const tags = this.doc.querySelectorAll(selector);
+    tags.forEach(tag => tag.remove());
   }
 }

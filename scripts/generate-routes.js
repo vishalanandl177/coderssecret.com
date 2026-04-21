@@ -18,6 +18,7 @@ const path = require('path');
 
 const SITE_URL = 'https://coderssecret.com';
 const OUTPUT_DIR = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'browser');
+const SUPPORTED_LOCALES = ['en', 'es'];
 
 // Read the blog post model
 const modelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'blog-post.model.ts');
@@ -88,11 +89,19 @@ const categoryNames = {
 const baseHtml = fs.readFileSync(path.join(OUTPUT_DIR, 'index.html'), 'utf-8');
 
 function makeHtml(options) {
-  const { title, description, url, content, jsonLd } = options;
+  const { title, description, url, content, jsonLd, lang } = options;
   const fullTitle = `${title} | CodersSecret`;
   const canonical = `${SITE_URL}${url}`;
 
   let html = baseHtml;
+
+  // Set html lang attribute
+  if (lang && lang !== 'en') {
+    html = html.replace(/<html([^>]*)lang="[^"]*"/, `<html$1lang="${lang}"`);
+    if (!/<html[^>]*lang=/.test(html)) {
+      html = html.replace(/<html/, `<html lang="${lang}"`);
+    }
+  }
 
   // Replace <title>
   html = html.replace(
@@ -106,6 +115,13 @@ function makeHtml(options) {
     `<meta name="description" content="${description}">`
   );
 
+  // Build hreflang tags for all supported locales
+  const hreflangTags = SUPPORTED_LOCALES.map(locale => {
+    const localeUrl = locale === 'en' ? url : `/${locale}${url}`;
+    return `  <link rel="alternate" hreflang="${locale}" href="${SITE_URL}${localeUrl}">`;
+  }).join('\n');
+  const xDefaultTag = `  <link rel="alternate" hreflang="x-default" href="${SITE_URL}${url}">`;
+
   // Add canonical link before </head>
   html = html.replace(
     '</head>',
@@ -114,10 +130,12 @@ function makeHtml(options) {
     `  <meta property="og:description" content="${description}">\n` +
     `  <meta property="og:url" content="${canonical}">\n` +
     `  <meta property="og:type" content="website">\n` +
+    `  <meta property="og:locale" content="${lang === 'es' ? 'es_ES' : 'en_US'}">\n` +
     `  <meta name="twitter:card" content="summary_large_image">\n` +
     `  <meta name="twitter:title" content="${fullTitle}">\n` +
     `  <meta name="twitter:description" content="${description}">\n` +
-    `  <link rel="alternate" hreflang="en" href="${canonical}">\n` +
+    hreflangTags + '\n' +
+    xDefaultTag + '\n' +
     (jsonLd ? `  <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>\n` : '') +
     '</head>'
   );

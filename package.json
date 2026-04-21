@@ -23,6 +23,7 @@
     "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "@jsverse/transloco": "^8.3.0",
     "@spartan-ng/brain": "^0.0.1-alpha.660",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
