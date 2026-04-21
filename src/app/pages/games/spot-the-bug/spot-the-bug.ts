@@ -33,10 +33,15 @@ interface BugQuestion {
         </div>
 
         @if (!gameEnded()) {
-          <div class="rounded-2xl border border-border/60 bg-card p-6 md:p-8 mb-6">
+          <div class="rounded-2xl border border-border/60 bg-card p-6 md:p-8 mb-6" [class.correct-flash]="flashCorrect()" [class.wrong-shake]="flashWrong()">
             <div class="flex items-center justify-between text-sm text-muted-foreground mb-4">
               <span>Bug {{ currentIndex() + 1 }} of {{ questions.length }}</span>
-              <span>Score: <strong class="text-foreground">{{ score() }}</strong></span>
+              <div class="flex items-center gap-3">
+                @if (streak() >= 2) {
+                  <span class="streak-fire text-orange-500 font-bold text-xs">🔥 {{ streak() }} streak!</span>
+                }
+                <span [class.score-pop]="flashCorrect()">Score: <strong class="text-foreground">{{ score() }}</strong></span>
+              </div>
             </div>
             <div class="h-2 bg-muted rounded-full overflow-hidden mb-6">
               <div class="h-full bg-gradient-to-r from-red-500 to-orange-500 transition-all duration-500"
@@ -56,7 +61,7 @@ interface BugQuestion {
                 <button (click)="selectAnswer(i)"
                         [disabled]="answered()"
                         [class]="getOptionClass(i)"
-                        class="w-full text-left px-4 py-3 rounded-lg border transition-all duration-200 text-sm">
+                        class="game-option w-full text-left px-4 py-3 rounded-lg border text-sm">
                   <span class="inline-block w-6 h-6 rounded mr-3 text-xs font-bold text-center leading-6 bg-muted">{{ ['A','B','C','D'][i] }}</span>
                   {{ option }}
                 </button>
@@ -64,11 +69,11 @@ interface BugQuestion {
             </div>
 
             @if (answered()) {
-              <div class="mt-6 p-4 rounded-lg"
+              <div class="mt-6 p-4 rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-300"
                    [class]="selectedIndex() === currentQuestion().correctIndex ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'">
                 <p class="font-semibold mb-2">
                   @if (selectedIndex() === currentQuestion().correctIndex) {
-                    ✓ You caught it!
+                    ✓ You caught it! @if (streak() >= 3) { <span class="text-orange-500">🔥 On fire!</span> }
                   } @else {
                     ✗ The actual bug was: <strong>{{ currentQuestion().options[currentQuestion().correctIndex] }}</strong>
                   }
@@ -86,12 +91,18 @@ interface BugQuestion {
             }
           </div>
         } @else {
-          <div class="rounded-2xl border border-border/60 bg-card p-8 md:p-12 text-center">
+          <div class="rounded-2xl border border-border/60 bg-card p-8 md:p-12 text-center animate-in fade-in zoom-in-95 duration-500">
             <div class="text-6xl mb-4">{{ finalEmoji() }}</div>
             <h2 class="text-3xl font-extrabold tracking-tight mb-2">{{ finalMessage() }}</h2>
-            <p class="text-xl text-muted-foreground mb-8">
+            <p class="text-xl text-muted-foreground mb-4">
               You caught <strong class="text-foreground">{{ score() }} / {{ questions.length }}</strong> bugs
             </p>
+            @if (maxStreak() >= 2) {
+              <p class="text-sm text-orange-500 font-semibold mb-6">🔥 Best streak: {{ maxStreak() }} in a row</p>
+            }
+            <div class="h-3 bg-muted rounded-full overflow-hidden max-w-xs mx-auto mb-8">
+              <div class="h-full bg-gradient-to-r from-red-500 to-orange-500 xp-bar-fill rounded-full" [style.width.%]="(score() / questions.length) * 100"></div>
+            </div>
             <div class="flex flex-wrap justify-center gap-3">
               <button (click)="restart()"
                       class="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
@@ -261,12 +272,63 @@ console.log(userMap[1].name);`,
       correctIndex: 1,
       explanation: '`==` compares, `=` assigns. The comparison result is thrown away, so userMap stays empty. `userMap[1]` is undefined, and `.name` throws "Cannot read properties of undefined".',
     },
+    {
+      language: 'Python',
+      code: 'def process_items(items):\n    for item in items:\n        if item.is_invalid():\n            items.remove(item)',
+      options: [
+        'Should use list comprehension instead',
+        'Modifying a list while iterating over it — skips elements',
+        'is_invalid() should be a property, not a method',
+        'Missing return statement',
+      ],
+      correctIndex: 1,
+      explanation: 'Removing elements from a list while iterating causes the iterator to skip elements. When you remove index 2, index 3 shifts to index 2 and gets skipped. Fix: iterate over a copy: for item in items[:]',
+    },
+    {
+      language: 'JavaScript',
+      code: 'const config = JSON.parse(userInput);\nconst name = config.user.name;\nconsole.log(name);',
+      options: [
+        'JSON.parse can throw on invalid JSON — no try/catch',
+        'config.user might be undefined — no null check',
+        'Should use JSON.stringify instead',
+        'console.log is a security risk',
+      ],
+      correctIndex: 1,
+      explanation: 'Even if JSON.parse succeeds, config.user might be undefined or null. Accessing .name on undefined throws TypeError. Fix: use optional chaining: config?.user?.name or validate the structure.',
+    },
+    {
+      language: 'Python',
+      code: 'import time\n\ndef retry(fn, retries=3):\n    for i in range(retries):\n        try:\n            return fn()\n        except Exception:\n            time.sleep(1)\n    return fn()',
+      options: [
+        'Should use exponential backoff instead of fixed sleep',
+        'The last fn() call outside the loop has no try/catch',
+        'retries=3 means it tries 4 times total, not 3',
+        'Should use a while loop instead',
+      ],
+      correctIndex: 2,
+      explanation: 'The loop runs fn() 3 times with try/catch. Then the final fn() outside the loop runs WITHOUT try/catch — if it fails, the exception propagates. Total attempts = 4 (3 in loop + 1 outside). The last one should also be in a try/catch, or the loop should handle the final attempt.',
+    },
+    {
+      language: 'TypeScript',
+      code: 'function getUser(id: string): User | undefined {\n  const user = users.find(u => u.id === id);\n  return user;\n}\n\nconst name = getUser("123").name;',
+      options: [
+        'find() should be filter()[0]',
+        'Return type should not include undefined',
+        'getUser might return undefined — calling .name crashes',
+        'id should be a number, not string',
+      ],
+      correctIndex: 2,
+      explanation: 'getUser returns User | undefined, but the caller accesses .name without checking for undefined. In TypeScript with strict null checks, this would be a compile error. Without strict mode, its a runtime TypeError waiting to happen.',
+    },
+  
   ];
 
   currentIndex = signal(0);
   selectedIndex = signal<number | null>(null);
   answered = signal(false);
   score = signal(0);
+  streak = signal(0);
+  maxStreak = signal(0);
   gameEnded = signal(false);
 
   currentQuestion = computed(() => this.questions[this.currentIndex()]);
@@ -300,18 +362,29 @@ console.log(userMap[1].name);`,
     });
   }
 
+  flashCorrect = signal(false);
+  flashWrong = signal(false);
+
   selectAnswer(idx: number) {
     if (this.answered()) return;
     this.selectedIndex.set(idx);
     this.answered.set(true);
     if (idx === this.currentQuestion().correctIndex) {
       this.score.update(s => s + 1);
+      this.streak.update(s => s + 1);
+      if (this.streak() > this.maxStreak()) this.maxStreak.set(this.streak());
+      this.flashCorrect.set(true);
+      setTimeout(() => this.flashCorrect.set(false), 800);
+    } else {
+      this.streak.set(0);
+      this.flashWrong.set(true);
+      setTimeout(() => this.flashWrong.set(false), 400);
     }
   }
 
   getOptionClass(idx: number): string {
     if (!this.answered()) {
-      return 'border-border hover:border-primary hover:bg-accent cursor-pointer';
+      return 'border-border';
     }
     if (idx === this.currentQuestion().correctIndex) {
       return 'border-green-500 bg-green-500/10 text-foreground';
@@ -337,6 +410,8 @@ console.log(userMap[1].name);`,
     this.selectedIndex.set(null);
     this.answered.set(false);
     this.score.set(0);
+    this.streak.set(0);
+    this.maxStreak.set(0);
     this.gameEnded.set(false);
   }
 }

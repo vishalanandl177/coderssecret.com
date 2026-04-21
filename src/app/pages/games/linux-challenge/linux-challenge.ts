@@ -31,10 +31,15 @@ interface Challenge {
         </div>
 
         @if (!gameEnded()) {
-          <div class="rounded-2xl border border-border/60 bg-card p-6 md:p-8 mb-6">
+          <div class="rounded-2xl border border-border/60 bg-card p-6 md:p-8 mb-6" [class.correct-flash]="flashCorrect()" [class.wrong-shake]="flashWrong()">
             <div class="flex items-center justify-between text-sm text-muted-foreground mb-4">
               <span>Challenge {{ currentIndex() + 1 }} of {{ challenges.length }}</span>
-              <span>Score: <strong class="text-foreground">{{ score() }}</strong></span>
+              <div class="flex items-center gap-3">
+                @if (streak() >= 2) {
+                  <span class="streak-fire text-orange-500 font-bold text-xs">🔥 {{ streak() }} streak!</span>
+                }
+                <span [class.score-pop]="flashCorrect()">Score: <strong class="text-foreground">{{ score() }}</strong></span>
+              </div>
             </div>
             <div class="h-2 bg-muted rounded-full overflow-hidden mb-6">
               <div class="h-full bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-500"
@@ -84,11 +89,11 @@ interface Challenge {
             }
 
             @if (answered()) {
-              <div class="p-4 rounded-lg"
+              <div class="p-4 rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-300"
                    [class]="isCorrect() ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'">
                 <p class="font-semibold mb-2">
                   @if (isCorrect()) {
-                    ✓ Correct!
+                    ✓ Correct! @if (streak() >= 3) { <span class="text-orange-500">🔥 On fire!</span> }
                   } @else {
                     ✗ Not quite. Valid answers include:
                   }
@@ -110,12 +115,18 @@ interface Challenge {
             }
           </div>
         } @else {
-          <div class="rounded-2xl border border-border/60 bg-card p-8 md:p-12 text-center">
+          <div class="rounded-2xl border border-border/60 bg-card p-8 md:p-12 text-center animate-in fade-in zoom-in-95 duration-500">
             <div class="text-6xl mb-4">{{ finalEmoji() }}</div>
             <h2 class="text-3xl font-extrabold tracking-tight mb-2">{{ finalMessage() }}</h2>
-            <p class="text-xl text-muted-foreground mb-8">
+            <p class="text-xl text-muted-foreground mb-4">
               You got <strong class="text-foreground">{{ score() }} / {{ challenges.length }}</strong> commands right
             </p>
+            @if (maxStreak() >= 2) {
+              <p class="text-sm text-orange-500 font-semibold mb-6">🔥 Best streak: {{ maxStreak() }} in a row</p>
+            }
+            <div class="h-3 bg-muted rounded-full overflow-hidden max-w-xs mx-auto mb-8">
+              <div class="h-full bg-gradient-to-r from-pink-500 to-purple-500 xp-bar-fill rounded-full" [style.width.%]="(score() / challenges.length) * 100"></div>
+            </div>
             <div class="flex flex-wrap justify-center gap-3">
               <button (click)="restart()"
                       class="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
@@ -199,12 +210,42 @@ export class LinuxChallengeComponent implements AfterViewInit {
       acceptedAnswers: ['watch kubectl get pods', 'watch -n 2 kubectl get pods', 'watch -n2 kubectl get pods'],
       hint: 'The watch command does this — default interval is 2 seconds.',
     },
+    {
+      task: 'Show the 5 largest directories under /var sorted by size.',
+      acceptedAnswers: [
+        'du -sh /var/*/ | sort -hr | head -5',
+        'du -sh /var/* | sort -rh | head -5',
+        'du -h --max-depth=1 /var | sort -hr | head -5',
+      ],
+      hint: 'du -sh gives human-readable sizes. sort -h sorts human numbers. head limits output.',
+    },
+    {
+      task: 'Find all processes listening on port 443.',
+      acceptedAnswers: [
+        'ss -tlnp | grep 443',
+        'lsof -i :443',
+        'netstat -tlnp | grep 443',
+      ],
+      hint: 'ss is the modern replacement for netstat. -t for TCP, -l for listening, -n for numeric, -p for process.',
+    },
+    {
+      task: 'Tail the last 50 lines of /var/log/syslog and follow new entries.',
+      acceptedAnswers: [
+        'tail -50f /var/log/syslog',
+        'tail -n 50 -f /var/log/syslog',
+        'tail -f -n 50 /var/log/syslog',
+      ],
+      hint: 'tail -n sets line count. -f follows new entries as they are written.',
+    },
+  
   ];
 
   currentIndex = signal(0);
   userAnswer = signal('');
   answered = signal(false);
   score = signal(0);
+  streak = signal(0);
+  maxStreak = signal(0);
   gameEnded = signal(false);
   showHint = signal(false);
   isCorrect = signal(false);
@@ -248,6 +289,9 @@ export class LinuxChallengeComponent implements AfterViewInit {
     this.userAnswer.set((event.target as HTMLInputElement).value);
   }
 
+  flashCorrect = signal(false);
+  flashWrong = signal(false);
+
   submit() {
     if (!this.userAnswer().trim()) return;
     const input = this.userAnswer().trim().replace(/\s+/g, ' ');
@@ -256,7 +300,17 @@ export class LinuxChallengeComponent implements AfterViewInit {
     );
     this.isCorrect.set(correct);
     this.answered.set(true);
-    if (correct) this.score.update(s => s + 1);
+    if (correct) {
+      this.score.update(s => s + 1);
+      this.streak.update(s => s + 1);
+      if (this.streak() > this.maxStreak()) this.maxStreak.set(this.streak());
+      this.flashCorrect.set(true);
+      setTimeout(() => this.flashCorrect.set(false), 800);
+    } else {
+      this.streak.set(0);
+      this.flashWrong.set(true);
+      setTimeout(() => this.flashWrong.set(false), 400);
+    }
   }
 
   skip() {
@@ -282,6 +336,8 @@ export class LinuxChallengeComponent implements AfterViewInit {
     this.userAnswer.set('');
     this.answered.set(false);
     this.score.set(0);
+    this.streak.set(0);
+    this.maxStreak.set(0);
     this.gameEnded.set(false);
     this.showHint.set(false);
     this.isCorrect.set(false);
