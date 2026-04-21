@@ -7681,7 +7681,190 @@ export class OrderComponent {
         </div>
       </div>
 
-      <p>Separation of Concerns is not about creating more files — it's about creating <strong>boundaries that protect you from change</strong>. When your email provider changes, only the email module changes. When your database changes, only the repository changes. When your UI framework changes, only the components change. Build these boundaries from day one, and your codebase will scale with your team instead of against it.</p>
+      <h2>SoC Beyond Code: The Software Lifecycle</h2>
+
+      <p>Most articles stop at code-level SoC. But separation of concerns shapes <em>everything</em> in the software lifecycle — from how teams are organised, to how you deploy, to how you handle incidents at 3 AM.</p>
+
+      <!-- SoC Lifecycle -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Separation of Concerns Across the Software Lifecycle</div>
+        <div class="layer-diagram">
+          <div class="layer-item" style="background:#7c3aed">Planning: Separate product decisions from technical decisions<span class="layer-item-sub">Product owners decide WHAT to build. Engineers decide HOW to build it. Mixing these = scope creep or premature technical decisions.</span></div>
+          <div class="layer-item" style="background:#3b82f6">Development: Separate feature code from infrastructure code<span class="layer-item-sub">Business logic in /src. CI/CD in /.github. Infra in /terraform. Database in /migrations. Each concern in its own home.</span></div>
+          <div class="layer-item" style="background:#22c55e">Testing: Separate unit tests from integration tests from E2E tests<span class="layer-item-sub">Unit tests: fast, isolated, no DB. Integration: real DB, no UI. E2E: full browser. Each catches different bugs.</span></div>
+          <div class="layer-item" style="background:#f97316">Deployment: Separate build from deploy from release<span class="layer-item-sub">Build = compile the artifact. Deploy = put it on servers. Release = enable for users (feature flags). Three separate steps.</span></div>
+          <div class="layer-item" style="background:#ef4444">Operations: Separate monitoring from alerting from incident response<span class="layer-item-sub">Monitoring collects data. Alerting decides what's urgent. Incident response handles the human process. Different tools, different owners.</span></div>
+        </div>
+      </div>
+
+      <h2>SoC in Team Structure</h2>
+
+      <p>Conway's Law says: <em>"Organizations design systems that mirror their communication structures."</em> If your frontend team and backend team sit in different buildings, you'll get a frontend-backend separation in your architecture. SoC in teams directly shapes SoC in code.</p>
+
+      <pre><code># &#x274C; BAD: One "full-stack" team does everything
+Team: does product design + frontend + backend + database + DevOps + testing + on-call
+Result: no clear ownership, everything is everyone's problem (= nobody's problem)
+
+# &#x2705; GOOD: Separated concerns with clear ownership
+Product team: defines requirements, priorities, user research
+Frontend team: UI components, user experience, client-side state
+Backend team: APIs, business logic, data models
+Platform team: CI/CD, infrastructure, monitoring, shared libraries
+QA team: test strategy, automation frameworks, quality gates
+
+# Each team has a clear concern. When something breaks,
+# you know exactly who owns the fix.
+# PRs are reviewed by the right people.
+# Roadmaps are planned by the right stakeholders.</code></pre>
+
+      <h2>SoC in Testing</h2>
+
+      <pre><code># The Testing Pyramid = Separation of Concerns applied to testing
+
+# Layer 1: Unit Tests (fast, many, no dependencies)
+def test_calculate_tax():
+    assert calculate_tax(100, rate=0.2) == 20.0
+    assert calculate_tax(0, rate=0.2) == 0.0
+# Tests ONE function. No database. No HTTP. No filesystem.
+# Runs in milliseconds. Catches logic bugs.
+
+# Layer 2: Integration Tests (medium, real dependencies)
+def test_create_order_saves_to_db():
+    order = OrderService(real_db).create(items=[{"id": 1, "qty": 2}])
+    assert Order.query.get(order.id) is not None
+    assert order.total == 49.98
+# Tests service + database together. Catches wiring bugs.
+
+# Layer 3: E2E Tests (slow, few, full system)
+def test_user_can_checkout():
+    browser.login("alice@test.com")
+    browser.add_to_cart("Widget")
+    browser.click("Checkout")
+    assert browser.page.has_text("Order confirmed!")
+# Tests the entire flow. Catches UX and integration bugs.
+
+# Why separate them?
+# Unit tests: run in CI on every commit (30 seconds)
+# Integration tests: run in CI before merge (2 minutes)
+# E2E tests: run nightly or before release (10 minutes)
+#
+# Mixing them means ALL tests are slow, flaky, and hard to debug.</code></pre>
+
+      <h2>SoC in Deployment</h2>
+
+      <p>This is one that catches many teams off guard. <strong>Building, deploying, and releasing are three separate concerns.</strong></p>
+
+      <!-- Deploy Pipeline -->
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Build &#x2260; Deploy &#x2260; Release</div>
+        <div class="pipeline">
+          <div class="pipeline-step" style="background:#3b82f6;--i:0"><span class="pipeline-step-icon">&#x1F528;</span>Build<span class="pipeline-step-sub">Compile, test, create artifact</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#7c3aed;--i:1"><span class="pipeline-step-icon">&#x1F680;</span>Deploy<span class="pipeline-step-sub">Put artifact on servers</span></div>
+          <div class="pipeline-arrow">&#x2192;</div>
+          <div class="pipeline-step" style="background:#22c55e;--i:2"><span class="pipeline-step-icon">&#x1F3C1;</span>Release<span class="pipeline-step-sub">Enable for users (feature flag)</span></div>
+        </div>
+      </div>
+
+      <pre><code># Why separate them?
+
+# BUILD: "Did the code compile and pass tests?"
+# This happens in CI. Produces a versioned artifact (Docker image, binary).
+# Concern: correctness.
+
+# DEPLOY: "Is the new code running on servers?"
+# This happens via CD (ArgoCD, Spinnaker, kubectl).
+# The new code is ON the servers but NOT visible to users yet.
+# Concern: infrastructure.
+
+# RELEASE: "Can users see the new feature?"
+# This happens via feature flags (LaunchDarkly, Unleash).
+# You flip a flag, 1% of users see the feature. Then 10%. Then 100%.
+# Concern: product risk.
+
+# If you mix these, you get:
+# "The deploy broke production" → because deploy = release simultaneously
+# "We can't roll back the feature" → because there's no flag, only deploy
+# "We need a hotfix" → because you can't disable just the broken feature
+
+# Separated:
+# Deploy failed? Rollback the deployment. Feature flag stays off.
+# Feature buggy? Turn off the flag. Deploy stays up.
+# Need to A/B test? Flag to 50%. No new deploys needed.</code></pre>
+
+      <h2>SoC in Incident Response</h2>
+
+      <pre><code># Even your incident process should have separated concerns:
+
+# DETECT: "Something is wrong"
+# Concern: monitoring tools (Datadog, Prometheus, PagerDuty)
+# Owner: platform/SRE team
+# Tool: automated alerts, anomaly detection
+
+# TRIAGE: "How bad is it?"
+# Concern: classify severity (P1 = total outage, P2 = partial, P3 = degraded)
+# Owner: on-call engineer
+# Tool: runbook, status page
+
+# RESPOND: "Fix it right now"
+# Concern: restore service (rollback, scale up, toggle feature flag)
+# Owner: on-call engineer + team lead
+# Tool: deployment pipeline, feature flags, database access
+
+# COMMUNICATE: "Tell stakeholders what's happening"
+# Concern: customer communication, exec updates
+# Owner: support/comms team
+# Tool: status page, Slack, email
+
+# REVIEW: "Why did it happen and how do we prevent it?"
+# Concern: root cause analysis, action items
+# Owner: engineering team (blameless post-mortem)
+# Tool: post-mortem document, JIRA tickets
+
+# Each step is a DIFFERENT CONCERN with a DIFFERENT OWNER.
+# When you mix them: the engineer fixing the bug is also writing
+# the customer email and updating the status page = chaos.</code></pre>
+
+      <h2>SoC in Data</h2>
+
+      <pre><code># Even your data should have separated concerns:
+
+# &#x274C; BAD: One database does everything
+PostgreSQL handles:
+  - User authentication (sessions, tokens)
+  - Application data (orders, products, customers)
+  - Analytics (page views, funnel tracking)
+  - Background job queue (sidekiq/celery jobs)
+  - Full-text search (product search)
+  - Caching (frequently accessed data)
+
+# Result: one slow analytics query takes down the checkout flow.
+# One cache stampede slows user login.
+
+# &#x2705; GOOD: Separated by concern
+PostgreSQL:  Application data (orders, products, users)
+Redis:       Caching + session storage + background job queue
+Elasticsearch: Full-text search
+ClickHouse:  Analytics and event tracking
+S3:          File storage (uploads, exports)
+
+# Each system optimised for its specific concern.
+# Analytics can't slow down checkout.
+# Search can be rebuilt without touching the main DB.</code></pre>
+
+      <h2>When SoC Goes Too Far</h2>
+
+      <p>Fair warning — SoC is not "split everything into the smallest possible pieces." Over-separation is just as harmful as no separation:</p>
+
+      <ul>
+        <li><strong>500 microservices for a 10-person team</strong> = operational nightmare. You've separated concerns to the point where nobody can understand the system.</li>
+        <li><strong>10 layers of abstraction for a CRUD endpoint</strong> = over-engineering. Controller → Service → Repository → DAO → Entity → DTO → Mapper → Validator → Transformer = insanity for a simple GET.</li>
+        <li><strong>Separate repos for every tiny library</strong> = dependency hell. You spend more time managing versions than writing code.</li>
+      </ul>
+
+      <p>The right level of separation is the one where <strong>each piece can change independently without breaking the others</strong>. If two things always change together, they belong together. If they never change together, they should be separated. That's the real test.</p>
+
+      <p>Separation of Concerns is not about creating more files — it's about creating <strong>boundaries that protect you from change</strong>. When your email provider changes, only the email module changes. When your database changes, only the repository changes. When your UI framework changes, only the components change. And when your deployment breaks, only the deployment pipeline is investigated — not the feature code, the test suite, and the monitoring stack all at once. Build these boundaries from day one — in your code, your tests, your deployment, your team structure, and your incident response — and your software will scale with your organisation instead of against it.</p>
     `,
     author: 'Coder Secret',
     date: '2026-04-08',
