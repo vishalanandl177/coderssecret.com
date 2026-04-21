@@ -1,15 +1,17 @@
-import { Component, signal, HostListener } from '@angular/core';
+import { Component, signal, HostListener, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { HeaderComponent } from './components/header/header';
 import { FooterComponent } from './components/footer/footer';
+import { LocaleService } from './services/locale.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, HeaderComponent, FooterComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, TranslocoPipe],
   template: `
     <a href="#main-content"
        class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg">
-      Skip to main content
+      {{ 'nav.skipToContent' | transloco }}
     </a>
     <div class="flex min-h-screen flex-col">
       <app-header />
@@ -38,7 +40,12 @@ import { FooterComponent } from './components/footer/footer';
   `,
 })
 export class App {
+  private locale = inject(LocaleService);
   showBackToTop = signal(false);
+
+  constructor() {
+    this.locale.setLocale(this.locale.detectLocale());
+  }
 
   @HostListener('window:scroll')
   onScroll() {
