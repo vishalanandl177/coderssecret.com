@@ -391,7 +391,7 @@ import { SeoService } from '../../services/seo.service';
             <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Built for Engineers, by an Engineer</h2>
             <p class="mt-3 text-muted-foreground max-w-2xl mx-auto">Real production knowledge, not surface-level tutorials. Every article is written from hands-on experience and tested against real-world systems.</p>
           </div>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-8">
             <div class="text-center">
               <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">{{ totalPosts }}+</div>
               <div class="mt-2 text-sm text-muted-foreground">In-Depth Articles</div>
@@ -403,6 +403,10 @@ import { SeoService } from '../../services/seo.service';
             <div class="text-center">
               <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-pink-500 to-orange-500 bg-clip-text text-transparent">{{ uniqueTags }}+</div>
               <div class="mt-2 text-sm text-muted-foreground">Topics Covered</div>
+            </div>
+            <div class="text-center">
+              <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-teal-500 to-green-500 bg-clip-text text-transparent">1</div>
+              <div class="mt-2 text-sm text-muted-foreground">Slide Tutorials</div>
             </div>
             <div class="text-center">
               <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">100%</div>
