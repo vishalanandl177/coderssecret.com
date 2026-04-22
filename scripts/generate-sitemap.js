@@ -66,6 +66,12 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>${SITE_URL}/slides/drf-api-logger/</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>${SITE_URL}/games</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>

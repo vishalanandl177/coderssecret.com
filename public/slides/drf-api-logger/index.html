@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>DRF API Logger — Tutorial (4K)</title>
+<meta name="viewport" content="width=3840" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  html, body { margin: 0; padding: 0; background: #0a0a0a; color: #fafafa; font-family: 'Inter Tight', sans-serif; overflow: hidden; }
+  section { background: #0a0a0a; }
+  em { font-style: italic; color: inherit; }
+  code { font-family: 'JetBrains Mono', monospace; }
+
+  /* Hide deck-stage's built-in bottom-center counter when tweak is on */
+  body.hide-deck-counter deck-stage { --dummy: 0; }
+
+  #narration-panel {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid #262626;
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #a3a3a3;
+    user-select: none;
+    flex-wrap: wrap;
+    max-width: 720px;
+  }
+  #narration-panel button {
+    background: #1a1a1a;
+    border: 1px solid #404040;
+    color: #fafafa;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  #narration-panel button:hover { background: #262626; border-color: #525252; }
+  #narration-panel button.active { background: #7dd3fc; color: #0a0a0a; border-color: #7dd3fc; }
+  #narration-panel button.rec { background: #fca5a5; color: #0a0a0a; border-color: #fca5a5; }
+  #narration-panel .indicator {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #525252; transition: all 0.2s;
+  }
+  #narration-panel .indicator.speaking { background: #86efac; box-shadow: 0 0 12px #86efac; animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  #narration-panel select {
+    background: #1a1a1a;
+    border: 1px solid #404040;
+    color: #fafafa;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    max-width: 220px;
+  }
+  #narration-panel .status {
+    color: #525252;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  /* Record mode — hide chrome entirely and center content */
+  body.recording #narration-panel { display: none !important; }
+  body.recording deck-stage::part(counter) { display: none; }
+  body.recording { background: #000 !important; }
+
+  /* Countdown overlay */
+  #countdown {
+    position: fixed; inset: 0; z-index: 10000;
+    background: #000;
+    display: none;
+    align-items: center; justify-content: center;
+    flex-direction: column;
+    color: #fafafa;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  #countdown.show { display: flex; }
+  #countdown .label {
+    font-size: 32px; color: #7dd3fc;
+    letter-spacing: 0.3em;
+    margin-bottom: 60px;
+  }
+  #countdown .num {
+    font-size: 340px;
+    font-weight: 600;
+    font-family: 'Inter Tight', sans-serif;
+    color: #fafafa;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  #countdown .hint {
+    margin-top: 60px;
+    color: #525252;
+    font-size: 22px;
+    letter-spacing: 0.2em;
+  }
+</style>
+</head>
+
+<body>
+
+<script>
+  // Tweakable defaults — persisted by the host when edit mode is on
+  window.__TWEAKS = /*EDITMODE-BEGIN*/{
+    "hidePageNumber": false,
+    "hideFooter": true,
+    "hideDeckCounter": true,
+    "narrationRate": 1
+  }/*EDITMODE-END*/;
+</script>
+<script type="application/json" id="speaker-notes"></script>
+
+<deck-stage width="3840" height="2160"></deck-stage>
+
+<div id="narration-panel">
+  <span class="indicator" id="nar-indicator"></span>
+  <button id="nar-toggle" class="active">NARRATION: ON</button>
+  <button id="nar-autoplay" class="active">AUTO-ADVANCE: ON</button>
+  <button id="nar-replay">↻ REPLAY</button>
+  <button id="nar-record">● RECORD MODE</button>
+  <select id="nar-voice" title="Voice"></select>
+  <div class="status" id="nar-status">Loading voices…</div>
+</div>
+
+<div id="countdown">
+  <div class="label">RECORDING STARTS IN</div>
+  <div class="num" id="countdown-num">3</div>
+  <div class="hint">START YOUR SCREEN RECORDER NOW · ESC TO CANCEL</div>
+</div>
+
+<!-- Tweaks panel -->
+<style>
+  #tweaks-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    background: rgba(15, 15, 15, 0.96);
+    backdrop-filter: blur(10px);
+    border: 1px solid #262626;
+    border-radius: 12px;
+    padding: 20px 22px;
+    min-width: 300px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #fafafa;
+    display: none;
+  }
+  #tweaks-panel.open { display: block; }
+  #tweaks-panel h3 {
+    margin: 0 0 16px 0;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: #7dd3fc;
+    font-weight: 500;
+  }
+  #tweaks-panel label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #1f1f1f;
+    font-size: 13px;
+    color: #d4d4d4;
+    cursor: pointer;
+  }
+  #tweaks-panel label:last-child { border-bottom: none; }
+  #tweaks-panel input[type="checkbox"] { accent-color: #7dd3fc; }
+  #tweaks-panel input[type="range"] { width: 130px; accent-color: #7dd3fc; }
+  #tweaks-panel .val { color: #7dd3fc; min-width: 32px; text-align: right; }
+</style>
+<div id="tweaks-panel">
+  <h3>TWEAKS</h3>
+  <label><span>Hide page number</span><input type="checkbox" id="tw-hidePageNumber"></label>
+  <label><span>Hide slide footer</span><input type="checkbox" id="tw-hideFooter"></label>
+  <label><span>Hide deck counter</span><input type="checkbox" id="tw-hideDeckCounter"></label>
+  <label><span>Narration speed</span><span><input type="range" id="tw-narrationRate" min="0.7" max="1.5" step="0.05"><span class="val" id="tw-narrationRate-val">1.0</span></span></label>
+</div>
+
+<!-- Deck stage + React -->
+<script src="deck-stage.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="narration.js"></script>
+<script type="text/babel" src="slides.jsx"></script>
+
+<script type="text/babel">
+  // Slides still author at 1920×1080; we scale the <deck-stage> to 3840×2160
+  // by rendering each <section> at 1920×1080 and letting deck-stage fit it
+  // into the 4K viewport. To actually emit 4K pixels we set the stage to
+  // 3840×2160 and double the inner section size.
+  const stage = document.querySelector('deck-stage');
+  const { SLIDES, SLIDE_LABELS } = window;
+
+  SLIDES.forEach((Comp, i) => {
+    const sec = document.createElement('section');
+    sec.setAttribute('data-label', SLIDE_LABELS[i]);
+    sec.dataset.idx = i;
+    sec.style.position = 'relative';
+    sec.style.width = '3840px';
+    sec.style.height = '2160px';
+    sec.style.overflow = 'hidden';
+    const inner = document.createElement('div');
+    inner.style.position = 'absolute';
+    inner.style.inset = '0';
+    inner.style.width = '1920px';
+    inner.style.height = '1080px';
+    inner.style.transformOrigin = 'top left';
+    inner.style.transform = 'scale(2)';
+    sec.appendChild(inner);
+    stage.appendChild(sec);
+    const root = ReactDOM.createRoot(inner);
+    root.render(<Comp />);
+    window.__slideRoots = window.__slideRoots || [];
+    window.__slideRoots[i] = root;
+  });
+
+  const notesScript = document.getElementById('speaker-notes');
+  if (notesScript && window.NARRATION) {
+    notesScript.textContent = JSON.stringify(window.NARRATION);
+  }
+</script>
+
+<script>
+(function () {
+  const N = window.NARRATION || [];
+  const stage = document.querySelector('deck-stage');
+  if (!stage) return;
+
+  const indicator = document.getElementById('nar-indicator');
+  const toggleBtn = document.getElementById('nar-toggle');
+  const autoBtn = document.getElementById('nar-autoplay');
+  const replayBtn = document.getElementById('nar-replay');
+  const recordBtn = document.getElementById('nar-record');
+  const voiceSelect = document.getElementById('nar-voice');
+  const statusEl = document.getElementById('nar-status');
+
+  const PREFERRED_VOICE = 'Google UK English Male';
+
+  const state = {
+    enabled: localStorage.getItem('drfal.narration') !== 'off',
+    autoAdvance: localStorage.getItem('drfal.autoadvance') !== 'off',
+    voiceName: localStorage.getItem('drfal.voice') || PREFERRED_VOICE,
+    currentIdx: -1,
+    recording: false,
+  };
+
+  function refreshVoices() {
+    const all = speechSynthesis.getVoices();
+    const voices = all.filter(v => v.lang.toLowerCase().startsWith('en'));
+    voiceSelect.innerHTML = '';
+
+    // Sort: UK Male first, then Google voices, then rest
+    voices.sort((a, b) => {
+      const s = v => {
+        if (v.name === PREFERRED_VOICE) return -100;
+        if (/google uk/i.test(v.name)) return -50;
+        if (/google/i.test(v.name)) return -20;
+        if (/daniel|oliver|arthur|reed/i.test(v.name)) return -10;
+        return 0;
+      };
+      return s(a) - s(b);
+    });
+
+    voices.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v.name;
+      opt.textContent = v.name + ' — ' + v.lang;
+      if (v.name === state.voiceName) opt.selected = true;
+      voiceSelect.appendChild(opt);
+    });
+
+    const found = voices.find(v => v.name === state.voiceName);
+    if (!found) {
+      // Fallback chain
+      const fallback =
+        voices.find(v => v.name === PREFERRED_VOICE) ||
+        voices.find(v => /google uk.*male/i.test(v.name)) ||
+        voices.find(v => /google uk/i.test(v.name)) ||
+        voices.find(v => /daniel|oliver|arthur/i.test(v.name)) ||
+        voices[0];
+      if (fallback) {
+        state.voiceName = fallback.name;
+        voiceSelect.value = fallback.name;
+      }
+    }
+
+    if (voices.find(v => v.name === PREFERRED_VOICE)) {
+      statusEl.textContent = 'UK Male ready';
+      statusEl.style.color = '#86efac';
+    } else if (voices.length) {
+      statusEl.textContent = 'UK Male missing — using ' + state.voiceName.slice(0, 24);
+      statusEl.style.color = '#fcd34d';
+    }
+  }
+  if ('speechSynthesis' in window) {
+    refreshVoices();
+    speechSynthesis.onvoiceschanged = refreshVoices;
+  }
+
+  voiceSelect.addEventListener('change', () => {
+    state.voiceName = voiceSelect.value;
+    localStorage.setItem('drfal.voice', state.voiceName);
+    if (state.enabled) speakSlide(state.currentIdx);
+  });
+
+  function updateUI() {
+    toggleBtn.textContent = 'NARRATION: ' + (state.enabled ? 'ON' : 'OFF');
+    toggleBtn.classList.toggle('active', state.enabled);
+    autoBtn.textContent = 'AUTO-ADVANCE: ' + (state.autoAdvance ? 'ON' : 'OFF');
+    autoBtn.classList.toggle('active', state.autoAdvance);
+    recordBtn.classList.toggle('rec', state.recording);
+    recordBtn.textContent = state.recording ? '■ STOP RECORDING' : '● RECORD MODE';
+  }
+  updateUI();
+
+  toggleBtn.addEventListener('click', () => {
+    state.enabled = !state.enabled;
+    localStorage.setItem('drfal.narration', state.enabled ? 'on' : 'off');
+    updateUI();
+    if (state.enabled) speakSlide(state.currentIdx);
+    else { speechSynthesis.cancel(); indicator.classList.remove('speaking'); }
+  });
+  autoBtn.addEventListener('click', () => {
+    state.autoAdvance = !state.autoAdvance;
+    localStorage.setItem('drfal.autoadvance', state.autoAdvance ? 'on' : 'off');
+    updateUI();
+  });
+  replayBtn.addEventListener('click', () => {
+    if (state.enabled) speakSlide(state.currentIdx);
+  });
+
+  function speakSlide(idx) {
+    speechSynthesis.cancel();
+    if (idx < 0 || idx >= N.length) return;
+    if (!state.enabled) return;
+
+    const u = new SpeechSynthesisUtterance(N[idx]);
+    u.rate = (window.__TWEAKS && window.__TWEAKS.narrationRate) || 1.0;
+    u.pitch = 1.0; u.volume = 1.0;
+
+    const voices = speechSynthesis.getVoices();
+    const v = voices.find(x => x.name === state.voiceName);
+    if (v) u.voice = v;
+
+    u.onstart = () => indicator.classList.add('speaking');
+    u.onend = () => {
+      indicator.classList.remove('speaking');
+      if (state.autoAdvance && state.currentIdx === idx) {
+        const next = idx + 1;
+        if (next < N.length) {
+          // Small pause between slides for breath
+          setTimeout(() => stage.goTo(next), 600);
+        } else if (state.recording) {
+          // End of deck while recording — hold a beat then exit record mode
+          setTimeout(stopRecordMode, 2000);
+        }
+      }
+    };
+    u.onerror = () => indicator.classList.remove('speaking');
+
+    setTimeout(() => speechSynthesis.speak(u), 250);
+  }
+
+  window.addEventListener('message', (e) => {
+    if (e.data && typeof e.data.slideIndexChanged === 'number') {
+      const idx = e.data.slideIndexChanged;
+      state.currentIdx = idx;
+      if (state.enabled) speakSlide(idx);
+    }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) speechSynthesis.cancel();
+  });
+
+  // First-gesture kick-off
+  let started = false;
+  function kickoff() {
+    if (started) return;
+    started = true;
+    try { speechSynthesis.resume(); } catch (_) {}
+    if (state.enabled && state.currentIdx < 0) {
+      state.currentIdx = 0;
+      speakSlide(0);
+    }
+  }
+  document.addEventListener('click', kickoff);
+  document.addEventListener('keydown', kickoff);
+
+  // ========== RECORD MODE ==========
+  // Hides chrome, runs a 3-2-1 countdown, jumps to slide 1, auto-advances to end.
+  // User runs their OS screen recorder (OBS / QuickTime) in parallel.
+  const countdown = document.getElementById('countdown');
+  const countdownNum = document.getElementById('countdown-num');
+
+  function startRecordMode() {
+    if (state.recording) return;
+    // Ensure narration + autoplay are ON
+    state.enabled = true;
+    state.autoAdvance = true;
+    localStorage.setItem('drfal.narration', 'on');
+    localStorage.setItem('drfal.autoadvance', 'on');
+    state.recording = true;
+    document.body.classList.add('recording');
+    updateUI();
+
+    // Jump to first slide
+    stage.goTo(0);
+    speechSynthesis.cancel();
+
+    // Countdown
+    countdown.classList.add('show');
+    let n = 3;
+    countdownNum.textContent = n;
+    const tick = setInterval(() => {
+      n -= 1;
+      if (n <= 0) {
+        clearInterval(tick);
+        countdown.classList.remove('show');
+        // Begin narration from slide 0
+        state.currentIdx = 0;
+        speakSlide(0);
+      } else {
+        countdownNum.textContent = n;
+      }
+    }, 1000);
+
+    // Stash the interval so ESC can cancel mid-countdown
+    state._countdownTick = tick;
+  }
+
+  function stopRecordMode() {
+    if (!state.recording) return;
+    state.recording = false;
+    document.body.classList.remove('recording');
+    countdown.classList.remove('show');
+    if (state._countdownTick) clearInterval(state._countdownTick);
+    speechSynthesis.cancel();
+    indicator.classList.remove('speaking');
+    updateUI();
+  }
+
+  recordBtn.addEventListener('click', () => {
+    if (state.recording) stopRecordMode();
+    else startRecordMode();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && state.recording) stopRecordMode();
+    if (e.key === 'r' && e.shiftKey && !state.recording) startRecordMode();
+  });
+
+  // ========== TWEAKS ==========
+  const T = window.__TWEAKS;
+  const tweaksPanel = document.getElementById('tweaks-panel');
+
+  function applyTweaks() {
+    // Hide deck-stage's built-in bottom-center counter via shadow DOM
+    const ds = document.querySelector('deck-stage');
+    if (ds && ds.shadowRoot) {
+      let s = ds.shadowRoot.getElementById('__tweak-style');
+      if (!s) {
+        s = document.createElement('style');
+        s.id = '__tweak-style';
+        ds.shadowRoot.appendChild(s);
+      }
+      s.textContent = T.hideDeckCounter ? '.overlay{display:none!important}' : '';
+    }
+    // Re-render all slides so Footer picks up new tweak values
+    document.querySelectorAll('deck-stage > section').forEach((sec, i) => {
+      // Trigger React re-render via a state bump
+      sec.dataset.tweakBump = Date.now();
+    });
+    // Simplest: reload-less re-render by dispatching a custom event slides don't
+    // listen to; instead just force a resize which React doesn't handle —
+    // so we just reload the React roots. Cheaper: re-mount.
+    remountSlides();
+  }
+
+  function remountSlides() {
+    if (!window.SLIDES) return;
+    const stageEl = document.querySelector('deck-stage');
+    stageEl.querySelectorAll('section').forEach(sec => {
+      const inner = sec.firstElementChild;
+      const i = parseInt(sec.dataset.idx, 10);
+      if (!isNaN(i) && inner && window.__slideRoots && window.__slideRoots[i]) {
+        window.__slideRoots[i].render(React.createElement(window.SLIDES[i]));
+      }
+    });
+  }
+
+  function setupTweaksUI() {
+    const binds = [
+      ['hidePageNumber', 'checkbox'],
+      ['hideFooter', 'checkbox'],
+      ['hideDeckCounter', 'checkbox'],
+      ['narrationRate', 'range'],
+    ];
+    binds.forEach(([key, type]) => {
+      const el = document.getElementById('tw-' + key);
+      if (!el) return;
+      if (type === 'checkbox') el.checked = !!T[key];
+      else {
+        el.value = T[key];
+        const v = document.getElementById('tw-' + key + '-val');
+        if (v) v.textContent = Number(T[key]).toFixed(2);
+      }
+      el.addEventListener('input', () => {
+        T[key] = type === 'checkbox' ? el.checked : parseFloat(el.value);
+        if (type === 'range') {
+          const v = document.getElementById('tw-' + key + '-val');
+          if (v) v.textContent = Number(T[key]).toFixed(2);
+        }
+        applyTweaks();
+        window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [key]: T[key] } }, '*');
+      });
+    });
+  }
+
+  // Edit mode protocol
+  window.addEventListener('message', (e) => {
+    if (!e.data) return;
+    if (e.data.type === '__activate_edit_mode') {
+      tweaksPanel.classList.add('open');
+    } else if (e.data.type === '__deactivate_edit_mode') {
+      tweaksPanel.classList.remove('open');
+    }
+  });
+  setupTweaksUI();
+  // Give React a tick to mount, then apply tweaks
+  setTimeout(applyTweaks, 500);
+  // Announce availability
+  try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch (_) {}
+})();
+</script>
+
+</body>
+</html>

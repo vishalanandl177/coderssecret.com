@@ -14,10 +14,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/blog-post/blog-post').then(m => m.BlogPostComponent),
   },
   {
-    path: 'blog/:slug/slides',
-    loadComponent: () => import('./pages/slides/drf-api-logger/drf-api-logger-slides').then(m => m.DrfApiLoggerSlidesComponent),
-  },
-  {
     path: 'category/:slug',
     loadComponent: () => import('./pages/category/category').then(m => m.CategoryComponent),
   },
