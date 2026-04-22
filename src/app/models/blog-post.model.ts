@@ -238,10 +238,10 @@ export const BLOG_POSTS: BlogPost[] = [
     `,
     author: 'Vishal Anand',
     date: '2026-04-22',
+    readTime: '8 min read',
     tags: ['Claude', 'AI', 'Design Tools', 'Anthropic', 'Prototyping', 'Figma', 'Canva'],
     coverImage: '',
     popularRank: 1,
-    get readTime() { return calcReadTime(this.content); },
   },
   {
     id: '45',
