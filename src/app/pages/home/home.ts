@@ -57,7 +57,7 @@ import { SeoService } from '../../services/seo.service';
           </div>
 
           <!-- Stats -->
-          <div class="mt-16 grid grid-cols-3 gap-8 md:gap-16 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
+          <div class="mt-16 grid grid-cols-4 gap-8 md:gap-16 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
             <div class="text-center">
               <div class="text-3xl md:text-4xl font-extrabold tracking-tight">{{ totalPosts }}</div>
               <div class="mt-1 text-xs md:text-sm text-muted-foreground">Articles</div>
@@ -69,6 +69,10 @@ import { SeoService } from '../../services/seo.service';
             <div class="text-center">
               <div class="text-3xl md:text-4xl font-extrabold tracking-tight">{{ uniqueTags }}</div>
               <div class="mt-1 text-xs md:text-sm text-muted-foreground">Topics</div>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl md:text-4xl font-extrabold tracking-tight">1</div>
+              <div class="mt-1 text-xs md:text-sm text-muted-foreground">Slide Tutorials</div>
             </div>
           </div>
         </div>
@@ -87,7 +91,7 @@ import { SeoService } from '../../services/seo.service';
             Whether you're debugging a Kubernetes networking issue at 3 AM, choosing between Firebase and PostgreSQL for your next project, or trying to understand how CPU cache layers actually affect your code &mdash; you'll find <strong class="text-foreground">deep, practical guides written from real production experience</strong>, not surface-level tutorials.
           </p>
           <p>
-            Every article includes working code examples, interactive diagrams, real benchmarks, and honest discussion of trade-offs. No fluff. No padding. No "you'll figure it out from the docs."
+            Every article includes working code examples, interactive diagrams, real benchmarks, and honest discussion of trade-offs. Select tutorials are also available as <strong class="text-foreground">interactive slide presentations</strong> &mdash; watch them step-by-step like a video, at your own pace. No fluff. No padding. No "you'll figure it out from the docs."
           </p>
         </div>
         <div class="flex flex-wrap justify-center gap-2 mt-8">
