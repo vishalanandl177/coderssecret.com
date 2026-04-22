@@ -71,7 +71,7 @@ import { SeoService } from '../../services/seo.service';
               <div class="mt-1 text-xs md:text-sm text-muted-foreground">Topics</div>
             </div>
             <div class="text-center">
-              <div class="text-3xl md:text-4xl font-extrabold tracking-tight">1</div>
+              <div class="text-3xl md:text-4xl font-extrabold tracking-tight">2</div>
               <div class="mt-1 text-xs md:text-sm text-muted-foreground">Slide Tutorials</div>
             </div>
           </div>
@@ -405,7 +405,7 @@ import { SeoService } from '../../services/seo.service';
               <div class="mt-2 text-sm text-muted-foreground">Topics Covered</div>
             </div>
             <div class="text-center">
-              <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-teal-500 to-green-500 bg-clip-text text-transparent">1</div>
+              <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-teal-500 to-green-500 bg-clip-text text-transparent">2</div>
               <div class="mt-2 text-sm text-muted-foreground">Slide Tutorials</div>
             </div>
             <div class="text-center">
