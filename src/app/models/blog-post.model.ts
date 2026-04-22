@@ -41,6 +41,8 @@ export const BLOG_POSTS: BlogPost[] = [
     category: 'tutorials',
     featured: true,
     content: `
+      <img src="/images/claude-design-banner.svg" alt="Claude Design by Anthropic — AI-powered design tool for prototypes, pitch decks, and visual experiences" width="1200" height="480" style="width:100%;height:auto;border-radius:1rem;margin-bottom:2rem" />
+
       <p>On April 17, 2026, Anthropic launched <strong>Claude Design</strong> — an AI-powered design tool that lets you create interactive prototypes, pitch decks, landing pages, and more by simply describing what you want. It is part of <strong>Anthropic Labs</strong>, Anthropic's experimental product line, and runs on <strong>Claude Opus 4.7</strong>, their most capable vision model.</p>
 
       <p>Claude Design isn't a traditional graphic editor. There are no toolbars, no layer panels, no drag-and-drop. You <strong>talk to Claude</strong>, and it builds your design live. Need a pricing page? Describe it. Want a dashboard mockup? Ask for it. Claude writes the HTML, CSS, and JavaScript behind the scenes and renders it in a live preview panel right next to the chat.</p>
@@ -240,7 +242,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: '2026-04-22',
     readTime: '8 min read',
     tags: ['Claude', 'AI', 'Design Tools', 'Anthropic', 'Prototyping', 'Figma', 'Canva'],
-    coverImage: '',
+    coverImage: '/images/claude-design-banner.svg',
     popularRank: 1,
   },
   {
