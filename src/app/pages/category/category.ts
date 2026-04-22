@@ -153,13 +153,14 @@ export class CategoryComponent {
 
   categoryColor = computed(() => {
     const colors: Record<string, string> = {
-      frontend: '#3b82f6', backend: '#22c55e', devops: '#f97316',
+      ai: '#06b6d4', frontend: '#3b82f6', backend: '#22c55e', devops: '#f97316',
       tutorials: '#a855f7', 'open-source': '#ec4899',
     };
     return colors[this.categorySlug()] ?? '#6b7280';
   });
 
   private categoryDescriptions: Record<string, string> = {
+    ai: 'Guides on AI, LLMs, Claude, MCP servers, prompting, local AI stacks, and building with modern AI tools.',
     frontend: 'Tutorials and deep dives into Angular, React, TypeScript, CSS, and modern frontend development.',
     backend: 'Practical guides on Python, Django, APIs, authentication, and backend architecture patterns.',
     devops: 'Learn Kubernetes, Docker, CI/CD, cron jobs, and infrastructure automation for production systems.',

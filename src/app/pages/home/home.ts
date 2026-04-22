@@ -604,6 +604,7 @@ export class HomeComponent {
 
   getCategoryColor(slug: string): string {
     const colors: Record<string, string> = {
+      ai: '#06b6d4',
       frontend: '#3b82f6',
       backend: '#22c55e',
       devops: '#f97316',
@@ -615,6 +616,7 @@ export class HomeComponent {
 
   getCategoryGradient(slug: string): string {
     const gradients: Record<string, string> = {
+      ai: 'linear-gradient(135deg, rgba(6,182,212,0.08), rgba(6,182,212,0.02))',
       frontend: 'linear-gradient(135deg, rgba(59,130,246,0.08), rgba(59,130,246,0.02))',
       backend: 'linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.02))',
       devops: 'linear-gradient(135deg, rgba(249,115,22,0.08), rgba(249,115,22,0.02))',
@@ -626,6 +628,7 @@ export class HomeComponent {
 
   getCategoryIcon(slug: string): string {
     const icons: Record<string, string> = {
+      ai: '\u{1F916}',
       frontend: '\u{1F3A8}',
       backend: '\u{2699}\u{FE0F}',
       devops: '\u{1F680}',

@@ -66,6 +66,10 @@ import { SearchComponent } from '../search/search';
               @if (categoriesOpen()) {
                 <div class="absolute right-0 top-full mt-2 w-48 rounded-lg border border-border bg-card p-1.5 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200"
                      (mousedown)="$event.preventDefault()">
+                  <a routerLink="/category/ai" (click)="categoriesOpen.set(false)"
+                     class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
+                    <span class="h-2 w-2 rounded-full bg-cyan-500"></span> AI
+                  </a>
                   <a routerLink="/category/frontend" (click)="categoriesOpen.set(false)"
                      class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
                     <span class="h-2 w-2 rounded-full bg-blue-500"></span> Frontend
@@ -158,6 +162,10 @@ import { SearchComponent } from '../search/search';
                class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">About</a>
             <div class="border-t border-border my-2"></div>
             <p class="px-3 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Categories</p>
+            <a routerLink="/category/ai" (click)="mobileMenuOpen.set(false)"
+               class="flex items-center gap-2 rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
+              <span class="h-2 w-2 rounded-full bg-cyan-500"></span> AI
+            </a>
             <a routerLink="/category/frontend" (click)="mobileMenuOpen.set(false)"
                class="flex items-center gap-2 rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
               <span class="h-2 w-2 rounded-full bg-blue-500"></span> Frontend

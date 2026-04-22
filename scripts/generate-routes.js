@@ -77,6 +77,7 @@ while ((m = categoryRegex.exec(modelContent)) !== null) {
 
 // Category display names
 const categoryNames = {
+  ai: 'AI',
   frontend: 'Frontend',
   backend: 'Backend',
   devops: 'DevOps',
@@ -230,6 +231,7 @@ for (const cat of categories) {
   const catPosts = posts.filter(p => p.category === cat);
 
   const description = {
+    ai: 'Guides on AI, LLMs, Claude, MCP servers, prompting, local AI stacks, and building with modern AI tools.',
     frontend: 'Tutorials and deep dives into Angular, React, TypeScript, CSS, and modern frontend development.',
     backend: 'Practical guides on Python, Django, APIs, authentication, and backend architecture patterns.',
     devops: 'Learn Kubernetes, Docker, CI/CD, cron jobs, and infrastructure automation for production systems.',

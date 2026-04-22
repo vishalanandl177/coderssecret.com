@@ -46,6 +46,15 @@ for (const block of postBlocks) {
 
 // ── Category themes ─────────────────────────────
 const THEMES = {
+  ai: {
+    gradFrom: '#0e7490',
+    gradMid: '#0891b2',
+    gradTo: '#06b6d4',
+    accent: '#67e8f9',
+    accent2: '#a5f3fc',
+    label: 'AI',
+    icon: 'brain',
+  },
   frontend: {
     gradFrom: '#1e3a8a',
     gradMid: '#1e40af',
@@ -118,6 +127,7 @@ const ICONS = {
   layers: `<polygon points="30,0 60,15 30,30 0,15" fill="none" stroke-width="3"/><polyline points="0,30 30,45 60,30" fill="none" stroke-width="3"/>`,
   book: `<path d="M0,6 C0,2 4,0 10,0 L30,0 C36,0 40,2 40,6 L40,50 C40,48 36,46 30,46 L10,46 C4,46 0,48 0,50 Z" fill="none" stroke-width="3"/><line x1="40" y1="6" x2="40" y2="50" stroke-width="3"/>`,
   branch: `<circle cx="10" cy="10" r="5" fill="none" stroke-width="3"/><circle cx="10" cy="45" r="5" fill="none" stroke-width="3"/><circle cx="45" cy="28" r="5" fill="none" stroke-width="3"/><path d="M10,15 L10,40" stroke-width="3"/><path d="M10,15 C10,22 25,24 40,26" fill="none" stroke-width="3"/>`,
+  brain: `<path d="M20,5 C10,5 5,15 10,25 C5,30 10,42 20,40 C22,48 32,48 34,40 C44,42 49,30 44,25 C49,15 44,5 34,5 C32,-2 22,-2 20,5 Z" fill="none" stroke-width="3"/><path d="M27,10 L27,40" stroke-width="2" opacity="0.6"/><path d="M18,18 L27,22 L36,18" fill="none" stroke-width="2" opacity="0.6"/><path d="M18,28 L27,32 L36,28" fill="none" stroke-width="2" opacity="0.6"/>`,
 };
 
 // ── Text wrapping ───────────────────────────────

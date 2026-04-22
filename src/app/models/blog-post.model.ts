@@ -25,6 +25,7 @@ function calcReadTime(html: string): string {
 
 export const CATEGORIES = [
   { name: 'All', slug: '' },
+  { name: 'AI', slug: 'ai' },
   { name: 'Frontend', slug: 'frontend' },
   { name: 'Backend', slug: 'backend' },
   { name: 'DevOps', slug: 'devops' },
@@ -38,7 +39,7 @@ export const BLOG_POSTS: BlogPost[] = [
     title: 'Claude Design: Anthropic\'s AI Design Tool That Turns Prompts into Prototypes',
     slug: 'claude-design-ai-design-tool-guide',
     excerpt: 'Claude Design lets you create polished prototypes, pitch decks, and landing pages through conversation. Learn what it is, how to use it, pricing, Canva integration, Claude Code handoff, and how it compares to Figma.',
-    category: 'tutorials',
+    category: 'ai',
     featured: true,
     content: `
       <p>On April 17, 2026, Anthropic launched <strong>Claude Design</strong> — an AI-powered design tool that lets you create interactive prototypes, pitch decks, landing pages, and more by simply describing what you want. It is part of <strong>Anthropic Labs</strong>, Anthropic's experimental product line, and runs on <strong>Claude Opus 4.7</strong>, their most capable vision model.</p>
@@ -3631,7 +3632,7 @@ func NewAuthenticatedClient() (*http.Client, error) {
     title: 'Claude Code Prompting Guide: Build Better Software 10x Faster',
     slug: 'claude-code-prompting-guide-build-faster',
     excerpt: 'Master the art of prompting Claude Code. Learn the patterns, structures, and techniques that turn vague instructions into production-grade code — with real before/after examples from building this very blog.',
-    category: 'tutorials',
+    category: 'ai',
     content: `
       <p>I built this entire blog — 35+ articles, 6 interactive games, 5 cheat sheets, SEO optimization, GitHub Pages deployment, Giscus comments — using Claude Code in a single session. Not by luck. By learning how to prompt it properly. The difference between a vague prompt and a precise one is the difference between "it kind of works" and "ship it to production."</p>
 
@@ -6171,7 +6172,7 @@ if latest_version > current_version:
     title: 'Build a Local AI App Stack: RAG, Function Calling, and Agents Without Cloud APIs',
     slug: 'local-ai-app-rag-agents-no-cloud',
     excerpt: 'Go beyond chatting with a local LLM. Build real AI applications — RAG for document Q&A, function calling for tool use, and autonomous agents — all running 100% locally with zero API costs.',
-    category: 'tutorials',
+    category: 'ai',
     content: `
       <p>You've installed Ollama and Gemma 4 from our <a href="/blog/run-gemma-4-locally-windows-macos-linux">previous guide</a>. Now what? A chatbot is fun for 5 minutes, but real AI applications need <strong>access to your data</strong> (RAG), <strong>ability to call tools</strong> (function calling), and <strong>autonomous reasoning</strong> (agents). This guide shows you how to build all three — entirely offline, no cloud APIs, no data leaving your machine.</p>
 
@@ -6530,7 +6531,7 @@ set_llm_cache(SQLiteCache(database_path=".langchain.db"))</code></pre>
     title: 'Run Google Gemma 4 Locally: Complete Setup Guide for Windows, macOS, and Linux',
     slug: 'run-gemma-4-locally-windows-macos-linux',
     excerpt: 'Step-by-step guide to running Google Gemma 4 on your own machine using Ollama, llama.cpp, and Hugging Face Transformers. Covers hardware requirements, quantization, GPU acceleration, and practical usage.',
-    category: 'tutorials',
+    category: 'ai',
     content: `
       <p>Google's <strong>Gemma 4</strong> is one of the most capable open-weight language models available — and you can run it <strong>entirely on your own computer</strong> without any cloud API, internet connection, or subscription. Your data stays local, latency is zero, and it's completely free. This guide covers every method to get Gemma 4 running on Windows, macOS, and Linux.</p>
 
@@ -13191,7 +13192,7 @@ result = duckdb.sql("""
     title: 'MCP Servers: The Universal Plugin System for AI Agents',
     slug: 'mcp-servers-ai-agents-tutorial',
     excerpt: 'Learn what the Model Context Protocol (MCP) is, why it matters for AI development, and how to build your own MCP server that gives AI agents access to any tool or data source.',
-    category: 'tutorials',
+    category: 'ai',
     content: `
       <p>If you've used AI coding assistants like Claude Code, Cursor, or Windsurf, you've probably noticed they can do more than just generate text — they can read files, search the web, query databases, and interact with APIs. But how do these AI agents connect to external tools? The answer is the <strong>Model Context Protocol (MCP)</strong> — an open standard that's quickly becoming the universal plugin system for AI.</p>
 

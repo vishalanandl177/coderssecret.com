@@ -36,6 +36,7 @@ import { RouterLink } from '@angular/router';
           <div>
             <h3 class="text-sm font-semibold text-foreground mb-3">Categories</h3>
             <ul class="space-y-2 text-sm">
+              <li><a routerLink="/category/ai" class="text-muted-foreground transition-colors hover:text-foreground">AI</a></li>
               <li><a routerLink="/category/frontend" class="text-muted-foreground transition-colors hover:text-foreground">Frontend</a></li>
               <li><a routerLink="/category/backend" class="text-muted-foreground transition-colors hover:text-foreground">Backend</a></li>
               <li><a routerLink="/category/devops" class="text-muted-foreground transition-colors hover:text-foreground">DevOps</a></li>
