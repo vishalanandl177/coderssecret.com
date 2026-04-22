@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-footer',
-  imports: [RouterLink, TranslocoPipe],
+  imports: [RouterLink],
   template: `
     <footer class="border-t border-border bg-card/50">
       <div class="container max-w-5xl mx-auto px-6 py-12">
@@ -29,40 +28,40 @@ import { TranslocoPipe } from '@jsverse/transloco';
               <span><span class="text-primary">Coders</span><span class="text-muted-foreground">Secret</span></span>
             </a>
             <p class="mt-2 text-sm text-muted-foreground leading-relaxed">
-              {{ 'footer.tagline' | transloco }}
+              Exploring modern web development, one post at a time.
             </p>
           </div>
 
           <!-- Categories -->
           <div>
-            <h3 class="text-sm font-semibold text-foreground mb-3">{{ 'footer.categoriesHeading' | transloco }}</h3>
+            <h3 class="text-sm font-semibold text-foreground mb-3">Categories</h3>
             <ul class="space-y-2 text-sm">
-              <li><a routerLink="/category/frontend" class="text-muted-foreground transition-colors hover:text-foreground">{{ 'categories.frontend' | transloco }}</a></li>
-              <li><a routerLink="/category/backend" class="text-muted-foreground transition-colors hover:text-foreground">{{ 'categories.backend' | transloco }}</a></li>
-              <li><a routerLink="/category/devops" class="text-muted-foreground transition-colors hover:text-foreground">{{ 'categories.devops' | transloco }}</a></li>
-              <li><a routerLink="/category/tutorials" class="text-muted-foreground transition-colors hover:text-foreground">{{ 'categories.tutorials' | transloco }}</a></li>
+              <li><a routerLink="/category/frontend" class="text-muted-foreground transition-colors hover:text-foreground">Frontend</a></li>
+              <li><a routerLink="/category/backend" class="text-muted-foreground transition-colors hover:text-foreground">Backend</a></li>
+              <li><a routerLink="/category/devops" class="text-muted-foreground transition-colors hover:text-foreground">DevOps</a></li>
+              <li><a routerLink="/category/tutorials" class="text-muted-foreground transition-colors hover:text-foreground">Tutorials</a></li>
             </ul>
           </div>
 
           <!-- Legal -->
           <div>
-            <h3 class="text-sm font-semibold text-foreground mb-3">{{ 'footer.legalHeading' | transloco }}</h3>
+            <h3 class="text-sm font-semibold text-foreground mb-3">Legal</h3>
             <ul class="space-y-2 text-sm">
-              <li><a routerLink="/privacy" class="text-muted-foreground transition-colors hover:text-foreground">{{ 'footer.privacy' | transloco }}</a></li>
-              <li><a routerLink="/terms" class="text-muted-foreground transition-colors hover:text-foreground">{{ 'footer.terms' | transloco }}</a></li>
-              <li><a routerLink="/cookies" class="text-muted-foreground transition-colors hover:text-foreground">{{ 'footer.cookies' | transloco }}</a></li>
+              <li><a routerLink="/privacy" class="text-muted-foreground transition-colors hover:text-foreground">Privacy Policy</a></li>
+              <li><a routerLink="/terms" class="text-muted-foreground transition-colors hover:text-foreground">Terms of Service</a></li>
+              <li><a routerLink="/cookies" class="text-muted-foreground transition-colors hover:text-foreground">Cookie Policy</a></li>
             </ul>
           </div>
 
           <!-- Links -->
           <div>
-            <h3 class="text-sm font-semibold text-foreground mb-3">{{ 'footer.connectHeading' | transloco }}</h3>
+            <h3 class="text-sm font-semibold text-foreground mb-3">Connect</h3>
             <ul class="space-y-2 text-sm">
               <li><a href="https://instagram.com/vis_naz" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">Instagram</a></li>
               <li><a href="https://linkedin.com/in/vishal-techlead" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">LinkedIn</a></li>
               <li><a href="https://github.com/vishalanandl177/coderssecret.com" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">GitHub</a></li>
               <li><a href="https://buymeacoffee.com/riptechlead" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-yellow-600 dark:text-yellow-500 font-semibold transition-colors hover:text-yellow-700 dark:hover:text-yellow-400">
-                &#x2615; {{ 'footer.buyMeCoffee' | transloco }}
+                &#x2615; Buy me a coffee
               </a></li>
             </ul>
           </div>
@@ -73,21 +72,21 @@ import { TranslocoPipe } from '@jsverse/transloco';
           <div class="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
             <div class="text-4xl flex-shrink-0">&#x2615;</div>
             <div class="flex-1">
-              <h3 class="text-base md:text-lg font-bold mb-1">{{ 'footer.enjoyingContent' | transloco }}</h3>
+              <h3 class="text-base md:text-lg font-bold mb-1">Enjoying the content?</h3>
               <p class="text-sm text-muted-foreground">
-                {{ 'footer.enjoyingDescription' | transloco }}
+                This blog is 100% free and ad-free. If you find it useful, a coffee goes a long way in keeping it that way.
               </p>
             </div>
             <a href="https://buymeacoffee.com/riptechlead" target="_blank" rel="noopener noreferrer"
                class="inline-flex items-center gap-2 rounded-full bg-yellow-500 hover:bg-yellow-600 text-yellow-950 font-bold px-5 py-2.5 text-sm shadow-lg shadow-yellow-500/25 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.97] flex-shrink-0">
-              &#x2615; {{ 'footer.buyMeCoffee' | transloco }}
+              &#x2615; Buy me a coffee
             </a>
           </div>
         </div>
 
         <div class="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <p>&copy; {{ currentYear }} {{ 'footer.copyright' | transloco }}</p>
-          <p>{{ 'footer.noAds' | transloco }} &middot; {{ 'footer.noTracking' | transloco }} &middot; {{ 'footer.privacyFirst' | transloco }}</p>
+          <p>&copy; {{ currentYear }} CodersSecret. All rights reserved.</p>
+          <p>No ads &middot; No tracking &middot; Privacy-first</p>
         </div>
       </div>
     </footer>

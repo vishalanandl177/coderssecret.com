@@ -8,16 +8,6 @@ const path = require('path');
 
 const SITE_URL = 'https://coderssecret.com';
 const OUTPUT_DIR = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'browser');
-const SUPPORTED_LOCALES = ['en', 'es', 'hi'];
-
-function hreflangLinks(path) {
-  return SUPPORTED_LOCALES.map(locale => {
-    const href = locale === 'en' ? `${SITE_URL}${path}` : `${SITE_URL}/${locale}${path}`;
-    return `    <xhtml:link rel="alternate" hreflang="${locale}" href="${href}"/>`;
-  }).concat([
-    `    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_URL}${path}"/>`
-  ]).join('\n');
-}
 
 // Read the blog post model to extract slugs and dates
 const modelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'blog-post.model.ts');
@@ -56,137 +46,117 @@ while ((match = dateRegex.exec(blogSection)) !== null) {
 const today = new Date().toISOString().split('T')[0];
 
 let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>${SITE_URL}/</loc>
-${hreflangLinks('/')}
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>${SITE_URL}/blog</loc>
-${hreflangLinks('/blog')}
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>${SITE_URL}/about</loc>
-${hreflangLinks('/about')}
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${SITE_URL}/games</loc>
-${hreflangLinks('/games')}
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${SITE_URL}/games/guess-output</loc>
-${hreflangLinks('/games/guess-output')}
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${SITE_URL}/games/spot-the-bug</loc>
-${hreflangLinks('/games/spot-the-bug')}
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${SITE_URL}/games/devops-scenario</loc>
-${hreflangLinks('/games/devops-scenario')}
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${SITE_URL}/games/typing-test</loc>
-${hreflangLinks('/games/typing-test')}
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${SITE_URL}/games/salary-calculator</loc>
-${hreflangLinks('/games/salary-calculator')}
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${SITE_URL}/games/linux-challenge</loc>
-${hreflangLinks('/games/linux-challenge')}
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${SITE_URL}/cheatsheets</loc>
-${hreflangLinks('/cheatsheets')}
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>${SITE_URL}/cheatsheets/python</loc>
-${hreflangLinks('/cheatsheets/python')}
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${SITE_URL}/cheatsheets/kubernetes</loc>
-${hreflangLinks('/cheatsheets/kubernetes')}
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${SITE_URL}/cheatsheets/git</loc>
-${hreflangLinks('/cheatsheets/git')}
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${SITE_URL}/cheatsheets/docker</loc>
-${hreflangLinks('/cheatsheets/docker')}
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${SITE_URL}/cheatsheets/sql</loc>
-${hreflangLinks('/cheatsheets/sql')}
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${SITE_URL}/privacy</loc>
-${hreflangLinks('/privacy')}
     <lastmod>${today}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>${SITE_URL}/terms</loc>
-${hreflangLinks('/terms')}
     <lastmod>${today}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>${SITE_URL}/cookies</loc>
-${hreflangLinks('/cookies')}
     <lastmod>${today}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
@@ -197,7 +167,6 @@ ${hreflangLinks('/cookies')}
 for (const cat of categories) {
   xml += `  <url>
     <loc>${SITE_URL}/category/${cat}</loc>
-${hreflangLinks('/category/' + cat)}
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -210,7 +179,6 @@ for (let i = 0; i < slugs.length; i++) {
   const date = dates[i] || today;
   xml += `  <url>
     <loc>${SITE_URL}/blog/${slugs[i]}</loc>
-${hreflangLinks('/blog/' + slugs[i])}
     <lastmod>${date}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

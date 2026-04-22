@@ -1,10 +1,7 @@
-import { ApplicationConfig, isDevMode, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
-import { provideTransloco } from '@jsverse/transloco';
 
 import { routes } from './app.routes';
-import { TranslocoHttpLoader } from './transloco-loader';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -12,16 +9,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(
       routes,
       withInMemoryScrolling({ scrollPositionRestoration: 'top' })
-    ),
-    provideHttpClient(),
-    provideTransloco({
-      config: {
-        availableLangs: ['en', 'es', 'hi'],
-        defaultLang: 'en',
-        reRenderOnLangChange: true,
-        prodMode: !isDevMode(),
-      },
-      loader: TranslocoHttpLoader,
-    }),
+    )
   ]
 };
