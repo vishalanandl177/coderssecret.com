@@ -111,8 +111,18 @@ import { DOCUMENT } from '@angular/common';
         </div>
       </section>
 
+      <!-- Banner image -->
+      <div class="container max-w-4xl mx-auto px-6 mt-6 md:mt-8">
+        <img [src]="'/images/banners/' + post.slug + '.svg'"
+             [alt]="post.title"
+             width="1200" height="480"
+             class="w-full rounded-2xl border border-border/40 shadow-lg animate-in fade-in zoom-in-95 duration-700"
+             loading="eager"
+             decoding="async" />
+      </div>
+
       <!-- Divider -->
-      <div class="container max-w-4xl mx-auto px-6">
+      <div class="container max-w-4xl mx-auto px-6 mt-8">
         <div class="h-[1px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
       </div>
 
@@ -327,6 +337,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
             description: this.post.excerpt,
             url: `/blog/${this.post.slug}`,
             type: 'article',
+            image: `https://coderssecret.com/images/banners/${this.post.slug}.svg`,
             article: {
               author: this.post.author,
               publishedTime: this.post.date,

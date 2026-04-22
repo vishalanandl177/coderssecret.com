@@ -88,9 +88,10 @@ const categoryNames = {
 const baseHtml = fs.readFileSync(path.join(OUTPUT_DIR, 'index.html'), 'utf-8');
 
 function makeHtml(options) {
-  const { title, description, url, content, jsonLd } = options;
+  const { title, description, url, content, jsonLd, image } = options;
   const fullTitle = `${title} | CodersSecret`;
   const canonical = `${SITE_URL}${url}`;
+  const ogImage = image ? `${SITE_URL}${image}` : `${SITE_URL}/og-image.svg`;
 
   let html = baseHtml;
 
@@ -114,9 +115,11 @@ function makeHtml(options) {
     `  <meta property="og:description" content="${description}">\n` +
     `  <meta property="og:url" content="${canonical}">\n` +
     `  <meta property="og:type" content="website">\n` +
+    `  <meta property="og:image" content="${ogImage}">\n` +
     `  <meta name="twitter:card" content="summary_large_image">\n` +
     `  <meta name="twitter:title" content="${fullTitle}">\n` +
     `  <meta name="twitter:description" content="${description}">\n` +
+    `  <meta name="twitter:image" content="${ogImage}">\n` +
     `  <link rel="alternate" hreflang="en" href="${canonical}">\n` +
     (jsonLd ? `  <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>\n` : '') +
     '</head>'
@@ -204,12 +207,16 @@ for (const post of posts) {
     'articleSection': post.category || '',
   };
 
+  const bannerUrl = `/images/banners/${post.slug}.svg`;
+  blogJsonLd.image = `${SITE_URL}${bannerUrl}`;
+
   fs.writeFileSync(path.join(dir, 'index.html'), makeHtml({
     title: post.title,
     description: post.excerpt,
     url: `/blog/${post.slug}`,
     content,
     jsonLd: blogJsonLd,
+    image: bannerUrl,
   }));
   created++;
 }
