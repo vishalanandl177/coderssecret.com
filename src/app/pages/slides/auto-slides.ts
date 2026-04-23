@@ -64,8 +64,12 @@ export class AutoSlidesComponent {
   private generateSlides(title: string, excerpt: string, html: string, tags: string[], category: string): SlideData[] {
     const slides: SlideData[] = [];
 
+    // Clean inputs so entities/emoji never reach TTS
+    const cleanTitle = this.cleanForNarration(title);
+    const cleanExcerpt = this.cleanForNarration(excerpt);
+
     // Title narration — welcoming, sets expectations
-    const titleNarration = `Welcome to this walkthrough on ${title}. ${excerpt} In the next few minutes, we'll cover the key concepts, the practical how-to, and the trade-offs you should know about. Keep an ear on the narration — the slides highlight the essentials, but the narration walks you through the details. Let's get started.`;
+    const titleNarration = `Welcome to this walkthrough on ${cleanTitle}. ${cleanExcerpt} In the next few minutes, we'll cover the key concepts, the practical how-to, and the trade-offs you should know about. Keep an ear on the narration — the slides highlight the essentials, but the narration walks you through the details. Let's get started.`;
 
     slides.push({
       type: 'title',
@@ -169,7 +173,7 @@ export class AutoSlidesComponent {
       type: 'end',
       title: 'Thanks for watching.',
       subtitle: `You now know the essentials of ${title}. Head back to the full article for code examples, diagrams, and deeper discussions.`,
-      narration: `And that wraps up our walkthrough on ${title}. Hopefully the key ideas feel a bit clearer now — the what, the why, and the how. If you want to go deeper, head back to the full article where you'll find the complete code examples, the diagrams, and comments from other engineers who've implemented this. Thanks so much for watching — I'll see you in the next one.`,
+      narration: `And that wraps up our walkthrough on ${cleanTitle}. Hopefully the key ideas feel a bit clearer now — the what, the why, and the how. If you want to go deeper, head back to the full article where you'll find the complete code examples, the diagrams, and comments from other engineers who've implemented this. Thanks so much for watching — I'll see you in the next one.`,
     });
 
     return slides;
@@ -213,7 +217,8 @@ export class AutoSlidesComponent {
       parts.push(`Keep this in mind as we move on — it'll come up again.`);
     }
 
-    return parts.join(' ').replace(/\s+/g, ' ').trim();
+    // Final safety pass — ensure narration is TTS-friendly
+    return this.cleanForNarration(parts.join(' '));
   }
 
   private buildCodeFollowupNarration(heading: string, idx: number): string {
@@ -308,7 +313,8 @@ export class AutoSlidesComponent {
     const regex = /<li[^>]*>([\s\S]*?)<\/li>/gi;
     let match: RegExpExecArray | null;
     while ((match = regex.exec(html)) !== null) {
-      const text = match[1].replace(/<[^>]+>/g, '').trim();
+      const raw = match[1].replace(/<[^>]+>/g, '');
+      const text = this.cleanForNarration(raw);
       if (text.length > 5 && text.length < 300) bullets.push(text);
     }
     return bullets;
@@ -319,20 +325,98 @@ export class AutoSlidesComponent {
       .replace(/<pre[\s\S]*?<\/pre>/gi, '')
       .replace(/<ul[\s\S]*?<\/ul>/gi, '')
       .replace(/<ol[\s\S]*?<\/ol>/gi, '')
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/&[a-z]+;/gi, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-    return stripped;
+      .replace(/<[^>]+>/g, ' ');
+    return this.cleanForNarration(stripped);
   }
 
   private htmlToText(html: string): string {
-    return html
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&').replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'").replace(/&[a-z]+;/gi, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
+    return this.cleanForNarration(html.replace(/<[^>]+>/g, ' '));
+  }
+
+  /**
+   * Clean text so it reads naturally when spoken by TTS:
+   * - Decode named HTML entities (&amp;, &lt;, &nbsp;, etc.)
+   * - Decode hex entities (&#x1F3AF;) and decimal entities (&#8220;)
+   * - Remove emoji / symbol / pictograph unicode blocks
+   * - Normalize curly quotes, dashes, ellipsis to ASCII
+   * - Collapse whitespace
+   */
+  private cleanForNarration(s: string): string {
+    let out = s;
+
+    // Decode hex entities (&#xABCD;) — keep only if in a readable range, otherwise drop
+    out = out.replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => {
+      const code = parseInt(hex, 16);
+      return this.codepointToReadable(code);
+    });
+
+    // Decode decimal entities (&#8220;)
+    out = out.replace(/&#(\d+);/g, (_, dec) => {
+      const code = parseInt(dec, 10);
+      return this.codepointToReadable(code);
+    });
+
+    // Named entities — map common ones, drop the rest
+    const namedEntities: Record<string, string> = {
+      '&nbsp;': ' ', '&amp;': 'and', '&lt;': 'less than', '&gt;': 'greater than',
+      '&quot;': '"', '&apos;': "'",
+      '&ldquo;': '"', '&rdquo;': '"', '&lsquo;': "'", '&rsquo;': "'",
+      '&mdash;': ' — ', '&ndash;': ' – ', '&hellip;': '...',
+      '&times;': 'x', '&divide;': '/', '&deg;': ' degrees',
+      '&copy;': '', '&reg;': '', '&trade;': '',
+      '&middot;': ', ', '&bull;': ', ',
+    };
+    out = out.replace(/&[a-zA-Z]+;/g, m => namedEntities[m.toLowerCase()] ?? ' ');
+
+    // Strip emoji / pictograph unicode blocks so TTS doesn't try to read them
+    // Covers: Misc Symbols & Pictographs, Emoticons, Transport, Flags, Supplemental Symbols,
+    // Dingbats, Misc Symbols, arrows, box drawing, geometric shapes, variation selectors
+    out = out.replace(/[\u{1F000}-\u{1FFFF}]/gu, ' ');
+    out = out.replace(/[\u{2600}-\u{27BF}]/gu, ' ');
+    out = out.replace(/[\u{2300}-\u{23FF}]/gu, ' ');
+    out = out.replace(/[\u{2460}-\u{25FF}]/gu, ' ');
+    out = out.replace(/[\u{2B00}-\u{2BFF}]/gu, ' ');
+    out = out.replace(/[\u{FE00}-\u{FE0F}]/gu, ''); // variation selectors
+    out = out.replace(/[\u{200B}-\u{200F}]/gu, ''); // zero-width spaces
+    out = out.replace(/[\u{FEFF}]/gu, ''); // byte-order mark
+
+    // Normalize typographic punctuation to ASCII for TTS clarity
+    out = out
+      .replace(/[‘’]/g, "'")
+      .replace(/[“”]/g, '"')
+      .replace(/[–—]/g, ' — ')
+      .replace(/…/g, '...')
+      .replace(/ /g, ' ');
+
+    // Remove backticks (TTS says "back-tick") — replace with neutral phrasing
+    out = out.replace(/`([^`]+)`/g, '$1');
+
+    // Collapse whitespace
+    out = out.replace(/\s+/g, ' ').trim();
+
+    return out;
+  }
+
+  /**
+   * Convert a Unicode codepoint to a TTS-friendly character:
+   * - ASCII printable → keep
+   * - Common punctuation (curly quotes, dashes, ellipsis) → ASCII equivalent
+   * - Emoji / pictograph / symbol → drop (return space)
+   */
+  private codepointToReadable(code: number): string {
+    if (isNaN(code)) return ' ';
+    // Basic ASCII
+    if (code >= 0x20 && code <= 0x7E) return String.fromCharCode(code);
+    // Common typographic characters
+    if (code === 0x2018 || code === 0x2019) return "'";
+    if (code === 0x201C || code === 0x201D) return '"';
+    if (code === 0x2013 || code === 0x2014) return ' — ';
+    if (code === 0x2026) return '...';
+    if (code === 0x00A0) return ' ';
+    if (code === 0x00AB || code === 0x00BB) return '"';
+    // Accented Latin letters (Latin-1 Supplement + Extended)
+    if (code >= 0x00C0 && code <= 0x024F) return String.fromCharCode(code);
+    // Everything else (emoji, symbols, math operators, etc.) — drop
+    return ' ';
   }
 }
