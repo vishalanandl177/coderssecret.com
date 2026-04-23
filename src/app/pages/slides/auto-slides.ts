@@ -295,14 +295,34 @@ export class AutoSlidesComponent {
     let match: RegExpExecArray | null;
     while ((match = regex.exec(html)) !== null) {
       const raw = (match[1] || match[2] || '').trim();
-      const decoded = raw
+      let decoded = raw
+        .replace(/<[^>]+>/g, '')
         .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
         .replace(/&amp;/g, '&').replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'").replace(/&#96;/g, '`')
-        .replace(/<[^>]+>/g, '');
-      if (decoded.length > 10 && decoded.length < 2000) {
+        .replace(/&#39;/g, "'").replace(/&#96;/g, '`');
+      // Decode hex entities (&#x274C; → ❌) then strip non-ASCII emoji
+      decoded = decoded.replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => {
+        const code = parseInt(hex, 16);
+        if (code >= 0x20 && code <= 0x7E) return String.fromCharCode(code);
+        return '';
+      });
+      // Decode decimal entities (&#10004; → ✔) then strip non-ASCII
+      decoded = decoded.replace(/&#(\d+);/g, (_, dec) => {
+        const code = parseInt(dec, 10);
+        if (code >= 0x20 && code <= 0x7E) return String.fromCharCode(code);
+        return '';
+      });
+      // Strip any remaining named entities
+      decoded = decoded.replace(/&[a-zA-Z]+;/g, '');
+      // Strip emoji unicode characters from code blocks
+      decoded = decoded
+        .replace(/[\u{1F000}-\u{1FFFF}]/gu, '')
+        .replace(/[\u{2600}-\u{27BF}]/gu, '')
+        .replace(/[\u{2300}-\u{25FF}]/gu, '')
+        .replace(/[\u{FE00}-\u{FE0F}]/gu, '');
+      if (decoded.trim().length > 10 && decoded.length < 2000) {
         const langMatch = match[0].match(/class="[^"]*language-(\w+)/i);
-        blocks.push({ code: decoded, lang: langMatch?.[1] ?? 'code' });
+        blocks.push({ code: decoded.trim(), lang: langMatch?.[1] ?? 'code' });
       }
     }
     return blocks;
