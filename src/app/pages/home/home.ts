@@ -93,10 +93,6 @@ import { SeoService } from '../../services/seo.service';
       </div>
       <div class="container max-w-6xl mx-auto px-6">
         <div class="text-center max-w-3xl mx-auto mb-14">
-          <span class="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs font-mono uppercase tracking-[0.2em] text-primary mb-5">
-            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-            Flagship Feature
-          </span>
           <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-[1.1] mb-5">
             Don't just read.
             <span class="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent">Watch every tutorial as slides.</span>
