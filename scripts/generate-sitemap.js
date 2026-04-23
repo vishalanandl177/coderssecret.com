@@ -66,16 +66,16 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/slides/drf-api-logger/</loc>
+    <loc>${SITE_URL}/slides/drf-api-logger</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/slides/python-c-extensions/</loc>
+    <loc>${SITE_URL}/slides/python-c-extensions</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>${SITE_URL}/games</loc>
@@ -186,7 +186,7 @@ for (const cat of categories) {
 `;
 }
 
-// Blog post pages
+// Blog post pages + auto-generated slide pages for each
 for (let i = 0; i < slugs.length; i++) {
   const date = dates[i] || today;
   xml += `  <url>
@@ -194,6 +194,12 @@ for (let i = 0; i < slugs.length; i++) {
     <lastmod>${date}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${SITE_URL}/slides/${slugs[i]}</loc>
+    <lastmod>${date}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 `;
 }

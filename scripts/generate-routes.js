@@ -144,9 +144,9 @@ let created = 0;
 // ── Blog list page (/blog) ────────────────────
 const blogListContent = `
   <h1>All Articles — CodersSecret</h1>
-  <p>Battle-tested guides on Python, DevOps, APIs, and system design.</p>
+  <p>Battle-tested tutorials on Python, DevOps, APIs, AI, and system design. Every article can also be watched as a narrated slide presentation — click "Watch as Slides" on any tutorial.</p>
   <ul>
-    ${posts.map(p => `<li><a href="/blog/${p.slug}">${escapeHtml(p.title)}</a> — ${escapeHtml(p.excerpt)}</li>`).join('\n    ')}
+    ${posts.map(p => `<li><a href="/blog/${p.slug}">${escapeHtml(p.title)}</a> — ${escapeHtml(p.excerpt)} · <a href="/slides/${p.slug}">Watch as Slides</a></li>`).join('\n    ')}
   </ul>
 `;
 const blogDir = path.join(OUTPUT_DIR, 'blog');

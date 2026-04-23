@@ -19,13 +19,14 @@ import { SeoService } from '../../services/seo.service';
       <div class="container max-w-6xl mx-auto px-6 pt-20 pb-24 md:pt-32 md:pb-32">
         <div class="flex flex-col items-center text-center">
           <!-- Badge -->
-          <div class="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 backdrop-blur-sm px-4 py-1.5 text-xs font-medium text-muted-foreground mb-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <a routerLink="/slides/drf-api-logger" class="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 backdrop-blur-sm px-4 py-1.5 text-xs font-semibold text-foreground mb-8 animate-in fade-in slide-in-from-bottom-2 duration-500 hover:border-primary/60 hover:shadow-md transition-all">
             <span class="relative flex h-2 w-2">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
             </span>
-            New posts every week
-          </div>
+            <span class="font-mono text-[10px] uppercase tracking-wider text-primary">NEW</span>
+            Watch any article as narrated slides →
+          </a>
 
           <!-- Heading -->
           <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.05] animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
@@ -37,10 +38,11 @@ import { SeoService } from '../../services/seo.service';
 
           <p class="mt-6 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
             Battle-tested guides on Python, DevOps, APIs, and system design — written by engineers, for engineers who ship.
+            <span class="block mt-2 text-foreground font-medium">Read articles, or <span class="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent font-bold">watch every tutorial as narrated slides</span>.</span>
           </p>
 
           <!-- CTA buttons -->
-          <div class="mt-10 flex flex-wrap justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+          <div class="mt-10 flex flex-wrap justify-center gap-3 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
             <a routerLink="/blog"
                class="group relative inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-[0.97]">
               Start Reading
@@ -49,6 +51,11 @@ import { SeoService } from '../../services/seo.service';
                    class="transition-transform duration-300 group-hover:translate-x-1">
                 <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
               </svg>
+            </a>
+            <a routerLink="/slides/drf-api-logger"
+               class="group relative inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-purple-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/40 hover:-translate-y-0.5 active:scale-[0.97]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+              Watch a Demo
             </a>
             <a routerLink="/category/tutorials"
                class="inline-flex items-center justify-center rounded-full border border-border/60 bg-card/60 backdrop-blur-sm px-8 py-3.5 text-sm font-semibold text-foreground transition-all duration-300 hover:bg-accent hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97]">
@@ -73,6 +80,103 @@ import { SeoService } from '../../services/seo.service';
             <div class="text-center">
               <div class="text-3xl md:text-4xl font-extrabold tracking-tight">{{ totalPosts }}</div>
               <div class="mt-1 text-xs md:text-sm text-muted-foreground">Slide Tutorials</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Watch as Slides — flagship feature showcase -->
+    <section class="relative py-16 md:py-24 overflow-hidden">
+      <div class="absolute inset-0 -z-10">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 h-[400px] w-[800px] bg-gradient-to-b from-purple-500/10 via-blue-500/5 to-transparent blur-3xl"></div>
+      </div>
+      <div class="container max-w-6xl mx-auto px-6">
+        <div class="text-center max-w-3xl mx-auto mb-14">
+          <span class="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs font-mono uppercase tracking-[0.2em] text-primary mb-5">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+            Flagship Feature
+          </span>
+          <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-[1.1] mb-5">
+            Don't just read.
+            <span class="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent">Watch every tutorial as slides.</span>
+          </h2>
+          <p class="text-base md:text-lg text-muted-foreground leading-relaxed">
+            Tired of long-form articles? Every single tutorial on CodersSecret can be watched as <strong class="text-foreground">auto-narrated slide presentations</strong> — like a YouTube tutorial, but 20× lighter, fully focused, and completely free.
+          </p>
+        </div>
+
+        <!-- Feature grid -->
+        <div class="grid md:grid-cols-3 gap-5 mb-12">
+          <div class="rounded-2xl border border-border/60 bg-card p-6 hover:border-primary/40 transition-all hover:-translate-y-1">
+            <div class="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+            </div>
+            <h3 class="text-lg font-bold mb-2">Voice-narrated</h3>
+            <p class="text-sm text-muted-foreground leading-relaxed">A human-style narrator explains every slide in detail — beyond what's on screen. Pick your voice, adjust the speed.</p>
+          </div>
+          <div class="rounded-2xl border border-border/60 bg-card p-6 hover:border-primary/40 transition-all hover:-translate-y-1">
+            <div class="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500/20 to-teal-500/20 mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="M4.93 4.93l14.14 14.14"/><path d="M12 2a10 10 0 1 0 0 20 10 10 0 1 0 0-20z"/></svg>
+            </div>
+            <h3 class="text-lg font-bold mb-2">20× less data</h3>
+            <p class="text-sm text-muted-foreground leading-relaxed">Slides + TTS narration uses a fraction of the bandwidth of video tutorials. Perfect for low-data, offline-first, or limited-mobile-plan users.</p>
+          </div>
+          <div class="rounded-2xl border border-border/60 bg-card p-6 hover:border-primary/40 transition-all hover:-translate-y-1">
+            <div class="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500/20 to-pink-500/20 mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-500"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <h3 class="text-lg font-bold mb-2">Learn at your pace</h3>
+            <p class="text-sm text-muted-foreground leading-relaxed">Auto-advance for hands-free learning, or step through manually. Review the full narrator script anytime. Keyboard nav built-in.</p>
+          </div>
+        </div>
+
+        <!-- Comparison row + CTA -->
+        <div class="rounded-3xl border border-border/60 bg-gradient-to-br from-card via-card to-primary/5 p-6 md:p-10">
+          <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <h3 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-4">Slides vs. Video</h3>
+              <div class="space-y-3 text-sm">
+                <div class="flex items-start gap-3">
+                  <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-500/20 text-green-600 flex-shrink-0 mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>
+                  <span class="text-foreground"><strong>~1MB per tutorial</strong> vs 50-200MB for video — save data, save time.</span>
+                </div>
+                <div class="flex items-start gap-3">
+                  <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-500/20 text-green-600 flex-shrink-0 mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>
+                  <span class="text-foreground"><strong>Zero ads. Zero tracking.</strong> No distracting sidebar, no suggested videos, no algorithm.</span>
+                </div>
+                <div class="flex items-start gap-3">
+                  <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-500/20 text-green-600 flex-shrink-0 mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>
+                  <span class="text-foreground"><strong>Fully accessible.</strong> Screen-reader friendly, keyboard navigable, high-contrast theme.</span>
+                </div>
+                <div class="flex items-start gap-3">
+                  <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-500/20 text-green-600 flex-shrink-0 mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>
+                  <span class="text-foreground"><strong>Available on every article.</strong> Click "Watch as Slides" on any of {{ totalPosts }}+ tutorials.</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col gap-3 items-stretch md:items-start">
+              <a routerLink="/slides/drf-api-logger"
+                 class="group inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 px-7 py-4 text-sm font-bold text-white shadow-xl shadow-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/50 hover:-translate-y-0.5 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                Try the Demo: DRF API Logger
+              </a>
+              <a routerLink="/slides/python-c-extensions-workshop"
+                 class="inline-flex items-center justify-center gap-2 rounded-full border border-border/60 bg-card/80 px-7 py-4 text-sm font-semibold text-foreground hover:bg-accent hover:-translate-y-0.5 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                Try: Python C Extensions
+              </a>
+              <p class="text-xs text-muted-foreground mt-1">
+                Or open any article and tap the <strong class="text-foreground">green "Watch as Slides"</strong> pill at the top.
+              </p>
             </div>
           </div>
         </div>
@@ -545,12 +649,20 @@ export class HomeComponent {
 
   faqs = [
     {
+      q: 'What is the "Watch as Slides" feature?',
+      a: `Every tutorial on CodersSecret can be watched as an auto-narrated slide presentation — like a YouTube video, but 20x lighter on data. Each slide focuses on the key visual, while a narrator explains the details in the background. You can pick your preferred voice, adjust the speed (0.75x to 1.5x), toggle auto-advance, and even read the full narrator script. Perfect for learners who prefer watching over reading, want to save bandwidth, or need a distraction-free focus mode. Try our <a href="/slides/drf-api-logger" class="text-primary underline">DRF API Logger slide demo</a>.`,
+    },
+    {
+      q: 'How is "Watch as Slides" different from a YouTube tutorial?',
+      a: `Slides + text-to-speech narration uses about 1MB per tutorial versus 50-200MB for video. There are zero ads, zero tracking pixels, no suggested videos, and no algorithm competing for your attention. It\'s fully accessible: screen-reader friendly, keyboard navigable, and works perfectly on slow connections. You own the experience — choose your voice, your speed, and your pace.`,
+    },
+    {
       q: 'What topics does CodersSecret cover?',
-      a: 'We publish in-depth tutorials on backend engineering (Python, gRPC, APIs), DevOps (Kubernetes, Docker, Karpenter), security (mTLS, encryption, ethical hacking), system design (SOLID principles, compression algorithms, CPU architecture), AI (running LLMs locally, MCP servers), and modern web development (Angular, Tailwind CSS).',
+      a: 'We publish in-depth tutorials on backend engineering (Python, gRPC, APIs), DevOps (Kubernetes, Docker, Karpenter), security (mTLS, encryption, ethical hacking), system design (SOLID principles, compression algorithms, CPU architecture), AI (running LLMs locally, MCP servers), and modern web development (Angular, Tailwind CSS). Every article is available both as a long-form blog post and as a narrated slide presentation.',
     },
     {
       q: 'Are the tutorials free to read?',
-      a: `Yes, every article is 100% free and ad-free. The site is open source and supported by the author. There's no paywall, no signup wall, and no tracking beyond anonymous Google Analytics.`,
+      a: `Yes, every article and every slide tutorial is 100% free and ad-free. The site is open source and supported by the author. There's no paywall, no signup wall, and no tracking beyond anonymous Google Analytics.`,
     },
     {
       q: 'Who writes the content?',
@@ -581,7 +693,7 @@ export class HomeComponent {
   constructor() {
     this.seo.update({
       title: 'CodersSecret',
-      description: 'Battle-tested guides on Python, DevOps, APIs, and system design — written by engineers, for engineers who ship.',
+      description: 'Battle-tested tutorials on Python, DevOps, APIs, AI, and system design — plus every article available as narrated slide presentations. Read or watch: 20× lighter than video, zero ads, fully free.',
       url: '/',
     });
     // Inject FAQPage JSON-LD schema for rich snippets in Google search
