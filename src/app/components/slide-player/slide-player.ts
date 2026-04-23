@@ -175,29 +175,67 @@ export interface SlideData {
       </main>
 
       <!-- Controls bar -->
-      <footer class="flex items-center justify-center gap-3 px-6 h-16 border-t border-border/60 bg-card/80 backdrop-blur flex-shrink-0">
+      <footer class="flex flex-wrap items-center justify-center gap-2 md:gap-3 px-4 py-3 md:py-0 md:h-16 border-t border-border/60 bg-card/80 backdrop-blur flex-shrink-0">
+        <!-- Prev -->
         <button (click)="prev()" [disabled]="idx() === 0"
+                aria-label="Previous slide"
                 class="inline-flex items-center justify-center w-10 h-10 rounded-full border border-border/60 text-foreground hover:bg-accent transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         </button>
-        <button (click)="toggleNarration()"
-                class="inline-flex items-center justify-center w-10 h-10 rounded-full border text-foreground transition-colors"
-                [class]="narrationOn() ? 'border-primary bg-primary/10 text-primary' : 'border-border/60 hover:bg-accent'">
-          @if (narrationOn()) {
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+
+        <!-- Play / Pause -->
+        <button (click)="togglePlay()"
+                [attr.aria-label]="speaking() ? 'Pause narration' : 'Play narration'"
+                class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg shadow-primary/25 hover:shadow-xl hover:-translate-y-0.5 transition-all">
+          @if (speaking()) {
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
           } @else {
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
           }
         </button>
+
+        <!-- Stop -->
+        <button (click)="stopAll()"
+                aria-label="Stop narration"
+                class="inline-flex items-center justify-center w-10 h-10 rounded-full border border-border/60 text-foreground hover:bg-accent transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+        </button>
+
+        <!-- Next -->
+        <button (click)="next()" [disabled]="idx() === slides().length - 1"
+                aria-label="Next slide"
+                class="inline-flex items-center justify-center w-10 h-10 rounded-full border border-border/60 text-foreground hover:bg-accent transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+
+        <div class="w-px h-6 bg-border/60 mx-1"></div>
+
+        <!-- Auto-advance -->
         <button (click)="toggleAutoAdvance()"
                 class="inline-flex items-center gap-1.5 rounded-full border px-3 h-10 text-xs font-mono transition-colors"
                 [class]="autoAdvance() ? 'border-primary bg-primary/10 text-primary' : 'border-border/60 text-muted-foreground hover:bg-accent'">
           {{ autoAdvance() ? 'AUTO: ON' : 'AUTO: OFF' }}
         </button>
-        <button (click)="next()" [disabled]="idx() === slides().length - 1"
-                class="inline-flex items-center justify-center w-10 h-10 rounded-full border border-border/60 text-foreground hover:bg-accent transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-        </button>
+
+        <!-- Voice selector -->
+        @if (availableVoices().length > 0) {
+          <select (change)="onVoiceChange($event)"
+                  class="rounded-full border border-border/60 bg-card h-10 px-3 text-xs font-mono text-foreground hover:bg-accent transition-colors cursor-pointer max-w-[180px]"
+                  aria-label="Voice selector">
+            @for (v of availableVoices(); track v.name) {
+              <option [value]="v.name" [selected]="v.name === selectedVoice()">{{ v.name }}</option>
+            }
+          </select>
+        }
+
+        <!-- Rate selector -->
+        <select (change)="onRateChange($event)"
+                class="rounded-full border border-border/60 bg-card h-10 px-3 text-xs font-mono text-foreground hover:bg-accent transition-colors cursor-pointer"
+                aria-label="Speech rate">
+          @for (r of rates; track r) {
+            <option [value]="r" [selected]="r === rate()">{{ r }}×</option>
+          }
+        </select>
       </footer>
     </div>
   `,
@@ -208,58 +246,131 @@ export class SlidePlayerComponent implements OnDestroy {
   backUrl = input<string>('/');
 
   idx = signal(0);
-  narrationOn = signal(true);
   autoAdvance = signal(true);
   speaking = signal(false);
+  availableVoices = signal<SpeechSynthesisVoice[]>([]);
+  selectedVoice = signal<string>('');
+  rate = signal<number>(1.0);
+  rates = [0.75, 1.0, 1.25, 1.5];
+
   private synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
   private utterance: SpeechSynthesisUtterance | null = null;
+  private userInitiated = false;
 
   currentSlide = computed(() => this.slides()[this.idx()]);
 
   String = String;
+
+  constructor() {
+    if (this.synth) {
+      this.loadVoices();
+      this.synth.onvoiceschanged = () => this.loadVoices();
+    }
+    // Load saved prefs
+    if (typeof localStorage !== 'undefined') {
+      const savedVoice = localStorage.getItem('slides.voice');
+      const savedRate = localStorage.getItem('slides.rate');
+      if (savedVoice) this.selectedVoice.set(savedVoice);
+      if (savedRate) this.rate.set(parseFloat(savedRate));
+    }
+  }
+
+  private loadVoices() {
+    if (!this.synth) return;
+    const all = this.synth.getVoices();
+    const english = all.filter(v => v.lang.toLowerCase().startsWith('en'));
+    english.sort((a, b) => {
+      const score = (v: SpeechSynthesisVoice) => {
+        if (/google uk.*male/i.test(v.name)) return -100;
+        if (/google uk/i.test(v.name)) return -50;
+        if (/google/i.test(v.name)) return -20;
+        if (/daniel|oliver|arthur|samantha/i.test(v.name)) return -10;
+        return 0;
+      };
+      return score(a) - score(b);
+    });
+    this.availableVoices.set(english);
+    if (!this.selectedVoice() && english.length > 0) {
+      this.selectedVoice.set(english[0].name);
+    }
+  }
 
   @HostListener('window:keydown', ['$event'])
   onKey(e: KeyboardEvent) {
     if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); this.next(); }
     if (e.key === 'ArrowLeft') { e.preventDefault(); this.prev(); }
     if (e.key === 'Escape') { window.location.href = this.backUrl(); }
+    if (e.key === 'p' || e.key === 'P') { this.togglePlay(); }
+    if (e.key === 's' || e.key === 'S') { this.stopAll(); }
   }
 
   prev() {
     if (this.idx() > 0) {
       this.idx.update(i => i - 1);
-      this.speak();
+      if (this.userInitiated) this.speak();
     }
   }
 
   next() {
     if (this.idx() < this.slides().length - 1) {
       this.idx.update(i => i + 1);
+      if (this.userInitiated) this.speak();
+    }
+  }
+
+  togglePlay() {
+    if (this.speaking()) {
+      this.synth?.pause();
+      this.speaking.set(false);
+    } else if (this.synth?.paused) {
+      this.synth.resume();
+      this.speaking.set(true);
+    } else {
+      this.userInitiated = true;
       this.speak();
     }
   }
 
-  toggleNarration() {
-    this.narrationOn.update(v => !v);
-    if (!this.narrationOn()) { this.stopSpeech(); }
-    else { this.speak(); }
+  stopAll() {
+    this.userInitiated = false;
+    this.synth?.cancel();
+    this.speaking.set(false);
+    this.utterance = null;
   }
 
   toggleAutoAdvance() {
     this.autoAdvance.update(v => !v);
   }
 
+  onVoiceChange(e: Event) {
+    const name = (e.target as HTMLSelectElement).value;
+    this.selectedVoice.set(name);
+    if (typeof localStorage !== 'undefined') localStorage.setItem('slides.voice', name);
+    if (this.userInitiated) this.speak();
+  }
+
+  onRateChange(e: Event) {
+    const r = parseFloat((e.target as HTMLSelectElement).value);
+    this.rate.set(r);
+    if (typeof localStorage !== 'undefined') localStorage.setItem('slides.rate', String(r));
+    if (this.userInitiated) this.speak();
+  }
+
   private speak() {
-    this.stopSpeech();
-    if (!this.narrationOn() || !this.synth) return;
+    this.synth?.cancel();
+    if (!this.synth) return;
     const text = this.currentSlide().narration;
     if (!text) return;
     const u = new SpeechSynthesisUtterance(text);
-    u.rate = 1.0;
+    u.rate = this.rate();
+    u.pitch = 1.0;
+    u.volume = 1.0;
+    const voice = this.availableVoices().find(v => v.name === this.selectedVoice());
+    if (voice) u.voice = voice;
     u.onstart = () => this.speaking.set(true);
     u.onend = () => {
       this.speaking.set(false);
-      if (this.autoAdvance() && this.idx() < this.slides().length - 1) {
+      if (this.autoAdvance() && this.userInitiated && this.idx() < this.slides().length - 1) {
         setTimeout(() => this.next(), 600);
       }
     };
@@ -268,13 +379,7 @@ export class SlidePlayerComponent implements OnDestroy {
     setTimeout(() => this.synth!.speak(u), 200);
   }
 
-  private stopSpeech() {
-    this.synth?.cancel();
-    this.speaking.set(false);
-    this.utterance = null;
-  }
-
   ngOnDestroy() {
-    this.stopSpeech();
+    this.stopAll();
   }
 }
