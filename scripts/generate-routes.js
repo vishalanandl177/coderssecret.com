@@ -406,20 +406,23 @@ for (const page of legalPages) {
   created++;
 }
 
-// ── Generate 404.html with Angular app (no redirect!) ──
-const notFoundHtml = makeHtml({
-  title: 'Page Not Found',
-  description: 'The page you are looking for does not exist.',
-  url: '/',
-  content: `
+// ── Generate 404.html — FULL Angular app with noindex ──
+// GitHub Pages serves this for any path without a pre-rendered index.html.
+// Angular Router then takes over and shows the correct page (SPA routing).
+// This prevents "Redirect error" from Google because the page actually renders.
+let notFoundHtml = baseHtml;
+// Add noindex so Google ignores the 404 fallback
+notFoundHtml = notFoundHtml.replace('</head>', '  <meta name="robots" content="noindex">\n</head>');
+// Inject fallback content inside app-root for pre-JS rendering
+notFoundHtml = notFoundHtml.replace(
+  '<app-root></app-root>',
+  `<app-root>
     <h1>Page Not Found</h1>
     <p>The page you are looking for does not exist or has been moved.</p>
     <p><a href="/">Go to Home</a> | <a href="/blog">Browse Blog</a></p>
-  `,
-});
-// Add noindex meta tag so Google ignores 404 pages
-const notFoundFinal = notFoundHtml.replace('</head>', '  <meta name="robots" content="noindex">\n</head>');
-fs.writeFileSync(path.join(OUTPUT_DIR, '404.html'), notFoundFinal);
+  </app-root>`
+);
+fs.writeFileSync(path.join(OUTPUT_DIR, '404.html'), notFoundHtml);
 
 
 console.log(`✅ Pre-rendered ${created} route files + 404.html with SEO content.`);
