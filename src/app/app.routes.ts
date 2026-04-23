@@ -22,6 +22,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/slides/python-c-extensions-slides').then(m => m.PythonCExtSlidesComponent),
   },
   {
+    path: 'slides/:slug',
+    loadComponent: () => import('./pages/slides/auto-slides').then(m => m.AutoSlidesComponent),
+  },
+  {
     path: 'category/:slug',
     loadComponent: () => import('./pages/category/category').then(m => m.CategoryComponent),
   },
