@@ -1095,3 +1095,73 @@
 .xp-bar-fill {
   animation: xp-fill 0.8s ease forwards;
 }
+
+/* ═══════════════════════════════════════════════
+   Slide Player — Interactive SVG Visuals
+   ═══════════════════════════════════════════════ */
+
+/* Title slide: concentric rings rotating at different speeds */
+@keyframes slide-rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.slide-ring-1 { transform-origin: 200px 200px; animation: slide-rotate 60s linear infinite; }
+.slide-ring-2 { transform-origin: 200px 200px; animation: slide-rotate 45s linear infinite reverse; }
+.slide-ring-3 { transform-origin: 200px 200px; animation: slide-rotate 30s linear infinite; }
+
+/* Title slide: orbiting dots */
+.slide-orbit-1 { transform-origin: 200px 200px; animation: slide-rotate 20s linear infinite; }
+.slide-orbit-2 { transform-origin: 200px 200px; animation: slide-rotate 14s linear infinite reverse; }
+.slide-orbit-3 { transform-origin: 200px 200px; animation: slide-rotate 10s linear infinite; }
+
+/* Content slide: floating shapes */
+@keyframes slide-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+.slide-float-1 { animation: slide-float 6s ease-in-out infinite; transform-origin: center; }
+.slide-float-2 { animation: slide-float 7s ease-in-out infinite; transform-origin: center; animation-delay: -2s; }
+.slide-float-3 { animation: slide-float 8s ease-in-out infinite; transform-origin: center; animation-delay: -4s; }
+
+/* Code slide: pulsing lines (simulates typing/activity) */
+@keyframes slide-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+.slide-pulse-1 { animation: slide-pulse 2s ease-in-out infinite; }
+.slide-pulse-2 { animation: slide-pulse 2.5s ease-in-out infinite; animation-delay: -0.7s; }
+.slide-pulse-3 { animation: slide-pulse 2.3s ease-in-out infinite; animation-delay: -1.2s; }
+
+/* Grid slide: rotating diamonds */
+.slide-rotate-slow { transform-origin: 100px 100px; animation: slide-rotate 30s linear infinite; }
+.slide-rotate-reverse { transform-origin: 100px 100px; animation: slide-rotate 20s linear infinite reverse; }
+
+/* End slide: confetti falling */
+@keyframes slide-confetti {
+  0% { transform: translateY(-40px); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(500px); opacity: 0; }
+}
+.slide-confetti-1 { animation: slide-confetti 5s ease-in infinite; }
+.slide-confetti-2 { animation: slide-confetti 6s ease-in infinite; animation-delay: -1s; }
+.slide-confetti-3 { animation: slide-confetti 7s ease-in infinite; animation-delay: -2s; }
+.slide-confetti-4 { animation: slide-confetti 5.5s ease-in infinite; animation-delay: -3s; }
+.slide-confetti-5 { animation: slide-confetti 6.5s ease-in infinite; animation-delay: -1.5s; }
+
+/* End slide: checkmark draws in */
+@keyframes slide-check-draw {
+  0% { stroke-dasharray: 100; stroke-dashoffset: 100; opacity: 0; }
+  50% { opacity: 1; }
+  100% { stroke-dasharray: 100; stroke-dashoffset: 0; opacity: 1; }
+}
+.slide-check { animation: slide-check-draw 1.5s ease-out forwards; }
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .slide-ring-1, .slide-ring-2, .slide-ring-3,
+  .slide-orbit-1, .slide-orbit-2, .slide-orbit-3,
+  .slide-float-1, .slide-float-2, .slide-float-3,
+  .slide-pulse-1, .slide-pulse-2, .slide-pulse-3,
+  .slide-rotate-slow, .slide-rotate-reverse,
+  .slide-confetti-1, .slide-confetti-2, .slide-confetti-3, .slide-confetti-4, .slide-confetti-5,
+  .slide-check {
+    animation: none !important;
+  }
+}
