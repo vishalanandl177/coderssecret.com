@@ -35,6 +35,252 @@ export const CATEGORIES = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    id: '48',
+    title: 'Claude Mythos AI: What It Is, Why It Matters, and How It Changes Software Engineering',
+    slug: 'claude-mythos-ai-software-engineering-guide',
+    excerpt: 'Claude Mythos is Anthropic\'s most powerful AI model ever built — scoring 93.9% on SWE-bench and finding thousands of zero-day vulnerabilities. Learn what it is, how Project Glasswing works, and what it means for your software lifecycle.',
+    category: 'ai',
+    featured: true,
+    content: `
+      <p>On April 8, 2026, Anthropic publicly released <strong>Claude Mythos Preview</strong> &mdash; a new tier of AI model that is larger and more intelligent than anything that came before it, including their own Opus line. It scored <strong>93.9% on SWE-bench Verified</strong>, <strong>97.6% on USAMO</strong>, and found <strong>thousands of zero-day vulnerabilities</strong> in every major operating system and web browser.</p>
+
+      <p>And then Anthropic did something unprecedented: <strong>they refused to release it publicly.</strong></p>
+
+      <p>Instead, they launched <strong>Project Glasswing</strong> &mdash; a coalition of 50+ organizations including Apple, Google, Microsoft, Amazon, NVIDIA, and JPMorgan Chase &mdash; to use Mythos for one purpose: <strong>finding and fixing vulnerabilities in the world's most critical software before attackers can exploit them.</strong></p>
+
+      <h2>What Is Claude Mythos?</h2>
+
+      <p>Claude Mythos is a <strong>general-purpose frontier AI model</strong> that sits above Anthropic's existing model tiers. While Claude Haiku, Sonnet, and Opus serve different points on the speed-cost-capability spectrum, Mythos represents a new ceiling entirely.</p>
+
+      <div class="flow-diagram">
+        <div class="flow-diagram-title">Anthropic Model Hierarchy</div>
+        <div class="vs-cards">
+          <div class="vs-card" style="border-color:#22c55e">
+            <div class="vs-card-header" style="background:#22c55e">Claude Haiku 4.5</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x26A1;</span>Fastest, cheapest</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4B0;</span>$0.80 / 1M input tokens</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3AF;</span>Best for: classification, extraction, routing</div>
+            </div>
+          </div>
+          <div class="vs-card" style="border-color:#3b82f6">
+            <div class="vs-card-header" style="background:#3b82f6">Claude Sonnet 4.6</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x2696;</span>Balance of speed and intelligence</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4B0;</span>$3 / 1M input tokens</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3AF;</span>Best for: most production workloads</div>
+            </div>
+          </div>
+          <div class="vs-card" style="border-color:#a855f7">
+            <div class="vs-card-header" style="background:#a855f7">Claude Opus 4.7</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F9E0;</span>Most capable (public)</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4B0;</span>$15 / 1M input tokens</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3AF;</span>Best for: complex reasoning, code, agents</div>
+            </div>
+          </div>
+          <div class="vs-card" style="border-color:#ef4444">
+            <div class="vs-card-header" style="background:#ef4444">Claude Mythos Preview</div>
+            <div class="vs-card-body">
+              <div class="vs-row"><span class="vs-row-icon">&#x1F525;</span>Most powerful AI model ever built</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4B0;</span>$25 / 1M input (Glasswing only)</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F3AF;</span>Restricted: security research only</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2>The Benchmarks: A Generational Leap</h2>
+
+      <p>The numbers speak for themselves. Mythos does not just beat the previous state of the art &mdash; it redefines it.</p>
+
+      <ul>
+        <li><strong>SWE-bench Verified: 93.9%</strong> (Opus 4.6: 80.8%) &mdash; resolves real GitHub issues from Django, Flask, scikit-learn, pytest</li>
+        <li><strong>SWE-bench Pro: 77.8%</strong> (Opus 4.6: 53.4%) &mdash; harder variant with multi-file changes</li>
+        <li><strong>SWE-bench Multilingual: 87.3%</strong> (Opus 4.6: 77.8%) &mdash; bugs across multiple programming languages</li>
+        <li><strong>SWE-bench Multimodal: 59.0%</strong> (Opus 4.6: 27.1%) &mdash; bugs that require understanding screenshots and UI</li>
+        <li><strong>USAMO: 97.6%</strong> &mdash; USA Mathematical Olympiad problems</li>
+      </ul>
+
+      <p>To put the SWE-bench score in perspective: in 2024, the best models scored 40-55%. In 18 months, that number nearly doubled. Mythos can read a GitHub issue, understand the codebase, identify the root cause, write the fix, and pass the unit tests &mdash; at a 94% success rate.</p>
+
+      <h2>Project Glasswing: Why Mythos Is Not Public</h2>
+
+      <p>Anthropic's decision to withhold Mythos from public access is driven by one finding: <strong>the model can autonomously discover and exploit zero-day vulnerabilities</strong> &mdash; previously undiscovered security holes in production software.</p>
+
+      <p>During internal testing, Mythos found <strong>thousands of high-severity vulnerabilities</strong> in:</p>
+
+      <ul>
+        <li>Every major operating system (Windows, macOS, Linux)</li>
+        <li>Every major web browser (Chrome, Firefox, Safari, Edge)</li>
+        <li>Critical infrastructure software, networking stacks, and enterprise tools</li>
+      </ul>
+
+      <p>Rather than release a tool that could be weaponized, Anthropic launched <strong>Project Glasswing</strong> &mdash; a $100M+ initiative to use Mythos defensively.</p>
+
+      <div class="pipeline-diagram">
+        <div class="pipeline-title">Project Glasswing: How It Works</div>
+        <div class="pipeline-steps">
+          <div class="pipeline-step">Mythos scans<br><strong>source code</strong></div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step" style="border-color:#ef4444">Finds<br><strong>zero-day vulns</strong></div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step" style="border-color:#f97316">Responsible<br><strong>disclosure</strong></div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step" style="border-color:#22c55e">Vendors<br><strong>patch first</strong></div>
+        </div>
+      </div>
+
+      <h2>Who Has Access?</h2>
+
+      <p>Access is restricted to approved <strong>Project Glasswing participants</strong>. The 12 founding partners are:</p>
+
+      <ul>
+        <li><strong>Cloud:</strong> Amazon Web Services, Google Cloud, Microsoft</li>
+        <li><strong>Hardware:</strong> Apple, NVIDIA, Broadcom</li>
+        <li><strong>Security:</strong> CrowdStrike, Palo Alto Networks, Cisco, Zscaler</li>
+        <li><strong>Finance:</strong> JPMorgan Chase</li>
+        <li><strong>Open Source:</strong> The Linux Foundation</li>
+      </ul>
+
+      <p>Beyond these 12, Anthropic has extended access to <strong>40+ additional organizations</strong> that build or maintain critical infrastructure software. The program includes $100M in usage credits plus $4M in direct donations to open-source security groups.</p>
+
+      <p>Approved participants access Mythos through the <strong>Claude API, AWS Bedrock, Google Vertex AI, or Microsoft Foundry</strong> at <strong>$25/M input tokens and $125/M output tokens</strong> &mdash; roughly 5x the price of public Claude Opus.</p>
+
+      <h2>How Mythos Changes the Software Lifecycle</h2>
+
+      <p>Even if you cannot access Mythos directly, it is reshaping how software gets built, reviewed, and secured across the industry. Here is how it fits into each phase of the software development lifecycle.</p>
+
+      <h2>1. Planning and Design</h2>
+
+      <p>Mythos-class models can analyze architecture documents and threat models with a depth that was previously impossible. Teams with Glasswing access use Mythos to:</p>
+
+      <ul>
+        <li><strong>Threat model new architectures</strong> before a single line of code is written</li>
+        <li><strong>Identify attack surfaces</strong> in API designs, authentication flows, and data pipelines</li>
+        <li><strong>Review compliance requirements</strong> (HIPAA, SOC2, PCI-DSS, GDPR) against proposed designs</li>
+      </ul>
+
+      <h2>2. Development and Code Review</h2>
+
+      <p>With a 93.9% SWE-bench score, Mythos understands codebases at a level that surpasses most human reviewers for specific vulnerability patterns:</p>
+
+      <ul>
+        <li><strong>Automated code review</strong> that catches logic bugs, race conditions, and security flaws &mdash; not just linting violations</li>
+        <li><strong>Dependency analysis</strong> across the full transitive dependency tree, flagging known CVEs and suspicious patterns</li>
+        <li><strong>Fix generation</strong> with contextually correct patches that pass the project's existing test suite</li>
+      </ul>
+
+      <pre><code># Example: Using Claude API for security-focused code review
+# (Requires Glasswing access for Mythos; works with Opus for general review)
+
+import anthropic
+
+client = anthropic.Anthropic()
+
+response = client.messages.create(
+    model="claude-mythos-preview-2026-04-08",  # Glasswing only
+    max_tokens=4096,
+    messages=[{
+        "role": "user",
+        "content": f"""Review this code for security vulnerabilities.
+Focus on: injection, auth bypass, race conditions, memory safety.
+
+{code_to_review}
+
+For each finding:
+1. Severity (Critical/High/Medium/Low)
+2. Exact line numbers
+3. Attack scenario
+4. Recommended fix with code"""
+    }]
+)</code></pre>
+
+      <h2>3. Testing and QA</h2>
+
+      <p>Mythos excels at understanding what tests <em>should</em> exist but do not:</p>
+
+      <ul>
+        <li><strong>Generate security test cases</strong> that probe for OWASP Top 10 vulnerabilities</li>
+        <li><strong>Fuzz testing guidance</strong> &mdash; identify which inputs are most likely to trigger edge cases</li>
+        <li><strong>Mutation testing</strong> &mdash; generate subtle code mutations to verify your tests actually catch bugs</li>
+        <li><strong>Integration test gaps</strong> &mdash; identify untested interaction paths between services</li>
+      </ul>
+
+      <h2>4. Deployment and Operations</h2>
+
+      <p>The DevOps and SRE phases benefit from Mythos-level reasoning about infrastructure-as-code:</p>
+
+      <ul>
+        <li><strong>IaC security scanning</strong> &mdash; review Terraform, Kubernetes manifests, Helm charts for misconfigurations</li>
+        <li><strong>Container image analysis</strong> &mdash; identify vulnerable base images, unnecessary packages, privilege escalation paths</li>
+        <li><strong>Incident response</strong> &mdash; analyze production logs and traces to identify the root cause of security incidents</li>
+        <li><strong>Compliance drift detection</strong> &mdash; continuously verify production matches approved security baselines</li>
+      </ul>
+
+      <h2>5. Maintenance and Vulnerability Management</h2>
+
+      <p>This is where Mythos truly shines &mdash; and where Project Glasswing operates:</p>
+
+      <ul>
+        <li><strong>Zero-day discovery</strong> &mdash; scan entire codebases for vulnerabilities that no one has found yet</li>
+        <li><strong>Patch generation</strong> &mdash; automatically generate fixes for discovered vulnerabilities</li>
+        <li><strong>Responsible disclosure</strong> &mdash; Glasswing partners coordinate with vendors to patch before public disclosure</li>
+        <li><strong>Legacy code audit</strong> &mdash; review old, untouched codebases that "nobody wants to touch" for critical issues</li>
+      </ul>
+
+      <h2>What You Can Do Today (Without Glasswing Access)</h2>
+
+      <p>Mythos is restricted, but the publicly available Claude models (Opus 4.7, Sonnet 4.6) are still extremely capable for security-aware development:</p>
+
+      <ul>
+        <li><strong>Claude Code</strong> &mdash; use as your daily coding assistant with security-focused prompting</li>
+        <li><strong>API-based code review</strong> &mdash; integrate Claude into your CI/CD pipeline for automated security review</li>
+        <li><strong>Threat modeling</strong> &mdash; describe your architecture to Claude and ask for attack surface analysis</li>
+        <li><strong>Dependency auditing</strong> &mdash; ask Claude to review your dependency tree for known vulnerabilities</li>
+        <li><strong>Security test generation</strong> &mdash; prompt Claude to write penetration test scripts for your API endpoints</li>
+      </ul>
+
+      <pre><code># Practical: CI/CD security review with Claude Opus (publicly available)
+# Add to your GitHub Actions workflow
+
+- name: Security review with Claude
+  run: |
+    git diff origin/main...HEAD > changes.diff
+    python scripts/claude-review.py changes.diff
+  env:
+    ANTHROPIC_API_KEY: \$\{{ secrets.ANTHROPIC_API_KEY }}</code></pre>
+
+      <h2>The Bigger Picture: AI-Native Software Security</h2>
+
+      <p>Mythos represents a turning point. For the first time, an AI model can find vulnerabilities faster and more comprehensively than human security researchers. The implications cascade across the entire industry:</p>
+
+      <ul>
+        <li><strong>Offense and defense are both AI-powered now.</strong> If AI can find zero-days, attackers with similar models will too. Defense must be AI-augmented to keep pace.</li>
+        <li><strong>The "secure by default" bar is rising.</strong> If an AI can scan your code and find critical bugs in minutes, shipping code without AI-assisted security review will feel negligent.</li>
+        <li><strong>Open-source security gets a massive upgrade.</strong> The Linux Foundation's participation in Glasswing means AI-powered vulnerability scanning for projects that could never afford professional security audits.</li>
+        <li><strong>Compliance will expect AI review.</strong> Expect SOC2 and ISO 27001 auditors to ask whether AI-assisted code review is part of your SDLC within the next 12-18 months.</li>
+      </ul>
+
+      <h2>Summary</h2>
+
+      <ul>
+        <li><strong>Claude Mythos Preview</strong> is Anthropic's most powerful AI, scoring 93.9% on SWE-bench and discovering thousands of zero-day vulnerabilities.</li>
+        <li>It is <strong>not publicly available</strong> &mdash; access is restricted to 50+ organizations via <strong>Project Glasswing</strong> ($25/M input tokens).</li>
+        <li>Glasswing partners include Apple, Google, Microsoft, Amazon, NVIDIA, and JPMorgan Chase &mdash; using Mythos to <strong>find and patch vulnerabilities</strong> in critical software.</li>
+        <li>Mythos fits into <strong>every phase of the SDLC</strong>: threat modeling, code review, test generation, IaC scanning, zero-day discovery, and patch generation.</li>
+        <li>Even without Glasswing access, <strong>Claude Opus and Sonnet</strong> are available today for security-focused code review, threat modeling, and CI/CD integration.</li>
+        <li>AI-native software security is no longer optional &mdash; <strong>it is the new baseline</strong>.</li>
+      </ul>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-23',
+    readTime: '14 min read',
+    tags: ['Claude Mythos', 'AI', 'Cybersecurity', 'Project Glasswing', 'Anthropic', 'Software Security', 'SDLC'],
+    coverImage: '',
+    popularRank: 2,
+  },
+  {
     id: '47',
     title: 'CAP Theorem Explained: The Trade-Off Every Distributed System Must Make',
     slug: 'cap-theorem-distributed-systems-explained',
