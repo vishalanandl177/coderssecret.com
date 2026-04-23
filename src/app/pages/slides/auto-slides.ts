@@ -64,7 +64,9 @@ export class AutoSlidesComponent {
   private generateSlides(title: string, excerpt: string, html: string, tags: string[], category: string): SlideData[] {
     const slides: SlideData[] = [];
 
-    const titleNarration = `Welcome! In this walkthrough, we'll cover "${title}". ${excerpt} Let's dive in.`;
+    // Title narration — welcoming, sets expectations
+    const titleNarration = `Welcome to this walkthrough on ${title}. ${excerpt} In the next few minutes, we'll cover the key concepts, the practical how-to, and the trade-offs you should know about. Keep an ear on the narration — the slides highlight the essentials, but the narration walks you through the details. Let's get started.`;
+
     slides.push({
       type: 'title',
       title,
@@ -77,11 +79,11 @@ export class AutoSlidesComponent {
 
     const transitions = [
       "Let's start with",
-      "Next up,",
-      "Now let's look at",
-      "Moving on to",
+      "Moving on,",
+      "Next up is",
       "Here's where it gets interesting —",
-      "This next part covers",
+      "Now we come to",
+      "This next bit covers",
       "Let's walk through",
       "Now we'll dig into",
     ];
@@ -95,27 +97,38 @@ export class AutoSlidesComponent {
       const bullets = this.extractBullets(sec.html);
       const paragraphs = this.extractParagraphs(sec.html);
 
-      const detailedNarration = this.buildNarration(transition, sec.heading, paragraphs, bullets, codeBlocks.length > 0);
+      // Slide content = CONCISE highlights (first sentence only, max 140 chars)
+      const bodyTeaser = this.firstSentence(paragraphs, 140);
+
+      // Narration = DETAILED explanation (uses full paragraph + bullets + framing)
+      const narration = this.buildNarration({
+        transition,
+        heading: sec.heading,
+        paragraphs,
+        bullets,
+        hasCode: codeBlocks.length > 0,
+        hasBullets: bullets.length >= 3,
+      });
 
       if (codeBlocks.length > 0) {
         slides.push({
           type: 'code',
           eyebrow,
           title: sec.heading,
-          body: paragraphs.slice(0, 220),
+          body: bodyTeaser,
           code: codeBlocks[0].code,
           lang: codeBlocks[0].lang,
-          narration: detailedNarration,
+          narration,
         });
 
         for (let c = 1; c < Math.min(codeBlocks.length, 3); c++) {
           slides.push({
             type: 'code',
             eyebrow,
-            title: sec.heading + ' (continued)',
+            title: sec.heading,
             code: codeBlocks[c].code,
             lang: codeBlocks[c].lang,
-            narration: `Here's another code example for ${sec.heading}. Take a moment to look through it — the patterns will become clearer as we move forward.`,
+            narration: this.buildCodeFollowupNarration(sec.heading, c),
           });
         }
       } else if (bullets.length >= 3) {
@@ -123,53 +136,120 @@ export class AutoSlidesComponent {
           type: 'content',
           eyebrow,
           title: sec.heading,
-          body: paragraphs.slice(0, 200),
-          bullets: bullets.slice(0, 8),
-          narration: detailedNarration,
+          body: bodyTeaser,
+          bullets: bullets.slice(0, 6).map(b => this.trim(b, 100)),
+          narration,
         });
       } else if (paragraphs.length > 0) {
-        slides.push({
-          type: 'content',
-          eyebrow,
-          title: sec.heading,
-          body: paragraphs.slice(0, 500),
-          narration: detailedNarration,
-        });
+        // Pure content slide — show only a short teaser + key phrases
+        const keyPhrases = this.extractKeyPhrases(paragraphs, 3);
+        if (keyPhrases.length >= 2) {
+          slides.push({
+            type: 'content',
+            eyebrow,
+            title: sec.heading,
+            body: bodyTeaser,
+            bullets: keyPhrases,
+            narration,
+          });
+        } else {
+          slides.push({
+            type: 'content',
+            eyebrow,
+            title: sec.heading,
+            body: this.firstSentence(paragraphs, 260),
+            narration,
+          });
+        }
       }
     }
 
+    // End narration — conversational closing, points back to article
     slides.push({
       type: 'end',
       title: 'Thanks for watching.',
-      subtitle: `That wraps up "${title}". Head back to the full article for code examples, diagrams, and comments.`,
-      narration: `And that's it for this tutorial on "${title}". You've now got the full picture. If you want to dig deeper, head back to the full article where you'll find the complete code examples, diagrams, and comments from the community. Thanks for watching — see you in the next one.`,
+      subtitle: `You now know the essentials of ${title}. Head back to the full article for code examples, diagrams, and deeper discussions.`,
+      narration: `And that wraps up our walkthrough on ${title}. Hopefully the key ideas feel a bit clearer now — the what, the why, and the how. If you want to go deeper, head back to the full article where you'll find the complete code examples, the diagrams, and comments from other engineers who've implemented this. Thanks so much for watching — I'll see you in the next one.`,
     });
 
     return slides;
   }
 
   /**
-   * Build a natural, conversational narration from section content.
-   * Goal: ~40-120 words per slide, using transition phrases and full sentences.
+   * Build detailed conversational narration that goes BEYOND what's on the slide.
+   * The narration should explain, contextualize, and add value — not just read the slide.
    */
-  private buildNarration(transition: string, heading: string, paragraphs: string, bullets: string[], hasCode: boolean): string {
+  private buildNarration(opts: {
+    transition: string;
+    heading: string;
+    paragraphs: string;
+    bullets: string[];
+    hasCode: boolean;
+    hasBullets: boolean;
+  }): string {
+    const { transition, heading, paragraphs, bullets, hasCode, hasBullets } = opts;
     const sentences = this.splitSentences(paragraphs);
-    let narration = `${transition} ${heading.toLowerCase().startsWith('the ') || heading.toLowerCase().startsWith('a ') || heading.toLowerCase().startsWith('an ') ? heading : heading}. `;
 
-    // Use first 3-5 sentences for detailed context
-    const contentSentences = sentences.slice(0, 5).join(' ');
-    if (contentSentences) {
-      narration += contentSentences + ' ';
-    } else if (bullets.length > 0) {
-      // Fall back to first few bullets
-      narration += bullets.slice(0, 3).join('. ') + '. ';
-    }
+    const parts: string[] = [];
+    parts.push(`${transition} ${heading.toLowerCase()}.`);
 
+    // Conceptual intro based on content shape
     if (hasCode) {
-      narration += `Take a look at the code on screen — we'll break it down together. `;
+      parts.push(`You'll see some code on screen — let me walk you through what it's actually doing.`);
+    } else if (hasBullets) {
+      parts.push(`There are a few key points here worth unpacking.`);
     }
 
-    return narration.trim();
+    // Main content: use up to 8 sentences for rich detail
+    const mainBody = sentences.slice(0, 8).join(' ');
+    if (mainBody) {
+      parts.push(mainBody);
+    } else if (bullets.length > 0) {
+      parts.push(bullets.slice(0, 4).map(b => this.ensurePeriod(b)).join(' '));
+    }
+
+    // Closing framing if content is short
+    if (parts.join(' ').length < 250) {
+      parts.push(`Keep this in mind as we move on — it'll come up again.`);
+    }
+
+    return parts.join(' ').replace(/\s+/g, ' ').trim();
+  }
+
+  private buildCodeFollowupNarration(heading: string, idx: number): string {
+    const intros = [
+      `Here's another angle on ${heading}.`,
+      `Let's look at one more example for ${heading}.`,
+      `And here's a related pattern in the same space.`,
+    ];
+    return `${intros[idx % intros.length]} Read through it — the shape should feel familiar now. The key thing to notice is how this piece connects to what we just covered.`;
+  }
+
+  /** First sentence of text, truncated to max length */
+  private firstSentence(text: string, maxLen: number): string {
+    const s = this.splitSentences(text)[0] ?? text;
+    return this.trim(s, maxLen);
+  }
+
+  /** Extract 2-4 short key phrases from longer text for visual bullets */
+  private extractKeyPhrases(text: string, max: number): string[] {
+    const sentences = this.splitSentences(text);
+    // Pick sentences that are short-ish (good for display) and interesting
+    const short = sentences.filter(s => s.length >= 20 && s.length <= 110);
+    return short.slice(0, max).map(s => this.stripTrailingPunctuation(s));
+  }
+
+  private trim(s: string, max: number): string {
+    if (s.length <= max) return s;
+    return s.slice(0, max - 1).replace(/[,;:.\s]*$/, '') + '…';
+  }
+
+  private stripTrailingPunctuation(s: string): string {
+    return s.replace(/[.!?]+$/, '').trim();
+  }
+
+  private ensurePeriod(s: string): string {
+    return /[.!?]$/.test(s.trim()) ? s : s.trim() + '.';
   }
 
   private splitSentences(text: string): string[] {

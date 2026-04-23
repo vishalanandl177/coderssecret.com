@@ -31,9 +31,16 @@ export interface SlideData {
         <div class="flex items-center gap-2">
           @if (speaking()) {
             <span class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-            <span class="text-xs font-mono text-green-500">SPEAKING</span>
+            <span class="text-xs font-mono text-green-500 hidden sm:inline">NARRATING</span>
           }
-          <a [href]="backUrl()" class="ml-4 inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+          <button (click)="showScript.set(!showScript())"
+                  [class.text-primary]="showScript()"
+                  [class.border-primary]="showScript()"
+                  class="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h12"/></svg>
+            Script
+          </button>
+          <a [href]="backUrl()" class="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             Close
           </a>
@@ -44,6 +51,16 @@ export interface SlideData {
       <div class="h-1 bg-muted flex-shrink-0">
         <div class="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-500" [style.width.%]="((idx() + 1) / slides().length) * 100"></div>
       </div>
+
+      <!-- Narrator script panel (when toggled on) -->
+      @if (showScript()) {
+        <div class="border-b border-border/60 bg-primary/5 backdrop-blur flex-shrink-0">
+          <div class="max-w-5xl mx-auto px-6 py-3 flex gap-3 items-start">
+            <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-primary font-bold flex-shrink-0 mt-0.5">NARRATOR</span>
+            <p class="text-sm text-foreground/90 leading-relaxed">{{ currentSlide().narration }}</p>
+          </div>
+        </div>
+      }
 
       <!-- Slide content -->
       <main class="flex-1 overflow-y-auto">
@@ -81,10 +98,10 @@ export interface SlideData {
                   <p class="text-base md:text-lg text-muted-foreground leading-relaxed mb-8 max-w-3xl">{{ currentSlide().body }}</p>
                 }
                 @if (currentSlide().bullets?.length) {
-                  <ul class="space-y-4">
+                  <ul class="grid gap-3 md:gap-4 mt-2">
                     @for (b of currentSlide().bullets; track b; let i = $index) {
-                      <li class="flex gap-4 items-baseline">
-                        <span class="font-mono text-sm text-primary font-bold w-8 flex-shrink-0">{{ String(i + 1).padStart(2, '0') }}</span>
+                      <li class="flex gap-4 items-start rounded-xl border border-border/60 bg-card px-5 py-4 hover:border-primary/40 transition-colors">
+                        <span class="font-mono text-xs text-primary font-bold flex-shrink-0 mt-1 inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/10">{{ String(i + 1).padStart(2, '0') }}</span>
                         <span class="text-base text-foreground leading-relaxed">{{ b }}</span>
                       </li>
                     }
@@ -248,6 +265,7 @@ export class SlidePlayerComponent implements OnDestroy {
   idx = signal(0);
   autoAdvance = signal(true);
   speaking = signal(false);
+  showScript = signal(false);
   availableVoices = signal<SpeechSynthesisVoice[]>([]);
   selectedVoice = signal<string>('');
   rate = signal<number>(1.0);
