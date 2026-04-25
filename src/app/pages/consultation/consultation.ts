@@ -123,7 +123,7 @@ import { SeoService } from '../../services/seo.service';
           <p class="text-muted-foreground mb-8 max-w-xl mx-auto">
             Fill out the form below to describe your challenge. I will review it privately and get back to you within 24-48 hours.
           </p>
-          <a href="https://forms.gle/YOUR_FORM_ID_HERE" target="_blank" rel="noopener noreferrer"
+          <a href="https://forms.gle/C37TKC9b1zdPH2nL8" target="_blank" rel="noopener noreferrer"
              class="group inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-4 text-base font-bold text-white shadow-xl shadow-purple-500/25 hover:shadow-2xl hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
