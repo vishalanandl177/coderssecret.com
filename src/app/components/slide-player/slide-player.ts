@@ -36,7 +36,7 @@ export interface SlideData {
           <button (click)="showScript.set(!showScript())"
                   [class.text-primary]="showScript()"
                   [class.border-primary]="showScript()"
-                  class="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+                  class="hidden md:inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h12"/></svg>
             Script
           </button>
@@ -60,9 +60,9 @@ export interface SlideData {
         }
       </div>
 
-      <!-- Narrator script panel (when toggled on) -->
+      <!-- Narrator script panel (desktop only, when toggled on) -->
       @if (showScript()) {
-        <div class="border-b border-border/60 bg-primary/5 backdrop-blur flex-shrink-0">
+        <div class="hidden md:block border-b border-border/60 bg-primary/5 backdrop-blur flex-shrink-0">
           <div class="max-w-5xl mx-auto px-6 py-3 flex gap-3 items-start">
             <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-primary font-bold flex-shrink-0 mt-0.5">NARRATOR</span>
             <p class="text-sm text-foreground/90 leading-relaxed">{{ currentSlide().narration }}</p>
