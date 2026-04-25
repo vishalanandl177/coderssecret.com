@@ -208,6 +208,25 @@ import { DOCUMENT } from '@angular/common';
           </div>
         </div>
 
+        <!-- Consultation CTA -->
+        <div class="mb-16 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 via-card to-primary/5 p-6 md:p-8 animate-in fade-in duration-700">
+          <div class="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-bold mb-1">Stuck on implementation?</h3>
+              <p class="text-sm text-muted-foreground">Get private, 1-on-1 help with system design, performance, scaling, or any technical challenge.</p>
+            </div>
+            <a routerLink="/consultation"
+               class="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-xl hover:-translate-y-0.5 transition-all flex-shrink-0">
+              Book a Session
+            </a>
+          </div>
+        </div>
+
         <!-- Comments (Giscus) -->
         <div class="mb-16 animate-in fade-in duration-700">
           <h2 class="text-2xl font-extrabold tracking-tight mb-6">Discussion</h2>

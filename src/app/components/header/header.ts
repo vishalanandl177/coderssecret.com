@@ -49,6 +49,10 @@ import { SearchComponent } from '../search/search';
                class="rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
               About
             </a>
+            <a routerLink="/consultation" routerLinkActive="text-foreground bg-accent"
+               class="rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
+              Consultation
+            </a>
 
             <!-- Categories dropdown -->
             <div class="relative">
@@ -160,6 +164,8 @@ import { SearchComponent } from '../search/search';
                class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">Cheat Sheets</a>
             <a routerLink="/about" (click)="mobileMenuOpen.set(false)"
                class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">About</a>
+            <a routerLink="/consultation" (click)="mobileMenuOpen.set(false)"
+               class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">Consultation</a>
             <div class="border-t border-border my-2"></div>
             <p class="px-3 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Categories</p>
             <a routerLink="/category/ai" (click)="mobileMenuOpen.set(false)"

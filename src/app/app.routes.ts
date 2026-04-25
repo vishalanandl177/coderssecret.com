@@ -37,6 +37,10 @@ export const routes: Routes = [
     path: 'about',
     loadComponent: () => import('./pages/about/about').then(m => m.AboutComponent),
   },
+  {
+    path: 'consultation',
+    loadComponent: () => import('./pages/consultation/consultation').then(m => m.ConsultationComponent),
+  },
   // Games — all lazy-loaded (each route is a separate chunk)
   {
     path: 'games',
