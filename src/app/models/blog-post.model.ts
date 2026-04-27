@@ -35,6 +35,3016 @@ export const CATEGORIES = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    id: '63',
+    title: 'How to Build a Python CLI Tool That People Actually Use',
+    slug: 'build-python-cli-tool-click-typer-pypi',
+    excerpt: 'Build a production-quality Python CLI with Typer, publish it to PyPI, add shell completions, colored output, progress bars, and CI/CD — everything between "it works on my machine" and "10,000 installs."',
+    category: 'open-source',
+    featured: false,
+    content: `
+      <p>The Python ecosystem has thousands of CLI tools. Most of them die at the &ldquo;it works on my machine&rdquo; stage. The gap between a working script and a tool people actually install and use is: proper argument parsing, helpful error messages, colored output, documentation, packaging, and distribution. This guide bridges that gap.</p>
+
+      <h2>Choosing Your Framework: Click vs Typer</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Click</th>
+            <th>Typer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Syntax</td>
+            <td>Decorators (@click.command)</td>
+            <td>Type hints (def cmd(name: str))</td>
+          </tr>
+          <tr>
+            <td>Learning Curve</td>
+            <td>Medium</td>
+            <td>Low (if you know type hints)</td>
+          </tr>
+          <tr>
+            <td>Auto-generated help</td>
+            <td>Yes</td>
+            <td>Yes (better formatting)</td>
+          </tr>
+          <tr>
+            <td>Shell completions</td>
+            <td>Plugin required</td>
+            <td>Built-in</td>
+          </tr>
+          <tr>
+            <td>Built on</td>
+            <td>Standalone</td>
+            <td>Click (wrapper)</td>
+          </tr>
+          <tr>
+            <td>Community</td>
+            <td>Larger, mature</td>
+            <td>Growing fast</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p><strong>Recommendation:</strong> Use Typer for new projects. It requires less code, generates better help text, and leverages Python type hints you are already writing.</p>
+
+      <h2>Project Structure</h2>
+
+      <pre><code>my-cli-tool/
+  src/
+    my_cli_tool/
+      __init__.py       # Version string
+      cli.py            # CLI entry point
+      commands/
+        __init__.py
+        init.py         # 'init' subcommand
+        analyze.py      # 'analyze' subcommand
+        deploy.py       # 'deploy' subcommand
+      core/
+        __init__.py
+        config.py       # Configuration management
+        utils.py        # Shared utilities
+  tests/
+    test_cli.py
+    test_commands.py
+  pyproject.toml        # Package metadata and build config
+  README.md
+  LICENSE</code></pre>
+
+      <h2>Building the CLI with Typer</h2>
+
+      <pre><code># src/my_cli_tool/cli.py
+import typer
+from typing import Optional
+from pathlib import Path
+from rich.console import Console
+from rich.table import Table
+
+app = typer.Typer(
+    name="mytool",
+    help="A developer productivity tool for project management.",
+    add_completion=True,
+)
+console = Console()
+
+@app.command()
+def init(
+    name: str = typer.Argument(..., help="Project name"),
+    template: str = typer.Option(
+        "default", "--template", "-t",
+        help="Project template to use"
+    ),
+    directory: Path = typer.Option(
+        ".", "--dir", "-d",
+        help="Target directory"
+    ),
+    force: bool = typer.Option(
+        False, "--force", "-f",
+        help="Overwrite existing files"
+    ),
+):
+    """Initialize a new project with the given name and template."""
+    target = directory / name
+
+    if target.exists() and not force:
+        console.print(f"[red]Error:[/red] Directory '{target}' already exists. Use --force to overwrite.")
+        raise typer.Exit(code=1)
+
+    target.mkdir(parents=True, exist_ok=True)
+    console.print(f"[green]Created project '{name}' in {target}[/green]")
+
+
+@app.command()
+def analyze(
+    path: Path = typer.Argument(".", help="Path to analyze"),
+    format: str = typer.Option(
+        "table", "--format", "-f",
+        help="Output format: table, json, csv"
+    ),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+):
+    """Analyze a project directory and show statistics."""
+    if not path.exists():
+        console.print(f"[red]Error:[/red] Path '{path}' does not exist.")
+        raise typer.Exit(code=1)
+
+    # Count files by extension
+    stats = {}
+    for file in path.rglob("*"):
+        if file.is_file() and not any(p.startswith('.') for p in file.parts):
+            ext = file.suffix or "(no extension)"
+            stats[ext] = stats.get(ext, 0) + 1
+
+    if format == "table":
+        table = Table(title=f"File Analysis: {path}")
+        table.add_column("Extension", style="cyan")
+        table.add_column("Count", justify="right", style="green")
+
+        for ext, count in sorted(stats.items(), key=lambda x: -x[1]):
+            table.add_row(ext, str(count))
+
+        console.print(table)
+    elif format == "json":
+        import json
+        console.print(json.dumps(stats, indent=2))
+
+
+@app.command()
+def version():
+    """Show the current version."""
+    from my_cli_tool import __version__
+    console.print(f"mytool v{__version__}")
+
+
+if __name__ == "__main__":
+    app()</code></pre>
+
+      <h2>Adding Rich Output</h2>
+
+      <pre><code>from rich.progress import track, Progress
+from rich.panel import Panel
+from rich.syntax import Syntax
+import time
+
+@app.command()
+def deploy(
+    environment: str = typer.Argument(..., help="Target environment"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Show what would happen"),
+):
+    """Deploy the project to the specified environment."""
+    steps = [
+        ("Running tests", 2),
+        ("Building artifacts", 3),
+        ("Uploading to registry", 2),
+        ("Deploying to cluster", 4),
+        ("Running health checks", 1),
+    ]
+
+    if dry_run:
+        console.print(Panel(
+            "\\n".join(f"  [cyan]{step}[/cyan]" for step, _ in steps),
+            title="Dry Run - Steps",
+            border_style="yellow",
+        ))
+        return
+
+    with Progress() as progress:
+        task = progress.add_task(f"Deploying to {environment}...", total=len(steps))
+
+        for step_name, duration in steps:
+            progress.update(task, description=step_name)
+            time.sleep(duration * 0.1)  # Simulated work
+            progress.advance(task)
+
+    console.print(f"[green]Deployed to {environment} successfully![/green]")</code></pre>
+
+      <h2>Configuration Management</h2>
+
+      <pre><code># src/my_cli_tool/core/config.py
+import json
+from pathlib import Path
+from dataclasses import dataclass, asdict
+
+CONFIG_DIR = Path.home() / ".config" / "mytool"
+CONFIG_FILE = CONFIG_DIR / "config.json"
+
+@dataclass
+class Config:
+    default_template: str = "default"
+    auto_format: bool = True
+    editor: str = "vim"
+    registry_url: str = "https://registry.example.com"
+
+    @classmethod
+    def load(cls) -> "Config":
+        if CONFIG_FILE.exists():
+            data = json.loads(CONFIG_FILE.read_text())
+            return cls(**data)
+        return cls()
+
+    def save(self):
+        CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+        CONFIG_FILE.write_text(json.dumps(asdict(self), indent=2))
+
+# CLI command for configuration
+@app.command()
+def config(
+    key: str = typer.Argument(None, help="Config key to get/set"),
+    value: str = typer.Argument(None, help="Value to set"),
+    list_all: bool = typer.Option(False, "--list", "-l", help="List all config"),
+):
+    """Get or set configuration values."""
+    cfg = Config.load()
+
+    if list_all or key is None:
+        for k, v in asdict(cfg).items():
+            console.print(f"  [cyan]{k}[/cyan] = {v}")
+        return
+
+    if value is None:
+        console.print(f"  {key} = {getattr(cfg, key, 'NOT SET')}")
+    else:
+        setattr(cfg, key, value)
+        cfg.save()
+        console.print(f"  [green]Set {key} = {value}[/green]")</code></pre>
+
+      <h2>Packaging with pyproject.toml</h2>
+
+      <pre><code># pyproject.toml
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "my-cli-tool"
+version = "1.0.0"
+description = "A developer productivity tool for project management"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Vishal Anand", email = "vishal@example.com"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "ruff",
+]
+
+[project.scripts]
+mytool = "my_cli_tool.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/username/my-cli-tool"
+Repository = "https://github.com/username/my-cli-tool"
+Issues = "https://github.com/username/my-cli-tool/issues"</code></pre>
+
+      <h2>Testing CLI Commands</h2>
+
+      <pre><code># tests/test_cli.py
+from typer.testing import CliRunner
+from my_cli_tool.cli import app
+
+runner = CliRunner()
+
+def test_version():
+    result = runner.invoke(app, ["version"])
+    assert result.exit_code == 0
+    assert "mytool v" in result.stdout
+
+def test_init_creates_directory(tmp_path):
+    result = runner.invoke(app, ["init", "myproject", "--dir", str(tmp_path)])
+    assert result.exit_code == 0
+    assert (tmp_path / "myproject").exists()
+
+def test_init_fails_if_exists(tmp_path):
+    (tmp_path / "myproject").mkdir()
+    result = runner.invoke(app, ["init", "myproject", "--dir", str(tmp_path)])
+    assert result.exit_code == 1
+    assert "already exists" in result.stdout
+
+def test_init_force_overwrites(tmp_path):
+    (tmp_path / "myproject").mkdir()
+    result = runner.invoke(app, ["init", "myproject", "--dir", str(tmp_path), "--force"])
+    assert result.exit_code == 0
+
+def test_analyze_nonexistent_path():
+    result = runner.invoke(app, ["analyze", "/nonexistent/path"])
+    assert result.exit_code == 1
+    assert "does not exist" in result.stdout
+
+def test_analyze_json_format(tmp_path):
+    (tmp_path / "test.py").write_text("print('hello')")
+    (tmp_path / "test.js").write_text("console.log('hello')")
+    result = runner.invoke(app, ["analyze", str(tmp_path), "--format", "json"])
+    assert result.exit_code == 0
+    assert ".py" in result.stdout</code></pre>
+
+      <h2>Publishing to PyPI</h2>
+
+      <pre><code># Build the package
+pip install build
+python -m build
+# Creates dist/my_cli_tool-1.0.0.tar.gz and dist/my_cli_tool-1.0.0-py3-none-any.whl
+
+# Upload to PyPI (requires PyPI account + API token)
+pip install twine
+twine upload dist/*
+
+# Users can now install with:
+pip install my-cli-tool
+mytool --help</code></pre>
+
+      <h2>CI/CD with GitHub Actions</h2>
+
+      <pre><code># .github/workflows/release.yml
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: \${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: pytest --cov
+
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # Required for trusted publishing
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install build
+      - run: python -m build
+      - uses: pypa/gh-action-pypi-publish@release/v1</code></pre>
+
+      <h2>Shell Completions</h2>
+
+      <pre><code># Typer generates shell completions automatically
+
+# Install for bash:
+mytool --install-completion bash
+
+# Install for zsh:
+mytool --install-completion zsh
+
+# Install for fish:
+mytool --install-completion fish
+
+# Users get tab completion for commands, options, and arguments:
+# mytool an[TAB] -> mytool analyze
+# mytool analyze --f[TAB] -> mytool analyze --format</code></pre>
+
+      <h2>Distribution Checklist</h2>
+
+      <ul>
+        <li><strong>README with install instructions</strong> and usage examples (pip install + basic commands)</li>
+        <li><strong>LICENSE file</strong> (MIT for maximum adoption)</li>
+        <li><strong>CHANGELOG.md</strong> with versioned release notes</li>
+        <li><strong>Helpful error messages</strong> with actionable suggestions (not just stack traces)</li>
+        <li><strong>--help on every command</strong> with examples (Typer generates this from docstrings)</li>
+        <li><strong>Shell completions</strong> (built into Typer)</li>
+        <li><strong>Colored output</strong> for readability (Rich library)</li>
+        <li><strong>Exit codes:</strong> 0 for success, 1 for user error, 2 for system error</li>
+        <li><strong>CI pipeline:</strong> Test on multiple Python versions, auto-publish on tag</li>
+        <li><strong>Trusted publishing on PyPI</strong> (no API tokens needed with GitHub Actions OIDC)</li>
+      </ul>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>Use Typer for modern CLIs</strong> &mdash; type hints for argument parsing, automatic help generation, built-in completions</li>
+        <li><strong>Use Rich for output</strong> &mdash; tables, progress bars, colored text, panels make CLIs professional</li>
+        <li><strong>Test with CliRunner</strong> &mdash; test CLI commands like functions, assert on exit codes and output</li>
+        <li><strong>Use pyproject.toml</strong> for packaging &mdash; it replaces setup.py, setup.cfg, and MANIFEST.in</li>
+        <li><strong>Publish with trusted publishing</strong> &mdash; GitHub Actions OIDC to PyPI, no API tokens to manage</li>
+        <li><strong>Error messages should be actionable</strong> &mdash; tell users what went wrong AND how to fix it</li>
+        <li><strong>Ship shell completions</strong> &mdash; they dramatically improve the user experience</li>
+      </ul>
+
+      <p>The difference between a script and a tool is polish. Argument parsing, error handling, colored output, documentation, and distribution turn your 50-line script into something that gets starred on GitHub and installed by thousands. The tools exist &mdash; Typer, Rich, pyproject.toml, GitHub Actions &mdash; use them.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-27',
+    readTime: '12 min read',
+    tags: ['Python', 'CLI', 'Open Source', 'PyPI', 'Developer Tools'],
+    coverImage: '',
+  },  {
+    id: '62',
+    title: 'API Design Best Practices: REST, GraphQL, and gRPC Compared',
+    slug: 'api-design-rest-graphql-grpc-compared',
+    excerpt: 'REST is not always the answer. Learn when REST, GraphQL, and gRPC each shine — with real schema examples, performance benchmarks, versioning strategies, and a decision framework for choosing the right protocol.',
+    category: 'backend',
+    featured: false,
+    content: `
+      <p>Every new project faces the same question: how should services communicate? REST is the default choice, but GraphQL and gRPC exist for good reasons. Picking the wrong protocol means either over-fetching data across slow mobile connections or wrestling with complex schemas for a simple CRUD API.</p>
+
+      <p>This guide gives you the knowledge to make the right choice for each situation, with real examples and honest tradeoffs.</p>
+
+      <h2>REST: The Universal Standard</h2>
+
+      <p>REST (Representational State Transfer) uses HTTP verbs and resource-based URLs. It is the most widely understood API style and the right default for most web applications.</p>
+
+      <pre><code># REST API design for a blog platform
+
+# Resources and endpoints:
+GET    /api/posts              # List all posts
+GET    /api/posts/42           # Get post by ID
+POST   /api/posts              # Create a new post
+PUT    /api/posts/42           # Replace entire post
+PATCH  /api/posts/42           # Partial update
+DELETE /api/posts/42           # Delete post
+
+# Nested resources:
+GET    /api/posts/42/comments  # Comments on post 42
+POST   /api/posts/42/comments  # Add comment to post 42
+
+# Filtering, sorting, pagination:
+GET    /api/posts?status=published&sort=-created_at&page=2&limit=20</code></pre>
+
+      <h3>REST Response Design</h3>
+
+      <pre><code>// GET /api/posts/42
+{
+  "id": 42,
+  "title": "Database Indexing Secrets",
+  "slug": "database-indexing-secrets",
+  "content": "...",
+  "author": {
+    "id": 1,
+    "name": "Vishal Anand",
+    "avatar_url": "/images/avatar.jpg"
+  },
+  "tags": ["database", "postgresql"],
+  "created_at": "2026-04-27T10:00:00Z",
+  "updated_at": "2026-04-27T12:30:00Z",
+  "_links": {
+    "self": "/api/posts/42",
+    "comments": "/api/posts/42/comments",
+    "author": "/api/users/1"
+  }
+}</code></pre>
+
+      <h3>REST Best Practices</h3>
+
+      <ul>
+        <li><strong>Use nouns for resources, not verbs:</strong> <code>/api/posts</code> not <code>/api/getPosts</code></li>
+        <li><strong>Use HTTP status codes correctly:</strong> 201 for created, 204 for no content, 404 for not found, 422 for validation errors</li>
+        <li><strong>Use plural resource names:</strong> <code>/api/posts</code> not <code>/api/post</code></li>
+        <li><strong>Support filtering and pagination</strong> on collection endpoints</li>
+        <li><strong>Use HATEOAS links</strong> to help clients discover related resources</li>
+        <li><strong>Version your API:</strong> <code>/api/v1/posts</code> or <code>Accept: application/vnd.api.v1+json</code></li>
+      </ul>
+
+      <h3>REST Limitations</h3>
+
+      <ul>
+        <li><strong>Over-fetching:</strong> GET /api/posts returns all fields even if you only need titles</li>
+        <li><strong>Under-fetching:</strong> To show a post with author details and comments, you need 3 separate requests</li>
+        <li><strong>No standard query language:</strong> Filtering syntax varies between every API</li>
+      </ul>
+
+      <h2>GraphQL: Ask for Exactly What You Need</h2>
+
+      <p>GraphQL lets clients specify exactly which fields they want in a single request. The server returns precisely that shape &mdash; nothing more, nothing less.</p>
+
+      <h3>Schema Definition</h3>
+
+      <pre><code># GraphQL schema
+type Post {
+  id: ID!
+  title: String!
+  slug: String!
+  content: String!
+  excerpt: String
+  author: User!
+  comments: [Comment!]!
+  tags: [String!]!
+  createdAt: DateTime!
+}
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  posts: [Post!]!
+}
+
+type Comment {
+  id: ID!
+  body: String!
+  author: User!
+  createdAt: DateTime!
+}
+
+type Query {
+  post(id: ID!): Post
+  posts(status: PostStatus, limit: Int, offset: Int): [Post!]!
+  user(id: ID!): User
+}
+
+type Mutation {
+  createPost(input: CreatePostInput!): Post!
+  updatePost(id: ID!, input: UpdatePostInput!): Post!
+  deletePost(id: ID!): Boolean!
+}</code></pre>
+
+      <h3>Client Queries</h3>
+
+      <pre><code># Get exactly what the homepage needs (one request)
+query HomePosts {
+  posts(status: PUBLISHED, limit: 10) {
+    id
+    title
+    slug
+    excerpt
+    author {
+      name
+      avatar_url
+    }
+    tags
+    createdAt
+  }
+}
+
+# Get a single post with comments (one request instead of three)
+query PostDetail {
+  post(id: "42") {
+    title
+    content
+    author {
+      name
+      bio
+    }
+    comments {
+      body
+      author {
+        name
+      }
+      createdAt
+    }
+  }
+}</code></pre>
+
+      <h3>GraphQL Best Practices</h3>
+
+      <ul>
+        <li><strong>Use DataLoader</strong> to batch and cache database queries (solves the N+1 problem)</li>
+        <li><strong>Limit query depth and complexity</strong> to prevent abuse (malicious nested queries)</li>
+        <li><strong>Use persisted queries</strong> in production to prevent arbitrary query injection</li>
+        <li><strong>Paginate with cursor-based pagination</strong> (Relay-style connections) for large datasets</li>
+      </ul>
+
+      <h3>GraphQL Limitations</h3>
+
+      <ul>
+        <li><strong>Caching is harder:</strong> No URL-based caching (every request is POST to /graphql)</li>
+        <li><strong>Complexity on the server:</strong> Resolver chains, N+1 queries, authorization per field</li>
+        <li><strong>File uploads require workarounds:</strong> GraphQL is text-based, no native file support</li>
+        <li><strong>Overkill for simple APIs:</strong> If you have 5 endpoints with fixed shapes, REST is simpler</li>
+      </ul>
+
+      <h2>gRPC: High-Performance Service Communication</h2>
+
+      <p>gRPC uses Protocol Buffers (binary serialization) over HTTP/2. It is designed for <strong>service-to-service</strong> communication where performance and type safety matter more than human readability.</p>
+
+      <h3>Protocol Buffer Schema</h3>
+
+      <pre><code>// post.proto
+syntax = "proto3";
+
+package blog;
+
+service PostService {
+  rpc GetPost(GetPostRequest) returns (Post);
+  rpc ListPosts(ListPostsRequest) returns (ListPostsResponse);
+  rpc CreatePost(CreatePostRequest) returns (Post);
+  rpc StreamUpdates(StreamRequest) returns (stream PostUpdate);
+}
+
+message Post {
+  string id = 1;
+  string title = 2;
+  string content = 3;
+  User author = 4;
+  repeated string tags = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+}
+
+message GetPostRequest {
+  string id = 1;
+}
+
+message ListPostsRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+  string status_filter = 3;
+}</code></pre>
+
+      <h3>Python gRPC Server</h3>
+
+      <pre><code>import grpc
+from concurrent import futures
+import post_pb2
+import post_pb2_grpc
+
+class PostServicer(post_pb2_grpc.PostServiceServicer):
+    def GetPost(self, request, context):
+        post = db.get_post(request.id)
+        if not post:
+            context.abort(grpc.StatusCode.NOT_FOUND, "Post not found")
+
+        return post_pb2.Post(
+            id=post.id,
+            title=post.title,
+            content=post.content,
+        )
+
+    def StreamUpdates(self, request, context):
+        """Server-side streaming: push updates in real-time"""
+        for update in event_bus.subscribe("post_updates"):
+            yield post_pb2.PostUpdate(
+                post_id=update.id,
+                action=update.action,
+            )
+
+server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+post_pb2_grpc.add_PostServiceServicer_to_server(PostServicer(), server)
+server.add_insecure_port('[::]:50051')
+server.start()</code></pre>
+
+      <h3>gRPC Advantages</h3>
+
+      <ul>
+        <li><strong>10x faster serialization</strong> than JSON (binary Protocol Buffers)</li>
+        <li><strong>HTTP/2:</strong> multiplexing, header compression, bidirectional streaming</li>
+        <li><strong>Strong typing:</strong> Code generation from .proto files prevents contract mismatches</li>
+        <li><strong>Streaming:</strong> Server streaming, client streaming, and bidirectional streaming built in</li>
+      </ul>
+
+      <h3>gRPC Limitations</h3>
+
+      <ul>
+        <li><strong>Not browser-friendly:</strong> Requires gRPC-Web proxy for browser clients</li>
+        <li><strong>Not human-readable:</strong> Binary format makes debugging harder (use grpcurl for CLI testing)</li>
+        <li><strong>Schema evolution is rigid:</strong> Adding required fields can break backward compatibility</li>
+        <li><strong>Smaller ecosystem:</strong> Fewer tools, tutorials, and community resources than REST</li>
+      </ul>
+
+      <h2>Head-to-Head Comparison</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>REST</th>
+            <th>GraphQL</th>
+            <th>gRPC</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Data Format</td>
+            <td>JSON (text)</td>
+            <td>JSON (text)</td>
+            <td>Protobuf (binary)</td>
+          </tr>
+          <tr>
+            <td>Transport</td>
+            <td>HTTP/1.1 or HTTP/2</td>
+            <td>HTTP/1.1 or HTTP/2</td>
+            <td>HTTP/2 only</td>
+          </tr>
+          <tr>
+            <td>Browser Support</td>
+            <td>Native</td>
+            <td>Native</td>
+            <td>Via gRPC-Web proxy</td>
+          </tr>
+          <tr>
+            <td>Caching</td>
+            <td>HTTP caching (CDN, browser)</td>
+            <td>Complex (no URL-based cache)</td>
+            <td>No HTTP caching</td>
+          </tr>
+          <tr>
+            <td>Type Safety</td>
+            <td>OpenAPI/Swagger (optional)</td>
+            <td>Schema (built-in)</td>
+            <td>Protobuf (built-in, strict)</td>
+          </tr>
+          <tr>
+            <td>Streaming</td>
+            <td>SSE (server only)</td>
+            <td>Subscriptions (via WebSocket)</td>
+            <td>Bidirectional (native)</td>
+          </tr>
+          <tr>
+            <td>Payload Size</td>
+            <td>Large (verbose JSON)</td>
+            <td>Medium (only requested fields)</td>
+            <td>Small (binary encoding)</td>
+          </tr>
+          <tr>
+            <td>Learning Curve</td>
+            <td>Low</td>
+            <td>Medium</td>
+            <td>High</td>
+          </tr>
+          <tr>
+            <td>Best For</td>
+            <td>Public APIs, web apps</td>
+            <td>Mobile apps, complex UIs</td>
+            <td>Microservices, internal APIs</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>API Versioning Strategies</h2>
+
+      <pre><code># REST: URL versioning (most common)
+GET /api/v1/posts
+GET /api/v2/posts     # Breaking change? New version
+
+# REST: Header versioning
+GET /api/posts
+Accept: application/vnd.myapi.v2+json
+
+# GraphQL: No versioning needed!
+# Deprecate fields instead of creating new versions
+type Post {
+  title: String!
+  headline: String!  @deprecated(reason: "Use 'title' instead")
+}
+
+# gRPC: Package versioning in .proto
+package blog.v1;     # Original
+package blog.v2;     # Breaking changes</code></pre>
+
+      <h2>Decision Framework</h2>
+
+      <ul>
+        <li><strong>Building a public API?</strong> &rarr; REST (universal, cacheable, well-understood)</li>
+        <li><strong>Mobile app with complex data needs?</strong> &rarr; GraphQL (request exactly what you need, save bandwidth)</li>
+        <li><strong>Microservices talking to each other?</strong> &rarr; gRPC (fast, typed, streaming)</li>
+        <li><strong>Real-time bidirectional communication?</strong> &rarr; gRPC or WebSocket</li>
+        <li><strong>Simple CRUD with 5-10 endpoints?</strong> &rarr; REST (do not over-engineer)</li>
+        <li><strong>Dashboard with many data sources?</strong> &rarr; GraphQL (aggregate data from multiple services in one query)</li>
+        <li><strong>Need maximum performance between services?</strong> &rarr; gRPC (binary protocol, HTTP/2 multiplexing)</li>
+      </ul>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>REST is the right default</strong> for most web APIs &mdash; simple, cacheable, universally supported</li>
+        <li><strong>GraphQL shines when clients have varied data needs</strong> &mdash; mobile vs. desktop, different pages needing different fields</li>
+        <li><strong>gRPC is for service-to-service</strong> &mdash; when performance and type safety matter more than human readability</li>
+        <li><strong>You can mix protocols:</strong> REST for public API, gRPC between microservices, GraphQL for your mobile app</li>
+        <li><strong>Do not pick based on hype</strong> &mdash; pick based on your actual constraints (client diversity, performance needs, team expertise)</li>
+        <li><strong>Good API design matters more than protocol choice</strong> &mdash; a well-designed REST API beats a poorly designed GraphQL API every time</li>
+      </ul>
+
+      <p>The best API is the one your consumers can understand and use efficiently. For most teams building web applications, REST gets you 90% of the way. Add GraphQL or gRPC when you have a specific problem they solve better &mdash; not because they are trendy.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-27',
+    readTime: '13 min read',
+    tags: ['API Design', 'REST', 'GraphQL', 'gRPC', 'Backend'],
+    coverImage: '',
+  },  {
+    id: '61',
+    title: 'Git Internals: How Git Actually Works Under the Hood',
+    slug: 'git-internals-how-git-works-under-hood',
+    excerpt: 'Git is not magic — it is a content-addressable filesystem with a graph of snapshots. Explore the .git directory, understand blobs, trees, and commits, and see how branches are just pointers to SHA-1 hashes.',
+    category: 'tutorials',
+    featured: false,
+    content: `
+      <p>Most developers use Git daily but treat it as a black box. They memorize commands without understanding what happens underneath. This leads to panic during rebases, confusion during merge conflicts, and fear of <code>git reflog</code>.</p>
+
+      <p>Once you understand Git internals, everything clicks. Branches become simple. Rebases make sense. Recovery from mistakes becomes trivial. This guide takes you inside the <code>.git</code> directory and shows you exactly how Git stores and tracks your code.</p>
+
+      <h2>Git Is a Content-Addressable Filesystem</h2>
+
+      <p>At its core, Git is a key-value store. You give it content, it gives you back a SHA-1 hash (the key). You can retrieve the content later using that hash. Everything in Git &mdash; files, directories, commits &mdash; is stored this way.</p>
+
+      <pre><code># Store some content and get a hash back
+echo "Hello, Git" | git hash-object --stdin -w
+# Output: 3fa0d1ac21b29b96ee682541d4be0b3a0a89f5af
+
+# Retrieve it by hash
+git cat-file -p 3fa0d1ac21b29b96ee682541d4be0b3a0a89f5af
+# Output: Hello, Git</code></pre>
+
+      <p>This is the fundamental operation. Everything else in Git is built on top of this content-addressable storage.</p>
+
+      <h2>The Three Objects: Blob, Tree, Commit</h2>
+
+      <h3>1. Blob: File Content</h3>
+
+      <p>A blob stores the raw content of a file. It does <strong>not</strong> store the filename, permissions, or any metadata &mdash; just the bytes.</p>
+
+      <pre><code># See what type an object is
+git cat-file -t 3fa0d1a
+# Output: blob
+
+# Two files with identical content share the SAME blob
+# Git automatically deduplicates at the content level</code></pre>
+
+      <h3>2. Tree: Directory Listing</h3>
+
+      <p>A tree represents a directory. It maps filenames to blobs (files) or other trees (subdirectories), along with file permissions.</p>
+
+      <pre><code># View the tree of the latest commit
+git cat-file -p HEAD^{tree}
+
+# Output:
+# 100644 blob a1b2c3d4...   README.md
+# 100644 blob e5f6a7b8...   package.json
+# 040000 tree 1a2b3c4d...   src/
+# 040000 tree 5e6f7a8b...   public/
+
+# Dive into the src/ tree
+git cat-file -p 1a2b3c4d
+# 100644 blob 9f8e7d6c...   main.ts
+# 040000 tree abcdef12...   components/</code></pre>
+
+      <h3>3. Commit: A Snapshot in Time</h3>
+
+      <p>A commit points to a tree (the state of all files at that moment), one or more parent commits (history), and metadata (author, message, timestamp).</p>
+
+      <pre><code># View a commit object
+git cat-file -p HEAD
+
+# Output:
+# tree 4b825dc642cb6eb9a060e54bf899d4e239f3b764
+# parent 8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b
+# author Vishal Anand &lt;vishal@example.com&gt; 1714233600 +0530
+# committer Vishal Anand &lt;vishal@example.com&gt; 1714233600 +0530
+#
+# Add user authentication module</code></pre>
+
+      <p>The relationship looks like this:</p>
+
+      <pre><code>Commit (SHA: abc123)
+  |
+  +-- tree (SHA: def456)  &larr; root directory snapshot
+        |
+        +-- blob (SHA: 111...)  README.md
+        +-- blob (SHA: 222...)  package.json
+        +-- tree (SHA: 333...)  src/
+              |
+              +-- blob (SHA: 444...)  main.ts</code></pre>
+
+      <h2>Inside the .git Directory</h2>
+
+      <pre><code>.git/
+  HEAD              # Points to current branch (ref: refs/heads/main)
+  config            # Repository configuration
+  index             # The staging area (binary file)
+  objects/          # All blobs, trees, and commits
+    3f/             # First 2 chars of SHA = directory
+      a0d1ac21...   # Remaining chars = filename
+    pack/           # Packed objects for efficiency
+  refs/
+    heads/          # Branch pointers
+      main          # Contains SHA of latest commit on main
+      feature-x     # Contains SHA of latest commit on feature-x
+    tags/           # Tag pointers
+      v1.0          # Contains SHA of tagged commit
+    remotes/
+      origin/       # Remote tracking branches
+        main</code></pre>
+
+      <h2>Branches Are Just Pointers</h2>
+
+      <p>A branch is literally a 41-byte file containing a SHA-1 hash. That is it. Creating a branch does not copy any code &mdash; it creates a tiny file pointing to a commit.</p>
+
+      <pre><code># What is the "main" branch? Just a file with a hash:
+cat .git/refs/heads/main
+# Output: 8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b
+
+# What is HEAD? A reference to the current branch:
+cat .git/HEAD
+# Output: ref: refs/heads/main
+
+# Creating a branch = creating a file
+git branch experiment
+cat .git/refs/heads/experiment
+# Same hash as main! Points to the same commit.
+
+# Switching branches = changing HEAD
+git checkout experiment
+cat .git/HEAD
+# Output: ref: refs/heads/experiment</code></pre>
+
+      <p>This is why Git branches are &ldquo;cheap&rdquo; &mdash; they are just 41-byte files, not copies of your codebase.</p>
+
+      <h2>The Staging Area (Index)</h2>
+
+      <p>The index (<code>.git/index</code>) is a binary file that represents the <strong>next commit you are building</strong>. When you run <code>git add</code>, you are updating the index. When you run <code>git commit</code>, Git snapshots the index into a tree and creates a commit pointing to it.</p>
+
+      <pre><code># View the current index
+git ls-files --stage
+
+# Output:
+# 100644 a1b2c3d4... 0  README.md
+# 100644 e5f6a7b8... 0  src/main.ts
+# 100644 9f8e7d6c... 0  src/app.ts
+
+# The three areas:
+# Working Directory  --(git add)-->  Staging Area (Index)  --(git commit)-->  Repository
+#   (your files)                      (.git/index)                            (.git/objects)</code></pre>
+
+      <h2>How Merge Actually Works</h2>
+
+      <pre><code># A merge creates a commit with TWO parents:
+
+#   A --- B --- C (main)
+#          \\
+#           D --- E (feature)
+
+git checkout main
+git merge feature
+
+#   A --- B --- C --- M (main)  &larr; M has parents C and E
+#          \\         /
+#           D --- E (feature)
+
+# View merge commit parents:
+git cat-file -p HEAD
+# parent c1c2c3c4...   (from main)
+# parent e1e2e3e4...   (from feature)</code></pre>
+
+      <h2>How Rebase Actually Works</h2>
+
+      <pre><code># Rebase REPLAYS commits on top of a new base:
+
+# Before rebase:
+#   A --- B --- C (main)
+#          \\
+#           D --- E (feature)
+
+git checkout feature
+git rebase main
+
+# After rebase:
+#   A --- B --- C (main)
+#                \\
+#                 D' --- E' (feature)
+
+# D' and E' are NEW commits (new SHA hashes)
+# They have the same changes as D and E but different parents
+# The original D and E still exist in the object store
+# They are just unreachable (until garbage collected)</code></pre>
+
+      <h2>Reflog: Your Safety Net</h2>
+
+      <p>The reflog records every time HEAD changes. Even after a hard reset or a bad rebase, your old commits are still there. The reflog is how you recover from almost any Git mistake.</p>
+
+      <pre><code># View the reflog
+git reflog
+
+# Output:
+# abc1234 HEAD@{0}: commit: Add new feature
+# def5678 HEAD@{1}: rebase: moving to main
+# 9ab0cde HEAD@{2}: checkout: moving from main to feature
+# fgh1234 HEAD@{3}: commit: Fix the bug
+# ijk5678 HEAD@{4}: reset: moving to HEAD~3  &larr; accidental reset!
+
+# Recover from accidental reset:
+git reset --hard HEAD@{4}   # Go back to before the reset
+
+# Recover a deleted branch:
+git branch recovered-branch HEAD@{2}
+
+# Reflog entries expire after 90 days (30 for unreachable commits)
+# So you have a generous recovery window</code></pre>
+
+      <h2>Pack Files: How Git Stays Small</h2>
+
+      <p>Storing every version of every file as a separate blob would waste enormous space. Git solves this with pack files &mdash; it stores one full copy and then deltas (differences) for similar objects.</p>
+
+      <pre><code># Trigger packing manually
+git gc
+
+# View pack contents
+git verify-pack -v .git/objects/pack/pack-*.idx | head -20
+
+# Git automatically packs objects when:
+# - Too many loose objects accumulate (~6700)
+# - You run git gc
+# - You push to a remote
+
+# A 1GB repository with 10,000 commits might have:
+# - Loose objects: would be 50GB+
+# - Packed: stays around 1-2GB (delta compression)</code></pre>
+
+      <h2>Useful Plumbing Commands</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Command</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>git cat-file -t SHA</code></td>
+            <td>Show object type (blob, tree, commit)</td>
+          </tr>
+          <tr>
+            <td><code>git cat-file -p SHA</code></td>
+            <td>Pretty-print object content</td>
+          </tr>
+          <tr>
+            <td><code>git hash-object FILE</code></td>
+            <td>Compute SHA without storing</td>
+          </tr>
+          <tr>
+            <td><code>git ls-files --stage</code></td>
+            <td>Show the staging area contents</td>
+          </tr>
+          <tr>
+            <td><code>git rev-parse HEAD</code></td>
+            <td>Resolve a reference to its SHA</td>
+          </tr>
+          <tr>
+            <td><code>git fsck</code></td>
+            <td>Verify object database integrity</td>
+          </tr>
+          <tr>
+            <td><code>git count-objects -v</code></td>
+            <td>Show storage statistics</td>
+          </tr>
+          <tr>
+            <td><code>git reflog</code></td>
+            <td>Show HEAD movement history</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>Git is a content-addressable filesystem</strong> &mdash; every piece of data is identified by its SHA-1 hash</li>
+        <li><strong>Three object types:</strong> blobs (file content), trees (directories), commits (snapshots + metadata)</li>
+        <li><strong>Branches are just files containing a SHA hash</strong> &mdash; creating a branch is instantaneous and free</li>
+        <li><strong>HEAD points to the current branch</strong>, which points to the latest commit</li>
+        <li><strong>The staging area is the next commit</strong> you are building &mdash; <code>git add</code> updates it, <code>git commit</code> snapshots it</li>
+        <li><strong>Rebase creates new commits</strong> (new SHAs) &mdash; the old ones still exist until garbage collection</li>
+        <li><strong>Reflog is your undo history</strong> &mdash; it records every HEAD change for 90 days</li>
+        <li><strong>Pack files use delta compression</strong> to keep repositories small despite storing every version</li>
+      </ul>
+
+      <p>Understanding Git internals transforms it from a scary tool into a simple one. A branch is a pointer. A commit is a snapshot. The reflog remembers everything. Once you see the data structures, Git commands stop being incantations and start being logical operations on a graph.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-27',
+    readTime: '12 min read',
+    tags: ['Git', 'Version Control', 'Tutorials', 'Developer Tools', 'Internals'],
+    coverImage: '',
+  },  {
+    id: '60',
+    title: 'Building AI Agents with Claude: From Chatbot to Autonomous Worker',
+    slug: 'building-ai-agents-claude-autonomous-worker',
+    excerpt: 'Transform a simple chatbot into an autonomous agent that uses tools, maintains memory, recovers from errors, and orchestrates multi-step workflows. Practical Python guide using Claude API with production-ready patterns.',
+    category: 'ai',
+    featured: true,
+    content: `
+      <p>A chatbot answers questions. An agent <strong>takes actions</strong>. It reads databases, calls APIs, writes files, makes decisions, and executes multi-step plans &mdash; all autonomously. The difference is not the model. It is the architecture around it.</p>
+
+      <p>This guide builds an AI agent from scratch using Claude, starting with a simple tool-calling loop and progressively adding memory, error recovery, and multi-step orchestration.</p>
+
+      <h2>The Agent Loop: Core Architecture</h2>
+
+      <p>Every AI agent follows the same fundamental loop:</p>
+
+      <ol>
+        <li>Receive a task from the user</li>
+        <li>Think about what to do next</li>
+        <li>Call a tool (or respond to the user)</li>
+        <li>Observe the tool result</li>
+        <li>Repeat from step 2 until the task is complete</li>
+      </ol>
+
+      <pre><code>import anthropic
+import json
+
+client = anthropic.Anthropic()
+
+def agent_loop(user_message: str, tools: list, system: str) -> str:
+    messages = [{"role": "user", "content": user_message}]
+
+    while True:
+        response = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=4096,
+            system=system,
+            tools=tools,
+            messages=messages,
+        )
+
+        # If the model wants to use a tool
+        if response.stop_reason == "tool_use":
+            # Add assistant response to conversation
+            messages.append({"role": "assistant", "content": response.content})
+
+            # Execute each tool call
+            tool_results = []
+            for block in response.content:
+                if block.type == "tool_use":
+                    result = execute_tool(block.name, block.input)
+                    tool_results.append({
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": json.dumps(result),
+                    })
+
+            messages.append({"role": "user", "content": tool_results})
+
+        else:
+            # Model gave a final text response
+            return response.content[0].text</code></pre>
+
+      <h2>Defining Tools</h2>
+
+      <p>Tools are functions the agent can call. Define them with clear descriptions &mdash; the model uses these descriptions to decide when and how to call each tool.</p>
+
+      <pre><code>tools = [
+    {
+        "name": "read_file",
+        "description": "Read the contents of a file at the given path",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "description": "Absolute or relative file path"
+                }
+            },
+            "required": ["path"]
+        }
+    },
+    {
+        "name": "run_sql_query",
+        "description": "Execute a read-only SQL query against the database. "
+                       "Only SELECT queries are allowed.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "SQL SELECT query to execute"
+                }
+            },
+            "required": ["query"]
+        }
+    },
+    {
+        "name": "create_github_issue",
+        "description": "Create a new issue in a GitHub repository",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "repo": {"type": "string", "description": "owner/repo format"},
+                "title": {"type": "string"},
+                "body": {"type": "string"},
+                "labels": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                }
+            },
+            "required": ["repo", "title", "body"]
+        }
+    }
+]
+
+def execute_tool(name: str, inputs: dict) -> dict:
+    if name == "read_file":
+        try:
+            with open(inputs["path"]) as f:
+                return {"content": f.read()}
+        except FileNotFoundError:
+            return {"error": f"File not found: {inputs['path']}"}
+
+    elif name == "run_sql_query":
+        query = inputs["query"].strip().upper()
+        if not query.startswith("SELECT"):
+            return {"error": "Only SELECT queries are allowed"}
+        rows = db.execute(inputs["query"])
+        return {"rows": rows, "count": len(rows)}
+
+    elif name == "create_github_issue":
+        issue = github.create_issue(**inputs)
+        return {"issue_url": issue.html_url, "number": issue.number}
+
+    return {"error": f"Unknown tool: {name}"}</code></pre>
+
+      <h2>Adding Memory: Conversation Persistence</h2>
+
+      <p>A stateless agent forgets everything between sessions. Add a memory layer so the agent retains context across conversations.</p>
+
+      <pre><code>import sqlite3
+from datetime import datetime
+
+class AgentMemory:
+    def __init__(self, db_path: str = "agent_memory.db"):
+        self.conn = sqlite3.connect(db_path)
+        self.conn.execute("""
+            CREATE TABLE IF NOT EXISTS memories (
+                id INTEGER PRIMARY KEY,
+                session_id TEXT,
+                role TEXT,
+                content TEXT,
+                created_at TEXT
+            )
+        """)
+        self.conn.execute("""
+            CREATE TABLE IF NOT EXISTS facts (
+                id INTEGER PRIMARY KEY,
+                key TEXT UNIQUE,
+                value TEXT,
+                updated_at TEXT
+            )
+        """)
+
+    def save_message(self, session_id: str, role: str, content: str):
+        self.conn.execute(
+            "INSERT INTO memories (session_id, role, content, created_at) VALUES (?, ?, ?, ?)",
+            (session_id, role, content, datetime.now().isoformat())
+        )
+        self.conn.commit()
+
+    def get_session(self, session_id: str, limit: int = 50) -> list:
+        rows = self.conn.execute(
+            "SELECT role, content FROM memories WHERE session_id = ? ORDER BY id DESC LIMIT ?",
+            (session_id, limit)
+        ).fetchall()
+        return [{"role": r[0], "content": r[1]} for r in reversed(rows)]
+
+    def remember(self, key: str, value: str):
+        self.conn.execute(
+            "INSERT OR REPLACE INTO facts (key, value, updated_at) VALUES (?, ?, ?)",
+            (key, value, datetime.now().isoformat())
+        )
+        self.conn.commit()
+
+    def recall(self, key: str) -> str | None:
+        row = self.conn.execute(
+            "SELECT value FROM facts WHERE key = ?", (key,)
+        ).fetchone()
+        return row[0] if row else None</code></pre>
+
+      <h2>Error Recovery: Making Agents Robust</h2>
+
+      <p>Production agents must handle failures gracefully &mdash; tool errors, API timeouts, unexpected model responses, and infinite loops.</p>
+
+      <pre><code>def robust_agent_loop(user_message: str, tools: list, system: str,
+                       max_iterations: int = 20) -> str:
+    messages = [{"role": "user", "content": user_message}]
+    iterations = 0
+
+    while iterations < max_iterations:
+        iterations += 1
+
+        try:
+            response = client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=4096,
+                system=system,
+                tools=tools,
+                messages=messages,
+            )
+        except anthropic.RateLimitError:
+            time.sleep(5)
+            continue
+        except anthropic.APIError as e:
+            return f"API error: {e}. Please try again."
+
+        if response.stop_reason == "tool_use":
+            messages.append({"role": "assistant", "content": response.content})
+
+            tool_results = []
+            for block in response.content:
+                if block.type == "tool_use":
+                    try:
+                        result = execute_tool(block.name, block.input)
+                    except Exception as e:
+                        result = {"error": str(e)}
+
+                    tool_results.append({
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": json.dumps(result),
+                        "is_error": "error" in result,
+                    })
+
+            messages.append({"role": "user", "content": tool_results})
+        else:
+            return response.content[0].text
+
+    return "Agent reached maximum iterations without completing the task."</code></pre>
+
+      <h2>Multi-Step Task Orchestration</h2>
+
+      <p>For complex tasks, give the agent a planning tool so it can break work into steps, track progress, and adapt when things go wrong.</p>
+
+      <pre><code>ORCHESTRATOR_SYSTEM = """You are an autonomous task agent. For complex requests:
+1. Break the task into numbered steps using the plan_task tool
+2. Execute each step using available tools
+3. After each step, evaluate progress and adapt the plan if needed
+4. Report the final result when all steps are complete
+
+If a step fails, try an alternative approach before giving up.
+Never repeat the same failed action more than twice."""
+
+plan_tool = {
+    "name": "plan_task",
+    "description": "Create or update a step-by-step plan for the current task. "
+                   "Call this at the start to plan, and again if the plan needs to change.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "steps": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "step_number": {"type": "integer"},
+                        "description": {"type": "string"},
+                        "status": {
+                            "type": "string",
+                            "enum": ["pending", "in_progress", "done", "failed"]
+                        }
+                    }
+                }
+            },
+            "reasoning": {
+                "type": "string",
+                "description": "Why this plan makes sense for the task"
+            }
+        },
+        "required": ["steps", "reasoning"]
+    }
+}</code></pre>
+
+      <h2>Guardrails: Keeping Agents Safe</h2>
+
+      <pre><code>class AgentGuardrails:
+    def __init__(self):
+        self.allowed_paths = ["/app/data/", "/tmp/"]
+        self.blocked_sql = ["DROP", "DELETE", "INSERT", "UPDATE", "ALTER"]
+        self.max_tool_calls = 50
+        self.tool_call_count = 0
+
+    def validate_tool_call(self, name: str, inputs: dict) -> str | None:
+        """Return error message if tool call is not allowed, None if OK."""
+        self.tool_call_count += 1
+        if self.tool_call_count > self.max_tool_calls:
+            return "Maximum tool calls exceeded. Aborting."
+
+        if name == "read_file":
+            path = inputs.get("path", "")
+            if not any(path.startswith(p) for p in self.allowed_paths):
+                return f"Access denied: {path} is outside allowed directories"
+
+        if name == "run_sql_query":
+            query_upper = inputs.get("query", "").upper()
+            for keyword in self.blocked_sql:
+                if keyword in query_upper:
+                    return f"Blocked: {keyword} queries are not allowed"
+
+        return None</code></pre>
+
+      <h2>Real-World Agent: Repository Analyzer</h2>
+
+      <pre><code>REPO_ANALYZER_SYSTEM = """You are a code repository analyzer agent.
+When given a repository path, you:
+1. Read the project structure
+2. Identify the tech stack (languages, frameworks, package managers)
+3. Check for common issues (missing tests, no CI config, security concerns)
+4. Generate a summary report
+
+Use the available tools to explore the codebase. Be thorough but efficient.
+Do not read every file - focus on configuration files, package manifests,
+and directory structure to infer the tech stack."""
+
+# Run the analyzer
+result = robust_agent_loop(
+    user_message="Analyze the repository at /app/my-project and generate a report",
+    tools=[read_file_tool, list_directory_tool, run_command_tool, plan_tool],
+    system=REPO_ANALYZER_SYSTEM,
+    max_iterations=30,
+)
+print(result)</code></pre>
+
+      <h2>Agent Patterns Comparison</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Pattern</th>
+            <th>Best For</th>
+            <th>Complexity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Simple Tool Loop</td>
+            <td>Single-step tasks, Q&amp;A with data lookup</td>
+            <td>Low</td>
+          </tr>
+          <tr>
+            <td>Plan-and-Execute</td>
+            <td>Multi-step tasks with clear stages</td>
+            <td>Medium</td>
+          </tr>
+          <tr>
+            <td>ReAct (Reason + Act)</td>
+            <td>Tasks requiring reasoning about observations</td>
+            <td>Medium</td>
+          </tr>
+          <tr>
+            <td>Multi-Agent</td>
+            <td>Complex workflows with specialized sub-agents</td>
+            <td>High</td>
+          </tr>
+          <tr>
+            <td>Human-in-the-Loop</td>
+            <td>High-stakes decisions, approval workflows</td>
+            <td>Medium</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Production Checklist</h2>
+
+      <ul>
+        <li><strong>Rate limiting:</strong> Cap API calls per user and per session</li>
+        <li><strong>Cost controls:</strong> Set max_tokens and iteration limits to prevent runaway costs</li>
+        <li><strong>Logging:</strong> Log every tool call, model response, and error for debugging</li>
+        <li><strong>Timeouts:</strong> Set hard timeouts on tool execution (a stuck API call should not block the agent)</li>
+        <li><strong>Sandboxing:</strong> Run file and command tools in isolated environments</li>
+        <li><strong>Human escalation:</strong> Agent should know when to stop and ask for help</li>
+        <li><strong>Testing:</strong> Create test scenarios that cover tool errors, edge cases, and multi-step workflows</li>
+      </ul>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>The agent loop is simple:</strong> think &rarr; act &rarr; observe &rarr; repeat. Everything else is refinement.</li>
+        <li><strong>Tool descriptions matter more than tool code</strong> &mdash; the model decides when and how to use tools based on descriptions alone</li>
+        <li><strong>Always add iteration limits</strong> &mdash; agents without guardrails can loop forever and cost hundreds of dollars</li>
+        <li><strong>Return errors as tool results, not exceptions</strong> &mdash; let the model decide how to recover</li>
+        <li><strong>Memory turns a chatbot into a colleague</strong> &mdash; it remembers preferences, past decisions, and project context</li>
+        <li><strong>Start with a simple tool loop</strong>, add planning only when tasks genuinely require multi-step orchestration</li>
+        <li><strong>Guardrails are not optional</strong> &mdash; file access controls, SQL query filtering, and cost limits are day-one requirements</li>
+      </ul>
+
+      <p>AI agents are not magic &mdash; they are well-structured programs with an LLM as the decision engine. The architecture matters more than the model. A well-designed agent with Claude Sonnet will outperform a poorly designed agent with Opus every time. Start simple, add complexity only when needed, and always, always add guardrails.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-27',
+    readTime: '14 min read',
+    tags: ['AI', 'Claude', 'Agents', 'Python', 'LLM'],
+    coverImage: '',
+  },  {
+    id: '59',
+    title: 'Kubernetes Debugging Toolkit: From kubectl to Victory',
+    slug: 'kubernetes-debugging-toolkit-kubectl-guide',
+    excerpt: 'Pod stuck in CrashLoopBackOff? Service not routing traffic? Node running out of memory? This is your battlefield guide to debugging Kubernetes — real commands, real scenarios, real fixes.',
+    category: 'devops',
+    featured: false,
+    content: `
+      <p>Kubernetes does not tell you what is wrong &mdash; it tells you what <em>state</em> things are in. Your job is to interpret the state, trace the root cause, and fix it. This guide covers the debugging commands and patterns that platform engineers use daily, organized by the problems you actually encounter.</p>
+
+      <h2>Essential Debugging Commands</h2>
+
+      <p>Before diving into specific problems, master these five commands. They solve 80% of issues:</p>
+
+      <pre><code># 1. What is happening right now?
+kubectl get pods -n my-namespace -o wide
+
+# 2. Why is this pod unhappy?
+kubectl describe pod my-pod-abc123 -n my-namespace
+
+# 3. What is the application saying?
+kubectl logs my-pod-abc123 -n my-namespace --tail=100
+
+# 4. What happened recently?
+kubectl get events -n my-namespace --sort-by='.lastTimestamp'
+
+# 5. Get inside and look around
+kubectl exec -it my-pod-abc123 -n my-namespace -- /bin/sh</code></pre>
+
+      <h2>Problem: Pod Stuck in CrashLoopBackOff</h2>
+
+      <p>The pod starts, crashes, Kubernetes restarts it, it crashes again. The backoff delay grows exponentially (10s, 20s, 40s, up to 5 minutes).</p>
+
+      <pre><code># Step 1: Check why it crashed
+kubectl logs my-pod --previous  # Logs from the LAST crashed container
+
+# Step 2: Check the exit code
+kubectl describe pod my-pod | grep -A 5 "Last State"
+#   Last State:  Terminated
+#     Reason:    Error
+#     Exit Code: 137    &larr; OOMKilled (out of memory)
+#     Exit Code: 1      &larr; Application error
+#     Exit Code: 143    &larr; SIGTERM (graceful shutdown)
+
+# Step 3: If OOMKilled (exit code 137), increase memory limits
+# Check current usage:
+kubectl top pod my-pod
+
+# Fix: increase memory in deployment spec
+# resources:
+#   requests:
+#     memory: "256Mi"
+#   limits:
+#     memory: "512Mi"     &larr; increase this
+
+# Step 4: If exit code 1, check application logs
+kubectl logs my-pod --previous | tail -50
+# Common causes: missing env var, wrong DB connection string,
+# missing config file, permission denied</code></pre>
+
+      <h2>Problem: Pod Stuck in Pending</h2>
+
+      <p>The pod is created but never gets scheduled to a node.</p>
+
+      <pre><code># Step 1: Check events
+kubectl describe pod my-pod | grep -A 10 "Events"
+# Common messages:
+#   "0/3 nodes are available: 3 Insufficient cpu"
+#   "0/3 nodes are available: 3 Insufficient memory"
+#   "no nodes match pod topology spread constraints"
+#   "0/3 nodes are available: 3 node(s) had taint"
+
+# Step 2: Check node capacity
+kubectl describe nodes | grep -A 5 "Allocated resources"
+
+# Step 3: Check if requests are too high
+kubectl get pod my-pod -o yaml | grep -A 4 "resources"
+
+# Fix for insufficient resources:
+# - Reduce resource requests
+# - Add more nodes (cluster autoscaler)
+# - Evict low-priority pods
+
+# Fix for taints:
+kubectl get nodes -o custom-columns=NAME:.metadata.name,TAINTS:.spec.taints
+# Add toleration to pod spec or remove taint from node</code></pre>
+
+      <h2>Problem: Service Not Routing Traffic</h2>
+
+      <pre><code># Step 1: Verify the service exists and has endpoints
+kubectl get svc my-service -n my-namespace
+kubectl get endpoints my-service -n my-namespace
+# If ENDPOINTS is empty (&lt;none&gt;), no pods match the selector!
+
+# Step 2: Check service selector matches pod labels
+kubectl get svc my-service -o yaml | grep -A 5 "selector"
+#   selector:
+#     app: my-app          &larr; Service looks for this label
+
+kubectl get pods --show-labels | grep my-app
+#   my-pod   1/1   Running   app=myapp    &larr; Notice: "myapp" not "my-app"!
+# Label mismatch! Fix the selector or the pod labels.
+
+# Step 3: Test connectivity from inside the cluster
+kubectl run debug --rm -it --image=busybox -- /bin/sh
+# Inside the debug pod:
+wget -qO- http://my-service.my-namespace.svc.cluster.local:8080/health
+nslookup my-service.my-namespace.svc.cluster.local
+
+# Step 4: Check if the pod is listening on the right port
+kubectl exec my-pod -- netstat -tlnp
+# Verify the application listens on the port the service targets</code></pre>
+
+      <h2>Problem: Ingress Not Working</h2>
+
+      <pre><code># Step 1: Check ingress resource
+kubectl get ingress -n my-namespace
+kubectl describe ingress my-ingress -n my-namespace
+
+# Step 2: Check ingress controller logs
+kubectl logs -n ingress-nginx deploy/ingress-nginx-controller --tail=50
+
+# Step 3: Check if the backend service is healthy
+kubectl get endpoints my-service
+# Must have at least one endpoint IP
+
+# Step 4: Check TLS certificate
+kubectl describe ingress my-ingress | grep -A 3 "TLS"
+kubectl get secret my-tls-secret -o yaml
+
+# Step 5: Test from outside
+curl -v -H "Host: my-app.example.com" http://INGRESS_IP/
+# The -v flag shows headers, redirects, and SSL handshake details</code></pre>
+
+      <h2>Problem: Node Issues</h2>
+
+      <pre><code># Check node status and conditions
+kubectl get nodes
+kubectl describe node worker-2 | grep -A 10 "Conditions"
+#   MemoryPressure   True    &larr; Node is running low on memory
+#   DiskPressure     True    &larr; Disk space critical
+#   PIDPressure      True    &larr; Too many processes
+#   Ready            False   &larr; Node is NOT accepting pods
+
+# Check resource usage across all nodes
+kubectl top nodes
+
+# Find pods consuming the most resources on a node
+kubectl get pods --all-namespaces -o wide --field-selector spec.nodeName=worker-2
+kubectl top pods --all-namespaces --sort-by=memory | head -20
+
+# Drain a problematic node (move all pods to other nodes)
+kubectl drain worker-2 --ignore-daemonsets --delete-emptydir-data
+
+# Cordon a node (prevent new pods, keep existing)
+kubectl cordon worker-2</code></pre>
+
+      <h2>Problem: ConfigMap/Secret Not Loading</h2>
+
+      <pre><code># Verify the ConfigMap exists
+kubectl get configmap my-config -n my-namespace -o yaml
+
+# Check if the pod mounts it correctly
+kubectl describe pod my-pod | grep -A 10 "Mounts"
+kubectl describe pod my-pod | grep -A 10 "Volumes"
+
+# Common issue: pod was created BEFORE the ConfigMap
+# ConfigMaps are loaded at pod start, not dynamically
+# Fix: restart the deployment
+kubectl rollout restart deployment my-app
+
+# Check environment variables inside the pod
+kubectl exec my-pod -- env | grep MY_VAR
+
+# For mounted files:
+kubectl exec my-pod -- cat /etc/config/my-setting</code></pre>
+
+      <h2>Problem: Persistent Volume Issues</h2>
+
+      <pre><code># Check PV and PVC status
+kubectl get pv
+kubectl get pvc -n my-namespace
+
+# PVC stuck in Pending:
+kubectl describe pvc my-claim -n my-namespace
+# Common causes:
+#   "no persistent volumes available for this claim"
+#   "storageclass not found"
+#   "waiting for first consumer to be created"
+
+# Check storage classes
+kubectl get storageclass
+kubectl describe storageclass standard
+
+# Multi-attach error (ReadWriteOnce volume on multiple nodes):
+# Pod cannot start because the PV is attached to another node
+# Fix: ensure pods using RWO volumes are on the same node
+# Or use ReadWriteMany (RWX) volumes (requires NFS or similar)</code></pre>
+
+      <h2>Advanced Debugging Tools</h2>
+
+      <h3>Ephemeral Debug Containers</h3>
+
+      <pre><code># Attach a debug container to a running pod (without restarting it)
+kubectl debug my-pod -it --image=busybox --target=my-container
+
+# Debug a node directly
+kubectl debug node/worker-2 -it --image=ubuntu
+
+# Create a copy of a crashing pod with a different command
+kubectl debug my-pod -it --copy-to=debug-pod --container=app -- /bin/sh</code></pre>
+
+      <h3>Network Debugging</h3>
+
+      <pre><code># DNS resolution
+kubectl run dns-test --rm -it --image=busybox -- nslookup kubernetes.default
+
+# Check network policies blocking traffic
+kubectl get networkpolicies -n my-namespace
+kubectl describe networkpolicy my-policy -n my-namespace
+
+# Port-forward for local testing
+kubectl port-forward svc/my-service 8080:80 -n my-namespace
+# Now access http://localhost:8080</code></pre>
+
+      <h2>Debugging Cheat Sheet</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Symptom</th>
+            <th>First Command</th>
+            <th>Likely Cause</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>CrashLoopBackOff</td>
+            <td>kubectl logs --previous</td>
+            <td>App error, OOM, missing config</td>
+          </tr>
+          <tr>
+            <td>Pending pod</td>
+            <td>kubectl describe pod</td>
+            <td>Insufficient resources, taints</td>
+          </tr>
+          <tr>
+            <td>Service no endpoints</td>
+            <td>kubectl get endpoints</td>
+            <td>Label selector mismatch</td>
+          </tr>
+          <tr>
+            <td>ImagePullBackOff</td>
+            <td>kubectl describe pod</td>
+            <td>Wrong image name, missing pull secret</td>
+          </tr>
+          <tr>
+            <td>Node NotReady</td>
+            <td>kubectl describe node</td>
+            <td>Kubelet down, resource pressure</td>
+          </tr>
+          <tr>
+            <td>Permission denied</td>
+            <td>kubectl auth can-i</td>
+            <td>RBAC misconfiguration</td>
+          </tr>
+          <tr>
+            <td>DNS not resolving</td>
+            <td>kubectl logs -n kube-system coredns</td>
+            <td>CoreDNS crash, network policy</td>
+          </tr>
+          <tr>
+            <td>OOMKilled (137)</td>
+            <td>kubectl top pod</td>
+            <td>Memory limit too low</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>describe, logs, events</strong> &mdash; these three commands solve 80% of Kubernetes problems</li>
+        <li><strong>Always check logs from the previous container</strong> with <code>--previous</code> for CrashLoopBackOff</li>
+        <li><strong>Exit code 137 means OOMKilled</strong> &mdash; increase memory limits, not requests</li>
+        <li><strong>Empty endpoints means label mismatch</strong> &mdash; the most common service routing issue</li>
+        <li><strong>Use ephemeral debug containers</strong> to debug pods without restarting them</li>
+        <li><strong>kubectl top</strong> shows real-time resource usage &mdash; compare against requests and limits</li>
+        <li><strong>Port-forward is your friend</strong> for testing services locally without ingress</li>
+      </ul>
+
+      <p>Kubernetes debugging is pattern recognition. Once you have seen CrashLoopBackOff with exit code 137 a few times, you instantly know it is an OOM kill. Build your mental library of symptoms-to-causes, and every production incident becomes a 5-minute fix instead of a 2-hour investigation.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-27',
+    readTime: '13 min read',
+    tags: ['Kubernetes', 'DevOps', 'Debugging', 'kubectl', 'Containers'],
+    coverImage: '',
+  },  {
+    id: '58',
+    title: 'Web Performance Secrets: Core Web Vitals from Red to Green',
+    slug: 'web-performance-core-web-vitals-optimization',
+    excerpt: 'Your Lighthouse score is red. Users are bouncing. Google is penalizing your rankings. This guide fixes LCP, CLS, and INP with practical techniques — lazy loading, image optimization, font strategies, and real before-after audits.',
+    category: 'frontend',
+    featured: false,
+    content: `
+      <p>Google uses Core Web Vitals as a ranking factor. A slow site does not just frustrate users &mdash; it literally pushes you down in search results. Yet most developers treat performance as an afterthought, adding a lazy loading directive and calling it done.</p>
+
+      <p>This guide takes you from red Lighthouse scores to green with concrete, measurable optimizations for each Core Web Vital.</p>
+
+      <h2>The Three Core Web Vitals</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>What It Measures</th>
+            <th>Good</th>
+            <th>Needs Improvement</th>
+            <th>Poor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>LCP</strong> (Largest Contentful Paint)</td>
+            <td>Loading speed &mdash; when the biggest visible element renders</td>
+            <td>&le; 2.5s</td>
+            <td>2.5s - 4.0s</td>
+            <td>&gt; 4.0s</td>
+          </tr>
+          <tr>
+            <td><strong>INP</strong> (Interaction to Next Paint)</td>
+            <td>Responsiveness &mdash; delay between user interaction and visual response</td>
+            <td>&le; 200ms</td>
+            <td>200ms - 500ms</td>
+            <td>&gt; 500ms</td>
+          </tr>
+          <tr>
+            <td><strong>CLS</strong> (Cumulative Layout Shift)</td>
+            <td>Visual stability &mdash; how much the page layout shifts unexpectedly</td>
+            <td>&le; 0.1</td>
+            <td>0.1 - 0.25</td>
+            <td>&gt; 0.25</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Fixing LCP: Make the Biggest Element Load Fast</h2>
+
+      <p>LCP measures when the largest visible element (usually a hero image, heading, or video poster) finishes rendering. The most common LCP killers:</p>
+
+      <h3>1. Optimize Images</h3>
+
+      <pre><code>&lt;!-- BEFORE: Unoptimized hero image --&gt;
+&lt;img src="hero.png" alt="Hero"&gt;
+&lt;!-- 2.4MB PNG, no sizing, blocks rendering --&gt;
+
+&lt;!-- AFTER: Optimized with modern formats --&gt;
+&lt;picture&gt;
+  &lt;source srcset="hero.avif" type="image/avif"&gt;
+  &lt;source srcset="hero.webp" type="image/webp"&gt;
+  &lt;img
+    src="hero.jpg"
+    alt="Hero"
+    width="1200"
+    height="600"
+    loading="eager"
+    fetchpriority="high"
+    decoding="async"
+  &gt;
+&lt;/picture&gt;
+&lt;!-- 85KB AVIF, explicit dimensions, high priority --&gt;</code></pre>
+
+      <p>Key rules for LCP images:</p>
+      <ul>
+        <li><strong>Use AVIF/WebP:</strong> 50-90% smaller than PNG/JPEG with equal quality</li>
+        <li><strong>Set explicit width/height:</strong> Prevents layout shift and helps the browser allocate space early</li>
+        <li><strong>Use fetchpriority="high":</strong> Tells the browser to prioritize this image over others</li>
+        <li><strong>Never lazy-load the LCP image:</strong> Use <code>loading="eager"</code> (or omit the attribute) for above-the-fold images</li>
+      </ul>
+
+      <h3>2. Preload Critical Resources</h3>
+
+      <pre><code>&lt;!-- In &lt;head&gt;: preload the LCP image --&gt;
+&lt;link rel="preload" as="image" href="hero.avif" type="image/avif"&gt;
+
+&lt;!-- Preload critical fonts --&gt;
+&lt;link rel="preload" as="font" href="/fonts/inter.woff2"
+      type="font/woff2" crossorigin&gt;
+
+&lt;!-- Preconnect to third-party origins --&gt;
+&lt;link rel="preconnect" href="https://cdn.example.com"&gt;
+&lt;link rel="dns-prefetch" href="https://analytics.example.com"&gt;</code></pre>
+
+      <h3>3. Eliminate Render-Blocking Resources</h3>
+
+      <pre><code>&lt;!-- BEFORE: Render-blocking CSS and JS --&gt;
+&lt;link rel="stylesheet" href="all-styles.css"&gt;  &lt;!-- 250KB --&gt;
+&lt;script src="analytics.js"&gt;&lt;/script&gt;          &lt;!-- Blocks parsing --&gt;
+
+&lt;!-- AFTER: Critical CSS inline, rest deferred --&gt;
+&lt;style&gt;
+  /* Only above-the-fold critical CSS (~14KB) */
+  .hero { ... }
+  .nav { ... }
+&lt;/style&gt;
+&lt;link rel="stylesheet" href="full-styles.css" media="print"
+      onload="this.media='all'"&gt;
+&lt;script src="analytics.js" defer&gt;&lt;/script&gt;</code></pre>
+
+      <h2>Fixing INP: Make Interactions Feel Instant</h2>
+
+      <p>INP replaced FID (First Input Delay) in March 2024. It measures the delay for <strong>all</strong> interactions, not just the first one. Common INP killers:</p>
+
+      <h3>1. Break Up Long Tasks</h3>
+
+      <pre><code>// BEFORE: One long task blocks the main thread for 400ms
+function processLargeList(items) {
+  items.forEach(item => {
+    expensiveCalculation(item);  // Blocks UI for entire loop
+  });
+}
+
+// AFTER: Yield to the browser between chunks
+async function processLargeList(items) {
+  const CHUNK_SIZE = 50;
+
+  for (let i = 0; i < items.length; i += CHUNK_SIZE) {
+    const chunk = items.slice(i, i + CHUNK_SIZE);
+    chunk.forEach(item => expensiveCalculation(item));
+
+    // Yield to browser: allow input handling and rendering
+    await new Promise(resolve => setTimeout(resolve, 0));
+  }
+}</code></pre>
+
+      <h3>2. Debounce Expensive Event Handlers</h3>
+
+      <pre><code>// BEFORE: Recalculates on every scroll event (60+ times/second)
+window.addEventListener('scroll', () => {
+  recalculateLayout();  // 50ms each = constant jank
+});
+
+// AFTER: Throttle to once per frame
+let ticking = false;
+window.addEventListener('scroll', () => {
+  if (!ticking) {
+    requestAnimationFrame(() => {
+      recalculateLayout();
+      ticking = false;
+    });
+    ticking = true;
+  }
+});</code></pre>
+
+      <h3>3. Use CSS contain for Complex Layouts</h3>
+
+      <pre><code>/* Tell the browser this element's layout is independent */
+.card {
+  contain: layout style paint;
+  /* Browser skips recalculating this subtree when
+     other parts of the page change */
+}
+
+/* For virtualized lists: contain size too */
+.virtual-list-item {
+  contain: strict;
+  /* Browser can skip layout entirely for off-screen items */
+}</code></pre>
+
+      <h2>Fixing CLS: Stop the Page from Jumping</h2>
+
+      <h3>1. Always Set Image Dimensions</h3>
+
+      <pre><code>&lt;!-- BEFORE: No dimensions = layout shift when image loads --&gt;
+&lt;img src="photo.jpg" alt="Photo"&gt;
+
+&lt;!-- AFTER: Browser reserves space before image loads --&gt;
+&lt;img src="photo.jpg" alt="Photo" width="800" height="600"&gt;
+
+&lt;!-- Or use CSS aspect-ratio for responsive images --&gt;
+&lt;style&gt;
+  .responsive-img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+&lt;/style&gt;</code></pre>
+
+      <h3>2. Font Loading Strategy</h3>
+
+      <pre><code>/* BEFORE: FOUT (Flash of Unstyled Text) causes layout shift */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter.woff2') format('woff2');
+  /* Default: font-display: auto (browser decides) */
+}
+
+/* AFTER: Swap with size-adjust to minimize shift */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter.woff2') format('woff2');
+  font-display: swap;
+  size-adjust: 107%;           /* Match fallback font metrics */
+  ascent-override: 90%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}</code></pre>
+
+      <h3>3. Reserve Space for Dynamic Content</h3>
+
+      <pre><code>&lt;!-- BEFORE: Ad loads and pushes content down --&gt;
+&lt;div id="ad-slot"&gt;&lt;/div&gt;
+
+&lt;!-- AFTER: Pre-allocate space --&gt;
+&lt;div id="ad-slot" style="min-height: 250px;"&gt;&lt;/div&gt;
+
+&lt;!-- For skeleton loaders --&gt;
+&lt;div class="skeleton" style="height: 200px; background: #e0e0e0;"&gt;
+  &lt;!-- Content loads here without shifting layout --&gt;
+&lt;/div&gt;</code></pre>
+
+      <h2>Angular-Specific Optimizations</h2>
+
+      <pre><code>// 1. Use OnPush change detection
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  // Reduces unnecessary re-renders by 60-80%
+})
+
+// 2. Lazy load routes (already standard)
+export const routes: Routes = [
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./dashboard.component')
+  }
+];
+
+// 3. Use @defer for below-the-fold components
+// In template:
+// @defer (on viewport) {
+//   &lt;app-heavy-chart /&gt;
+// } @placeholder {
+//   &lt;div class="skeleton" style="height: 400px"&gt;&lt;/div&gt;
+// }
+
+// 4. Use NgOptimizedImage
+import { NgOptimizedImage } from '@angular/common';
+
+// &lt;img ngSrc="hero.jpg" width="1200" height="600" priority /&gt;
+// Automatically: sets fetchpriority, generates srcset,
+// warns about missing dimensions, lazy loads by default</code></pre>
+
+      <h2>Measurement Tools</h2>
+
+      <ul>
+        <li><strong>Lighthouse (Chrome DevTools):</strong> Lab data &mdash; synthetic tests on your machine</li>
+        <li><strong>PageSpeed Insights:</strong> Combines lab data with real-user data from CrUX</li>
+        <li><strong>Web Vitals JS library:</strong> Measure real user metrics in production</li>
+        <li><strong>Chrome DevTools Performance tab:</strong> Flame chart showing exactly where time is spent</li>
+        <li><strong>Search Console Core Web Vitals report:</strong> Aggregated field data from real users</li>
+      </ul>
+
+      <pre><code>// Measure real user Core Web Vitals
+import { onLCP, onINP, onCLS } from 'web-vitals';
+
+onLCP(metric => sendToAnalytics('LCP', metric));
+onINP(metric => sendToAnalytics('INP', metric));
+onCLS(metric => sendToAnalytics('CLS', metric));
+
+function sendToAnalytics(name, metric) {
+  fetch('/api/vitals', {
+    method: 'POST',
+    body: JSON.stringify({
+      name,
+      value: metric.value,
+      rating: metric.rating,  // 'good', 'needs-improvement', 'poor'
+      url: location.href,
+    }),
+    keepalive: true,
+  });
+}</code></pre>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>LCP:</strong> Optimize the hero image (AVIF/WebP, preload, fetchpriority), inline critical CSS, defer everything else</li>
+        <li><strong>INP:</strong> Break long tasks into chunks with setTimeout(0), throttle event handlers, use CSS contain</li>
+        <li><strong>CLS:</strong> Always set image dimensions, use font-display: swap with size-adjust, reserve space for dynamic content</li>
+        <li><strong>Never lazy-load above-the-fold content</strong> &mdash; it makes LCP worse, not better</li>
+        <li><strong>Use Angular @defer</strong> for below-the-fold components &mdash; it is built-in code splitting</li>
+        <li><strong>Measure real users, not just Lighthouse</strong> &mdash; lab scores and field data often tell different stories</li>
+        <li><strong>Performance is a feature</strong> &mdash; every 100ms of delay reduces conversions by 7%</li>
+      </ul>
+
+      <p>Web performance is not about chasing a perfect Lighthouse score. It is about ensuring real users on real devices have a fast, stable, responsive experience. Fix the fundamentals in this guide, measure with real-user data, and iterate on what matters most to your users.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-27',
+    readTime: '12 min read',
+    tags: ['Web Performance', 'Core Web Vitals', 'Angular', 'SEO', 'Frontend'],
+    coverImage: '',
+  },  {
+    id: '57',
+    title: 'Angular Signals Deep Dive: Replacing RxJS the Right Way',
+    slug: 'angular-signals-deep-dive-replacing-rxjs',
+    excerpt: 'Angular Signals are not a drop-in replacement for RxJS — they solve different problems. Learn when to use signals vs observables, migration patterns, computed/effect gotchas, and real refactoring examples in Angular 21.',
+    category: 'frontend',
+    featured: false,
+    content: `
+      <p>Angular Signals landed as stable in Angular 17 and have matured significantly through Angular 21. The community reaction has been polarized: some developers want to replace every Observable with a signal, while others cling to RxJS for everything. Both extremes are wrong.</p>
+
+      <p>This guide explains what signals actually are under the hood, when they genuinely replace RxJS, and when observables remain the better tool.</p>
+
+      <h2>What Signals Actually Are</h2>
+
+      <p>A signal is a <strong>reactive primitive</strong> that holds a value and notifies consumers when that value changes. Unlike observables, signals are synchronous, always have a current value, and are pull-based (consumers read the value when they need it).</p>
+
+      <pre><code>import { signal, computed, effect } from '@angular/core';
+
+// Create a writable signal
+const count = signal(0);
+
+// Read the value (call it like a function)
+console.log(count()); // 0
+
+// Update the value
+count.set(5);
+count.update(prev => prev + 1); // 6
+
+// Computed: derived value that auto-updates
+const doubled = computed(() => count() * 2);
+console.log(doubled()); // 12
+
+// Effect: run side effects when dependencies change
+effect(() => {
+  console.log(\`Count changed to \${count()}\`);
+});</code></pre>
+
+      <h2>Signals vs Observables: The Core Difference</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Aspect</th>
+            <th>Signal</th>
+            <th>Observable (RxJS)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Execution</td>
+            <td>Synchronous</td>
+            <td>Can be async</td>
+          </tr>
+          <tr>
+            <td>Current Value</td>
+            <td>Always has one</td>
+            <td>May not (streams)</td>
+          </tr>
+          <tr>
+            <td>Model</td>
+            <td>Pull-based</td>
+            <td>Push-based</td>
+          </tr>
+          <tr>
+            <td>Glitch-Free</td>
+            <td>Yes (batched updates)</td>
+            <td>No (each emission triggers independently)</td>
+          </tr>
+          <tr>
+            <td>Cleanup</td>
+            <td>Automatic (injection context)</td>
+            <td>Manual (unsubscribe)</td>
+          </tr>
+          <tr>
+            <td>Operators</td>
+            <td>computed() only</td>
+            <td>100+ operators (map, filter, merge, debounce...)</td>
+          </tr>
+          <tr>
+            <td>Best For</td>
+            <td>Component state, UI bindings</td>
+            <td>Async events, HTTP, WebSocket, complex streams</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>When to Use Signals</h2>
+
+      <ul>
+        <li><strong>Component local state:</strong> Form values, toggle flags, counters, selected items</li>
+        <li><strong>Derived/computed values:</strong> Filtered lists, formatted strings, validation states</li>
+        <li><strong>Input/output binding:</strong> Component inputs and template bindings</li>
+        <li><strong>Simple shared state:</strong> Service-level state that multiple components read</li>
+      </ul>
+
+      <h3>Before (RxJS for simple state)</h3>
+
+      <pre><code>// Old pattern: BehaviorSubject for simple toggle
+@Injectable({ providedIn: 'root' })
+export class SidebarService {
+  private isOpen$$ = new BehaviorSubject&lt;boolean&gt;(false);
+  isOpen$ = this.isOpen$$.asObservable();
+
+  toggle() {
+    this.isOpen$$.next(!this.isOpen$$.value);
+  }
+}
+
+// Component (needs async pipe or manual subscribe)
+@Component({
+  template: \`&lt;aside *ngIf="isOpen$ | async"&gt;...&lt;/aside&gt;\`
+})
+export class SidebarComponent {
+  isOpen$ = inject(SidebarService).isOpen$;
+}</code></pre>
+
+      <h3>After (Signal &mdash; simpler, no subscription management)</h3>
+
+      <pre><code>@Injectable({ providedIn: 'root' })
+export class SidebarService {
+  isOpen = signal(false);
+
+  toggle() {
+    this.isOpen.update(open => !open);
+  }
+}
+
+@Component({
+  template: \`@if (isOpen()) { &lt;aside&gt;...&lt;/aside&gt; }\`
+})
+export class SidebarComponent {
+  isOpen = inject(SidebarService).isOpen;
+}</code></pre>
+
+      <h2>When to Keep RxJS</h2>
+
+      <ul>
+        <li><strong>HTTP requests:</strong> HttpClient returns observables with retry, timeout, and cancellation</li>
+        <li><strong>Debounced search:</strong> debounceTime + switchMap is irreplaceable for typeahead</li>
+        <li><strong>WebSocket streams:</strong> Continuous push-based data flow</li>
+        <li><strong>Complex event composition:</strong> merge, combineLatest, race, forkJoin</li>
+        <li><strong>Route events:</strong> Router events are observable-based</li>
+      </ul>
+
+      <pre><code>// RxJS is STILL better for debounced search
+@Component({
+  template: \`&lt;input [formControl]="searchControl"&gt;\`
+})
+export class SearchComponent {
+  searchControl = new FormControl('');
+  results = signal&lt;Result[]&gt;([]);
+
+  constructor() {
+    // RxJS for the stream, signal for the result
+    this.searchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(query => this.searchService.search(query)),
+      takeUntilDestroyed()
+    ).subscribe(results => {
+      this.results.set(results);  // Bridge to signal
+    });
+  }
+}</code></pre>
+
+      <h2>Bridging Signals and Observables</h2>
+
+      <p>Angular provides built-in functions to convert between signals and observables:</p>
+
+      <pre><code>import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+
+// Observable to Signal
+const data = toSignal(this.http.get&lt;Data[]&gt;('/api/data'), {
+  initialValue: []  // Required: signals must always have a value
+});
+
+// Signal to Observable
+const count = signal(0);
+const count$ = toObservable(count);
+count$.pipe(
+  debounceTime(500)
+).subscribe(val => console.log(val));</code></pre>
+
+      <h2>Computed Signals: Gotchas</h2>
+
+      <h3>1. Computed signals are lazy and cached</h3>
+
+      <pre><code>const items = signal([1, 2, 3, 4, 5]);
+const total = computed(() => {
+  console.log('Computing total...'); // Only runs when read AND deps changed
+  return items().reduce((a, b) => a + b, 0);
+});
+
+// First read: computes and caches
+console.log(total()); // "Computing total..." then 15
+
+// Second read without change: returns cached value
+console.log(total()); // 15 (no recomputation!)</code></pre>
+
+      <h3>2. Do not mutate objects inside signals</h3>
+
+      <pre><code>const user = signal({ name: 'Alice', age: 30 });
+
+// WRONG: mutation is not detected
+user().name = 'Bob'; // Signal does not know it changed!
+
+// RIGHT: create a new reference
+user.update(u => ({ ...u, name: 'Bob' }));</code></pre>
+
+      <h3>3. Effect cleanup and injection context</h3>
+
+      <pre><code>// Effects must run in an injection context (constructor, field initializer)
+@Component({...})
+export class MyComponent {
+  count = signal(0);
+
+  // Works: field initializer is in injection context
+  logger = effect(() => {
+    console.log(\`Count: \${this.count()}\`);
+  });
+
+  // WRONG: ngOnInit is NOT an injection context
+  ngOnInit() {
+    // effect(() => {}); // Error!
+  }
+}</code></pre>
+
+      <h2>Signal-Based Components Pattern</h2>
+
+      <pre><code>@Component({
+  selector: 'app-product-list',
+  template: \`
+    &lt;input type="text" (input)="filterText.set(input.value)" placeholder="Search..."&gt;
+    &lt;select (change)="sortBy.set(select.value)"&gt;
+      &lt;option value="name"&gt;Name&lt;/option&gt;
+      &lt;option value="price"&gt;Price&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;p&gt;Showing {{ filteredProducts().length }} of {{ products().length }}&lt;/p&gt;
+    @for (product of filteredProducts(); track product.id) {
+      &lt;app-product-card [product]="product" /&gt;
+    }
+  \`
+})
+export class ProductListComponent {
+  private productService = inject(ProductService);
+
+  products = toSignal(this.productService.getAll(), { initialValue: [] });
+  filterText = signal('');
+  sortBy = signal('name');
+
+  filteredProducts = computed(() => {
+    const text = this.filterText().toLowerCase();
+    const sort = this.sortBy();
+
+    return this.products()
+      .filter(p => p.name.toLowerCase().includes(text))
+      .sort((a, b) => a[sort] > b[sort] ? 1 : -1);
+  });
+}</code></pre>
+
+      <p>This component has <strong>zero subscriptions</strong>, zero OnDestroy cleanup, and zero async pipes. The template reads signals directly, and Angular only re-renders when the computed value actually changes.</p>
+
+      <h2>Migration Strategy</h2>
+
+      <ol>
+        <li><strong>New code:</strong> Write all new components with signals by default</li>
+        <li><strong>Simple state:</strong> Replace BehaviorSubject services with signal services</li>
+        <li><strong>Keep RxJS for:</strong> HTTP, WebSocket, debounce, complex stream composition</li>
+        <li><strong>Bridge pattern:</strong> Use toSignal() at the component level to consume observables as signals</li>
+        <li><strong>Do not force it:</strong> If RxJS is cleaner for a specific case, keep it. Signals and observables coexist.</li>
+      </ol>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>Signals replace BehaviorSubject for synchronous state</strong> &mdash; simpler, no subscriptions to manage</li>
+        <li><strong>RxJS remains essential for async streams</strong> &mdash; HTTP, WebSocket, debounce, complex event composition</li>
+        <li><strong>Use computed() for derived values</strong> &mdash; it is lazy, cached, and glitch-free</li>
+        <li><strong>Never mutate signal values directly</strong> &mdash; always create new references with update() or set()</li>
+        <li><strong>Bridge with toSignal() and toObservable()</strong> &mdash; use the right primitive at each layer</li>
+        <li><strong>Effects run in injection context only</strong> &mdash; field initializers or constructors, not lifecycle hooks</li>
+        <li><strong>Signals and RxJS coexist</strong> &mdash; this is not a replacement, it is an addition to your toolkit</li>
+      </ul>
+
+      <p>The best Angular code in 2026 uses both signals and observables, each where they are strongest. Signals for component state and UI bindings. Observables for async operations and complex event streams. Do not pick a side &mdash; use the right tool for each job.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-27',
+    readTime: '12 min read',
+    tags: ['Angular', 'Signals', 'RxJS', 'TypeScript', 'Frontend'],
+    coverImage: '',
+  },  {
+    id: '56',
+    title: 'Database Migrations Without Downtime: Zero-Downtime Schema Changes',
+    slug: 'zero-downtime-database-migrations-expand-contract',
+    excerpt: 'Adding a NOT NULL column to a 50-million-row table should not take your app offline. Learn the expand-contract pattern, online DDL, backward-compatible migrations, and the exact steps for safe schema changes in production.',
+    category: 'backend',
+    featured: false,
+    content: `
+      <p>You need to rename a column, add a NOT NULL constraint, or change a data type. In development, you run the migration and it takes 200 milliseconds. In production with 50 million rows, that same migration locks the table for 45 minutes and your app goes down.</p>
+
+      <p>This guide teaches the <strong>expand-contract pattern</strong> &mdash; the industry-standard approach to zero-downtime schema changes used by companies like GitHub, Shopify, and Stripe.</p>
+
+      <h2>Why Migrations Cause Downtime</h2>
+
+      <p>Most schema changes in PostgreSQL and MySQL acquire <strong>exclusive locks</strong> on the table. While the lock is held, no reads or writes can proceed. On large tables, the migration itself can take minutes or hours.</p>
+
+      <pre><code>-- This innocent-looking migration:
+ALTER TABLE orders ADD COLUMN discount_code VARCHAR(50) NOT NULL DEFAULT '';
+
+-- On a 50M row table in PostgreSQL < 11:
+-- 1. Acquires ACCESS EXCLUSIVE lock (blocks ALL queries)
+-- 2. Rewrites every single row to add the default value
+-- 3. Rebuilds all indexes
+-- Duration: 30-60 minutes of TOTAL DOWNTIME</code></pre>
+
+      <p><strong>PostgreSQL 11+ improvement:</strong> Adding a column with a constant DEFAULT no longer rewrites the table. But many other operations (adding constraints, changing types, renaming) still require careful handling.</p>
+
+      <h2>The Expand-Contract Pattern</h2>
+
+      <p>Instead of making a breaking change in one step, split it into three safe phases:</p>
+
+      <ol>
+        <li><strong>Expand:</strong> Add the new structure alongside the old one (backward compatible)</li>
+        <li><strong>Migrate:</strong> Update application code to use the new structure. Backfill data.</li>
+        <li><strong>Contract:</strong> Remove the old structure once nothing depends on it</li>
+      </ol>
+
+      <h3>Example: Renaming a Column</h3>
+
+      <p>You want to rename <code>user_name</code> to <code>display_name</code>. A direct rename locks the table and breaks all queries referencing the old name.</p>
+
+      <pre><code>-- WRONG: Direct rename (causes downtime + app errors)
+ALTER TABLE users RENAME COLUMN user_name TO display_name;
+-- Every query using "user_name" immediately breaks!
+
+-- RIGHT: Expand-Contract (zero downtime)
+
+-- Phase 1: EXPAND - Add new column
+ALTER TABLE users ADD COLUMN display_name VARCHAR(255);
+
+-- Phase 2: MIGRATE - Backfill data in batches
+UPDATE users SET display_name = user_name
+WHERE display_name IS NULL
+AND id BETWEEN 1 AND 100000;  -- Batch by ID range
+
+-- Phase 2b: Deploy code that writes to BOTH columns
+-- Phase 2c: Deploy code that reads from display_name (falls back to user_name)
+-- Phase 2d: Deploy code that reads ONLY from display_name
+
+-- Phase 3: CONTRACT - Remove old column (after verification)
+ALTER TABLE users DROP COLUMN user_name;</code></pre>
+
+      <h3>Example: Adding a NOT NULL Constraint</h3>
+
+      <pre><code>-- WRONG: Direct NOT NULL (scans entire table with lock)
+ALTER TABLE orders ALTER COLUMN customer_email SET NOT NULL;
+
+-- RIGHT: Add constraint without validation, then validate separately
+
+-- Phase 1: Add constraint as NOT VALID (instant, no scan)
+ALTER TABLE orders
+ADD CONSTRAINT orders_email_not_null
+CHECK (customer_email IS NOT NULL) NOT VALID;
+
+-- Phase 2: Backfill any NULL values
+UPDATE orders SET customer_email = 'unknown@example.com'
+WHERE customer_email IS NULL;
+
+-- Phase 3: Validate constraint (reads table but does NOT lock writes)
+ALTER TABLE orders VALIDATE CONSTRAINT orders_email_not_null;</code></pre>
+
+      <h2>Backfilling Data Safely</h2>
+
+      <p>Never backfill an entire table in one UPDATE. It creates a massive transaction that bloats WAL, locks rows, and can overwhelm your database.</p>
+
+      <pre><code># Django management command for batched backfill
+from django.db import connection
+
+def backfill_display_name(batch_size=10000):
+    while True:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                UPDATE users
+                SET display_name = user_name
+                WHERE display_name IS NULL
+                AND id IN (
+                    SELECT id FROM users
+                    WHERE display_name IS NULL
+                    LIMIT %s
+                )
+            """, [batch_size])
+
+            rows_updated = cursor.rowcount
+
+        if rows_updated == 0:
+            break
+
+        print(f"Updated {rows_updated} rows")
+        time.sleep(0.1)  # Brief pause to reduce load</code></pre>
+
+      <h2>Index Changes Without Downtime</h2>
+
+      <pre><code>-- WRONG: CREATE INDEX locks the table for the entire duration
+CREATE INDEX idx_orders_email ON orders(customer_email);
+-- On 50M rows: 10-30 minutes of blocked writes
+
+-- RIGHT: CREATE INDEX CONCURRENTLY (no lock on writes)
+CREATE INDEX CONCURRENTLY idx_orders_email ON orders(customer_email);
+-- Takes the same time but does NOT block any queries
+-- Caveat: cannot run inside a transaction block</code></pre>
+
+      <h2>Django Migration Best Practices</h2>
+
+      <pre><code># migrations/0042_add_display_name.py
+from django.db import migrations, models
+
+class Migration(migrations.Migration):
+    # CRITICAL: Prevent Django from wrapping in a transaction
+    # Required for CREATE INDEX CONCURRENTLY
+    atomic = False
+
+    dependencies = [
+        ('users', '0041_previous'),
+    ]
+
+    operations = [
+        # Add nullable column (instant, no rewrite)
+        migrations.AddField(
+            model_name='user',
+            name='display_name',
+            field=models.CharField(max_length=255, null=True),
+        ),
+
+        # Add index concurrently
+        migrations.RunSQL(
+            sql='CREATE INDEX CONCURRENTLY idx_user_display ON users_user(display_name);',
+            reverse_sql='DROP INDEX IF EXISTS idx_user_display;',
+        ),
+    ]</code></pre>
+
+      <h2>Dangerous Operations Cheat Sheet</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Operation</th>
+            <th>Risk Level</th>
+            <th>Safe Alternative</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ADD COLUMN (nullable)</td>
+            <td>Safe</td>
+            <td>Direct (instant in PostgreSQL)</td>
+          </tr>
+          <tr>
+            <td>ADD COLUMN with DEFAULT</td>
+            <td>Safe (PG 11+)</td>
+            <td>Direct (PG 11+) or add nullable + backfill</td>
+          </tr>
+          <tr>
+            <td>ADD COLUMN NOT NULL</td>
+            <td>Dangerous</td>
+            <td>Add nullable &rarr; backfill &rarr; add CHECK NOT VALID &rarr; validate</td>
+          </tr>
+          <tr>
+            <td>DROP COLUMN</td>
+            <td>Moderate</td>
+            <td>Remove from code first, then drop in next deploy</td>
+          </tr>
+          <tr>
+            <td>RENAME COLUMN</td>
+            <td>Dangerous</td>
+            <td>Expand-contract: add new &rarr; dual write &rarr; drop old</td>
+          </tr>
+          <tr>
+            <td>CHANGE TYPE</td>
+            <td>Dangerous</td>
+            <td>Add new column &rarr; backfill &rarr; swap</td>
+          </tr>
+          <tr>
+            <td>ADD INDEX</td>
+            <td>Dangerous</td>
+            <td>CREATE INDEX CONCURRENTLY</td>
+          </tr>
+          <tr>
+            <td>ADD FOREIGN KEY</td>
+            <td>Dangerous</td>
+            <td>ADD CONSTRAINT NOT VALID &rarr; VALIDATE</td>
+          </tr>
+          <tr>
+            <td>ADD UNIQUE CONSTRAINT</td>
+            <td>Dangerous</td>
+            <td>CREATE UNIQUE INDEX CONCURRENTLY &rarr; ADD CONSTRAINT USING INDEX</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Deployment Order Matters</h2>
+
+      <p>The golden rule: <strong>migration and code must be backward compatible at every step</strong>. Never deploy code that depends on a migration that has not run yet, and never run a migration that breaks currently deployed code.</p>
+
+      <pre><code># Safe deployment order for renaming a column:
+
+# Deploy 1: Add new column (migration only)
+# - Old code works fine (ignores new column)
+# - New column exists but is empty
+
+# Deploy 2: Write to both columns (code change)
+# - Writes go to both user_name AND display_name
+# - Reads still from user_name
+
+# Deploy 3: Backfill historical data (script/migration)
+# - All rows now have display_name populated
+
+# Deploy 4: Read from new column (code change)
+# - Reads from display_name
+# - Still writes to both (in case of rollback)
+
+# Deploy 5: Stop writing to old column (code change)
+# - Only writes to display_name
+
+# Deploy 6: Drop old column (migration)
+# - Safe: nothing references user_name anymore</code></pre>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>Never run ALTER TABLE on large tables without checking lock behavior</strong> &mdash; test migrations against production-sized data first</li>
+        <li><strong>Use the expand-contract pattern</strong> for any schema change that could break running code</li>
+        <li><strong>Backfill in batches</strong> &mdash; never update millions of rows in a single transaction</li>
+        <li><strong>Always use CONCURRENTLY</strong> for index creation in production</li>
+        <li><strong>Add constraints as NOT VALID first</strong>, then validate separately to avoid full table locks</li>
+        <li><strong>Deploy in the right order:</strong> migration before code that needs it, code change before migration that removes something</li>
+        <li><strong>PostgreSQL 11+ is your friend</strong> &mdash; many operations that used to be dangerous are now safe, but always verify</li>
+      </ul>
+
+      <p>Zero-downtime migrations require more steps than a simple ALTER TABLE, but the alternative is explaining to your users why the app was down for 45 minutes during a &ldquo;routine update.&rdquo; The expand-contract pattern is not complex &mdash; it is disciplined. And discipline beats downtime every time.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-27',
+    readTime: '11 min read',
+    tags: ['Database', 'PostgreSQL', 'Django', 'Migrations', 'DevOps'],
+    coverImage: '',
+  },  {
+    id: '55',
+    title: 'Rate Limiting Algorithms Explained: Token Bucket, Sliding Window, and Leaky Bucket',
+    slug: 'rate-limiting-algorithms-token-bucket-sliding-window',
+    excerpt: 'Implement three production rate limiting algorithms from scratch in Python — token bucket, sliding window log, and leaky bucket. Understand the tradeoffs and pick the right one for your API.',
+    category: 'backend',
+    featured: false,
+    content: `
+      <p>Every API needs rate limiting. Without it, a single misbehaving client can overwhelm your servers, a bot can scrape your entire database, or a billing exploit can cost you thousands. But not all rate limiters are equal &mdash; each algorithm has distinct tradeoffs in accuracy, memory usage, and burst handling.</p>
+
+      <p>This guide implements three production-grade algorithms from scratch, explains when to use each, and shows how to deploy them with Redis for distributed systems.</p>
+
+      <h2>Why Rate Limiting Matters</h2>
+
+      <ul>
+        <li><strong>Protection:</strong> Prevent DDoS attacks and resource exhaustion</li>
+        <li><strong>Fairness:</strong> Ensure no single client monopolizes capacity</li>
+        <li><strong>Cost Control:</strong> Limit expensive operations (AI API calls, database queries)</li>
+        <li><strong>Compliance:</strong> Enforce contractual API usage limits per tier</li>
+      </ul>
+
+      <h2>Algorithm 1: Token Bucket</h2>
+
+      <p>The token bucket is the most widely used algorithm (used by AWS, Stripe, and most API gateways). Imagine a bucket that holds tokens. Tokens are added at a fixed rate. Each request consumes one token. If the bucket is empty, the request is rejected.</p>
+
+      <h3>Key Properties</h3>
+      <ul>
+        <li><strong>Allows bursts:</strong> A full bucket can handle a burst of requests up to the bucket capacity</li>
+        <li><strong>Smooth refill:</strong> Tokens regenerate at a constant rate regardless of traffic</li>
+        <li><strong>Simple and efficient:</strong> O(1) per request, minimal memory</li>
+      </ul>
+
+      <pre><code>import time
+
+class TokenBucket:
+    def __init__(self, capacity: int, refill_rate: float):
+        """
+        capacity: maximum tokens in the bucket
+        refill_rate: tokens added per second
+        """
+        self.capacity = capacity
+        self.refill_rate = refill_rate
+        self.tokens = capacity
+        self.last_refill = time.monotonic()
+
+    def allow_request(self) -> bool:
+        now = time.monotonic()
+        elapsed = now - self.last_refill
+
+        # Refill tokens based on elapsed time
+        self.tokens = min(
+            self.capacity,
+            self.tokens + elapsed * self.refill_rate
+        )
+        self.last_refill = now
+
+        if self.tokens >= 1:
+            self.tokens -= 1
+            return True
+        return False
+
+# Usage: 10 requests per second, burst up to 20
+limiter = TokenBucket(capacity=20, refill_rate=10)
+
+for i in range(25):
+    if limiter.allow_request():
+        print(f"Request {i}: allowed")
+    else:
+        print(f"Request {i}: rate limited (429)")</code></pre>
+
+      <h3>Distributed Token Bucket with Redis</h3>
+
+      <pre><code>import redis
+import time
+
+r = redis.Redis()
+
+def token_bucket_redis(key: str, capacity: int, refill_rate: float) -> bool:
+    pipe = r.pipeline()
+    now = time.time()
+
+    # Atomic Lua script for thread safety
+    lua_script = """
+    local key = KEYS[1]
+    local capacity = tonumber(ARGV[1])
+    local refill_rate = tonumber(ARGV[2])
+    local now = tonumber(ARGV[3])
+
+    local bucket = redis.call('HMGET', key, 'tokens', 'last_refill')
+    local tokens = tonumber(bucket[1]) or capacity
+    local last_refill = tonumber(bucket[2]) or now
+
+    local elapsed = now - last_refill
+    tokens = math.min(capacity, tokens + elapsed * refill_rate)
+
+    if tokens >= 1 then
+        tokens = tokens - 1
+        redis.call('HMSET', key, 'tokens', tokens, 'last_refill', now)
+        redis.call('EXPIRE', key, math.ceil(capacity / refill_rate) + 1)
+        return 1
+    else
+        redis.call('HMSET', key, 'tokens', tokens, 'last_refill', now)
+        redis.call('EXPIRE', key, math.ceil(capacity / refill_rate) + 1)
+        return 0
+    end
+    """
+    result = r.eval(lua_script, 1, key, capacity, refill_rate, now)
+    return result == 1</code></pre>
+
+      <h2>Algorithm 2: Sliding Window Log</h2>
+
+      <p>The sliding window log tracks the exact timestamp of every request. To check if a new request is allowed, count all requests in the past N seconds. This is the most accurate algorithm but uses more memory.</p>
+
+      <h3>Key Properties</h3>
+      <ul>
+        <li><strong>Exact counting:</strong> No boundary issues &mdash; the window truly slides</li>
+        <li><strong>No bursts at boundaries:</strong> Unlike fixed windows, you cannot get 2x the limit at a window edge</li>
+        <li><strong>Higher memory:</strong> Stores a timestamp per request (O(n) where n is the limit)</li>
+      </ul>
+
+      <pre><code>import time
+from collections import deque
+
+class SlidingWindowLog:
+    def __init__(self, max_requests: int, window_seconds: float):
+        self.max_requests = max_requests
+        self.window_seconds = window_seconds
+        self.requests = deque()
+
+    def allow_request(self) -> bool:
+        now = time.monotonic()
+        window_start = now - self.window_seconds
+
+        # Remove expired timestamps
+        while self.requests and self.requests[0] <= window_start:
+            self.requests.popleft()
+
+        if len(self.requests) < self.max_requests:
+            self.requests.append(now)
+            return True
+        return False
+
+# Usage: 100 requests per 60 seconds
+limiter = SlidingWindowLog(max_requests=100, window_seconds=60)</code></pre>
+
+      <h3>Redis Implementation with Sorted Sets</h3>
+
+      <pre><code>def sliding_window_redis(key: str, max_requests: int, window_secs: int) -> bool:
+    lua_script = """
+    local key = KEYS[1]
+    local max_req = tonumber(ARGV[1])
+    local window = tonumber(ARGV[2])
+    local now = tonumber(ARGV[3])
+
+    -- Remove expired entries
+    redis.call('ZREMRANGEBYSCORE', key, 0, now - window)
+
+    -- Count current requests
+    local count = redis.call('ZCARD', key)
+
+    if count < max_req then
+        redis.call('ZADD', key, now, now .. '-' .. math.random(1000000))
+        redis.call('EXPIRE', key, window)
+        return 1
+    end
+    return 0
+    """
+    result = r.eval(lua_script, 1, key, max_requests, window_secs, time.time())
+    return result == 1</code></pre>
+
+      <h2>Algorithm 3: Leaky Bucket</h2>
+
+      <p>The leaky bucket processes requests at a <strong>fixed rate</strong>, like water dripping from a bucket with a hole. Incoming requests are queued. If the queue is full, new requests are rejected. This produces the smoothest output rate.</p>
+
+      <h3>Key Properties</h3>
+      <ul>
+        <li><strong>Constant output rate:</strong> Requests are processed at exactly the configured rate &mdash; no bursts</li>
+        <li><strong>Queue-based:</strong> Excess requests wait in a queue rather than being immediately rejected</li>
+        <li><strong>Best for:</strong> APIs that call expensive downstream services at a fixed rate</li>
+      </ul>
+
+      <pre><code>import time
+import threading
+from collections import deque
+
+class LeakyBucket:
+    def __init__(self, capacity: int, leak_rate: float):
+        """
+        capacity: max queued requests
+        leak_rate: requests processed per second
+        """
+        self.capacity = capacity
+        self.leak_rate = leak_rate
+        self.queue = deque()
+        self.lock = threading.Lock()
+        self.last_leak = time.monotonic()
+
+    def allow_request(self) -> bool:
+        with self.lock:
+            now = time.monotonic()
+            elapsed = now - self.last_leak
+
+            # Drain processed requests
+            leaked = int(elapsed * self.leak_rate)
+            if leaked > 0:
+                for _ in range(min(leaked, len(self.queue))):
+                    self.queue.popleft()
+                self.last_leak = now
+
+            if len(self.queue) < self.capacity:
+                self.queue.append(now)
+                return True
+            return False
+
+# Usage: queue up to 50 requests, process 10/second
+limiter = LeakyBucket(capacity=50, leak_rate=10)</code></pre>
+
+      <h2>Algorithm Comparison</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Token Bucket</th>
+            <th>Sliding Window</th>
+            <th>Leaky Bucket</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Burst Handling</td>
+            <td>Allows controlled bursts</td>
+            <td>No bursts</td>
+            <td>No bursts (queued)</td>
+          </tr>
+          <tr>
+            <td>Accuracy</td>
+            <td>Good</td>
+            <td>Exact</td>
+            <td>Exact output rate</td>
+          </tr>
+          <tr>
+            <td>Memory</td>
+            <td>O(1)</td>
+            <td>O(n) per client</td>
+            <td>O(queue size)</td>
+          </tr>
+          <tr>
+            <td>Complexity</td>
+            <td>Simple</td>
+            <td>Moderate</td>
+            <td>Moderate</td>
+          </tr>
+          <tr>
+            <td>Best For</td>
+            <td>General API limiting</td>
+            <td>Strict per-client limits</td>
+            <td>Fixed-rate downstream calls</td>
+          </tr>
+          <tr>
+            <td>Used By</td>
+            <td>AWS, Stripe, nginx</td>
+            <td>Custom implementations</td>
+            <td>Network traffic shaping</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>HTTP Response Headers</h2>
+
+      <p>Always communicate rate limit status to clients via standard headers:</p>
+
+      <pre><code># Successful response
+HTTP/1.1 200 OK
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 67
+X-RateLimit-Reset: 1714233600
+
+# Rate limited response
+HTTP/1.1 429 Too Many Requests
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 1714233600
+Retry-After: 32</code></pre>
+
+      <h2>Django Middleware Example</h2>
+
+      <pre><code>from django.http import JsonResponse
+
+class RateLimitMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        client_key = self.get_client_key(request)
+
+        if not token_bucket_redis(f"rate:{client_key}", capacity=100, refill_rate=1.67):
+            return JsonResponse(
+                {"error": "Rate limit exceeded. Try again later."},
+                status=429,
+                headers={"Retry-After": "60"}
+            )
+
+        return self.get_response(request)
+
+    def get_client_key(self, request):
+        # Prefer API key, fall back to IP
+        api_key = request.headers.get("X-API-Key")
+        if api_key:
+            return f"api:{api_key}"
+        return f"ip:{request.META.get('REMOTE_ADDR')}"</code></pre>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>Token bucket is the default choice</strong> &mdash; simple, efficient, handles bursts gracefully</li>
+        <li><strong>Sliding window log is most accurate</strong> &mdash; use when strict per-client limits matter more than memory</li>
+        <li><strong>Leaky bucket smooths output rate</strong> &mdash; ideal when downstream services need constant throughput</li>
+        <li><strong>Use Redis Lua scripts</strong> for atomic, distributed rate limiting across multiple servers</li>
+        <li><strong>Always return rate limit headers</strong> so clients can self-throttle</li>
+        <li><strong>Rate limit by API key first, IP second</strong> &mdash; IP-based limiting breaks behind shared proxies</li>
+      </ul>
+
+      <p>Rate limiting is not just a security feature &mdash; it is a reliability feature. A well-implemented rate limiter protects your servers, your budget, and your users from each other. Pick the right algorithm for your use case, implement it with Redis for distribution, and always communicate limits clearly to your clients.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-27',
+    readTime: '11 min read',
+    tags: ['Rate Limiting', 'Python', 'Redis', 'API Design', 'Backend'],
+    coverImage: '',
+  },  {
     id: '54',
     title: 'System Design in 30 Minutes: From Load Balancer to Database',
     slug: 'system-design-load-balancer-to-database',
