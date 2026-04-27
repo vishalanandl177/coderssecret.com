@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0e7490"/>
+      <stop offset="50%" style="stop-color:#0891b2"/>
+      <stop offset="100%" style="stop-color:#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#67e8f9"/>
+      <stop offset="100%" style="stop-color:#a5f3fc"/>
+    </linearGradient>
+    <pattern id="grid" x="6" y="6" width="40" height="40" patternUnits="userSpaceOnUse" patternTransform="rotate(8)">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.06"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="480" fill="url(#bg)"/>
+  <rect width="1200" height="480" fill="url(#grid)"/>
+
+  <!-- Decorative circles (seeded from slug) -->
+  <g>
+    <circle cx="601" cy="459" r="113" fill="#67e8f9" opacity="0.048"/>
+    <circle cx="279" cy="386" r="94" fill="#67e8f9" opacity="0.078"/>
+    <circle cx="797" cy="156" r="139" fill="#67e8f9" opacity="0.054"/>
+  </g>
+
+  <!-- Category badge -->
+  <rect x="80" y="90" width="60" height="30" rx="15" fill="url(#accent)" opacity="0.2"/>
+  <text x="100" y="110" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="800" fill="#67e8f9" letter-spacing="2">AI</text>
+
+  <!-- Title -->
+  <text x="80" y="184" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="800" fill="#ffffff">Prompt Engineering Patterns</text>
+    <text x="80" y="224" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="800" fill="#ffffff">for Developers: Beyond Basic</text>
+    <text x="80" y="264" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="800" fill="#ffffff">Prompts</text>
+
+  <!-- Bottom brand -->
+  <text x="80" y="420" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#ffffff" opacity="0.5">coderssecret.com</text>
+
+  <!-- Icon (right side) -->
+  <g transform="translate(1020, 200)" stroke="#67e8f9" opacity="0.9" color="#67e8f9">
+    <path d="M20,5 C10,5 5,15 10,25 C5,30 10,42 20,40 C22,48 32,48 34,40 C44,42 49,30 44,25 C49,15 44,5 34,5 C32,-2 22,-2 20,5 Z" fill="none" stroke-width="3"/><path d="M27,10 L27,40" stroke-width="2" opacity="0.6"/><path d="M18,18 L27,22 L36,18" fill="none" stroke-width="2" opacity="0.6"/><path d="M18,28 L27,32 L36,28" fill="none" stroke-width="2" opacity="0.6"/>
+  </g>
+
+  <!-- Bottom accent bar -->
+  <rect y="470" width="1200" height="10" fill="url(#accent)" opacity="0.6"/>
+</svg>
