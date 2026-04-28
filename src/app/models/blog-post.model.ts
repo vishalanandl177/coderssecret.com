@@ -35,6 +35,2724 @@ export const CATEGORIES = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    id: '83',
+    title: 'Monorepo vs Polyrepo: How to Structure Your Codebase at Scale',
+    slug: 'monorepo-vs-polyrepo-codebase-structure',
+    excerpt: 'Google uses a monorepo with 2 billion lines of code. Netflix uses hundreds of separate repos. Both work. Learn when each approach wins, the tooling that makes monorepos viable (Nx, Turborepo), and how to migrate without losing your mind.',
+    category: 'open-source',
+    featured: false,
+    content: `
+      <p>The monorepo vs polyrepo debate is one of the longest-running arguments in software engineering. Monorepo advocates point to Google, Meta, and Microsoft. Polyrepo advocates point to Netflix, Amazon, and Spotify. The truth is that both approaches work &mdash; for different organizational structures and different trade-offs.</p>
+
+      <h2>What Is a Monorepo?</h2>
+
+      <p>A monorepo stores all projects, services, and libraries in a <strong>single Git repository</strong>. This does not mean a monolith &mdash; the code is still modular, but lives in one repository with shared tooling.</p>
+
+      <pre><code># Monorepo structure
+mycompany/
+  apps/
+    web/              # Frontend application
+    api/              # Backend API
+    mobile/           # Mobile app
+    admin/            # Admin dashboard
+  packages/
+    ui-components/    # Shared design system
+    auth/             # Shared authentication library
+    utils/            # Common utilities
+    api-client/       # Generated API client
+  tools/
+    eslint-config/    # Shared ESLint config
+    tsconfig/         # Shared TypeScript config
+  package.json        # Root workspace config
+  nx.json             # Nx configuration
+  turbo.json          # Or Turborepo configuration</code></pre>
+
+      <h2>What Is a Polyrepo?</h2>
+
+      <p>Each project, service, or library gets its own Git repository. Teams have full autonomy over their repository, tooling, and deployment.</p>
+
+      <pre><code># Polyrepo structure (each is a separate Git repo)
+mycompany/web          # Frontend app repo
+mycompany/api          # Backend API repo
+mycompany/mobile       # Mobile app repo
+mycompany/ui-lib       # Design system repo (published to npm)
+mycompany/auth-lib     # Auth library repo (published to npm)
+mycompany/infra        # Infrastructure repo</code></pre>
+
+      <h2>Trade-offs Comparison</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Factor</th>
+            <th>Monorepo</th>
+            <th>Polyrepo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Code sharing</td>
+            <td>Easy (import directly)</td>
+            <td>Hard (publish packages, manage versions)</td>
+          </tr>
+          <tr>
+            <td>Atomic changes</td>
+            <td>One PR changes API + frontend</td>
+            <td>Separate PRs, coordinate releases</td>
+          </tr>
+          <tr>
+            <td>CI/CD speed</td>
+            <td>Slow without smart caching</td>
+            <td>Fast (only builds one project)</td>
+          </tr>
+          <tr>
+            <td>Team autonomy</td>
+            <td>Lower (shared config, shared CI)</td>
+            <td>Higher (own tools, own processes)</td>
+          </tr>
+          <tr>
+            <td>Dependency management</td>
+            <td>Single version per dependency</td>
+            <td>Each repo can use different versions</td>
+          </tr>
+          <tr>
+            <td>Onboarding</td>
+            <td>Clone once, see everything</td>
+            <td>Must find and clone multiple repos</td>
+          </tr>
+          <tr>
+            <td>Git performance</td>
+            <td>Degrades with size (millions of files)</td>
+            <td>Always fast (small repos)</td>
+          </tr>
+          <tr>
+            <td>Code visibility</td>
+            <td>Everyone sees everything</td>
+            <td>Scoped to team repos</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Monorepo Tooling: Nx</h2>
+
+      <pre><code># Initialize an Nx workspace
+npx create-nx-workspace@latest mycompany --preset=ts
+
+# Project structure with Nx
+# Nx provides:
+# - Dependency graph (knows which projects depend on which)
+# - Affected commands (only test/build what changed)
+# - Computation caching (never rebuild the same code twice)
+# - Task orchestration (parallel builds respecting dependencies)
+
+# Only build projects affected by your changes
+nx affected --target=build
+
+# Only test what changed (not everything)
+nx affected --target=test
+
+# View the dependency graph
+nx graph
+# Opens a visual graph showing project dependencies
+
+# Cache: if the inputs haven't changed, return cached output
+nx build web
+# First run: 45 seconds
+# Second run: 0.1 seconds (cache hit!)
+
+# Remote caching: share cache across team and CI
+# nx.json
+{
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx-cloud",
+      "options": {
+        "accessToken": "your-nx-cloud-token"
+      }
+    }
+  }
+}</code></pre>
+
+      <h2>Monorepo Tooling: Turborepo</h2>
+
+      <pre><code># turbo.json
+{
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],     // Build dependencies first
+      "outputs": ["dist/**"]        // Cache these outputs
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "outputs": []
+    },
+    "lint": {
+      "outputs": []
+    },
+    "deploy": {
+      "dependsOn": ["build", "test", "lint"],
+      "outputs": []
+    }
+  }
+}
+
+# Run builds in parallel, respecting dependency order
+turbo run build
+
+# Only run affected tasks
+turbo run build --filter=...[origin/main]
+
+# Remote caching with Vercel
+turbo run build --remote-only</code></pre>
+
+      <h2>Managing Dependencies</h2>
+
+      <pre><code># npm/pnpm workspaces: shared dependencies at root
+# package.json (root)
+{
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
+
+# pnpm-workspace.yaml (pnpm - recommended for monorepos)
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# Internal packages: reference directly
+# apps/web/package.json
+{
+  "dependencies": {
+    "@mycompany/ui-components": "workspace:*",
+    "@mycompany/auth": "workspace:*"
+  }
+}
+
+# No publishing needed! pnpm resolves workspace: to local paths
+# Changes to ui-components are immediately available in web</code></pre>
+
+      <h2>CI/CD for Monorepos</h2>
+
+      <pre><code># .github/workflows/ci.yml
+name: CI
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0    # Full history for affected detection
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      # Only lint, test, build what changed
+      - run: npx nx affected --target=lint --base=origin/main
+      - run: npx nx affected --target=test --base=origin/main
+      - run: npx nx affected --target=build --base=origin/main
+
+# Key: fetch-depth: 0 lets Nx compare against main
+# to determine which projects are affected by your changes</code></pre>
+
+      <h2>When to Choose Monorepo</h2>
+
+      <ul>
+        <li><strong>Shared code between projects:</strong> Design system, utilities, API clients used by multiple apps</li>
+        <li><strong>Atomic cross-project changes:</strong> API change + frontend update in one PR</li>
+        <li><strong>Consistent tooling:</strong> Same linting, testing, and build configuration everywhere</li>
+        <li><strong>Small to medium team (2-30 devs):</strong> Everyone works on related code</li>
+        <li><strong>Full-stack features:</strong> One developer changes frontend + backend together</li>
+      </ul>
+
+      <h2>When to Choose Polyrepo</h2>
+
+      <ul>
+        <li><strong>Autonomous teams:</strong> Each team owns their deployment pipeline end-to-end</li>
+        <li><strong>Different tech stacks:</strong> One team uses Python, another Go, another Java</li>
+        <li><strong>Strong service boundaries:</strong> Services interact only through APIs, no shared code</li>
+        <li><strong>Large organization (100+ devs):</strong> Too many people for effective shared tooling</li>
+        <li><strong>Open source project:</strong> External contributors should not see internal services</li>
+      </ul>
+
+      <h2>Migration Strategy: Polyrepo to Monorepo</h2>
+
+      <ol>
+        <li><strong>Start with shared libraries:</strong> Move ui-components and utils into a monorepo first</li>
+        <li><strong>Add one app at a time:</strong> Move the frontend, verify CI works, then move the backend</li>
+        <li><strong>Preserve Git history:</strong> Use <code>git subtree</code> or tools like tomono to merge repos with history</li>
+        <li><strong>Set up affected commands early:</strong> Without Nx/Turborepo, CI will be painfully slow</li>
+        <li><strong>Keep deployment independent:</strong> Moving code to a monorepo does not mean coupling deployments</li>
+      </ol>
+
+      <pre><code># Merge a repo into monorepo preserving history
+# In the monorepo:
+git remote add web-repo https://github.com/mycompany/web.git
+git fetch web-repo
+git merge web-repo/main --allow-unrelated-histories
+# Move files to the right directory
+git mv src/ apps/web/src/
+git mv package.json apps/web/package.json
+git commit -m "chore: migrate web app into monorepo"</code></pre>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>Monorepo is not a monolith</strong> &mdash; code is modular, but lives in one repository</li>
+        <li><strong>Smart caching makes monorepos fast</strong> &mdash; without Nx or Turborepo, CI crawls at scale</li>
+        <li><strong>Polyrepo gives team autonomy</strong> at the cost of harder code sharing and cross-project changes</li>
+        <li><strong>Monorepo gives consistency</strong> at the cost of shared tooling complexity and Git performance</li>
+        <li><strong>Use pnpm workspaces</strong> for dependency management in JavaScript/TypeScript monorepos</li>
+        <li><strong>affected commands are essential</strong> &mdash; only build and test what changed, not everything</li>
+        <li><strong>Match the structure to your organization:</strong> one team = monorepo; many autonomous teams = polyrepo</li>
+        <li><strong>You can start monorepo and split later</strong> (or vice versa) &mdash; neither choice is permanent</li>
+      </ul>
+
+      <p>The monorepo vs polyrepo decision is fundamentally about your organization, not your code. If your teams share code and coordinate releases, a monorepo reduces friction. If your teams are autonomous and deploy independently, polyrepo gives them freedom. Choose the structure that matches how your teams actually work, not how you wish they worked.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-28',
+    readTime: '13 min read',
+    tags: ['Monorepo', 'Nx', 'Turborepo', 'Architecture', 'Developer Tools'],
+    coverImage: '',
+  },  {
+    id: '82',
+    title: 'Concurrency and Parallelism: Threads, Async, and Multiprocessing in Python',
+    slug: 'python-concurrency-threads-async-multiprocessing',
+    excerpt: 'The GIL does not make Python single-threaded — it makes it single-core for CPU work. Learn when to use threading (I/O), asyncio (many connections), and multiprocessing (CPU), with benchmarks showing the real performance difference.',
+    category: 'tutorials',
+    featured: false,
+    content: `
+      <p>Python has three concurrency models, and most developers use the wrong one. They reach for threading when they need multiprocessing, or multiprocessing when they need asyncio. The choice depends on one question: <strong>is your bottleneck I/O or CPU?</strong></p>
+
+      <h2>The GIL: What It Actually Means</h2>
+
+      <p>The Global Interpreter Lock (GIL) prevents multiple Python threads from executing Python bytecode simultaneously. But it does <strong>not</strong> prevent concurrency &mdash; it prevents parallelism for CPU-bound code.</p>
+
+      <pre><code># The GIL means:
+# - Only one thread executes Python code at a time
+# - BUT threads release the GIL during I/O operations
+# - So I/O-bound threads CAN run concurrently
+
+# CPU-bound: GIL is a bottleneck (use multiprocessing)
+# I/O-bound: GIL does not matter (use threading or asyncio)</code></pre>
+
+      <h2>Threading: For I/O-Bound Work</h2>
+
+      <p>When your code waits for network responses, file reads, or database queries, threads release the GIL and other threads can run. Threading is the simplest way to parallelize I/O.</p>
+
+      <pre><code>import concurrent.futures
+import requests
+import time
+
+urls = [f"https://httpbin.org/delay/1" for _ in range(10)]
+
+# Sequential: 10 seconds (1 second per request)
+def fetch_sequential():
+    return [requests.get(url).status_code for url in urls]
+
+# Threaded: ~1 second (all requests in parallel)
+def fetch_threaded():
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        futures = [executor.submit(requests.get, url) for url in urls]
+        return [f.result().status_code for f in futures]
+
+# Benchmark
+start = time.time()
+fetch_sequential()
+print(f"Sequential: {time.time() - start:.1f}s")  # ~10.0s
+
+start = time.time()
+fetch_threaded()
+print(f"Threaded: {time.time() - start:.1f}s")     # ~1.1s</code></pre>
+
+      <h3>ThreadPoolExecutor Patterns</h3>
+
+      <pre><code># Map pattern: apply function to each item
+def download_file(url):
+    response = requests.get(url)
+    filename = url.split("/")[-1]
+    with open(filename, "wb") as f:
+        f.write(response.content)
+    return filename
+
+with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    # map() returns results in order
+    results = list(executor.map(download_file, urls))
+
+# As-completed pattern: process results as they finish
+with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    futures = {executor.submit(download_file, url): url for url in urls}
+    for future in concurrent.futures.as_completed(futures):
+        url = futures[future]
+        try:
+            result = future.result()
+            print(f"Downloaded: {result}")
+        except Exception as e:
+            print(f"Failed {url}: {e}")</code></pre>
+
+      <h2>Asyncio: For Many Concurrent Connections</h2>
+
+      <p>Asyncio uses a single thread with an event loop. It is more efficient than threading when you have thousands of concurrent connections because there is no thread switching overhead.</p>
+
+      <pre><code>import asyncio
+import aiohttp
+
+async def fetch_one(session, url):
+    async with session.get(url) as response:
+        return await response.text()
+
+async def fetch_all(urls):
+    async with aiohttp.ClientSession() as session:
+        tasks = [fetch_one(session, url) for url in urls]
+        return await asyncio.gather(*tasks)
+
+# Run 1000 concurrent requests with ONE thread
+urls = [f"https://httpbin.org/delay/1" for _ in range(1000)]
+results = asyncio.run(fetch_all(urls))
+# Completes in ~2 seconds (not 1000 seconds!)</code></pre>
+
+      <h3>Asyncio Patterns</h3>
+
+      <pre><code># Semaphore: limit concurrency
+async def fetch_with_limit(urls, max_concurrent=50):
+    semaphore = asyncio.Semaphore(max_concurrent)
+
+    async def bounded_fetch(session, url):
+        async with semaphore:
+            async with session.get(url) as response:
+                return await response.text()
+
+    async with aiohttp.ClientSession() as session:
+        tasks = [bounded_fetch(session, url) for url in urls]
+        return await asyncio.gather(*tasks)
+
+# Timeout per task
+async def fetch_with_timeout(session, url, timeout=5):
+    try:
+        async with asyncio.timeout(timeout):
+            async with session.get(url) as response:
+                return await response.text()
+    except asyncio.TimeoutError:
+        return None
+
+# Producer-consumer with asyncio.Queue
+async def producer(queue):
+    for i in range(100):
+        await queue.put(i)
+    await queue.put(None)  # Sentinel
+
+async def consumer(queue, name):
+    while True:
+        item = await queue.get()
+        if item is None:
+            queue.put_nowait(None)  # Pass sentinel to next consumer
+            break
+        await process(item)
+        queue.task_done()
+
+async def main():
+    queue = asyncio.Queue(maxsize=10)
+    await asyncio.gather(
+        producer(queue),
+        consumer(queue, "worker-1"),
+        consumer(queue, "worker-2"),
+        consumer(queue, "worker-3"),
+    )</code></pre>
+
+      <h2>Multiprocessing: For CPU-Bound Work</h2>
+
+      <p>Each process gets its own Python interpreter and its own GIL. This is the only way to achieve true parallelism for CPU-bound Python code.</p>
+
+      <pre><code>import concurrent.futures
+import math
+
+def is_prime(n):
+    """CPU-intensive prime check."""
+    if n < 2:
+        return False
+    for i in range(2, int(math.sqrt(n)) + 1):
+        if n % i == 0:
+            return False
+    return True
+
+numbers = [112272535095293, 112582705942171, 115280095190773,
+           115797848077099, 1099726899285419, 115280095190773] * 4
+
+# Sequential: uses one CPU core
+start = time.time()
+results = [is_prime(n) for n in numbers]
+print(f"Sequential: {time.time() - start:.1f}s")  # ~8.0s
+
+# Multiprocessing: uses ALL CPU cores
+start = time.time()
+with concurrent.futures.ProcessPoolExecutor() as executor:
+    results = list(executor.map(is_prime, numbers))
+print(f"Multiprocessing: {time.time() - start:.1f}s")  # ~2.0s (4 cores)
+
+# Threading: same as sequential (GIL prevents parallel CPU work)
+start = time.time()
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    results = list(executor.map(is_prime, numbers))
+print(f"Threading: {time.time() - start:.1f}s")  # ~8.0s (GIL!)</code></pre>
+
+      <h2>Comparison Table</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Threading</th>
+            <th>Asyncio</th>
+            <th>Multiprocessing</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Best for</td>
+            <td>I/O-bound (moderate)</td>
+            <td>I/O-bound (many connections)</td>
+            <td>CPU-bound</td>
+          </tr>
+          <tr>
+            <td>GIL impact</td>
+            <td>Released during I/O</td>
+            <td>Single-threaded (no GIL issue)</td>
+            <td>Separate GIL per process</td>
+          </tr>
+          <tr>
+            <td>Memory overhead</td>
+            <td>~8MB per thread</td>
+            <td>~1KB per coroutine</td>
+            <td>Full process per worker</td>
+          </tr>
+          <tr>
+            <td>Max concurrency</td>
+            <td>~100-1000 threads</td>
+            <td>~10,000+ coroutines</td>
+            <td>~CPU core count</td>
+          </tr>
+          <tr>
+            <td>Shared state</td>
+            <td>Easy (same memory)</td>
+            <td>Easy (same thread)</td>
+            <td>Hard (serialization needed)</td>
+          </tr>
+          <tr>
+            <td>Libraries</td>
+            <td>All (requests, etc.)</td>
+            <td>Async only (aiohttp, etc.)</td>
+            <td>All (separate processes)</td>
+          </tr>
+          <tr>
+            <td>Debugging</td>
+            <td>Race conditions possible</td>
+            <td>Simpler (no real concurrency bugs)</td>
+            <td>Hard (inter-process communication)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Decision Framework</h2>
+
+      <ul>
+        <li><strong>Making 10-100 HTTP requests?</strong> &rarr; Threading (simple, works with requests library)</li>
+        <li><strong>Making 1,000+ concurrent connections?</strong> &rarr; Asyncio (one thread handles thousands)</li>
+        <li><strong>Processing images, crunching numbers, ML training?</strong> &rarr; Multiprocessing (true parallelism)</li>
+        <li><strong>Web scraping at scale?</strong> &rarr; Asyncio + aiohttp (high concurrency, low memory)</li>
+        <li><strong>Django/Flask background tasks?</strong> &rarr; Celery with multiprocessing workers</li>
+        <li><strong>Data pipeline with I/O and CPU stages?</strong> &rarr; Asyncio for I/O, multiprocessing for CPU</li>
+      </ul>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>The GIL prevents parallel CPU work, not concurrent I/O</strong> &mdash; threading works fine for I/O</li>
+        <li><strong>Threading is simplest for moderate I/O concurrency</strong> &mdash; no async/await refactoring needed</li>
+        <li><strong>Asyncio scales to thousands of connections on one thread</strong> &mdash; use it for high-concurrency I/O</li>
+        <li><strong>Multiprocessing is the ONLY option for parallel CPU work</strong> in standard CPython</li>
+        <li><strong>concurrent.futures provides a unified API</strong> for both threading and multiprocessing</li>
+        <li><strong>Do not use threading for CPU work</strong> &mdash; it will be as slow as sequential due to the GIL</li>
+        <li><strong>Asyncio requires async libraries</strong> &mdash; you cannot use requests, only aiohttp or httpx</li>
+      </ul>
+
+      <p>Python concurrency is not confusing once you answer one question: is my bottleneck I/O or CPU? I/O-bound gets threading or asyncio. CPU-bound gets multiprocessing. Everything else is implementation detail. Match the tool to the bottleneck and your Python code will be as concurrent as any language.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-28',
+    readTime: '13 min read',
+    tags: ['Python', 'Concurrency', 'Asyncio', 'Threading', 'Performance'],
+    coverImage: '',
+  },  {
+    id: '81',
+    title: 'SQL Window Functions: The Feature That Changes How You Write Queries',
+    slug: 'sql-window-functions-rank-lag-running-totals',
+    excerpt: 'Window functions let you calculate rankings, running totals, moving averages, and row comparisons without GROUP BY or self-joins. Learn ROW_NUMBER, RANK, LAG/LEAD, SUM OVER, and PARTITION BY with practical examples.',
+    category: 'tutorials',
+    featured: false,
+    content: `
+      <p>You need to rank products by sales within each category. Or calculate a running total of revenue by month. Or compare each row to the previous one. Without window functions, you write correlated subqueries or self-joins that are slow and unreadable. With window functions, each of these is a single, elegant expression.</p>
+
+      <h2>What Is a Window Function?</h2>
+
+      <p>A window function performs a calculation across a set of rows that are related to the current row. Unlike GROUP BY (which collapses rows), window functions <strong>keep every row</strong> and add the calculated value as a new column.</p>
+
+      <pre><code>-- GROUP BY: collapses to one row per department
+SELECT department, AVG(salary)
+FROM employees
+GROUP BY department;
+-- Result: 3 rows (one per department)
+
+-- Window function: keeps all rows, adds average as column
+SELECT name, department, salary,
+       AVG(salary) OVER (PARTITION BY department) as dept_avg
+FROM employees;
+-- Result: all employee rows, each with their department average</code></pre>
+
+      <h2>The OVER Clause</h2>
+
+      <pre><code>-- Syntax:
+-- function_name() OVER (
+--   PARTITION BY column    -- groups (like GROUP BY but keeps rows)
+--   ORDER BY column        -- ordering within each partition
+--   ROWS/RANGE frame       -- which rows to include in calculation
+-- )
+
+-- All parts are optional:
+SUM(amount) OVER ()                              -- sum of ALL rows
+SUM(amount) OVER (PARTITION BY category)         -- sum per category
+SUM(amount) OVER (ORDER BY date)                 -- running total
+SUM(amount) OVER (PARTITION BY cat ORDER BY date) -- running total per category</code></pre>
+
+      <h2>ROW_NUMBER, RANK, DENSE_RANK</h2>
+
+      <pre><code>-- Sample data: product sales
+-- product  | category    | revenue
+-- iPhone   | Electronics | 1000
+-- MacBook  | Electronics | 800
+-- iPad     | Electronics | 800
+-- Shirt    | Clothing    | 200
+-- Jacket   | Clothing    | 150
+
+SELECT product, category, revenue,
+  ROW_NUMBER() OVER (PARTITION BY category ORDER BY revenue DESC) as row_num,
+  RANK()       OVER (PARTITION BY category ORDER BY revenue DESC) as rank,
+  DENSE_RANK() OVER (PARTITION BY category ORDER BY revenue DESC) as dense_rank
+FROM products;
+
+-- Result:
+-- product  | category    | revenue | row_num | rank | dense_rank
+-- iPhone   | Electronics | 1000    | 1       | 1    | 1
+-- MacBook  | Electronics | 800     | 2       | 2    | 2
+-- iPad     | Electronics | 800     | 3       | 2    | 2  (tie!)
+-- Shirt    | Clothing    | 200     | 1       | 1    | 1
+-- Jacket   | Clothing    | 150     | 2       | 2    | 2
+
+-- ROW_NUMBER: always unique (arbitrary tiebreak)
+-- RANK: ties get same rank, next rank skipped (1,2,2,4)
+-- DENSE_RANK: ties get same rank, no skip (1,2,2,3)</code></pre>
+
+      <h3>Practical: Top 3 Products Per Category</h3>
+
+      <pre><code>-- Get the top 3 selling products in each category
+WITH ranked AS (
+  SELECT product, category, revenue,
+    ROW_NUMBER() OVER (PARTITION BY category ORDER BY revenue DESC) as rn
+  FROM products
+)
+SELECT product, category, revenue
+FROM ranked
+WHERE rn &lt;= 3;</code></pre>
+
+      <h2>LAG and LEAD: Compare Adjacent Rows</h2>
+
+      <pre><code>-- LAG: access the previous row's value
+-- LEAD: access the next row's value
+
+SELECT month, revenue,
+  LAG(revenue) OVER (ORDER BY month) as prev_month,
+  revenue - LAG(revenue) OVER (ORDER BY month) as month_over_month,
+  ROUND(
+    (revenue - LAG(revenue) OVER (ORDER BY month))::numeric /
+    LAG(revenue) OVER (ORDER BY month) * 100, 1
+  ) as pct_change
+FROM monthly_revenue;
+
+-- Result:
+-- month   | revenue | prev_month | month_over_month | pct_change
+-- 2026-01 | 10000   | NULL       | NULL             | NULL
+-- 2026-02 | 12000   | 10000      | 2000             | 20.0
+-- 2026-03 | 11500   | 12000      | -500             | -4.2
+-- 2026-04 | 15000   | 11500      | 3500             | 30.4
+
+-- LEAD example: compare with next period
+SELECT month, revenue,
+  LEAD(revenue) OVER (ORDER BY month) as next_month
+FROM monthly_revenue;</code></pre>
+
+      <h2>Running Totals and Moving Averages</h2>
+
+      <pre><code>-- Running total (cumulative sum)
+SELECT date, amount,
+  SUM(amount) OVER (ORDER BY date) as running_total
+FROM transactions;
+
+-- date       | amount | running_total
+-- 2026-04-01 | 100    | 100
+-- 2026-04-02 | 250    | 350
+-- 2026-04-03 | 75     | 425
+-- 2026-04-04 | 300    | 725
+
+-- Running total per customer
+SELECT customer_id, date, amount,
+  SUM(amount) OVER (PARTITION BY customer_id ORDER BY date) as customer_running_total
+FROM transactions;
+
+-- 7-day moving average
+SELECT date, revenue,
+  AVG(revenue) OVER (
+    ORDER BY date
+    ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+  ) as moving_avg_7d
+FROM daily_revenue;
+
+-- 30-day moving sum
+SELECT date, signups,
+  SUM(signups) OVER (
+    ORDER BY date
+    ROWS BETWEEN 29 PRECEDING AND CURRENT ROW
+  ) as signups_last_30d
+FROM daily_metrics;</code></pre>
+
+      <h2>FIRST_VALUE, LAST_VALUE, NTH_VALUE</h2>
+
+      <pre><code>-- First and last values in a partition
+SELECT department, employee, salary,
+  FIRST_VALUE(employee) OVER (
+    PARTITION BY department ORDER BY salary DESC
+  ) as highest_paid,
+  FIRST_VALUE(salary) OVER (
+    PARTITION BY department ORDER BY salary DESC
+  ) as max_salary,
+  salary - FIRST_VALUE(salary) OVER (
+    PARTITION BY department ORDER BY salary DESC
+  ) as gap_from_top
+FROM employees;
+
+-- Find each employee's salary as a percentage of department max
+SELECT employee, department, salary,
+  ROUND(
+    salary::numeric / FIRST_VALUE(salary) OVER (
+      PARTITION BY department ORDER BY salary DESC
+    ) * 100, 1
+  ) as pct_of_max
+FROM employees;</code></pre>
+
+      <h2>NTILE: Bucketing Rows</h2>
+
+      <pre><code>-- Divide customers into quartiles by spending
+SELECT customer, total_spent,
+  NTILE(4) OVER (ORDER BY total_spent DESC) as quartile
+FROM customer_spending;
+
+-- quartile 1: top 25% spenders (VIP)
+-- quartile 2: above average
+-- quartile 3: below average
+-- quartile 4: lowest spenders
+
+-- Percentile ranking
+SELECT customer, total_spent,
+  PERCENT_RANK() OVER (ORDER BY total_spent) as percentile
+FROM customer_spending;
+-- percentile 0.95 means "better than 95% of customers"</code></pre>
+
+      <h2>Real-World Examples</h2>
+
+      <h3>Detect Consecutive Streaks</h3>
+
+      <pre><code>-- Find users with 3+ consecutive days of activity
+WITH activity AS (
+  SELECT user_id, activity_date,
+    activity_date - (ROW_NUMBER() OVER (
+      PARTITION BY user_id ORDER BY activity_date
+    ))::int AS streak_group
+  FROM user_activity
+)
+SELECT user_id,
+  MIN(activity_date) as streak_start,
+  MAX(activity_date) as streak_end,
+  COUNT(*) as streak_days
+FROM activity
+GROUP BY user_id, streak_group
+HAVING COUNT(*) >= 3
+ORDER BY streak_days DESC;</code></pre>
+
+      <h3>Remove Duplicates (Keep Latest)</h3>
+
+      <pre><code>-- Keep only the most recent record per user
+DELETE FROM user_profiles
+WHERE id IN (
+  SELECT id FROM (
+    SELECT id,
+      ROW_NUMBER() OVER (PARTITION BY email ORDER BY updated_at DESC) as rn
+    FROM user_profiles
+  ) ranked
+  WHERE rn > 1
+);</code></pre>
+
+      <h2>Window Function Cheat Sheet</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Function</th>
+            <th>Purpose</th>
+            <th>Example Use Case</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ROW_NUMBER()</td>
+            <td>Unique sequential number</td>
+            <td>Top-N per group, deduplication</td>
+          </tr>
+          <tr>
+            <td>RANK()</td>
+            <td>Rank with gaps on ties</td>
+            <td>Competition rankings</td>
+          </tr>
+          <tr>
+            <td>DENSE_RANK()</td>
+            <td>Rank without gaps</td>
+            <td>Salary bands</td>
+          </tr>
+          <tr>
+            <td>LAG(col, n)</td>
+            <td>Previous row value</td>
+            <td>Month-over-month change</td>
+          </tr>
+          <tr>
+            <td>LEAD(col, n)</td>
+            <td>Next row value</td>
+            <td>Time to next event</td>
+          </tr>
+          <tr>
+            <td>SUM() OVER</td>
+            <td>Running total</td>
+            <td>Cumulative revenue</td>
+          </tr>
+          <tr>
+            <td>AVG() OVER</td>
+            <td>Moving average</td>
+            <td>7-day trend line</td>
+          </tr>
+          <tr>
+            <td>NTILE(n)</td>
+            <td>Divide into n buckets</td>
+            <td>Customer segmentation</td>
+          </tr>
+          <tr>
+            <td>FIRST_VALUE()</td>
+            <td>First value in window</td>
+            <td>Gap from best performer</td>
+          </tr>
+          <tr>
+            <td>PERCENT_RANK()</td>
+            <td>Percentile (0-1)</td>
+            <td>Performance percentile</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>Window functions keep all rows</strong> unlike GROUP BY which collapses them &mdash; you get the calculation AND the detail</li>
+        <li><strong>PARTITION BY is like GROUP BY for windows</strong> &mdash; it defines the groups without collapsing rows</li>
+        <li><strong>ROW_NUMBER() is the most versatile</strong> &mdash; top-N queries, deduplication, pagination</li>
+        <li><strong>LAG/LEAD compare adjacent rows</strong> &mdash; month-over-month growth, time between events</li>
+        <li><strong>SUM/AVG OVER with ROWS BETWEEN</strong> creates running totals and moving averages</li>
+        <li><strong>Window functions execute after WHERE and GROUP BY</strong> but before ORDER BY and LIMIT</li>
+        <li><strong>Use CTEs (WITH clause) to filter window results</strong> &mdash; you cannot put window functions in WHERE</li>
+      </ul>
+
+      <p>Window functions are the single most powerful SQL feature that most developers have not learned. Once you internalize OVER, PARTITION BY, and ORDER BY, queries that previously required subqueries, self-joins, or application code become simple one-liners. They work in PostgreSQL, MySQL 8+, SQLite 3.25+, and every major database.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-28',
+    readTime: '13 min read',
+    tags: ['SQL', 'Window Functions', 'PostgreSQL', 'Database', 'Tutorials'],
+    coverImage: '',
+  },  {
+    id: '80',
+    title: 'Vector Databases Explained: Embeddings, Similarity Search, and When You Need One',
+    slug: 'vector-databases-embeddings-similarity-search',
+    excerpt: 'Vector databases power semantic search, recommendation engines, and RAG pipelines. Learn how embeddings work, the HNSW algorithm behind similarity search, chunking strategies, and when pgvector is enough vs when you need Pinecone.',
+    category: 'ai',
+    featured: false,
+    content: `
+      <p>Traditional databases find exact matches: &ldquo;find all users where email = alice@example.com.&rdquo; Vector databases find <strong>similar</strong> matches: &ldquo;find documents most similar to this question.&rdquo; This capability powers every RAG pipeline, semantic search engine, recommendation system, and image similarity feature built with AI.</p>
+
+      <h2>What Are Embeddings?</h2>
+
+      <p>An embedding is a list of numbers (a vector) that represents the <strong>meaning</strong> of text, images, or any data. Similar meanings produce similar vectors. The magic is that &ldquo;How do I reset my password?&rdquo; and &ldquo;I forgot my login credentials&rdquo; produce nearby vectors, even though they share no words.</p>
+
+      <pre><code># Generate embeddings with OpenAI or sentence-transformers
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+texts = [
+    "How do I reset my password?",
+    "I forgot my login credentials",
+    "What is the weather today?",
+]
+
+embeddings = model.encode(texts)
+# embeddings[0].shape = (384,)  # 384-dimensional vector
+
+# Similarity between password questions: ~0.85 (very similar)
+# Similarity between password and weather: ~0.12 (very different)
+
+from sklearn.metrics.pairwise import cosine_similarity
+print(cosine_similarity([embeddings[0]], [embeddings[1]]))  # ~0.85
+print(cosine_similarity([embeddings[0]], [embeddings[2]]))  # ~0.12</code></pre>
+
+      <h2>How Similarity Search Works</h2>
+
+      <p>Given a query vector, find the K nearest vectors in a database of millions. The naive approach (compare against every vector) is O(n) and too slow. Vector databases use approximate nearest neighbor (ANN) algorithms.</p>
+
+      <h3>HNSW: The Algorithm Behind Most Vector DBs</h3>
+
+      <p>HNSW (Hierarchical Navigable Small World) builds a multi-layer graph where each layer is progressively sparser. Search starts at the top layer (coarse navigation) and descends to lower layers (fine-grained search).</p>
+
+      <pre><code># Conceptual HNSW structure:
+# Layer 2 (sparse):   A ---- D ---- G
+# Layer 1 (medium):   A -- B -- D -- F -- G
+# Layer 0 (dense):    A-B-C-D-E-F-G-H-I-J
+
+# Search for a vector near E:
+# 1. Start at layer 2: jump to closest node (D)
+# 2. Drop to layer 1: navigate D -> F or D -> B
+# 3. Drop to layer 0: navigate to E (found!)
+
+# Time complexity: O(log n) instead of O(n)
+# Accuracy: 95-99% recall (misses ~1-5% of true nearest neighbors)
+# Trade-off: more memory for higher recall</code></pre>
+
+      <h2>Vector Database Options</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Database</th>
+            <th>Type</th>
+            <th>Best For</th>
+            <th>Pricing</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>pgvector</strong></td>
+            <td>PostgreSQL extension</td>
+            <td>Small-medium datasets, existing PG users</td>
+            <td>Free (self-hosted)</td>
+          </tr>
+          <tr>
+            <td><strong>ChromaDB</strong></td>
+            <td>Embedded / client-server</td>
+            <td>Prototyping, small RAG apps</td>
+            <td>Free (open source)</td>
+          </tr>
+          <tr>
+            <td><strong>Pinecone</strong></td>
+            <td>Managed cloud</td>
+            <td>Production at scale, zero ops</td>
+            <td>Pay per use</td>
+          </tr>
+          <tr>
+            <td><strong>Weaviate</strong></td>
+            <td>Self-hosted / cloud</td>
+            <td>Multi-modal (text + images)</td>
+            <td>Free (self-hosted) / paid cloud</td>
+          </tr>
+          <tr>
+            <td><strong>Qdrant</strong></td>
+            <td>Self-hosted / cloud</td>
+            <td>High performance, filtering</td>
+            <td>Free (self-hosted) / paid cloud</td>
+          </tr>
+          <tr>
+            <td><strong>Milvus</strong></td>
+            <td>Self-hosted / cloud</td>
+            <td>Billion-scale datasets</td>
+            <td>Free (self-hosted) / paid cloud</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>pgvector: Start Here</h2>
+
+      <pre><code># Install pgvector extension
+CREATE EXTENSION vector;
+
+# Create a table with a vector column
+CREATE TABLE documents (
+    id SERIAL PRIMARY KEY,
+    title TEXT,
+    content TEXT,
+    embedding vector(384)   -- 384 dimensions
+);
+
+# Insert a document with its embedding
+INSERT INTO documents (title, content, embedding)
+VALUES ('Password Reset', 'How to reset your password...',
+        '[0.1, -0.3, 0.5, ...]');  -- 384 floats
+
+# Find the 5 most similar documents
+SELECT id, title, embedding &lt;=&gt; '[0.2, -0.1, 0.4, ...]' AS distance
+FROM documents
+ORDER BY embedding &lt;=&gt; '[0.2, -0.1, 0.4, ...]'  -- cosine distance
+LIMIT 5;
+
+# Create an HNSW index for fast search
+CREATE INDEX ON documents USING hnsw (embedding vector_cosine_ops)
+WITH (m = 16, ef_construction = 64);
+
+# With index: searches 1M vectors in ~5ms
+# Without index: searches 1M vectors in ~500ms</code></pre>
+
+      <h2>Chunking Strategies for RAG</h2>
+
+      <p>Documents must be split into chunks before embedding. Chunk size dramatically affects retrieval quality.</p>
+
+      <pre><code># Strategy 1: Fixed-size chunks (simple, often good enough)
+def chunk_by_size(text: str, chunk_size: int = 500, overlap: int = 50) -> list[str]:
+    chunks = []
+    start = 0
+    while start < len(text):
+        end = start + chunk_size
+        chunks.append(text[start:end])
+        start = end - overlap  # Overlap prevents splitting mid-sentence
+    return chunks
+
+# Strategy 2: Semantic chunking (split on headings/paragraphs)
+def chunk_by_structure(text: str) -> list[str]:
+    # Split on markdown headers or double newlines
+    import re
+    sections = re.split(r'\\n#{1,3} |\\n\\n', text)
+    return [s.strip() for s in sections if len(s.strip()) > 50]
+
+# Strategy 3: Recursive chunking (LangChain approach)
+# Split on paragraphs first, then sentences, then words
+# Keep chunks under max_size while preserving semantic boundaries
+
+# Chunk size guidelines:
+# Too small (< 100 tokens): loses context, retrieval misses meaning
+# Too large (> 1000 tokens): dilutes relevance, wastes context window
+# Sweet spot: 200-500 tokens with 10-20% overlap</code></pre>
+
+      <h2>Complete RAG Pipeline</h2>
+
+      <pre><code>import chromadb
+from sentence_transformers import SentenceTransformer
+
+# Setup
+embedder = SentenceTransformer('all-MiniLM-L6-v2')
+client = chromadb.PersistentClient(path="./vectordb")
+collection = client.get_or_create_collection(
+    "docs",
+    metadata={"hnsw:space": "cosine"}
+)
+
+# Index documents
+def index_documents(docs: list[dict]):
+    for doc in docs:
+        chunks = chunk_by_size(doc["content"])
+        embeddings = embedder.encode(chunks).tolist()
+        collection.add(
+            ids=[f"{doc['id']}_chunk_{i}" for i in range(len(chunks))],
+            embeddings=embeddings,
+            documents=chunks,
+            metadatas=[{"source": doc["title"], "chunk": i} for i in range(len(chunks))],
+        )
+
+# Query: find relevant chunks
+def search(query: str, top_k: int = 5) -> list[str]:
+    query_embedding = embedder.encode(query).tolist()
+    results = collection.query(
+        query_embeddings=[query_embedding],
+        n_results=top_k,
+    )
+    return results["documents"][0]
+
+# Generate answer with context
+def rag_answer(question: str) -> str:
+    context_chunks = search(question, top_k=5)
+    context = "\\n\\n".join(context_chunks)
+
+    response = client.messages.create(
+        model="claude-sonnet-4-6",
+        system="Answer using ONLY the provided context. Cite sources.",
+        messages=[{
+            "role": "user",
+            "content": f"Context:\\n{context}\\n\\nQuestion: {question}"
+        }],
+    )
+    return response.content[0].text</code></pre>
+
+      <h2>When You Need a Vector Database</h2>
+
+      <ul>
+        <li><strong>RAG pipeline:</strong> Retrieve relevant documents to ground LLM responses</li>
+        <li><strong>Semantic search:</strong> Search by meaning, not just keywords</li>
+        <li><strong>Recommendation engine:</strong> Find similar products, articles, or users</li>
+        <li><strong>Image similarity:</strong> Reverse image search, duplicate detection</li>
+        <li><strong>Anomaly detection:</strong> Find data points that are far from any cluster</li>
+      </ul>
+
+      <h2>When You Do NOT Need One</h2>
+
+      <ul>
+        <li><strong>Less than 10,000 documents:</strong> Brute-force cosine similarity in NumPy is fast enough</li>
+        <li><strong>Keyword search is sufficient:</strong> Elasticsearch with BM25 handles keyword queries well</li>
+        <li><strong>Exact match only:</strong> Regular database with full-text search</li>
+        <li><strong>Already using PostgreSQL:</strong> pgvector extension avoids adding a new database</li>
+      </ul>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>Embeddings convert meaning to numbers</strong> &mdash; similar meanings produce nearby vectors</li>
+        <li><strong>HNSW is the dominant algorithm</strong> for approximate nearest neighbor search &mdash; O(log n) with 95-99% recall</li>
+        <li><strong>Start with pgvector</strong> if you already use PostgreSQL &mdash; it handles millions of vectors well</li>
+        <li><strong>Chunk size matters for RAG:</strong> 200-500 tokens with overlap is the sweet spot</li>
+        <li><strong>Use managed services (Pinecone) for production at scale</strong> &mdash; self-hosting vector databases requires tuning</li>
+        <li><strong>You might not need a vector database</strong> &mdash; for small datasets, NumPy cosine similarity works fine</li>
+        <li><strong>Combine vector search with keyword search</strong> (hybrid search) for best results</li>
+      </ul>
+
+      <p>Vector databases are infrastructure, not magic. They store numbers and find nearest neighbors efficiently. The magic is in the embeddings &mdash; how you convert your data into meaningful vectors. Get the embeddings and chunking right, and any vector database will serve you well. Get them wrong, and the fanciest database cannot save your search quality.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-28',
+    readTime: '13 min read',
+    tags: ['Vector Database', 'Embeddings', 'RAG', 'AI', 'pgvector'],
+    coverImage: '',
+  },  {
+    id: '79',
+    title: 'Linux Commands Every Developer Should Know But Doesn\'t',
+    slug: 'linux-commands-developer-debugging-guide',
+    excerpt: 'You know ls and grep. But do you know awk, xargs, jq, strace, lsof, and ss? These commands turn a 2-hour debugging session into a 5-minute investigation. Real scenarios, real commands, real solutions.',
+    category: 'devops',
+    featured: false,
+    content: `
+      <p>Most developers know a dozen Linux commands and Google the rest. That works until production is on fire at 2 AM and you need to find which process is holding a file lock, which socket is stuck in CLOSE_WAIT, or which log entry appeared right before the crash. These commands are your firefighting toolkit.</p>
+
+      <h2>Text Processing: awk, sed, cut</h2>
+
+      <h3>awk: Column-Based Processing</h3>
+
+      <pre><code># Print the 5th column of a space-delimited file
+awk '{print $5}' access.log
+
+# Sum all values in column 3
+awk '{sum += $3} END {print sum}' data.txt
+
+# Filter rows where column 9 (HTTP status) is 500
+awk '$9 == 500' access.log
+
+# Print lines where response time (col 11) > 1000ms
+awk '$11 > 1000 {print $7, $11"ms"}' access.log
+
+# Count requests per HTTP method
+awk '{count[$6]++} END {for (m in count) print m, count[m]}' access.log
+# "GET 45123
+# "POST 12456
+# "PUT 3421
+
+# Count unique IPs
+awk '{print $1}' access.log | sort -u | wc -l</code></pre>
+
+      <h3>sed: Stream Editing</h3>
+
+      <pre><code># Replace text in-place
+sed -i 's/old_api_url/new_api_url/g' config.yaml
+
+# Delete lines matching a pattern
+sed '/DEBUG/d' app.log > clean.log
+
+# Print only lines 100-200
+sed -n '100,200p' large_file.log
+
+# Insert text after a matching line
+sed '/\\[database\\]/a connection_timeout = 30' config.ini
+
+# Remove blank lines
+sed '/^$/d' file.txt</code></pre>
+
+      <h3>cut: Extract Columns</h3>
+
+      <pre><code># Extract fields from CSV
+cut -d',' -f1,3 users.csv      # Fields 1 and 3, comma-delimited
+
+# Extract from colon-delimited (like /etc/passwd)
+cut -d':' -f1,7 /etc/passwd    # Username and shell
+
+# Extract characters 1-10
+cut -c1-10 file.txt</code></pre>
+
+      <h2>JSON Processing: jq</h2>
+
+      <pre><code># Pretty print JSON
+curl -s https://api.example.com/data | jq .
+
+# Extract a field
+echo '{"name":"Alice","age":30}' | jq '.name'
+# "Alice"
+
+# Extract from arrays
+echo '[{"id":1,"name":"A"},{"id":2,"name":"B"}]' | jq '.[0].name'
+# "A"
+
+# Filter array elements
+echo '[{"status":"active"},{"status":"inactive"}]' | \\
+  jq '[.[] | select(.status == "active")]'
+
+# Extract multiple fields into CSV
+jq -r '.[] | [.id, .name, .email] | @csv' users.json
+
+# Transform JSON structure
+jq '{user_count: length, names: [.[].name]}' users.json
+
+# Parse Docker inspect output
+docker inspect mycontainer | jq '.[0].NetworkSettings.IPAddress'
+
+# Parse kubectl output
+kubectl get pods -o json | jq '.items[] | {name: .metadata.name, status: .status.phase}'</code></pre>
+
+      <h2>Parallel Execution: xargs</h2>
+
+      <pre><code># Delete all .pyc files in parallel
+find . -name "*.pyc" | xargs rm
+
+# Run commands in parallel (-P for parallelism)
+find . -name "*.test.js" | xargs -P 4 -I {} node {}
+# Runs 4 test files simultaneously
+
+# Bulk rename files
+ls *.jpg | xargs -I {} mv {} archive/{}
+
+# Curl multiple URLs in parallel
+cat urls.txt | xargs -P 10 -I {} curl -s -o /dev/null -w "%{url}: %{http_code}\\n" {}
+
+# Kill all processes matching a pattern
+pgrep -f "celery worker" | xargs kill -TERM
+
+# Batch database operations
+cat user_ids.txt | xargs -I {} psql -c "DELETE FROM sessions WHERE user_id = '{}';"</code></pre>
+
+      <h2>Process Investigation: ps, htop, strace</h2>
+
+      <pre><code># Find what is eating CPU
+ps aux --sort=-%cpu | head -10
+
+# Find what is eating memory
+ps aux --sort=-%mem | head -10
+
+# Watch processes in real-time (better than top)
+htop
+# Press F6 to sort, F4 to filter, F5 for tree view
+
+# Trace system calls of a running process
+strace -p PID -e trace=network    # Network calls only
+strace -p PID -e trace=file       # File operations only
+strace -p PID -c                  # Summary of all syscalls
+
+# Example: why is this process slow?
+strace -p 12345 -T -e trace=read,write
+# Shows every read/write call with time spent
+# If you see: read(5, ..., 4096) = 4096  &lt;2.003456&gt;
+# That file descriptor is blocking for 2 seconds!</code></pre>
+
+      <h2>Network Debugging: ss, curl, dig</h2>
+
+      <pre><code># List all listening ports (replaces netstat)
+ss -tlnp
+# -t: TCP, -l: listening, -n: numeric ports, -p: show process
+# State    Local Address:Port   Process
+# LISTEN   0.0.0.0:8080         users:(("node",pid=1234))
+# LISTEN   0.0.0.0:5432         users:(("postgres",pid=5678))
+
+# Find what is using port 8080
+ss -tlnp | grep 8080
+
+# Count connections by state
+ss -tan | awk '{print $1}' | sort | uniq -c | sort -rn
+#   245 ESTAB
+#    12 TIME-WAIT
+#     3 CLOSE-WAIT    # These are trouble! (leaked connections)
+
+# DNS debugging
+dig example.com              # Full DNS query
+dig +short example.com       # Just the IP
+dig @8.8.8.8 example.com    # Query a specific DNS server
+
+# HTTP debugging with curl
+curl -v https://api.example.com/health     # Verbose (shows headers, TLS)
+curl -w "\\nTime: %{time_total}s\\nHTTP: %{http_code}\\n" -s -o /dev/null URL
+curl --resolve example.com:443:1.2.3.4 https://example.com  # Override DNS</code></pre>
+
+      <h2>File Investigation: lsof, find, du</h2>
+
+      <pre><code># Who has this file open?
+lsof /var/log/app.log
+
+# What files does this process have open?
+lsof -p 12345
+
+# Find processes with deleted files still open (disk space leak!)
+lsof +L1
+# If you deleted a large log file but disk space did not free up,
+# a process still has it open. Restart the process.
+
+# Find large files
+find . -type f -size +100M -exec ls -lh {} \\;
+
+# Find recently modified files
+find . -type f -mmin -30      # Modified in last 30 minutes
+find . -type f -mtime -1      # Modified in last 24 hours
+
+# Disk usage by directory (sorted)
+du -sh */ | sort -rh | head -10
+# 4.2G   node_modules/
+# 1.8G   .git/
+# 250M   dist/
+
+# Watch disk usage in real-time
+watch -n 5 'df -h | grep /dev/sda'</code></pre>
+
+      <h2>Log Analysis</h2>
+
+      <pre><code># Follow a log file in real-time
+tail -f /var/log/app.log
+
+# Follow multiple files
+tail -f /var/log/app.log /var/log/error.log
+
+# Search compressed log archives
+zgrep "ERROR" /var/log/app.log.*.gz
+
+# Count errors per hour
+grep "ERROR" app.log | awk '{print $1, substr($2,1,2)":00"}' | sort | uniq -c
+#   15 2026-04-28 10:00
+#   42 2026-04-28 11:00    # Spike!
+#    8 2026-04-28 12:00
+
+# Find the most common error messages
+grep "ERROR" app.log | awk -F'ERROR' '{print $2}' | sort | uniq -c | sort -rn | head -10
+
+# Extract requests slower than 1 second
+grep "request_time" access.log | awk -F'request_time=' '{print $2}' | \\
+  awk '$1 > 1.0 {print}' | sort -rn | head -20</code></pre>
+
+      <h2>Quick Reference</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Task</th>
+            <th>Command</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Find what uses a port</td>
+            <td><code>ss -tlnp | grep :8080</code></td>
+          </tr>
+          <tr>
+            <td>Find large files</td>
+            <td><code>find . -size +100M</code></td>
+          </tr>
+          <tr>
+            <td>Count log errors per hour</td>
+            <td><code>grep ERROR log | cut -d' ' -f1-2 | uniq -c</code></td>
+          </tr>
+          <tr>
+            <td>Watch a process</td>
+            <td><code>strace -p PID -c</code></td>
+          </tr>
+          <tr>
+            <td>Parse JSON</td>
+            <td><code>jq '.field' file.json</code></td>
+          </tr>
+          <tr>
+            <td>Parallel execution</td>
+            <td><code>xargs -P 4 -I {} cmd {}</code></td>
+          </tr>
+          <tr>
+            <td>Disk space leak</td>
+            <td><code>lsof +L1</code></td>
+          </tr>
+          <tr>
+            <td>Replace text in files</td>
+            <td><code>sed -i 's/old/new/g' file</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>jq is essential</strong> &mdash; every API, Docker, and Kubernetes tool outputs JSON. jq makes it queryable.</li>
+        <li><strong>awk handles 90% of log analysis</strong> &mdash; column extraction, filtering, counting, summing</li>
+        <li><strong>ss replaces netstat</strong> &mdash; faster and shows more information about socket states</li>
+        <li><strong>strace reveals why a process is slow</strong> &mdash; it shows every system call with timing</li>
+        <li><strong>lsof +L1 finds disk space leaks</strong> &mdash; deleted files held open by running processes</li>
+        <li><strong>xargs -P enables easy parallelism</strong> &mdash; run commands across multiple inputs simultaneously</li>
+        <li><strong>Combine commands with pipes</strong> &mdash; the power is in composition, not individual tools</li>
+      </ul>
+
+      <p>These commands are not arcane knowledge &mdash; they are the standard toolkit for anyone who operates production systems. Spend an afternoon practicing them and you will debug faster than colleagues who reach for monitoring dashboards first. The command line is the fastest path from &ldquo;something is wrong&rdquo; to &ldquo;here is exactly what happened.&rdquo;</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-28',
+    readTime: '12 min read',
+    tags: ['Linux', 'Shell', 'Debugging', 'DevOps', 'CLI'],
+    coverImage: '',
+  },  {
+    id: '78',
+    title: 'GitHub Actions Mastery: CI/CD Pipelines That Actually Scale',
+    slug: 'github-actions-ci-cd-pipelines-mastery',
+    excerpt: 'Your GitHub Actions workflow takes 20 minutes and fails randomly. Learn matrix builds, reusable workflows, aggressive caching, secrets management, self-hosted runners, and monorepo strategies that cut build times by 80%.',
+    category: 'devops',
+    featured: false,
+    content: `
+      <p>GitHub Actions is the most popular CI/CD platform for open source and increasingly for enterprise. But most teams use it like a simple script runner &mdash; one workflow, no caching, no parallelism, 20-minute builds. This guide shows you the patterns that make CI/CD fast, reliable, and maintainable.</p>
+
+      <h2>Workflow Fundamentals Done Right</h2>
+
+      <pre><code># .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel in-progress runs on the same branch
+concurrency:
+  group: ci-\${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'       # Built-in npm cache!
+      - run: npm ci
+      - run: npm run lint
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint              # Only test if lint passes
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test -- --coverage
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: dist/</code></pre>
+
+      <h2>Matrix Builds: Test Across Versions</h2>
+
+      <pre><code>  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+        os: [ubuntu-latest, windows-latest]
+      fail-fast: false    # Do not cancel other matrix jobs on failure
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: \${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm test
+
+# This creates 6 parallel jobs:
+# node 18 + ubuntu, node 18 + windows
+# node 20 + ubuntu, node 20 + windows
+# node 22 + ubuntu, node 22 + windows</code></pre>
+
+      <h2>Aggressive Caching</h2>
+
+      <pre><code>  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Cache node_modules (faster than npm ci every time)
+      - uses: actions/cache@v4
+        id: npm-cache
+        with:
+          path: node_modules
+          key: node-modules-\${{ hashFiles('package-lock.json') }}
+
+      - if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      # Cache Next.js / Angular build cache
+      - uses: actions/cache@v4
+        with:
+          path: .next/cache    # or .angular/cache
+          key: build-cache-\${{ hashFiles('src/**') }}
+          restore-keys: build-cache-
+
+      - run: npm run build
+
+# Cache hit rate matters:
+# No cache:     npm ci takes 45 seconds every run
+# With cache:   npm ci skipped, build uses incremental cache
+# Total savings: 60-80% of build time</code></pre>
+
+      <h2>Reusable Workflows</h2>
+
+      <pre><code># .github/workflows/reusable-deploy.yml
+name: Reusable Deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      app-name:
+        required: true
+        type: string
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: \${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: dist/
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: \${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: \${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - run: aws s3 sync dist/ s3://\${{ inputs.app-name }}-\${{ inputs.environment }}/
+
+# Caller workflow:
+# .github/workflows/deploy-staging.yml
+name: Deploy Staging
+on:
+  push:
+    branches: [main]
+jobs:
+  build:
+    uses: ./.github/workflows/ci.yml
+  deploy:
+    needs: build
+    uses: ./.github/workflows/reusable-deploy.yml
+    with:
+      environment: staging
+      app-name: myapp
+    secrets: inherit</code></pre>
+
+      <h2>Secrets Management</h2>
+
+      <pre><code># Secrets are encrypted and masked in logs
+# Access via: \${{ secrets.SECRET_NAME }}
+
+# Best practices:
+# 1. Use environment-scoped secrets (not repo-level) for production
+# 2. Use OIDC for cloud providers (no long-lived credentials)
+# 3. Rotate secrets regularly
+# 4. Never echo secrets in run commands
+
+# OIDC authentication (no AWS keys needed!):
+  deploy:
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::123456789:role/github-actions
+          aws-region: us-east-1
+          # No access keys! Uses temporary OIDC tokens</code></pre>
+
+      <h2>Monorepo Strategies</h2>
+
+      <pre><code># Only run jobs when relevant files change
+  backend:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'backend/') || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - run: cd backend && npm test
+
+# Better approach: path filters with dorny/paths-filter
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: \${{ steps.filter.outputs.backend }}
+      frontend: \${{ steps.filter.outputs.frontend }}
+      infra: \${{ steps.filter.outputs.infra }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+            infra:
+              - 'terraform/**'
+
+  test-backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cd backend && npm test
+
+  test-frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cd frontend && npm test</code></pre>
+
+      <h2>Service Containers for Integration Tests</h2>
+
+      <pre><code>  integration-tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm run test:integration
+        env:
+          DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+          REDIS_URL: redis://localhost:6379</code></pre>
+
+      <h2>Common Mistakes</h2>
+
+      <ul>
+        <li><strong>No concurrency control:</strong> Multiple runs on the same branch waste resources. Use <code>concurrency</code> to cancel outdated runs.</li>
+        <li><strong>Installing dependencies in every job:</strong> Cache node_modules/pip packages. A cache hit saves 30-60 seconds per job.</li>
+        <li><strong>Running all tests on every change:</strong> In monorepos, use path filters to only test what changed.</li>
+        <li><strong>Long-lived cloud credentials:</strong> Use OIDC instead of static access keys. Temporary tokens cannot be leaked.</li>
+        <li><strong>No fail-fast: false in matrix:</strong> One failing version cancels all other jobs by default. Set <code>fail-fast: false</code> to see all results.</li>
+        <li><strong>Not using artifacts:</strong> Build once, deploy many times. Upload build output as an artifact instead of rebuilding for each environment.</li>
+      </ul>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>Use concurrency groups</strong> to cancel outdated CI runs and save compute</li>
+        <li><strong>Cache aggressively:</strong> node_modules, build caches, Docker layers &mdash; cache everything that does not change often</li>
+        <li><strong>Matrix builds test across versions in parallel</strong> &mdash; catch compatibility issues early</li>
+        <li><strong>Reusable workflows eliminate duplication</strong> &mdash; define once, call from multiple workflows</li>
+        <li><strong>Use OIDC for cloud authentication</strong> &mdash; no static credentials to rotate or leak</li>
+        <li><strong>Path filters in monorepos</strong> save massive CI time &mdash; only test what changed</li>
+        <li><strong>Build once, deploy many:</strong> upload artifacts from build, download in deploy jobs</li>
+      </ul>
+
+      <p>Fast CI/CD is a competitive advantage. A 3-minute pipeline means developers merge multiple times per day. A 20-minute pipeline means they batch changes and merge once. The patterns in this guide &mdash; caching, parallelism, path filters, reusable workflows &mdash; can cut your build time by 80% with a few hours of investment.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-28',
+    readTime: '13 min read',
+    tags: ['GitHub Actions', 'CI/CD', 'DevOps', 'Automation', 'Monorepo'],
+    coverImage: '',
+  },  {
+    id: '77',
+    title: 'State Management Showdown: NgRx vs Signals vs Services in Angular',
+    slug: 'angular-state-management-ngrx-signals-services',
+    excerpt: 'Angular has three state management approaches and choosing wrong means either over-engineering a todo app or under-engineering an enterprise dashboard. Compare NgRx, Signals, and plain services with real examples and a decision framework.',
+    category: 'frontend',
+    featured: false,
+    content: `
+      <p>Every Angular team eventually debates state management. One developer wants NgRx for &ldquo;proper architecture.&rdquo; Another says signals make everything simpler. A third argues that injectable services with BehaviorSubjects work fine. They are all right &mdash; for different scenarios.</p>
+
+      <h2>The Three Approaches</h2>
+
+      <h3>1. Simple Services (BehaviorSubject / Signals)</h3>
+
+      <pre><code>// Simplest approach: service with signals
+@Injectable({ providedIn: 'root' })
+export class CartService {
+  private _items = signal&lt;CartItem[]&gt;([]);
+
+  readonly items = this._items.asReadonly();
+  readonly total = computed(() =>
+    this._items().reduce((sum, item) => sum + item.price * item.qty, 0)
+  );
+  readonly count = computed(() =>
+    this._items().reduce((sum, item) => sum + item.qty, 0)
+  );
+
+  addItem(product: Product) {
+    this._items.update(items => {
+      const existing = items.find(i => i.productId === product.id);
+      if (existing) {
+        return items.map(i =>
+          i.productId === product.id ? { ...i, qty: i.qty + 1 } : i
+        );
+      }
+      return [...items, { productId: product.id, name: product.name, price: product.price, qty: 1 }];
+    });
+  }
+
+  removeItem(productId: string) {
+    this._items.update(items => items.filter(i => i.productId !== productId));
+  }
+
+  clear() {
+    this._items.set([]);
+  }
+}
+
+// Component usage: dead simple
+@Component({
+  template: \\\`
+    &lt;span&gt;Cart ({{ cart.count() }})&lt;/span&gt;
+    &lt;span&gt;Total: {{ cart.total() | currency }}&lt;/span&gt;
+  \\\`
+})
+export class CartBadgeComponent {
+  cart = inject(CartService);
+}</code></pre>
+
+      <h3>2. NgRx Store (Redux Pattern)</h3>
+
+      <pre><code>// Actions: what happened
+export const CartActions = createActionGroup({
+  source: 'Cart',
+  events: {
+    'Add Item': props&lt;{ product: Product }&gt;(),
+    'Remove Item': props&lt;{ productId: string }&gt;(),
+    'Clear Cart': emptyProps(),
+    'Load Cart Success': props&lt;{ items: CartItem[] }&gt;(),
+    'Load Cart Failure': props&lt;{ error: string }&gt;(),
+  },
+});
+
+// Reducer: how state changes
+export const cartReducer = createReducer(
+  initialState,
+  on(CartActions.addItem, (state, { product }) => ({
+    ...state,
+    items: addOrIncrement(state.items, product),
+  })),
+  on(CartActions.removeItem, (state, { productId }) => ({
+    ...state,
+    items: state.items.filter(i => i.productId !== productId),
+  })),
+  on(CartActions.clearCart, () => initialState),
+  on(CartActions.loadCartSuccess, (state, { items }) => ({
+    ...state,
+    items,
+    loaded: true,
+  })),
+);
+
+// Selectors: derived state
+export const selectCartItems = createSelector(selectCart, state => state.items);
+export const selectCartTotal = createSelector(selectCartItems, items =>
+  items.reduce((sum, i) => sum + i.price * i.qty, 0)
+);
+
+// Effects: side effects (API calls)
+@Injectable()
+export class CartEffects {
+  loadCart$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CartActions.loadCart),
+      switchMap(() =>
+        this.cartApi.load().pipe(
+          map(items => CartActions.loadCartSuccess({ items })),
+          catchError(error => of(CartActions.loadCartFailure({ error: error.message })))
+        )
+      )
+    )
+  );
+
+  constructor(private actions$: Actions, private cartApi: CartApiService) {}
+}
+
+// Component usage
+@Component({
+  template: \\\`
+    &lt;span&gt;Total: {{ total$ | async | currency }}&lt;/span&gt;
+  \\\`
+})
+export class CartBadgeComponent {
+  total$ = this.store.select(selectCartTotal);
+  constructor(private store: Store) {}
+}</code></pre>
+
+      <h3>3. Signal Store (NgRx Signals)</h3>
+
+      <pre><code>// NgRx SignalStore: NgRx concepts with signal ergonomics
+export const CartStore = signalStore(
+  { providedIn: 'root' },
+  withState&lt;CartState&gt;({
+    items: [],
+    loaded: false,
+    error: null,
+  }),
+  withComputed(({ items }) => ({
+    total: computed(() => items().reduce((sum, i) => sum + i.price * i.qty, 0)),
+    count: computed(() => items().reduce((sum, i) => sum + i.qty, 0)),
+  })),
+  withMethods((store, cartApi = inject(CartApiService)) => ({
+    addItem(product: Product) {
+      patchState(store, { items: addOrIncrement(store.items(), product) });
+    },
+    removeItem(productId: string) {
+      patchState(store, { items: store.items().filter(i => i.productId !== productId) });
+    },
+    async loadCart() {
+      try {
+        const items = await firstValueFrom(cartApi.load());
+        patchState(store, { items, loaded: true });
+      } catch (e) {
+        patchState(store, { error: 'Failed to load cart' });
+      }
+    },
+  })),
+);
+
+// Component usage
+@Component({
+  template: \\\`
+    &lt;span&gt;Cart ({{ store.count() }})&lt;/span&gt;
+    &lt;span&gt;Total: {{ store.total() | currency }}&lt;/span&gt;
+  \\\`
+})
+export class CartBadgeComponent {
+  store = inject(CartStore);
+}</code></pre>
+
+      <h2>Comparison Table</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Criteria</th>
+            <th>Services + Signals</th>
+            <th>NgRx Store</th>
+            <th>NgRx SignalStore</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Boilerplate</td>
+            <td>Minimal</td>
+            <td>High (actions, reducers, effects, selectors)</td>
+            <td>Medium</td>
+          </tr>
+          <tr>
+            <td>Learning Curve</td>
+            <td>Low</td>
+            <td>High (Redux concepts)</td>
+            <td>Medium</td>
+          </tr>
+          <tr>
+            <td>DevTools</td>
+            <td>None</td>
+            <td>Excellent (time-travel debugging)</td>
+            <td>Limited</td>
+          </tr>
+          <tr>
+            <td>Predictability</td>
+            <td>Good</td>
+            <td>Excellent (strict unidirectional flow)</td>
+            <td>Good</td>
+          </tr>
+          <tr>
+            <td>Testing</td>
+            <td>Easy (just call methods)</td>
+            <td>Structured (test reducers, effects separately)</td>
+            <td>Easy</td>
+          </tr>
+          <tr>
+            <td>Async Handling</td>
+            <td>Manual (RxJS in service)</td>
+            <td>Effects (declarative)</td>
+            <td>Methods (imperative async)</td>
+          </tr>
+          <tr>
+            <td>Team Scale</td>
+            <td>Small (1-5 devs)</td>
+            <td>Large (10+ devs, enforced patterns)</td>
+            <td>Medium (5-10 devs)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Decision Framework</h2>
+
+      <ul>
+        <li><strong>Small app, small team (1-5 devs):</strong> Services with signals. Simple, fast, no overhead.</li>
+        <li><strong>Medium app, medium team (5-10 devs):</strong> NgRx SignalStore. Structured patterns without Redux verbosity.</li>
+        <li><strong>Large enterprise app (10+ devs):</strong> NgRx Store. Enforced architecture, time-travel debugging, established patterns.</li>
+        <li><strong>State shared across many components:</strong> Any centralized store (NgRx or signal service at root).</li>
+        <li><strong>State local to one component:</strong> Just use a signal in the component. No store needed.</li>
+        <li><strong>Complex async workflows:</strong> NgRx Effects or RxJS in services. Signals alone do not handle streams.</li>
+      </ul>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>Start with the simplest approach that works</strong> &mdash; signal services for most apps</li>
+        <li><strong>NgRx Store earns its complexity at scale</strong> &mdash; with large teams, the enforced patterns prevent chaos</li>
+        <li><strong>NgRx SignalStore is the middle ground</strong> &mdash; structured state management without Redux boilerplate</li>
+        <li><strong>Local state stays local</strong> &mdash; not everything belongs in a global store</li>
+        <li><strong>You can mix approaches</strong> &mdash; global auth state in a service, feature state in NgRx, component state in signals</li>
+        <li><strong>The best state management is the one your team understands</strong> &mdash; a well-used simple approach beats a misused complex one</li>
+      </ul>
+
+      <p>State management is a spectrum, not a binary choice. Match the tool to the problem: signals for simple state, signal stores for moderate complexity, full NgRx for enterprise-scale applications with strict architectural requirements. The goal is managing complexity, not adding it.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-28',
+    readTime: '12 min read',
+    tags: ['Angular', 'NgRx', 'Signals', 'State Management', 'Frontend'],
+    coverImage: '',
+  },  {
+    id: '76',
+    title: 'Web Authentication API: Passwordless Login with Passkeys',
+    slug: 'web-authentication-passkeys-passwordless-login',
+    excerpt: 'Passwords are the weakest link in security. Passkeys replace them with biometrics and device-bound credentials. Learn WebAuthn, FIDO2, and how to implement passwordless login in your web app with real code examples.',
+    category: 'frontend',
+    featured: false,
+    content: `
+      <p>Passwords are fundamentally broken. Users reuse them across sites, phishing steals them daily, and even hashed databases get breached. Passkeys replace passwords entirely with cryptographic key pairs stored on the user&rsquo;s device, authenticated with biometrics (fingerprint, face) or a device PIN. No password to remember, no password to steal.</p>
+
+      <h2>How Passkeys Work</h2>
+
+      <ol>
+        <li><strong>Registration:</strong> The user&rsquo;s device generates a public/private key pair. The public key is sent to your server. The private key never leaves the device.</li>
+        <li><strong>Authentication:</strong> Your server sends a random challenge. The device signs it with the private key (after biometric verification). Your server verifies the signature with the stored public key.</li>
+      </ol>
+
+      <p>The private key is protected by the device&rsquo;s secure enclave (TPM, Secure Enclave, Android Keystore). Even if your server is breached, attackers get only public keys &mdash; which are useless without the device.</p>
+
+      <h2>WebAuthn API: Registration</h2>
+
+      <pre><code>// Client-side: create a new passkey
+async function registerPasskey() {
+  // 1. Get registration options from your server
+  const response = await fetch('/api/auth/register/options', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: 'alice@example.com' }),
+  });
+  const options = await response.json();
+
+  // 2. Browser prompts user for biometric verification
+  const credential = await navigator.credentials.create({
+    publicKey: {
+      challenge: base64ToBuffer(options.challenge),
+      rp: {
+        name: 'My App',
+        id: 'example.com',    // Must match your domain
+      },
+      user: {
+        id: base64ToBuffer(options.userId),
+        name: 'alice@example.com',
+        displayName: 'Alice Smith',
+      },
+      pubKeyCredParams: [
+        { alg: -7, type: 'public-key' },    // ES256
+        { alg: -257, type: 'public-key' },  // RS256
+      ],
+      authenticatorSelection: {
+        authenticatorAttachment: 'platform',  // Device biometrics
+        residentKey: 'required',              // Discoverable credential
+        userVerification: 'required',         // Biometric required
+      },
+      timeout: 60000,
+    },
+  });
+
+  // 3. Send credential to server for storage
+  await fetch('/api/auth/register/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      id: credential.id,
+      rawId: bufferToBase64(credential.rawId),
+      response: {
+        attestationObject: bufferToBase64(
+          credential.response.attestationObject
+        ),
+        clientDataJSON: bufferToBase64(
+          credential.response.clientDataJSON
+        ),
+      },
+      type: credential.type,
+    }),
+  });
+}</code></pre>
+
+      <h2>WebAuthn API: Authentication</h2>
+
+      <pre><code>// Client-side: authenticate with existing passkey
+async function loginWithPasskey() {
+  // 1. Get authentication options from server
+  const response = await fetch('/api/auth/login/options', {
+    method: 'POST',
+  });
+  const options = await response.json();
+
+  // 2. Browser prompts for biometric verification
+  const assertion = await navigator.credentials.get({
+    publicKey: {
+      challenge: base64ToBuffer(options.challenge),
+      rpId: 'example.com',
+      allowCredentials: [],  // Empty = discoverable (shows all passkeys)
+      userVerification: 'required',
+      timeout: 60000,
+    },
+  });
+
+  // 3. Send signed assertion to server
+  const result = await fetch('/api/auth/login/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      id: assertion.id,
+      rawId: bufferToBase64(assertion.rawId),
+      response: {
+        authenticatorData: bufferToBase64(
+          assertion.response.authenticatorData
+        ),
+        clientDataJSON: bufferToBase64(
+          assertion.response.clientDataJSON
+        ),
+        signature: bufferToBase64(
+          assertion.response.signature
+        ),
+      },
+      type: assertion.type,
+    }),
+  });
+
+  const session = await result.json();
+  // User is now authenticated!
+}</code></pre>
+
+      <h2>Server-Side: Python Verification</h2>
+
+      <pre><code># Using the py_webauthn library
+from webauthn import (
+    generate_registration_options,
+    verify_registration_response,
+    generate_authentication_options,
+    verify_authentication_response,
+)
+from webauthn.helpers.structs import (
+    AuthenticatorSelectionCriteria,
+    ResidentKeyRequirement,
+    UserVerificationRequirement,
+)
+
+# Registration options
+def get_registration_options(user):
+    options = generate_registration_options(
+        rp_id="example.com",
+        rp_name="My App",
+        user_id=user.id.encode(),
+        user_name=user.email,
+        user_display_name=user.name,
+        authenticator_selection=AuthenticatorSelectionCriteria(
+            resident_key=ResidentKeyRequirement.REQUIRED,
+            user_verification=UserVerificationRequirement.REQUIRED,
+        ),
+    )
+    # Store challenge in session for verification
+    session['challenge'] = options.challenge
+    return options
+
+# Verify registration
+def verify_registration(credential_data):
+    verification = verify_registration_response(
+        credential=credential_data,
+        expected_challenge=session['challenge'],
+        expected_origin="https://example.com",
+        expected_rp_id="example.com",
+    )
+
+    # Store credential for future authentication
+    store_credential(
+        user_id=current_user.id,
+        credential_id=verification.credential_id,
+        public_key=verification.credential_public_key,
+        sign_count=verification.sign_count,
+    )</code></pre>
+
+      <h2>Passkeys vs Passwords Comparison</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Aspect</th>
+            <th>Passwords</th>
+            <th>Passkeys</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Phishing</td>
+            <td>Vulnerable (users type on fake sites)</td>
+            <td>Immune (domain-bound, cannot be phished)</td>
+          </tr>
+          <tr>
+            <td>Breach impact</td>
+            <td>Hashed passwords can be cracked</td>
+            <td>Public keys are useless to attackers</td>
+          </tr>
+          <tr>
+            <td>Reuse across sites</td>
+            <td>Common (80% of users)</td>
+            <td>Impossible (unique key per site)</td>
+          </tr>
+          <tr>
+            <td>User experience</td>
+            <td>Remember, type, reset</td>
+            <td>Touch fingerprint sensor</td>
+          </tr>
+          <tr>
+            <td>MFA needed</td>
+            <td>Yes (passwords alone are weak)</td>
+            <td>No (biometric + device is inherently 2FA)</td>
+          </tr>
+          <tr>
+            <td>Cross-device</td>
+            <td>Works everywhere</td>
+            <td>Synced via iCloud/Google (or use QR code)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Progressive Enhancement Strategy</h2>
+
+      <pre><code>// Check if the browser supports WebAuthn
+function supportsPasskeys(): boolean {
+  return window.PublicKeyCredential !== undefined &&
+    typeof window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function';
+}
+
+// Check if a platform authenticator is available
+async function hasPlatformAuth(): Promise&lt;boolean&gt; {
+  if (!supportsPasskeys()) return false;
+  return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+}
+
+// Progressive enhancement:
+// 1. Everyone gets username/password as baseline
+// 2. If passkeys supported: show "Add Passkey" option in settings
+// 3. On next login: offer "Sign in with Passkey" as primary option
+// 4. Keep password as fallback for unsupported devices</code></pre>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>Passkeys are phishing-proof</strong> &mdash; the private key is domain-bound and never transmitted</li>
+        <li><strong>Passkeys are inherently two-factor:</strong> something you have (device) + something you are (biometric)</li>
+        <li><strong>Use progressive enhancement</strong> &mdash; offer passkeys alongside passwords, do not force them</li>
+        <li><strong>Store only public keys on your server</strong> &mdash; a breach exposes nothing usable</li>
+        <li><strong>Discoverable credentials (resident keys)</strong> enable username-less login &mdash; the user just touches their fingerprint sensor</li>
+        <li><strong>Major platforms support passkey sync:</strong> iCloud Keychain (Apple), Google Password Manager, Windows Hello</li>
+        <li><strong>Libraries handle the crypto:</strong> py_webauthn (Python), SimpleWebAuthn (Node.js), webauthn4j (Java)</li>
+      </ul>
+
+      <p>Passkeys are the future of authentication, and the future is already here. Apple, Google, and Microsoft have committed to universal passkey support. Start with progressive enhancement &mdash; add passkey registration alongside existing password auth &mdash; and give your users the option to never type a password again.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-28',
+    readTime: '12 min read',
+    tags: ['WebAuthn', 'Passkeys', 'Security', 'Authentication', 'Frontend'],
+    coverImage: '',
+  },  {
+    id: '75',
+    title: 'Event-Driven Architecture: From Monolith Events to Kafka Streams',
+    slug: 'event-driven-architecture-kafka-cqrs-guide',
+    excerpt: 'Decouple your services with events instead of API calls. Learn event sourcing, CQRS, Kafka vs RabbitMQ, dead letter queues, idempotency patterns, and how to migrate from a monolith to event-driven without rewriting everything.',
+    category: 'backend',
+    featured: false,
+    content: `
+      <p>In a traditional architecture, Service A calls Service B synchronously. If B is down, A fails too. If B is slow, A is slow too. Event-driven architecture breaks this coupling: Service A publishes an event, and any interested service processes it independently, at its own pace, on its own schedule.</p>
+
+      <h2>Synchronous vs Event-Driven</h2>
+
+      <pre><code># Synchronous: tight coupling
+def create_order(data):
+    order = save_order(data)
+    payment_service.charge(order)        # Blocks. What if payment is down?
+    inventory_service.reserve(order)      # Blocks. What if inventory is slow?
+    email_service.send_confirmation(order) # Blocks. Email server timeout?
+    return order  # Total time: sum of all calls
+
+# Event-driven: loose coupling
+def create_order(data):
+    order = save_order(data)
+    publish_event("order.created", order)  # Instant. Fire and forget.
+    return order  # Total time: just the database write
+
+# Consumers process independently:
+# PaymentService listens for "order.created" -> charges customer
+# InventoryService listens for "order.created" -> reserves items
+# EmailService listens for "order.created" -> sends confirmation</code></pre>
+
+      <h2>Core Concepts</h2>
+
+      <ul>
+        <li><strong>Event:</strong> An immutable fact that something happened (&ldquo;OrderCreated&rdquo;, &ldquo;PaymentProcessed&rdquo;, &ldquo;UserRegistered&rdquo;)</li>
+        <li><strong>Producer:</strong> The service that publishes events</li>
+        <li><strong>Consumer:</strong> A service that subscribes to and processes events</li>
+        <li><strong>Broker:</strong> The infrastructure that routes events (Kafka, RabbitMQ, SNS/SQS)</li>
+        <li><strong>Topic/Queue:</strong> A named channel where events are published</li>
+      </ul>
+
+      <h2>Kafka vs RabbitMQ</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Apache Kafka</th>
+            <th>RabbitMQ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Model</td>
+            <td>Distributed log (append-only)</td>
+            <td>Message queue (consume and delete)</td>
+          </tr>
+          <tr>
+            <td>Retention</td>
+            <td>Configurable (days/weeks/forever)</td>
+            <td>Until consumed (or TTL)</td>
+          </tr>
+          <tr>
+            <td>Replay</td>
+            <td>Yes (re-read from any offset)</td>
+            <td>No (once consumed, gone)</td>
+          </tr>
+          <tr>
+            <td>Throughput</td>
+            <td>Millions of events/sec</td>
+            <td>Tens of thousands/sec</td>
+          </tr>
+          <tr>
+            <td>Ordering</td>
+            <td>Guaranteed per partition</td>
+            <td>Per queue (with single consumer)</td>
+          </tr>
+          <tr>
+            <td>Complexity</td>
+            <td>High (ZooKeeper/KRaft, partitions)</td>
+            <td>Low (simple to operate)</td>
+          </tr>
+          <tr>
+            <td>Best For</td>
+            <td>Event streaming, audit logs, high throughput</td>
+            <td>Task queues, RPC, simple pub/sub</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p><strong>Rule of thumb:</strong> Use RabbitMQ for task queues and simple messaging. Use Kafka when you need event replay, high throughput, or event sourcing.</p>
+
+      <h2>Event Design</h2>
+
+      <pre><code># Good event: self-contained, immutable, past tense
+{
+    "event_type": "order.created",
+    "event_id": "evt_abc123",
+    "timestamp": "2026-04-28T10:30:00Z",
+    "version": 1,
+    "data": {
+        "order_id": "ord_456",
+        "customer_id": "cust_789",
+        "items": [
+            {"product_id": "prod_1", "quantity": 2, "price": 29.99}
+        ],
+        "total": 59.98,
+        "currency": "USD"
+    },
+    "metadata": {
+        "source": "order-service",
+        "correlation_id": "req_xyz"
+    }
+}
+
+# Event naming conventions:
+# entity.action (past tense): order.created, payment.processed, user.registered
+# Include enough data that consumers do not need to call back to the producer</code></pre>
+
+      <h2>Event Sourcing</h2>
+
+      <p>Instead of storing the current state, store every event that led to it. The current state is derived by replaying all events. Think of it as a Git log for your data.</p>
+
+      <pre><code># Traditional: store current state
+# UPDATE accounts SET balance = 150 WHERE id = 1
+
+# Event sourcing: store events
+events = [
+    {"type": "account.opened",    "data": {"balance": 0}},
+    {"type": "money.deposited",   "data": {"amount": 200}},
+    {"type": "money.withdrawn",   "data": {"amount": 50}},
+    # Current balance: replay events -> 0 + 200 - 50 = 150
+]
+
+# Benefits:
+# - Complete audit trail (when did balance change and why?)
+# - Replay events to rebuild state or create new projections
+# - Time travel: what was the balance on March 15?
+# - Debug: replay events to reproduce any bug
+
+# Drawbacks:
+# - More complex queries (need projections for reads)
+# - Event schema evolution is tricky
+# - Storage grows over time (use snapshots)</code></pre>
+
+      <h2>CQRS: Command Query Responsibility Segregation</h2>
+
+      <p>Separate the write model (commands) from the read model (queries). Write side handles business logic and publishes events. Read side creates optimized views for queries.</p>
+
+      <pre><code># Write side: handles commands, enforces business rules
+class OrderCommandHandler:
+    def handle_create_order(self, command):
+        # Validate business rules
+        if not inventory.has_stock(command.items):
+            raise OutOfStockError()
+
+        # Save to event store
+        event = OrderCreatedEvent(
+            order_id=generate_id(),
+            items=command.items,
+            total=calculate_total(command.items),
+        )
+        event_store.append(event)
+        publish(event)
+
+# Read side: optimized projections for queries
+class OrderProjection:
+    def on_order_created(self, event):
+        # Update a denormalized read model
+        db.execute("""
+            INSERT INTO order_summaries (id, customer, total, status, created_at)
+            VALUES (%s, %s, %s, 'pending', %s)
+        """, [event.order_id, event.customer_id, event.total, event.timestamp])
+
+    def on_payment_processed(self, event):
+        db.execute("""
+            UPDATE order_summaries SET status = 'paid' WHERE id = %s
+        """, [event.order_id])
+
+# Query side: fast reads from denormalized tables
+def get_order_summary(order_id):
+    return db.query("SELECT * FROM order_summaries WHERE id = %s", [order_id])</code></pre>
+
+      <h2>Dead Letter Queues</h2>
+
+      <p>When a consumer fails to process a message after multiple retries, send it to a Dead Letter Queue (DLQ) instead of losing it or blocking the queue.</p>
+
+      <pre><code># Kafka: configure DLQ with error handling
+from confluent_kafka import Consumer, Producer
+
+dlq_producer = Producer({'bootstrap.servers': 'kafka:9092'})
+
+def process_with_dlq(message, max_retries=3):
+    for attempt in range(max_retries):
+        try:
+            process_event(message.value())
+            return  # Success
+        except TemporaryError:
+            time.sleep(2 ** attempt)  # Exponential backoff
+        except PermanentError as e:
+            break  # Skip retries for permanent failures
+
+    # All retries failed: send to DLQ
+    dlq_producer.produce(
+        'order-events.dlq',
+        key=message.key(),
+        value=message.value(),
+        headers={
+            'original-topic': message.topic(),
+            'error': str(e),
+            'retry-count': str(max_retries),
+        }
+    )
+
+# Monitor DLQ: alert when messages appear
+# Process DLQ: fix the issue, then replay messages</code></pre>
+
+      <h2>Idempotency: Processing Events Safely</h2>
+
+      <p>Events can be delivered more than once (network retries, consumer restarts). Your consumers <strong>must</strong> be idempotent &mdash; processing the same event twice should produce the same result.</p>
+
+      <pre><code># Idempotent consumer using event_id deduplication
+class IdempotentConsumer:
+    def process(self, event):
+        event_id = event['event_id']
+
+        # Check if already processed
+        if db.exists("SELECT 1 FROM processed_events WHERE event_id = %s", [event_id]):
+            return  # Already processed, skip
+
+        # Process the event
+        handle_order_created(event['data'])
+
+        # Mark as processed (in the same transaction!)
+        db.execute(
+            "INSERT INTO processed_events (event_id, processed_at) VALUES (%s, NOW())",
+            [event_id]
+        )
+        db.commit()
+
+# Alternative: use database constraints
+# INSERT INTO payments (order_id, amount) VALUES (%s, %s)
+# ON CONFLICT (order_id) DO NOTHING;
+# The unique constraint on order_id prevents duplicate payments</code></pre>
+
+      <h2>Migrating from Monolith to Event-Driven</h2>
+
+      <ol>
+        <li><strong>Start with domain events inside the monolith:</strong> Emit events from your existing code without changing architecture</li>
+        <li><strong>Add an event bus (even in-process):</strong> Replace direct function calls with event publishing</li>
+        <li><strong>Extract one consumer at a time:</strong> Move email sending to a separate service that consumes events</li>
+        <li><strong>Introduce a broker (Kafka/RabbitMQ):</strong> Replace the in-process event bus with external messaging</li>
+        <li><strong>Extract more services gradually:</strong> Each extraction is independent and reversible</li>
+      </ol>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>Events decouple services in time and availability</strong> &mdash; producers and consumers do not need to be online simultaneously</li>
+        <li><strong>Use Kafka for event streaming, RabbitMQ for task queues</strong> &mdash; Kafka retains events, RabbitMQ deletes after consumption</li>
+        <li><strong>Events should be self-contained</strong> &mdash; include enough data that consumers never need to call back to the producer</li>
+        <li><strong>Dead letter queues prevent data loss</strong> &mdash; failed messages go to DLQ for later investigation, not the void</li>
+        <li><strong>Consumers must be idempotent</strong> &mdash; use event_id deduplication or database constraints</li>
+        <li><strong>Event sourcing gives you a complete audit trail</strong> &mdash; but adds complexity, so use it where the audit trail justifies the cost</li>
+        <li><strong>Migrate incrementally</strong> &mdash; start with events inside your monolith before splitting services</li>
+      </ul>
+
+      <p>Event-driven architecture is not about technology &mdash; it is about designing systems where services communicate through facts rather than commands. When Service A says &ldquo;an order was created&rdquo; instead of &ldquo;charge this customer,&rdquo; you get a system that is more resilient, more scalable, and easier to evolve. Start with the events. The architecture follows.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-28',
+    readTime: '13 min read',
+    tags: ['Event-Driven', 'Kafka', 'RabbitMQ', 'CQRS', 'Architecture'],
+    coverImage: '',
+  },  {
+    id: '74',
+    title: 'Database Connection Pooling: Why Your App Crashes at 100 Users',
+    slug: 'database-connection-pooling-pgbouncer-guide',
+    excerpt: 'Your app works fine in development but crashes in production with "too many connections." Learn how connection pooling works, how to configure PgBouncer, Django CONN_MAX_AGE, and SQLAlchemy pools, and the math behind sizing your pool.',
+    category: 'backend',
+    featured: false,
+    content: `
+      <p>Every database query needs a connection. Opening a connection takes 50-100ms (TCP handshake, SSL negotiation, authentication). Without pooling, your app opens and closes a connection for every single request. At 100 concurrent users, that is 100 simultaneous connections &mdash; and PostgreSQL defaults to a maximum of 100. Connection number 101 gets rejected, your app crashes, and your users see a 500 error.</p>
+
+      <h2>How Connection Pooling Works</h2>
+
+      <p>A connection pool maintains a set of pre-opened database connections. When your app needs a connection, it borrows one from the pool. When done, it returns it instead of closing it. The next request reuses the same connection instantly.</p>
+
+      <pre><code># Without pooling (every request):
+# 1. Open TCP connection to database     (20ms)
+# 2. SSL handshake                        (30ms)
+# 3. Authenticate                         (10ms)
+# 4. Execute query                        (5ms)
+# 5. Close connection                     (5ms)
+# Total: 70ms (only 5ms was actual work!)
+
+# With pooling (after warmup):
+# 1. Borrow connection from pool          (0.1ms)
+# 2. Execute query                        (5ms)
+# 3. Return connection to pool            (0.1ms)
+# Total: 5.2ms (93% faster!)</code></pre>
+
+      <h2>Pool Sizing: The Math</h2>
+
+      <p>The optimal pool size is NOT &ldquo;as many as possible.&rdquo; More connections means more context switching, more memory, and worse performance. The formula from the PostgreSQL wiki:</p>
+
+      <pre><code># Optimal pool size formula:
+# pool_size = (core_count * 2) + effective_spindle_count
+
+# For a server with 4 CPU cores and SSD storage:
+# pool_size = (4 * 2) + 1 = 9 connections
+
+# For a server with 8 CPU cores and SSD:
+# pool_size = (8 * 2) + 1 = 17 connections
+
+# Yes, 17 connections can handle THOUSANDS of concurrent requests
+# because most requests only hold a connection for milliseconds.
+
+# Common mistake: setting pool_size = 100
+# This actually HURTS performance due to lock contention and
+# context switching overhead inside PostgreSQL.</code></pre>
+
+      <h2>Application-Level Pooling: Django</h2>
+
+      <pre><code># settings.py
+
+# WITHOUT pooling (default): new connection every request
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'myapp',
+        'HOST': 'localhost',
+        'PORT': '5432',
+        'USER': 'myapp',
+        'PASSWORD': 'secret',
+    }
+}
+
+# WITH persistent connections
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'myapp',
+        'HOST': 'localhost',
+        'PORT': '5432',
+        'USER': 'myapp',
+        'PASSWORD': 'secret',
+        'CONN_MAX_AGE': 600,      # Keep connections alive for 10 minutes
+        'CONN_HEALTH_CHECKS': True, # Verify connection is alive before using
+    }
+}
+
+# CONN_MAX_AGE=None means connections live forever (until server restart)
+# CONN_MAX_AGE=0 means close after every request (default, no pooling)
+# CONN_MAX_AGE=600 means reuse for 10 minutes, then close
+
+# WARNING: With CONN_MAX_AGE and Gunicorn, each WORKER gets its own
+# persistent connection. 4 workers = 4 connections minimum.</code></pre>
+
+      <h2>Application-Level Pooling: SQLAlchemy</h2>
+
+      <pre><code>from sqlalchemy import create_engine
+
+# SQLAlchemy has built-in connection pooling
+engine = create_engine(
+    "postgresql://user:pass@localhost/myapp",
+    pool_size=10,           # Maintain 10 connections
+    max_overflow=5,         # Allow 5 extra connections under load
+    pool_timeout=30,        # Wait 30s for a connection before error
+    pool_recycle=1800,      # Recycle connections after 30 minutes
+    pool_pre_ping=True,     # Test connection health before using
+)
+
+# Total maximum connections = pool_size + max_overflow = 15
+
+# pool_pre_ping: sends "SELECT 1" before giving you a connection
+# This catches stale connections from network drops or DB restarts
+# Small overhead (1ms) but prevents "connection reset" errors</code></pre>
+
+      <h2>External Pooling: PgBouncer</h2>
+
+      <p>PgBouncer sits between your app and PostgreSQL as a lightweight proxy. It is the production standard for PostgreSQL connection pooling, especially with multiple app servers.</p>
+
+      <pre><code># /etc/pgbouncer/pgbouncer.ini
+
+[databases]
+myapp = host=db.internal port=5432 dbname=myapp
+
+[pgbouncer]
+listen_addr = 0.0.0.0
+listen_port = 6432
+
+# Pool modes:
+# session:     Connection locked to client for entire session (safest)
+# transaction: Connection returned after each transaction (recommended)
+# statement:   Connection returned after each statement (most aggressive)
+pool_mode = transaction
+
+# Pool sizing
+default_pool_size = 20        # Connections per database/user pair
+max_client_conn = 1000        # Max simultaneous client connections
+min_pool_size = 5             # Keep at least 5 connections warm
+
+# Timeouts
+server_idle_timeout = 600     # Close idle server connections after 10 min
+client_idle_timeout = 0       # Never timeout idle clients (app handles this)
+query_timeout = 30            # Kill queries running longer than 30s
+
+# Your app connects to PgBouncer (port 6432), NOT directly to PostgreSQL
+# App sees: 1000 available connections
+# PostgreSQL sees: only 20 actual connections</code></pre>
+
+      <h3>PgBouncer Pool Modes Explained</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Mode</th>
+            <th>Connection Returned</th>
+            <th>Supports</th>
+            <th>Best For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Session</td>
+            <td>When client disconnects</td>
+            <td>Everything (prepared statements, temp tables)</td>
+            <td>Legacy apps, full compatibility</td>
+          </tr>
+          <tr>
+            <td>Transaction</td>
+            <td>After each COMMIT/ROLLBACK</td>
+            <td>Most queries (not session-level features)</td>
+            <td>Web apps (recommended)</td>
+          </tr>
+          <tr>
+            <td>Statement</td>
+            <td>After each statement</td>
+            <td>Simple queries only (no multi-statement transactions)</td>
+            <td>Simple read-heavy workloads</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Architecture: App Servers + PgBouncer + PostgreSQL</h2>
+
+      <pre><code># Without PgBouncer:
+# 10 Gunicorn workers x 5 app servers = 50 connections to PostgreSQL
+# Add Celery workers: 20 more connections
+# Add admin tools: 5 more connections
+# Total: 75 connections (dangerously close to max_connections=100)
+
+# With PgBouncer:
+# 10 workers x 5 servers = 50 connections to PgBouncer
+# PgBouncer maintains only 20 connections to PostgreSQL
+# Celery connects to PgBouncer too
+# PostgreSQL sees: 20 connections (comfortable headroom)
+# Apps see: unlimited connections (PgBouncer queues them)</code></pre>
+
+      <h2>Monitoring Pool Health</h2>
+
+      <pre><code># PgBouncer admin console
+psql -p 6432 -U pgbouncer pgbouncer
+
+# Show current pool stats
+SHOW POOLS;
+# database | user | cl_active | cl_waiting | sv_active | sv_idle
+# myapp    | app  | 45        | 0          | 12        | 8
+
+# cl_active: clients with active queries
+# cl_waiting: clients waiting for a server connection (should be 0!)
+# sv_active: server connections running queries
+# sv_idle: server connections available
+
+# If cl_waiting > 0 consistently, increase default_pool_size
+
+# PostgreSQL: check connection count
+SELECT count(*) FROM pg_stat_activity;
+SELECT state, count(*) FROM pg_stat_activity GROUP BY state;</code></pre>
+
+      <h2>Common Mistakes</h2>
+
+      <ul>
+        <li><strong>Setting pool_size too high:</strong> 100 connections is almost never better than 20. More connections means more CPU context switching and lock contention inside PostgreSQL.</li>
+        <li><strong>Forgetting Celery workers:</strong> Each Celery worker opens its own database connections. 20 Celery workers with pool_size=10 = 200 connections.</li>
+        <li><strong>Not using pool_pre_ping:</strong> After a network blip or database restart, pooled connections go stale. The next query fails with &ldquo;connection reset.&rdquo;</li>
+        <li><strong>Using session mode with web apps:</strong> Session mode holds connections for the entire client session. Web requests are short &mdash; use transaction mode.</li>
+        <li><strong>Leaking connections:</strong> Opening connections in a try block without ensuring they are returned in a finally block. Always use context managers.</li>
+      </ul>
+
+      <h2>Key Takeaways</h2>
+
+      <ul>
+        <li><strong>Connection pooling is not optional in production</strong> &mdash; without it, your app crashes at modest concurrency</li>
+        <li><strong>Optimal pool size is small:</strong> (CPU cores * 2) + 1, not hundreds</li>
+        <li><strong>Use PgBouncer in transaction mode</strong> for web applications &mdash; it is the production standard</li>
+        <li><strong>Django CONN_MAX_AGE=600</strong> gives you basic pooling with zero infrastructure changes</li>
+        <li><strong>Always enable health checks</strong> (pool_pre_ping / CONN_HEALTH_CHECKS) to catch stale connections</li>
+        <li><strong>Monitor cl_waiting in PgBouncer</strong> &mdash; if clients are waiting, increase pool size or optimize query duration</li>
+        <li><strong>Count ALL connection sources:</strong> app servers + Celery + cron jobs + admin tools + monitoring</li>
+      </ul>
+
+      <p>Database connection pooling is one of those infrastructure fundamentals that separates apps that work in development from apps that survive production. A 20-connection pool with PgBouncer can serve thousands of concurrent users. A 100-connection free-for-all will crash at a hundred. Size your pools deliberately, monitor them continuously, and never let your app open connections without a pool.</p>
+    `,
+    author: 'Vishal Anand',
+    date: '2026-04-28',
+    readTime: '12 min read',
+    tags: ['Database', 'PostgreSQL', 'PgBouncer', 'Django', 'Performance'],
+    coverImage: '',
+  },  {
     id: '73',
     title: 'Contributing to Open Source: Your First PR in 30 Minutes',
     slug: 'contributing-open-source-first-pull-request',
