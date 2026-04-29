@@ -60,6 +60,36 @@ import { SeoService } from '../../../services/seo.service';
             </ul>
           </div>
 
+          <!-- Why This Matters -->
+          @if (m.whyThisMatters) {
+            <div class="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-6 mb-8">
+              <h2 class="text-lg font-bold text-foreground mb-2">Why This Matters</h2>
+              <p class="text-sm text-muted-foreground leading-relaxed">{{ m.whyThisMatters }}</p>
+            </div>
+          }
+
+          <!-- Before/After SPIFFE -->
+          @if (m.beforeAfter) {
+            <div class="grid md:grid-cols-2 gap-4 mb-8">
+              <div class="rounded-xl border border-red-500/30 bg-red-500/5 p-5">
+                <h3 class="text-sm font-bold text-red-400 mb-3">Before SPIFFE</h3>
+                <ul class="space-y-1.5">
+                  @for (item of m.beforeAfter.before; track item) {
+                    <li class="flex items-start gap-2 text-sm text-muted-foreground"><span class="text-red-400 mt-0.5 shrink-0">&#10007;</span> {{ item }}</li>
+                  }
+                </ul>
+              </div>
+              <div class="rounded-xl border border-green-500/30 bg-green-500/5 p-5">
+                <h3 class="text-sm font-bold text-green-400 mb-3">After SPIFFE</h3>
+                <ul class="space-y-1.5">
+                  @for (item of m.beforeAfter.after; track item) {
+                    <li class="flex items-start gap-2 text-sm text-muted-foreground"><span class="text-green-400 mt-0.5 shrink-0">&#10003;</span> {{ item }}</li>
+                  }
+                </ul>
+              </div>
+            </div>
+          }
+
           <!-- Architecture Diagram -->
           @if (safeSvg(); as svg) {
             <div class="rounded-xl border border-border/60 overflow-hidden mb-8 bg-slate-900" [innerHTML]="svg"></div>
@@ -67,6 +97,137 @@ import { SeoService } from '../../../services/seo.service';
 
           <!-- Content -->
           <article class="course-content max-w-none mb-10" [innerHTML]="safeContent()"></article>
+
+          <!-- Real-World Use Cases -->
+          @if (m.realWorldUseCases && m.realWorldUseCases.length > 0) {
+            <div class="rounded-xl border border-blue-500/30 bg-blue-500/5 p-6 mb-8">
+              <h2 class="text-lg font-bold text-foreground mb-3">Real-World Use Cases</h2>
+              <ul class="space-y-2">
+                @for (useCase of m.realWorldUseCases; track useCase) {
+                  <li class="flex items-start gap-2 text-sm"><span class="text-blue-400 mt-0.5 shrink-0">&#9656;</span> {{ useCase }}</li>
+                }
+              </ul>
+            </div>
+          }
+
+          <!-- Production Notes -->
+          @if (m.productionNotes && m.productionNotes.length > 0) {
+            <div class="space-y-3 mb-8">
+              @for (note of m.productionNotes; track note) {
+                <div class="rounded-lg border-l-4 border-amber-500 bg-amber-500/5 p-4">
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-amber-500 mb-1">Production Note</div>
+                  <p class="text-sm text-muted-foreground">{{ note }}</p>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Common Mistakes -->
+          @if (m.commonMistakes && m.commonMistakes.length > 0) {
+            <div class="rounded-xl border border-red-500/30 bg-red-500/5 p-6 mb-8">
+              <h2 class="text-lg font-bold text-foreground mb-3">Common Mistakes</h2>
+              <ul class="space-y-2">
+                @for (mistake of m.commonMistakes; track mistake) {
+                  <li class="flex items-start gap-2 text-sm"><span class="text-red-400 mt-0.5 shrink-0">&#9888;</span> {{ mistake }}</li>
+                }
+              </ul>
+            </div>
+          }
+
+          <!-- Security Risks -->
+          @if (m.securityRisks && m.securityRisks.length > 0) {
+            <div class="rounded-xl border border-orange-500/30 bg-orange-500/5 p-6 mb-8">
+              <h2 class="text-lg font-bold text-foreground mb-3">Security Risks to Watch</h2>
+              <ul class="space-y-2">
+                @for (risk of m.securityRisks; track risk) {
+                  <li class="flex items-start gap-2 text-sm"><span class="text-orange-400 mt-0.5 shrink-0">&#9888;</span> {{ risk }}</li>
+                }
+              </ul>
+            </div>
+          }
+
+          <!-- Design Tradeoffs -->
+          @if (m.designTradeoffs && m.designTradeoffs.length > 0) {
+            <div class="mb-8">
+              <h2 class="text-lg font-bold text-foreground mb-4">Design Tradeoffs</h2>
+              <div class="grid md:grid-cols-2 gap-4">
+                @for (trade of m.designTradeoffs; track trade.option) {
+                  <div class="rounded-xl border border-border/60 bg-card p-5">
+                    <h3 class="font-semibold text-foreground mb-3">{{ trade.option }}</h3>
+                    <div class="space-y-2">
+                      <div>
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-green-500 mb-1">Pros</div>
+                        @for (pro of trade.pros; track pro) {
+                          <div class="flex items-start gap-1.5 text-sm text-muted-foreground"><span class="text-green-400 shrink-0">+</span> {{ pro }}</div>
+                        }
+                      </div>
+                      <div>
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-red-400 mb-1">Cons</div>
+                        @for (con of trade.cons; track con) {
+                          <div class="flex items-start gap-1.5 text-sm text-muted-foreground"><span class="text-red-400 shrink-0">-</span> {{ con }}</div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Production Alternatives -->
+          @if (m.productionAlternatives && m.productionAlternatives.length > 0) {
+            <div class="rounded-xl border border-border/60 bg-card p-6 mb-8">
+              <h2 class="text-lg font-bold text-foreground mb-3">Production Alternatives</h2>
+              <div class="space-y-3">
+                @for (alt of m.productionAlternatives; track alt.name) {
+                  <div class="flex items-start gap-3">
+                    <span class="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary shrink-0 mt-0.5">vs</span>
+                    <div><span class="font-semibold text-sm text-foreground">{{ alt.name }}:</span> <span class="text-sm text-muted-foreground">{{ alt.description }}</span></div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Think Like an Engineer -->
+          @if (m.thinkLikeAnEngineer && m.thinkLikeAnEngineer.length > 0) {
+            <div class="rounded-xl border border-purple-500/30 bg-purple-500/5 p-6 mb-8">
+              <h2 class="text-lg font-bold text-foreground mb-3">Think Like a Platform Engineer</h2>
+              <ul class="space-y-2">
+                @for (q of m.thinkLikeAnEngineer; track q) {
+                  <li class="flex items-start gap-2 text-sm"><span class="text-purple-400 mt-0.5 shrink-0">?</span> {{ q }}</li>
+                }
+              </ul>
+            </div>
+          }
+
+          <!-- Operational Story -->
+          @if (m.operationalStory) {
+            <div class="rounded-xl border border-border/60 bg-card p-6 mb-8">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-primary mb-2">Production Story</div>
+              <p class="text-sm text-muted-foreground leading-relaxed italic">{{ m.operationalStory }}</p>
+            </div>
+          }
+
+          <!-- Career Relevance -->
+          @if (m.careerRelevance) {
+            <div class="rounded-xl border border-teal-500/30 bg-teal-500/5 p-6 mb-8">
+              <h2 class="text-lg font-bold text-foreground mb-2">Why This Skill Matters for Your Career</h2>
+              <p class="text-sm text-muted-foreground leading-relaxed">{{ m.careerRelevance }}</p>
+            </div>
+          }
+
+          <!-- Glossary -->
+          @if (m.glossary && m.glossary.length > 0) {
+            <div class="rounded-xl border border-border/60 bg-card p-6 mb-10">
+              <h2 class="text-lg font-bold text-foreground mb-3">Key Terms</h2>
+              <div class="grid sm:grid-cols-2 gap-3">
+                @for (term of m.glossary; track term.term) {
+                  <div class="text-sm"><span class="font-semibold text-foreground">{{ term.term }}:</span> <span class="text-muted-foreground">{{ term.definition }}</span></div>
+                }
+              </div>
+            </div>
+          }
 
           <!-- Labs -->
           @if (m.labs.length > 0) {
@@ -77,9 +238,19 @@ import { SeoService } from '../../../services/seo.service';
                   <div class="rounded-xl border border-border/60 bg-card p-6">
                     <div class="flex items-start gap-3 mb-3">
                       <span class="flex items-center justify-center h-7 w-7 rounded-full bg-green-500/10 text-green-500 text-xs font-bold">{{ i + 1 }}</span>
-                      <div>
+                      <div class="flex-1">
                         <h3 class="font-semibold text-foreground">{{ lab.title }}</h3>
                         <p class="text-sm text-muted-foreground">{{ lab.objective }}</p>
+                        @if (lab.duration || lab.difficulty) {
+                          <div class="flex gap-2 mt-2">
+                            @if (lab.duration) {
+                              <span class="rounded-full bg-accent px-2 py-0.5 text-[10px] text-muted-foreground">{{ lab.duration }}</span>
+                            }
+                            @if (lab.difficulty) {
+                              <span class="rounded-full bg-accent px-2 py-0.5 text-[10px] text-muted-foreground">{{ lab.difficulty }}</span>
+                            }
+                          </div>
+                        }
                       </div>
                     </div>
                     <ol class="ml-10 space-y-1">

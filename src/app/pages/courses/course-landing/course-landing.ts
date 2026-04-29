@@ -48,6 +48,39 @@ import { SeoService } from '../../../services/seo.service';
       </div>
     </section>
 
+    <!-- What You'll Build -->
+    <section class="border-b border-border/40 py-16">
+      <div class="container max-w-6xl mx-auto px-6">
+        <h2 class="text-2xl md:text-3xl font-bold text-center mb-10">By the End of This Course, You Will Build</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="flex items-start gap-3 p-4 rounded-xl border border-green-500/20 bg-green-500/5">
+            <span class="text-green-500 text-lg mt-0.5 shrink-0">&#10003;</span>
+            <span class="text-sm">A production-style <strong class="text-foreground">Zero Trust Kubernetes platform</strong></span>
+          </div>
+          <div class="flex items-start gap-3 p-4 rounded-xl border border-green-500/20 bg-green-500/5">
+            <span class="text-green-500 text-lg mt-0.5 shrink-0">&#10003;</span>
+            <span class="text-sm"><strong class="text-foreground">Secure workload identities</strong> with automatic rotation</span>
+          </div>
+          <div class="flex items-start gap-3 p-4 rounded-xl border border-green-500/20 bg-green-500/5">
+            <span class="text-green-500 text-lg mt-0.5 shrink-0">&#10003;</span>
+            <span class="text-sm"><strong class="text-foreground">mTLS-encrypted services</strong> via Envoy SDS</span>
+          </div>
+          <div class="flex items-start gap-3 p-4 rounded-xl border border-green-500/20 bg-green-500/5">
+            <span class="text-green-500 text-lg mt-0.5 shrink-0">&#10003;</span>
+            <span class="text-sm"><strong class="text-foreground">OPA-powered authorization</strong> policies</span>
+          </div>
+          <div class="flex items-start gap-3 p-4 rounded-xl border border-green-500/20 bg-green-500/5">
+            <span class="text-green-500 text-lg mt-0.5 shrink-0">&#10003;</span>
+            <span class="text-sm"><strong class="text-foreground">Federated trust domains</strong> across clusters</span>
+          </div>
+          <div class="flex items-start gap-3 p-4 rounded-xl border border-green-500/20 bg-green-500/5">
+            <span class="text-green-500 text-lg mt-0.5 shrink-0">&#10003;</span>
+            <span class="text-sm"><strong class="text-foreground">Production monitoring</strong> with Prometheus dashboards</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Transformation Section -->
     <section class="bg-accent/30 border-y border-border/40 py-16">
       <div class="container max-w-6xl mx-auto px-6">
