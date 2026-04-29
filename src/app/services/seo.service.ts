@@ -18,6 +18,7 @@ interface SeoConfig {
   };
   breadcrumbs?: { name: string; url: string }[];
   itemList?: { name: string; url: string; description?: string }[];
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -185,6 +186,15 @@ export class SeoService {
           })),
         },
       });
+    }
+
+    // Custom JSON-LD (Course schema, FAQPage, etc.)
+    if (config.jsonLd) {
+      if (Array.isArray(config.jsonLd)) {
+        schemas.push(...config.jsonLd);
+      } else {
+        schemas.push(config.jsonLd);
+      }
     }
 
     if (schemas.length > 0) {

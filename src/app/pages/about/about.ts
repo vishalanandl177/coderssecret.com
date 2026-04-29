@@ -73,6 +73,26 @@ import { BLOG_POSTS, CATEGORIES } from '../../models/blog-post.model';
             <li>Built with Angular 21, Tailwind CSS 4, hosted on GitHub Pages</li>
           </ul>
 
+          <h2>Open Source Impact</h2>
+          <p>I'm the creator of <a href="https://github.com/vishalanandl177/DRF-API-Logger" target="_blank" rel="noopener noreferrer"><strong>DRF API Logger</strong></a> — an open-source Django package with <strong>1.6M+ downloads on PyPI</strong>, used by enterprise teams worldwide for production API observability. It's actively maintained and battle-tested across thousands of production deployments.</p>
+          <p>This isn't just a tutorial site — it's content backed by real OSS contributions, real production scars, and real engineering ownership.</p>
+
+          <h2>Free Courses I've Created</h2>
+          <div class="not-prose rounded-2xl border border-border bg-card p-6 mb-8">
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="rounded-full bg-green-500/10 border border-green-500/30 px-2.5 py-0.5 text-xs font-bold text-green-500">100% FREE</span>
+              <span class="rounded-full bg-primary/10 border border-primary/30 px-2.5 py-0.5 text-xs font-semibold text-primary">13 Modules</span>
+              <span class="rounded-full bg-cyan-500/10 border border-cyan-500/30 px-2.5 py-0.5 text-xs font-semibold text-cyan-500">30+ Hands-On Labs</span>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Mastering SPIFFE & SPIRE: Zero Trust for Cloud Native Systems</h3>
+            <p class="text-sm text-muted-foreground mb-4">The most comprehensive free course on workload identity. Production-focused — not just theory. Deploy SPIRE on Kubernetes, configure mTLS with Envoy, enforce OPA policies, federate clusters, and secure AI infrastructure.</p>
+            <a routerLink="/courses/mastering-spiffe-spire" class="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow hover:shadow-lg transition-all">View Course →</a>
+          </div>
+          <p>Why I created this: SPIFFE/SPIRE has weak educational content online. Most tutorials are theoretical. This course is built from real production deployment experience — the kind of knowledge that takes engineers 6 months to learn the hard way. I'm giving it away free because <strong>workload identity is the future of cloud-native security</strong>, and the more engineers who understand it, the safer our systems become.</p>
+
+          <h2>Why I Teach</h2>
+          <p>I've spent years building production systems at scale and contributing to open source. I've seen the gap between "tutorial knowledge" and "production knowledge" — and I want to close it. Free courses, free labs on GitHub, no paywalls, no upsells. The goal: <strong>turn tutorial readers into the engineers who secure, scale, and ship real infrastructure</strong>.</p>
+
           <h2>Open Source</h2>
           <p>This entire blog is open source. The code, content, and infrastructure are all visible on <a href="https://github.com/vishalanandl177/coderssecret.com" target="_blank" rel="noopener noreferrer">GitHub</a>. Pull requests, issues, and suggestions are welcome.</p>
 
@@ -92,8 +112,8 @@ export class AboutComponent {
 
   constructor() {
     this.seo.update({
-      title: 'About CodersSecret — Vishal Anand',
-      description: 'CodersSecret is a technical blog by Vishal Anand, Senior Product Engineer and Tech Lead, covering Python, Kubernetes, security, and system design with production-grade tutorials.',
+      title: 'About — Vishal Anand | Creator of DRF API Logger (1.6M+ downloads)',
+      description: 'Vishal Anand — Senior Product Engineer, creator of DRF API Logger (1.6M+ PyPI downloads), and instructor of the free Mastering SPIFFE & SPIRE course. Production-focused engineering education, no paywalls.',
       url: '/about',
       breadcrumbs: [
         { name: 'Home', url: '/' },

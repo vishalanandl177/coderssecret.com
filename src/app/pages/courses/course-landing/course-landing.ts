@@ -190,6 +190,50 @@ export class CourseLandingComponent {
       this.seo.update({
         title: c.title + ' — Free Course | CodersSecret',
         description: c.description,
+        url: '/courses/' + c.slug,
+        image: 'https://coderssecret.com/images/banners/course-mastering-spiffe-spire.svg',
+        imageWidth: 1200,
+        imageHeight: 480,
+        breadcrumbs: [
+          { name: 'Home', url: '/' },
+          { name: 'Courses', url: '/courses' },
+          { name: c.title, url: '/courses/' + c.slug },
+        ],
+        jsonLd: [
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Course',
+            'name': c.title,
+            'description': c.description,
+            'provider': {
+              '@type': 'Organization',
+              'name': 'CodersSecret',
+              'sameAs': 'https://coderssecret.com',
+            },
+            'instructor': {
+              '@type': 'Person',
+              'name': c.instructor.name,
+              'url': c.instructor.github,
+            },
+            'offers': {
+              '@type': 'Offer',
+              'price': '0',
+              'priceCurrency': 'USD',
+              'availability': 'https://schema.org/InStock',
+              'category': 'Free',
+            },
+            'hasCourseInstance': {
+              '@type': 'CourseInstance',
+              'courseMode': 'online',
+              'courseWorkload': c.totalDuration,
+            },
+            'educationalLevel': c.level,
+            'about': c.tags,
+            'numberOfCredits': c.modules.length,
+            'inLanguage': 'en',
+            'isAccessibleForFree': true,
+          },
+        ],
       });
     }
   }

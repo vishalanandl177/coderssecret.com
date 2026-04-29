@@ -348,6 +348,103 @@ for (const cs of cheatsheets) {
   created++;
 }
 
+// ── Courses pages (/courses, /courses/<course>, /courses/<course>/<module>, SEO pages) ──
+const courseModelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'course.model.ts');
+const courseContent = fs.existsSync(courseModelPath) ? fs.readFileSync(courseModelPath, 'utf-8') : '';
+
+if (courseContent) {
+  // Course hub page
+  const coursesHubDir = path.join(OUTPUT_DIR, 'courses');
+  fs.mkdirSync(coursesHubDir, { recursive: true });
+  fs.writeFileSync(path.join(coursesHubDir, 'index.html'), makeHtml({
+    title: 'Free Engineering Courses — CodersSecret',
+    description: 'Production-focused engineering courses, completely free. Learn zero trust security, SPIFFE/SPIRE, Kubernetes identity, and cloud-native architecture with hands-on labs.',
+    url: '/courses',
+    content: `<h1>Free Engineering Courses</h1>
+      <p>Production-focused courses that transform you from tutorial reader to the engineer who secures, scales, and ships real infrastructure.</p>
+      <h2>Available Courses</h2>
+      <ul><li><a href="/courses/mastering-spiffe-spire">Mastering SPIFFE & SPIRE: Zero Trust for Cloud Native Systems</a> — 13 modules, 30+ labs, 100% free</li></ul>`,
+  }));
+  created++;
+
+  // Course landing page (mastering-spiffe-spire)
+  const courseLandingDir = path.join(OUTPUT_DIR, 'courses', 'mastering-spiffe-spire');
+  fs.mkdirSync(courseLandingDir, { recursive: true });
+  fs.writeFileSync(path.join(courseLandingDir, 'index.html'), makeHtml({
+    title: 'Mastering SPIFFE & SPIRE: Zero Trust for Cloud Native Systems — Free Course',
+    description: 'The most comprehensive free course on SPIFFE & SPIRE workload identity. Deploy SPIRE on Kubernetes, configure mTLS with Envoy, enforce OPA policies, federate clusters, and secure AI infrastructure. 13 modules, 30+ hands-on labs, 100% free.',
+    url: '/courses/mastering-spiffe-spire',
+    content: `<h1>Mastering SPIFFE & SPIRE: Zero Trust for Cloud Native Systems</h1>
+      <p>The most comprehensive free course on workload identity, built from real production deployment experience.</p>
+      <h2>Curriculum</h2>
+      <ol>
+        <li><a href="/courses/mastering-spiffe-spire/understanding-zero-trust-security">Understanding Zero Trust Security</a></li>
+        <li><a href="/courses/mastering-spiffe-spire/cryptography-pki-foundations">Cryptography and PKI Foundations</a></li>
+        <li><a href="/courses/mastering-spiffe-spire/spiffe-fundamentals">SPIFFE Fundamentals</a></li>
+        <li><a href="/courses/mastering-spiffe-spire/spire-architecture-components">SPIRE Architecture and Components</a></li>
+        <li><a href="/courses/mastering-spiffe-spire/running-spire-on-kubernetes">Running SPIRE on Kubernetes</a></li>
+        <li><a href="/courses/mastering-spiffe-spire/working-with-svids-workload-api">Working with SVIDs and the Workload API</a></li>
+        <li><a href="/courses/mastering-spiffe-spire/authorization-policy-enforcement">Authorization and Policy Enforcement</a></li>
+        <li><a href="/courses/mastering-spiffe-spire/spire-integrations-service-mesh">SPIRE Integrations and Service Mesh</a></li>
+        <li><a href="/courses/mastering-spiffe-spire/advanced-spire-architectures">Advanced SPIRE Architectures</a></li>
+        <li><a href="/courses/mastering-spiffe-spire/day-two-operations-observability">Day Two Operations and Observability</a></li>
+        <li><a href="/courses/mastering-spiffe-spire/spiffe-spire-ecosystem">The SPIFFE/SPIRE Ecosystem</a></li>
+        <li><a href="/courses/mastering-spiffe-spire/building-zero-trust-platform">Capstone: Building a Zero Trust Platform</a></li>
+        <li><a href="/courses/mastering-spiffe-spire/spiffe-for-ai-infrastructure">Bonus: SPIFFE for AI Infrastructure</a></li>
+      </ol>`,
+  }));
+  created++;
+
+  // Module pages
+  const moduleSlugs = [
+    { slug: 'understanding-zero-trust-security', title: 'Understanding Zero Trust Security', desc: 'Why perimeter security fails and how identity-based security changes everything. Module 1 of Mastering SPIFFE & SPIRE.' },
+    { slug: 'cryptography-pki-foundations', title: 'Cryptography and PKI Foundations', desc: 'The cryptographic building blocks behind SPIFFE: PKI, X.509 certificates, mTLS, and JWT.' },
+    { slug: 'spiffe-fundamentals', title: 'SPIFFE Fundamentals', desc: 'The specification that defines workload identity: trust domains, SPIFFE IDs, SVIDs, and the Workload API.' },
+    { slug: 'spire-architecture-components', title: 'SPIRE Architecture and Components', desc: 'How SPIRE implements SPIFFE: Server, Agent, node attestation, workload attestation, registration entries.' },
+    { slug: 'running-spire-on-kubernetes', title: 'Running SPIRE on Kubernetes', desc: 'Deploy and operate SPIRE in real Kubernetes clusters with auto-rotation and CSI driver integration.' },
+    { slug: 'working-with-svids-workload-api', title: 'Working with SVIDs and the Workload API', desc: 'How applications consume SPIFFE identities — SPIFFE Helper, go-spiffe, mTLS, gRPC.' },
+    { slug: 'authorization-policy-enforcement', title: 'Authorization and Policy Enforcement', desc: 'Identity answers who. Policy answers what they can do. Open Policy Agent (OPA) with SPIFFE.' },
+    { slug: 'spire-integrations-service-mesh', title: 'SPIRE Integrations and Service Mesh', desc: 'Connect SPIRE with Envoy SDS, Istio, OIDC discovery, and the cloud-native ecosystem.' },
+    { slug: 'advanced-spire-architectures', title: 'Advanced SPIRE Architectures', desc: 'Production-grade deployments: high availability, nested SPIRE, federation, multi-cluster.' },
+    { slug: 'day-two-operations-observability', title: 'Day Two Operations and Observability', desc: 'Monitor SPIRE with Prometheus, debug attestation failures, plan certificate rotation.' },
+    { slug: 'spiffe-spire-ecosystem', title: 'The SPIFFE/SPIRE Ecosystem', desc: 'Real-world integrations: HashiCorp Vault, Cilium, CI/CD pipelines, enterprise patterns.' },
+    { slug: 'building-zero-trust-platform', title: 'Capstone: Building a Complete Zero Trust Platform', desc: 'Combine SPIRE, Envoy, OPA, and federation into a production-ready zero trust platform.' },
+    { slug: 'spiffe-for-ai-infrastructure', title: 'Bonus: SPIFFE for AI Infrastructure', desc: 'Secure AI agents, LLM endpoints, vector databases, and MCP servers with workload identity.' },
+  ];
+  moduleSlugs.forEach((mod, i) => {
+    const moduleDir = path.join(OUTPUT_DIR, 'courses', 'mastering-spiffe-spire', mod.slug);
+    fs.mkdirSync(moduleDir, { recursive: true });
+    fs.writeFileSync(path.join(moduleDir, 'index.html'), makeHtml({
+      title: `Module ${i + 1}: ${mod.title} — Mastering SPIFFE & SPIRE`,
+      description: mod.desc,
+      url: `/courses/mastering-spiffe-spire/${mod.slug}`,
+      content: `<h1>Module ${i + 1}: ${mod.title}</h1><p>${mod.desc}</p><p><a href="/courses/mastering-spiffe-spire">← Back to course curriculum</a></p>`,
+    }));
+    created++;
+  });
+
+  // SEO landing pages
+  const seoPages = [
+    { slug: 'spiffe-spire', title: 'SPIFFE & SPIRE: The Complete Guide to Workload Identity', desc: 'Everything you need to know about SPIFFE and SPIRE: standards, architecture, deployment, and production patterns.' },
+    { slug: 'what-is-spire', title: 'What Is SPIRE? SPIFFE Runtime Environment Explained', desc: 'SPIRE (SPIFFE Runtime Environment) is the production implementation of the SPIFFE specification — a CNCF graduated project for cryptographic workload identity.' },
+    { slug: 'workload-identity', title: 'Workload Identity: Why Network Location Is Not Identity', desc: 'Workload identity gives services cryptographic certificates instead of relying on IPs, network policies, or shared secrets.' },
+    { slug: 'zero-trust-kubernetes', title: 'Zero Trust for Kubernetes: Moving Beyond Network Policies', desc: 'NetworkPolicies are not zero trust. Learn how SPIFFE/SPIRE delivers true cryptographic identity for every Kubernetes pod.' },
+    { slug: 'spire-kubernetes-tutorial', title: 'SPIRE on Kubernetes: Step-by-Step Tutorial', desc: 'Deploy SPIRE on Kubernetes with hands-on examples covering Server, Agent, Controller Manager, and CSI driver.' },
+    { slug: 'spiffe-mtls-service-mesh', title: 'SPIFFE, mTLS, and Service Mesh: How They Connect', desc: 'Understand how SPIFFE provides identity, mTLS provides encryption, and service meshes orchestrate them.' },
+  ];
+  seoPages.forEach(seo => {
+    const seoDir = path.join(OUTPUT_DIR, 'courses', seo.slug);
+    fs.mkdirSync(seoDir, { recursive: true });
+    fs.writeFileSync(path.join(seoDir, 'index.html'), makeHtml({
+      title: `${seo.title} — CodersSecret`,
+      description: seo.desc,
+      url: `/courses/${seo.slug}`,
+      content: `<h1>${seo.title}</h1><p>${seo.desc}</p><p>Start the free <a href="/courses/mastering-spiffe-spire">Mastering SPIFFE & SPIRE</a> course to learn this hands-on.</p>`,
+    }));
+    created++;
+  });
+}
+
 // ── About page (/about) ──────────────────────
 const aboutDir = path.join(OUTPUT_DIR, 'about');
 fs.mkdirSync(aboutDir, { recursive: true });
