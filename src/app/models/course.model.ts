@@ -73,7 +73,7 @@ export const COURSES: Course[] = [
     slug: 'mastering-spiffe-spire',
     subtitle: 'Learn modern cloud-native identity security and become the engineer who secures production Kubernetes clusters — for free.',
     excerpt: 'Go from "what is workload identity?" to deploying production-grade SPIRE on Kubernetes with mTLS, OPA policy enforcement, and multi-cluster federation. 13 modules, 60+ labs, completely free.',
-    description: 'The most comprehensive free course on SPIFFE and SPIRE — the CNCF standard for workload identity. Learn zero trust architecture, PKI fundamentals, Kubernetes identity, service mesh integration, and production operations through hands-on labs and real-world architecture patterns.',
+    description: 'Replace secret sprawl with workload identity. The most comprehensive free course on SPIFFE and SPIRE — the CNCF standard for machine identity in cloud-native systems. Learn zero trust architecture, PKI fundamentals, Kubernetes workload identity, service mesh integration, and production operations through 30+ hands-on labs and real-world architecture patterns. Go from shared secrets and manual certificates to automatic, cryptographic workload identity.',
     instructor: {
       name: 'Vishal Anand',
       title: 'Senior Product Engineer & Open Source Contributor',
@@ -190,9 +190,13 @@ export const COURSES: Course[] = [
             <li><strong>Attackers who compromise one pod</strong> can impersonate any service on the same network</li>
           </ul>
 
+          <h2>The Secret Sprawl Problem</h2>
+
+          <p>Without workload identity, teams resort to shared secrets: API keys in environment variables, long-lived certificates copied between services, Vault tokens that themselves need distribution, and Kubernetes service account tokens that never expire. This is <strong>secret sprawl</strong> &mdash; a growing attack surface that becomes unmanageable at scale. Every shared secret is a potential breach vector. Every long-lived credential is a ticking clock.</p>
+
           <h2>What Is Workload Identity?</h2>
 
-          <p>Workload identity assigns a <strong>cryptographic identity</strong> to every service, container, or process &mdash; an identity that is independent of network location, tied to the workload itself, cryptographically verifiable by any other workload, automatically issued and rotated, and short-lived to limit blast radius of compromise.</p>
+          <p>Workload identity (also called <strong>machine identity</strong> or <strong>service identity</strong>) assigns a <strong>cryptographic identity</strong> to every service, container, or process &mdash; an identity that is independent of network location, tied to the workload itself, cryptographically verifiable by any other workload, automatically issued and rotated, and short-lived to limit blast radius of compromise. It replaces secret sprawl with infrastructure-managed trust.</p>
 
           <h2>The SPIFFE Standard</h2>
 
@@ -310,6 +314,74 @@ export const COURSES: Course[] = [
           <p>Module 8 of our free course covers SPIRE integration with Envoy, Istio, and Linkerd. You will deploy a service mesh with SPIRE as the identity backend and enforce OPA policies based on SPIFFE IDs.</p>
         `,
       },
+      {
+        slug: 'machine-identity-management',
+        title: 'Machine Identity Management: SPIFFE vs Vault vs Cloud IAM',
+        description: 'Compare workload identity approaches: SPIFFE/SPIRE vs HashiCorp Vault PKI vs Kubernetes Service Accounts vs Cloud IAM roles. Understand the tradeoffs for machine identity at scale.',
+        ctaModule: 4,
+        content: `
+          <h1>Machine Identity Management: SPIFFE vs Vault vs Cloud IAM</h1>
+
+          <p>Every organization needs to identify its services. But which approach is right? This guide compares the four most common machine identity strategies and explains when each excels.</p>
+
+          <h2>SPIFFE/SPIRE</h2>
+          <p><strong>Best for:</strong> Cross-platform workload identity, multi-cloud, service mesh integration, Kubernetes-native identity.</p>
+          <ul>
+            <li>Automatic identity issuance via attestation</li>
+            <li>Short-lived certificates with zero manual rotation</li>
+            <li>Works across Kubernetes, VMs, bare metal, and cloud providers</li>
+            <li>CNCF graduated standard &mdash; vendor-neutral</li>
+          </ul>
+
+          <h2>HashiCorp Vault PKI</h2>
+          <p><strong>Best for:</strong> Secret management combined with certificate issuance, organizations already using Vault.</p>
+          <ul>
+            <li>Strong secret storage and certificate management</li>
+            <li>Rich policy system for secret access</li>
+            <li>Requires Vault token distribution (creates its own secret management problem)</li>
+            <li>Not a workload identity system &mdash; does not attest workloads</li>
+          </ul>
+
+          <h2>Kubernetes Service Accounts</h2>
+          <p><strong>Best for:</strong> Simple single-cluster Kubernetes deployments.</p>
+          <ul>
+            <li>Built into Kubernetes &mdash; no extra infrastructure</li>
+            <li>Limited to one cluster &mdash; no federation</li>
+            <li>Not cryptographic certificates &mdash; cannot be used for mTLS</li>
+            <li>Tokens were long-lived before Kubernetes 1.24</li>
+          </ul>
+
+          <h2>Cloud IAM (AWS IAM, GCP Workload Identity)</h2>
+          <p><strong>Best for:</strong> Single-cloud deployments using cloud-native services.</p>
+          <ul>
+            <li>Deep integration with cloud provider services</li>
+            <li>No infrastructure to manage</li>
+            <li>Locked to one cloud provider &mdash; breaks in multi-cloud</li>
+            <li>Not designed for service-to-service mTLS</li>
+          </ul>
+
+          <h2>Comparison Table</h2>
+
+          <table>
+            <thead><tr><th>Feature</th><th>SPIFFE/SPIRE</th><th>Vault PKI</th><th>K8s Service Accounts</th><th>Cloud IAM</th></tr></thead>
+            <tbody>
+              <tr><td>Workload attestation</td><td>Yes</td><td>No</td><td>Limited</td><td>Cloud-specific</td></tr>
+              <tr><td>mTLS certificates</td><td>Yes (X.509-SVID)</td><td>Yes</td><td>No</td><td>No</td></tr>
+              <tr><td>Automatic rotation</td><td>Yes</td><td>Yes (with agent)</td><td>Partial (1.24+)</td><td>Yes</td></tr>
+              <tr><td>Multi-cloud</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td></tr>
+              <tr><td>Federation</td><td>Yes (native)</td><td>Manual</td><td>No</td><td>Cross-account only</td></tr>
+              <tr><td>VM + Kubernetes</td><td>Yes</td><td>Yes</td><td>No</td><td>Partial</td></tr>
+              <tr><td>Open standard</td><td>CNCF (SPIFFE)</td><td>Proprietary</td><td>K8s-native</td><td>Proprietary</td></tr>
+            </tbody>
+          </table>
+
+          <h2>The Right Choice Depends on Your Needs</h2>
+
+          <p>Use <strong>SPIFFE/SPIRE</strong> when you need cross-platform, multi-cloud, or multi-cluster workload identity. Use <strong>Vault</strong> when secret management is the primary concern. Use <strong>K8s Service Accounts</strong> for simple single-cluster deployments. Use <strong>Cloud IAM</strong> for cloud-native services within a single provider.</p>
+
+          <p>For most organizations adopting zero trust, SPIFFE/SPIRE provides the most comprehensive and portable solution. Our free course teaches it from the ground up.</p>
+        `,
+      },
     ],
     modules: [
     {
@@ -382,6 +454,32 @@ export const COURSES: Course[] = [
         </table>
 
         <p>This course takes you from Level 0 to Level 4.</p>
+
+        <h2>What SPIFFE/SPIRE Does NOT Solve</h2>
+
+        <p>Honest understanding of limitations builds real expertise:</p>
+
+        <ul>
+          <li><strong>Does not stop compromised workloads:</strong> If an attacker has code execution inside a legitimate workload, SPIFFE identity does not prevent the attacker from using that identity. Runtime security (Falco, seccomp) handles that layer.</li>
+          <li><strong>Does not automatically provide authorization:</strong> SPIFFE proves identity. It does not decide what that identity is allowed to do. You need a policy engine (OPA) for authorization.</li>
+          <li><strong>Does not replace runtime security:</strong> Container escape, privilege escalation, and lateral movement are addressed by runtime tools, not identity systems.</li>
+          <li><strong>Does not eliminate policy design complexity:</strong> You still need to design who can talk to whom. SPIFFE makes enforcement possible &mdash; it does not design the rules for you.</li>
+          <li><strong>Does not prevent all secret sprawl:</strong> Application-level secrets (database passwords, API keys for external services) still need management via Vault or similar tools.</li>
+        </ul>
+
+        <h2>Authentication vs Authorization: The Critical Distinction</h2>
+
+        <table>
+          <thead><tr><th>Responsibility</th><th>Tool</th><th>Question Answered</th></tr></thead>
+          <tbody>
+            <tr><td>Identity</td><td>SPIFFE (spec)</td><td>What is this workload called?</td></tr>
+            <tr><td>Identity Issuance</td><td>SPIRE (runtime)</td><td>How does it get its identity?</td></tr>
+            <tr><td>Authentication</td><td>mTLS / SVID verification</td><td>Is this really who they claim to be?</td></tr>
+            <tr><td>Authorization</td><td>OPA / Policy Engine</td><td>Is this workload allowed to do this action?</td></tr>
+          </tbody>
+        </table>
+
+        <p>Many learners wrongly assume SPIFFE equals authorization. It does not. SPIFFE handles identity and authentication. Authorization is a separate concern addressed in Module 7.</p>
       `,
       labs: [
         {
@@ -677,6 +775,21 @@ spiffe://payments.example.org/region/us-east/service/processor
 
 # No credentials needed to call the API!
 # The Agent identifies the workload by its process attributes</code></pre>
+
+        <h2>Identity Lifecycle</h2>
+
+        <p>Understanding the full lifecycle is critical for production operations:</p>
+
+        <ol>
+          <li><strong>Workload Creation:</strong> A pod starts on a Kubernetes node</li>
+          <li><strong>Workload Attestation:</strong> SPIRE Agent inspects the process and matches it to a registration entry</li>
+          <li><strong>SVID Issuance:</strong> SPIRE Server signs and issues an X.509 certificate or JWT</li>
+          <li><strong>Identity Active:</strong> The workload uses its SVID for mTLS and authentication</li>
+          <li><strong>Automatic Rotation:</strong> Before the SVID expires, SPIRE issues a new one transparently</li>
+          <li><strong>Workload Termination:</strong> When the pod is deleted, the SVID naturally expires (short-lived = no revocation needed)</li>
+        </ol>
+
+        <p>This lifecycle is fully automatic. No human intervention. No certificate renewal tickets. No expiry alerts. SPIRE handles it end-to-end.</p>
 
         <h2>SPIFFE Federation</h2>
 
@@ -1354,6 +1467,8 @@ spiffe://company.org/cicd/github/repo-name/workflow
       productionNotes: ['Envoy SDS integration means zero-downtime certificate rotation. Envoy watches the SPIRE socket and reloads certificates automatically.', 'When replacing Istio CA with SPIRE, perform a gradual rollout — run both CAs during migration, then cut over.', 'OIDC discovery must be accessible from wherever JWT verification happens (API gateways, cloud provider IAM).'],
       productionAlternatives: [{ name: 'Istio built-in CA', description: 'Simpler setup but weaker attestation. No federation, no VM support, limited to Kubernetes service accounts.' }, { name: 'cert-manager', description: 'Good for static certificate management but no workload attestation, no automatic identity, no Workload API.' }, { name: 'Vault PKI', description: 'Strong secret management but identity is application-level, not infrastructure-level. Requires Vault tokens (another secret to manage).' }],
       glossary: [{ term: 'SDS', definition: 'Secret Discovery Service — Envoy protocol for dynamic certificate delivery' }, { term: 'OIDC', definition: 'OpenID Connect — standard for identity verification via JWT tokens' }, { term: 'Service Mesh', definition: 'Infrastructure layer handling service-to-service communication (Istio, Linkerd, Envoy)' }],
+      operationalStory: 'A fintech company migrating from Istio\'s built-in CA to SPIRE ran both CAs in parallel for 3 weeks. During this period, they discovered that 12 services had hardcoded certificate paths that bypassed Envoy SDS. These services silently fell back to unencrypted HTTP when Istio CA was disabled. The parallel run caught every misconfiguration before production cutover. Lesson: never do a big-bang CA migration. Run both systems simultaneously and verify every service.',
+      careerRelevance: 'Service mesh expertise combined with SPIFFE knowledge is a rare and valuable skill set. Organizations deploying Istio, Linkerd, or Envoy at scale need engineers who understand how identity, encryption, and policy enforcement connect at the infrastructure layer.',
     },    {
       number: 9,
       title: 'Advanced SPIRE Architectures',
@@ -1419,6 +1534,30 @@ spire-server bundle set -id spiffe://cluster-b.company.org \\
         <h2>Multi-Cloud Architectures</h2>
 
         <p>SPIRE works across AWS, GCP, Azure, and on-premise because identity is based on attestation, not cloud-specific constructs. Each environment has its own attestation plugins but all participate in the same trust domain (or federate across domains).</p>
+
+        <h2>Migration Strategy: Adopting SPIFFE Incrementally</h2>
+
+        <p>Most companies cannot switch to SPIFFE overnight. The proven migration path:</p>
+
+        <ol>
+          <li><strong>Phase 1 &mdash; Deploy SPIRE alongside existing identity:</strong> Run SPIRE in parallel without changing any service. Just get SVIDs flowing.</li>
+          <li><strong>Phase 2 &mdash; Enable mTLS on one critical path:</strong> Pick one service-to-service connection (e.g., API &rarr; database proxy). Add SPIRE-based mTLS. Keep the old auth as fallback.</li>
+          <li><strong>Phase 3 &mdash; Expand incrementally:</strong> Service by service, switch from shared secrets to SVID-based authentication. Each switch is independent and reversible.</li>
+          <li><strong>Phase 4 &mdash; Remove legacy auth:</strong> Once all services use SVIDs, remove the old shared secrets, API keys, and static certificates.</li>
+          <li><strong>Phase 5 &mdash; Add authorization:</strong> Deploy OPA policies for fine-grained access control on top of the identity layer.</li>
+        </ol>
+
+        <p>Key principle: <strong>coexistence, not replacement</strong>. SPIRE can run alongside existing PKI, Vault, and service mesh CAs during migration. You do not need to rip and replace.</p>
+
+        <h2>Incident Thinking: What Happens If...</h2>
+
+        <ul>
+          <li><strong>SPIRE Server fails?</strong> Agents cache SVIDs locally. Existing workloads continue with cached certificates until TTL expires. New workloads cannot get SVIDs until the server recovers. This is why HA is critical.</li>
+          <li><strong>Datastore becomes unavailable?</strong> Server cannot create or modify registration entries but continues serving cached entries. Recovery requires datastore restoration.</li>
+          <li><strong>Trust bundle expires?</strong> All SVID verification fails across the trust domain. This is a catastrophic event &mdash; monitor CA TTL and rotate well before expiry.</li>
+          <li><strong>Federation breaks?</strong> Cross-cluster communication fails but intra-cluster communication continues. Each trust domain is independent.</li>
+          <li><strong>Compromised agent issues rogue SVIDs?</strong> The agent can only issue SVIDs for registered workloads on its node. Blast radius is limited to that node. Revoke the agent&rsquo;s attestation to stop it.</li>
+        </ul>
       `,
       labs: [
         {

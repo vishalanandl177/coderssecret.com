@@ -431,6 +431,7 @@ if (courseContent) {
     { slug: 'zero-trust-kubernetes', title: 'Zero Trust for Kubernetes: Moving Beyond Network Policies', desc: 'NetworkPolicies are not zero trust. Learn how SPIFFE/SPIRE delivers true cryptographic identity for every Kubernetes pod.' },
     { slug: 'spire-kubernetes-tutorial', title: 'SPIRE on Kubernetes: Step-by-Step Tutorial', desc: 'Deploy SPIRE on Kubernetes with hands-on examples covering Server, Agent, Controller Manager, and CSI driver.' },
     { slug: 'spiffe-mtls-service-mesh', title: 'SPIFFE, mTLS, and Service Mesh: How They Connect', desc: 'Understand how SPIFFE provides identity, mTLS provides encryption, and service meshes orchestrate them.' },
+    { slug: 'machine-identity-management', title: 'Machine Identity Management: SPIFFE vs Vault vs Cloud IAM', desc: 'Compare workload identity approaches for machine identity at scale. SPIFFE vs Vault PKI vs Kubernetes Service Accounts vs Cloud IAM.' },
   ];
   seoPages.forEach(seo => {
     const seoDir = path.join(OUTPUT_DIR, 'courses', seo.slug);

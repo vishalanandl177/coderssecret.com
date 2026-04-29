@@ -282,6 +282,12 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>${SITE_URL}/courses/machine-identity-management</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>${SITE_URL}/consultation</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
