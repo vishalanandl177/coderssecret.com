@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, DestroyRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { COURSES, CourseModule, Course } from '../../../models/course.model';
 import { SeoService } from '../../../services/seo.service';
 
@@ -46,12 +47,12 @@ import { SeoService } from '../../../services/seo.service';
           </div>
 
           <!-- Architecture Diagram -->
-          @if (m.svgDiagram) {
-            <div class="rounded-xl border border-border/60 overflow-hidden mb-8" [innerHTML]="m.svgDiagram"></div>
+          @if (safeSvg(); as svg) {
+            <div class="rounded-xl border border-border/60 overflow-hidden mb-8 bg-slate-900" [innerHTML]="svg"></div>
           }
 
           <!-- Content -->
-          <article class="prose prose-invert max-w-none mb-10" [innerHTML]="m.content"></article>
+          <article class="course-content max-w-none mb-10" [innerHTML]="safeContent()"></article>
 
           <!-- Labs -->
           @if (m.labs.length > 0) {
@@ -140,6 +141,7 @@ import { SeoService } from '../../../services/seo.service';
 export class CourseModuleComponent {
   private route = inject(ActivatedRoute);
   private seo = inject(SeoService);
+  private sanitizer = inject(DomSanitizer);
 
   private courseData = signal<Course | undefined>(undefined);
   mod = signal<CourseModule | undefined>(undefined);
@@ -147,6 +149,18 @@ export class CourseModuleComponent {
   courseTitle = signal('');
   totalModules = signal(0);
   allModules = signal<CourseModule[]>([]);
+
+  safeSvg = computed<SafeHtml | undefined>(() => {
+    const m = this.mod();
+    if (!m?.svgDiagram) return undefined;
+    return this.sanitizer.bypassSecurityTrustHtml(m.svgDiagram);
+  });
+
+  safeContent = computed<SafeHtml>(() => {
+    const m = this.mod();
+    if (!m?.content) return '';
+    return this.sanitizer.bypassSecurityTrustHtml(m.content);
+  });
 
   prevModule = computed(() => {
     const m = this.mod();

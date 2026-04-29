@@ -1,5 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { COURSES, CourseSeoPage } from '../../../models/course.model';
 import { SeoService } from '../../../services/seo.service';
 
@@ -17,7 +18,7 @@ import { SeoService } from '../../../services/seo.service';
         <span class="text-foreground">{{ p.title }}</span>
       </nav>
 
-      <article class="prose prose-invert max-w-none" [innerHTML]="p.content"></article>
+      <article class="course-content max-w-none" [innerHTML]="safeContent()"></article>
 
       <div class="mt-12 rounded-xl border border-primary/30 bg-primary/5 p-8 text-center">
         <h2 class="text-2xl font-bold mb-3">Ready to Learn?</h2>
@@ -42,6 +43,13 @@ export class SeoLandingComponent {
   page = signal<CourseSeoPage | undefined>(undefined);
   courseModuleCount = 13;
   private seo = inject(SeoService);
+  private sanitizer = inject(DomSanitizer);
+
+  safeContent = computed<SafeHtml>(() => {
+    const p = this.page();
+    if (!p?.content) return '';
+    return this.sanitizer.bypassSecurityTrustHtml(p.content);
+  });
 
   constructor() {
     const route = inject(ActivatedRoute);

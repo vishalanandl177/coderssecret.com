@@ -1165,3 +1165,160 @@
     animation: none !important;
   }
 }
+
+/* ============================================
+   Course Module Content Typography
+   ============================================ */
+.course-content {
+  color: hsl(var(--foreground));
+  line-height: 1.75;
+  font-size: 1rem;
+}
+
+.course-content p {
+  margin: 1rem 0;
+  color: hsl(var(--foreground) / 0.85);
+}
+
+.course-content h2 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 2.5rem 0 1rem;
+  color: hsl(var(--foreground));
+  border-bottom: 1px solid hsl(var(--border) / 0.6);
+  padding-bottom: 0.5rem;
+}
+
+.course-content h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 1.75rem 0 0.75rem;
+  color: hsl(var(--foreground));
+}
+
+.course-content h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.5rem;
+  color: hsl(var(--foreground));
+}
+
+.course-content strong, .course-content b {
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+
+.course-content em, .course-content i {
+  font-style: italic;
+  color: hsl(var(--foreground));
+}
+
+.course-content a {
+  color: rgb(94 234 212);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.course-content a:hover {
+  color: rgb(45 212 191);
+}
+
+.course-content ul, .course-content ol {
+  margin: 1rem 0 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.course-content ul {
+  list-style-type: disc;
+}
+
+.course-content ol {
+  list-style-type: decimal;
+}
+
+.course-content li {
+  margin: 0.5rem 0;
+  color: hsl(var(--foreground) / 0.85);
+  line-height: 1.7;
+}
+
+.course-content li::marker {
+  color: hsl(var(--primary));
+}
+
+.course-content code {
+  background-color: hsl(var(--muted) / 0.6);
+  color: rgb(94 234 212);
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  border: 1px solid hsl(var(--border) / 0.4);
+}
+
+.course-content pre {
+  background-color: rgb(15 23 42);
+  border: 1px solid hsl(var(--border) / 0.6);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin: 1.25rem 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.course-content pre code {
+  background-color: transparent;
+  border: none;
+  color: rgb(226 232 240);
+  padding: 0;
+  font-size: inherit;
+}
+
+.course-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+  border: 1px solid hsl(var(--border) / 0.6);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.course-content thead {
+  background-color: hsl(var(--muted) / 0.6);
+}
+
+.course-content th {
+  text-align: left;
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+  color: hsl(var(--foreground));
+  border-bottom: 1px solid hsl(var(--border) / 0.6);
+}
+
+.course-content td {
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.4);
+  color: hsl(var(--foreground) / 0.85);
+}
+
+.course-content tr:last-child td {
+  border-bottom: none;
+}
+
+.course-content blockquote {
+  border-left: 3px solid hsl(var(--primary));
+  padding: 0.5rem 1rem;
+  margin: 1.25rem 0;
+  background-color: hsl(var(--accent) / 0.3);
+  border-radius: 0 0.5rem 0.5rem 0;
+  font-style: italic;
+  color: hsl(var(--foreground) / 0.85);
+}
+
+.course-content hr {
+  border: none;
+  border-top: 1px solid hsl(var(--border) / 0.6);
+  margin: 2rem 0;
+}
