@@ -54,6 +54,17 @@ import { RouterLink } from '@angular/router';
             </ul>
           </div>
 
+          <!-- Learn -->
+          <div>
+            <h3 class="text-sm font-semibold text-foreground mb-3">Learn</h3>
+            <ul class="space-y-2 text-sm">
+              <li><a routerLink="/courses" class="text-muted-foreground transition-colors hover:text-foreground">Free Courses</a></li>
+              <li><a routerLink="/courses/mastering-spiffe-spire" class="text-muted-foreground transition-colors hover:text-foreground">SPIFFE & SPIRE Course</a></li>
+              <li><a routerLink="/cheatsheets" class="text-muted-foreground transition-colors hover:text-foreground">Cheat Sheets</a></li>
+              <li><a routerLink="/games" class="text-muted-foreground transition-colors hover:text-foreground">Coding Games</a></li>
+            </ul>
+          </div>
+
           <!-- Links -->
           <div>
             <h3 class="text-sm font-semibold text-foreground mb-3">Connect</h3>

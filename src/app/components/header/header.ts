@@ -37,6 +37,10 @@ import { SearchComponent } from '../search/search';
               Blog
             </a>
 
+            <a routerLink="/courses" routerLinkActive="text-foreground bg-accent"
+               class="rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
+              Courses <span class="ml-1 text-[10px] font-bold uppercase tracking-wider text-green-500">Free</span>
+            </a>
             <a routerLink="/games" routerLinkActive="text-foreground bg-accent"
                class="rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
               Games
@@ -158,6 +162,8 @@ import { SearchComponent } from '../search/search';
                class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">Home</a>
             <a routerLink="/blog" (click)="mobileMenuOpen.set(false)"
                class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">Blog</a>
+            <a routerLink="/courses" (click)="mobileMenuOpen.set(false)"
+               class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">Courses <span class="ml-1 text-[10px] font-bold uppercase tracking-wider text-green-500">Free</span></a>
             <a routerLink="/games" (click)="mobileMenuOpen.set(false)"
                class="rounded-md px-3 py-2.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">Games</a>
             <a routerLink="/cheatsheets" (click)="mobileMenuOpen.set(false)"

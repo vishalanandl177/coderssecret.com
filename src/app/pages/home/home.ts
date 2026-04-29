@@ -179,6 +179,61 @@ import { SeoService } from '../../services/seo.service';
       </div>
     </section>
 
+    <!-- Free Courses CTA -->
+    <section class="py-16 bg-gradient-to-br from-teal-500/5 via-cyan-500/5 to-blue-500/5 border-y border-border/40">
+      <div class="container max-w-6xl mx-auto px-6">
+        <div class="text-center mb-10">
+          <span class="inline-block rounded-full bg-green-500/10 border border-green-500/30 px-4 py-1 text-xs font-bold text-green-500 uppercase tracking-wider mb-4">100% Free</span>
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-3">
+            Free <span class="bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">Production-Focused</span> Courses
+          </h2>
+          <p class="text-lg text-muted-foreground max-w-2xl mx-auto">Go from tutorial reader to the engineer who secures, scales, and ships real infrastructure.</p>
+        </div>
+        <div class="rounded-2xl border border-border/60 bg-card p-6 md:p-8 shadow-sm">
+          <div class="flex flex-col md:flex-row gap-6 items-start">
+            <div class="flex-1">
+              <div class="flex flex-wrap gap-2 mb-3">
+                <span class="rounded-full bg-green-500/10 border border-green-500/30 px-2.5 py-0.5 text-xs font-bold text-green-500">FREE</span>
+                <span class="rounded-full bg-primary/10 border border-primary/30 px-2.5 py-0.5 text-xs font-semibold text-primary">13 Modules</span>
+                <span class="rounded-full bg-cyan-500/10 border border-cyan-500/30 px-2.5 py-0.5 text-xs font-semibold text-cyan-500">40+ Hours</span>
+              </div>
+              <h3 class="text-xl md:text-2xl font-bold mb-2">Mastering SPIFFE & SPIRE: Zero Trust for Cloud Native</h3>
+              <p class="text-sm text-muted-foreground mb-4">The most comprehensive free course on workload identity. Deploy SPIRE on Kubernetes, configure mTLS, enforce OPA policies, and federate across clusters.</p>
+              <div class="flex flex-wrap gap-3">
+                <a routerLink="/courses/mastering-spiffe-spire"
+                   class="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+                  Start Learning — Free
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </a>
+                <a routerLink="/courses"
+                   class="inline-flex items-center rounded-full border border-border/60 bg-card/60 px-6 py-2.5 text-sm font-semibold text-foreground hover:bg-accent transition-all duration-300">
+                  Browse All Courses
+                </a>
+              </div>
+            </div>
+            <div class="md:w-60 shrink-0 grid grid-cols-2 gap-3">
+              <div class="text-center p-3 rounded-lg bg-accent/50">
+                <div class="text-xl font-bold">13</div>
+                <div class="text-[10px] text-muted-foreground">Modules</div>
+              </div>
+              <div class="text-center p-3 rounded-lg bg-accent/50">
+                <div class="text-xl font-bold">60+</div>
+                <div class="text-[10px] text-muted-foreground">Labs</div>
+              </div>
+              <div class="text-center p-3 rounded-lg bg-accent/50">
+                <div class="text-xl font-bold">$0</div>
+                <div class="text-[10px] text-muted-foreground">Cost</div>
+              </div>
+              <div class="text-center p-3 rounded-lg bg-accent/50">
+                <div class="text-xl font-bold">CNCF</div>
+                <div class="text-[10px] text-muted-foreground">Standard</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- What We Cover — keyword-rich intro for SEO -->
     <section class="py-12 md:py-16 animate-in fade-in duration-700">
       <div class="container max-w-4xl mx-auto px-6">

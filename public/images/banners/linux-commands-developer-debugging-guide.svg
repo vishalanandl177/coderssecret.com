@@ -34,7 +34,7 @@
   <!-- Title -->
   <text x="80" y="184" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="800" fill="#ffffff">Linux Commands Every</text>
     <text x="80" y="224" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="800" fill="#ffffff">Developer Should Know But</text>
-    <text x="80" y="264" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="800" fill="#ffffff">Doesn\\</text>
+    <text x="80" y="264" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="800" fill="#ffffff">Doesn&apos;t</text>
 
   <!-- Bottom brand -->
   <text x="80" y="420" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#ffffff" opacity="0.5">coderssecret.com</text>

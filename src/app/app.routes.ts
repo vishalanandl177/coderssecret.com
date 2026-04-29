@@ -95,6 +95,27 @@ export const routes: Routes = [
     path: 'cheatsheets/sql',
     loadComponent: () => import('./pages/cheatsheets/sql/sql').then(m => m.SqlCheatsheetComponent),
   },
+  // Courses — all lazy-loaded
+  {
+    path: 'courses',
+    loadComponent: () => import('./pages/courses/hub/hub').then(m => m.CoursesHubComponent),
+  },
+  {
+    path: 'courses/mastering-spiffe-spire',
+    loadComponent: () => import('./pages/courses/course-landing/course-landing').then(m => m.CourseLandingComponent),
+  },
+  {
+    path: 'courses/mastering-spiffe-spire/:moduleSlug/slides',
+    loadComponent: () => import('./pages/courses/course-slides/course-slides').then(m => m.CourseSlidesComponent),
+  },
+  {
+    path: 'courses/mastering-spiffe-spire/:moduleSlug',
+    loadComponent: () => import('./pages/courses/course-module/course-module').then(m => m.CourseModuleComponent),
+  },
+  {
+    path: 'courses/:seoSlug',
+    loadComponent: () => import('./pages/courses/seo-landing/seo-landing').then(m => m.SeoLandingComponent),
+  },
   {
     path: 'privacy',
     loadComponent: () => import('./pages/privacy/privacy').then(m => m.PrivacyComponent),
