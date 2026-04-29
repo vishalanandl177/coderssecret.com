@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BLOG_POSTS, CATEGORIES, BlogPost } from '../../models/blog-post.model';
+import { COURSES } from '../../models/course.model';
 import { SeoService } from '../../services/seo.service';
 
 @Component({
@@ -64,7 +65,7 @@ import { SeoService } from '../../services/seo.service';
           </div>
 
           <!-- Stats -->
-          <div class="mt-16 grid grid-cols-4 gap-8 md:gap-16 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
+          <div class="mt-16 grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-12 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
             <div class="text-center">
               <div class="text-3xl md:text-4xl font-extrabold tracking-tight">{{ totalPosts }}</div>
               <div class="mt-1 text-xs md:text-sm text-muted-foreground">Articles</div>
@@ -78,8 +79,12 @@ import { SeoService } from '../../services/seo.service';
               <div class="mt-1 text-xs md:text-sm text-muted-foreground">Topics</div>
             </div>
             <div class="text-center">
-              <div class="text-3xl md:text-4xl font-extrabold tracking-tight">{{ totalPosts }}</div>
-              <div class="mt-1 text-xs md:text-sm text-muted-foreground">Slide Tutorials</div>
+              <div class="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">{{ totalCourseModules }}</div>
+              <div class="mt-1 text-xs md:text-sm text-muted-foreground">Course Modules</div>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">{{ totalLabs }}+</div>
+              <div class="mt-1 text-xs md:text-sm text-muted-foreground">Hands-On Labs</div>
             </div>
           </div>
         </div>
@@ -327,6 +332,35 @@ import { SeoService } from '../../services/seo.service';
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          <!-- Free Course tile (full row) -->
+          <a routerLink="/courses/mastering-spiffe-spire"
+             class="group relative col-span-2 md:col-span-4 overflow-hidden rounded-2xl border border-teal-500/30 p-6 md:p-7 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 hover:border-teal-500/60 active:scale-[0.99] bg-gradient-to-br from-teal-500/10 via-cyan-500/5 to-blue-500/10">
+            <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-teal-500/10 via-cyan-500/10 to-blue-500/10"></div>
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex flex-wrap gap-2 mb-2">
+                  <span class="rounded-full bg-green-500/15 border border-green-500/30 px-2.5 py-0.5 text-[10px] font-bold text-green-500 uppercase tracking-wider">100% Free</span>
+                  <span class="rounded-full bg-teal-500/15 border border-teal-500/30 px-2.5 py-0.5 text-[10px] font-bold text-teal-500 uppercase tracking-wider">New</span>
+                </div>
+                <h3 class="text-lg md:text-xl font-bold tracking-tight">Mastering SPIFFE &amp; SPIRE</h3>
+                <p class="mt-1 text-sm text-muted-foreground">Zero Trust for Cloud Native Systems — {{ totalCourseModules }} modules, {{ totalLabs }}+ labs, no paywall.</p>
+              </div>
+              <div class="flex items-center gap-3 shrink-0">
+                <div class="text-center">
+                  <div class="text-2xl font-extrabold bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">{{ totalCourseModules }}</div>
+                  <div class="text-[10px] text-muted-foreground">Modules</div>
+                </div>
+                <div class="text-center">
+                  <div class="text-2xl font-extrabold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">{{ totalLabs }}+</div>
+                  <div class="text-[10px] text-muted-foreground">Labs</div>
+                </div>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-4 py-2 text-xs font-bold transition-all duration-300 group-hover:gap-2.5">
+                  Start Free
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </span>
+              </div>
+            </div>
+          </a>
           @for (cat of categories; track cat.slug; let i = $index) {
             <a [routerLink]="['/category', cat.slug]"
                class="group relative overflow-hidden rounded-2xl border border-border/60 p-6 md:p-8 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 hover:border-transparent active:scale-[0.98]"
@@ -679,6 +713,8 @@ export class HomeComponent {
   categories = CATEGORIES.filter(c => c.slug !== '');
   totalPosts = BLOG_POSTS.length;
   uniqueTags = new Set(BLOG_POSTS.flatMap(p => p.tags)).size;
+  totalCourseModules = COURSES.reduce((sum, c) => sum + c.modules.length, 0);
+  totalLabs = COURSES.reduce((sum, c) => sum + c.modules.reduce((s, m) => s + m.labs.length, 0), 0);
   avgReadTime = Math.round(
     BLOG_POSTS.reduce((sum, p) => {
       const m = p.readTime.match(/(\d+)/);
