@@ -1,5 +1,6 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, DestroyRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { COURSES, CourseModule, Course } from '../../../models/course.model';
 import { SeoService } from '../../../services/seo.service';
 
@@ -162,7 +163,6 @@ export class CourseModuleComponent {
   });
 
   constructor() {
-    const moduleSlug = this.route.snapshot.paramMap.get('moduleSlug') ?? '';
     const course = COURSES.find(c => c.slug === 'mastering-spiffe-spire');
     if (course) {
       this.courseData.set(course);
@@ -170,15 +170,22 @@ export class CourseModuleComponent {
       this.courseTitle.set(course.title);
       this.totalModules.set(course.modules.length);
       this.allModules.set(course.modules);
-
-      const m = course.modules.find(m => m.slug === moduleSlug);
-      if (m) {
-        this.mod.set(m);
-        this.seo.update({
-          title: `Module ${m.number}: ${m.title} — ${course.title} | CodersSecret`,
-          description: m.subtitle + '. ' + m.objectives.join('. '),
-        });
-      }
     }
+
+    this.route.paramMap.pipe(takeUntilDestroyed()).subscribe(params => {
+      const moduleSlug = params.get('moduleSlug') ?? '';
+      const c = this.courseData();
+      if (c) {
+        const m = c.modules.find(m => m.slug === moduleSlug);
+        if (m) {
+          this.mod.set(m);
+          this.seo.update({
+            title: `Module ${m.number}: ${m.title} — ${c.title} | CodersSecret`,
+            description: m.subtitle + '. ' + m.objectives.join('. '),
+          });
+          window.scrollTo(0, 0);
+        }
+      }
+    });
   }
 }

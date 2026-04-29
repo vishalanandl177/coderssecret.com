@@ -168,79 +168,79 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/courses/mastering-spiffe-spire/module-1</loc>
+    <loc>${SITE_URL}/courses/mastering-spiffe-spire/understanding-zero-trust-security</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/courses/mastering-spiffe-spire/module-2</loc>
+    <loc>${SITE_URL}/courses/mastering-spiffe-spire/cryptography-pki-foundations</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/courses/mastering-spiffe-spire/module-3</loc>
+    <loc>${SITE_URL}/courses/mastering-spiffe-spire/spiffe-fundamentals</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/courses/mastering-spiffe-spire/module-4</loc>
+    <loc>${SITE_URL}/courses/mastering-spiffe-spire/spire-architecture-components</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/courses/mastering-spiffe-spire/module-5</loc>
+    <loc>${SITE_URL}/courses/mastering-spiffe-spire/running-spire-on-kubernetes</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/courses/mastering-spiffe-spire/module-6</loc>
+    <loc>${SITE_URL}/courses/mastering-spiffe-spire/working-with-svids-workload-api</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/courses/mastering-spiffe-spire/module-7</loc>
+    <loc>${SITE_URL}/courses/mastering-spiffe-spire/authorization-policy-enforcement</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/courses/mastering-spiffe-spire/module-8</loc>
+    <loc>${SITE_URL}/courses/mastering-spiffe-spire/spire-integrations-service-mesh</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/courses/mastering-spiffe-spire/module-9</loc>
+    <loc>${SITE_URL}/courses/mastering-spiffe-spire/advanced-spire-architectures</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/courses/mastering-spiffe-spire/module-10</loc>
+    <loc>${SITE_URL}/courses/mastering-spiffe-spire/day-two-operations-observability</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/courses/mastering-spiffe-spire/module-11</loc>
+    <loc>${SITE_URL}/courses/mastering-spiffe-spire/spiffe-spire-ecosystem</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/courses/mastering-spiffe-spire/module-12</loc>
+    <loc>${SITE_URL}/courses/mastering-spiffe-spire/building-zero-trust-platform</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/courses/mastering-spiffe-spire/module-13</loc>
+    <loc>${SITE_URL}/courses/mastering-spiffe-spire/spiffe-for-ai-infrastructure</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

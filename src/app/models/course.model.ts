@@ -300,7 +300,7 @@ export const COURSES: Course[] = [
     {
       number: 1,
       title: 'Understanding Zero Trust Security',
-      slug: 'module-1',
+      slug: 'understanding-zero-trust-security',
       subtitle: 'Why perimeter security fails and how identity-based security changes everything',
       duration: '3 hours',
       objectives: [
@@ -403,7 +403,7 @@ export const COURSES: Course[] = [
     {
       number: 2,
       title: 'Cryptography and PKI Foundations',
-      slug: 'module-2',
+      slug: 'cryptography-pki-foundations',
       subtitle: 'The cryptographic building blocks that make SPIFFE possible',
       duration: '3.5 hours',
       objectives: [
@@ -520,7 +520,7 @@ Signature:   (signed by the Intermediate CA's private key)</code></pre>
     },    {
       number: 3,
       title: 'SPIFFE Fundamentals',
-      slug: 'module-3',
+      slug: 'spiffe-fundamentals',
       subtitle: 'The specification that defines how workload identity works',
       duration: '3 hours',
       objectives: [
@@ -625,7 +625,7 @@ spiffe://payments.example.org/region/us-east/service/processor
     {
       number: 4,
       title: 'SPIRE Architecture and Components',
-      slug: 'module-4',
+      slug: 'spire-architecture-components',
       subtitle: 'How SPIRE implements the SPIFFE specification in production',
       duration: '3.5 hours',
       objectives: [
@@ -747,7 +747,7 @@ spire-server entry create \\
     },    {
       number: 5,
       title: 'Running SPIRE on Kubernetes',
-      slug: 'module-5',
+      slug: 'running-spire-on-kubernetes',
       subtitle: 'Deploy and operate SPIRE in real Kubernetes clusters',
       duration: '4 hours',
       objectives: [
@@ -903,7 +903,7 @@ spec:
     {
       number: 6,
       title: 'Working with SVIDs and the Workload API',
-      slug: 'module-6',
+      slug: 'working-with-svids-workload-api',
       subtitle: 'How applications consume and use SPIFFE identities',
       duration: '3 hours',
       objectives: [
@@ -1052,7 +1052,7 @@ conn, _ := grpc.Dial("service-b:8443", creds)</code></pre>
     },    {
       number: 7,
       title: 'Authorization and Policy Enforcement',
-      slug: 'module-7',
+      slug: 'authorization-policy-enforcement',
       subtitle: 'Identity answers who — policy answers what they can do',
       duration: '3 hours',
       objectives: [
@@ -1152,7 +1152,7 @@ test_orders_api_cannot_delete_users {
     {
       number: 8,
       title: 'SPIRE Integrations and Service Mesh',
-      slug: 'module-8',
+      slug: 'spire-integrations-service-mesh',
       subtitle: 'Connect SPIRE with Envoy, Istio, and the cloud-native ecosystem',
       duration: '3.5 hours',
       objectives: [
@@ -1226,7 +1226,7 @@ spiffe://company.org/cicd/github/repo-name/workflow
     },    {
       number: 9,
       title: 'Advanced SPIRE Architectures',
-      slug: 'module-9',
+      slug: 'advanced-spire-architectures',
       subtitle: 'Production-grade deployments: HA, federation, and multi-cluster',
       duration: '3.5 hours',
       objectives: [
@@ -1314,7 +1314,7 @@ spire-server bundle set -id spiffe://cluster-b.company.org \\
     {
       number: 10,
       title: 'Day Two Operations and Observability',
-      slug: 'module-10',
+      slug: 'day-two-operations-observability',
       subtitle: 'Monitor, troubleshoot, and maintain SPIRE in production',
       duration: '3 hours',
       objectives: [
@@ -1400,7 +1400,7 @@ ls -la /run/spire/sockets/agent.sock</code></pre>
     },    {
       number: 11,
       title: 'The SPIFFE/SPIRE Ecosystem',
-      slug: 'module-11',
+      slug: 'spiffe-spire-ecosystem',
       subtitle: 'Real-world integrations: Vault, Cilium, CI/CD, and enterprise patterns',
       duration: '3 hours',
       objectives: [
@@ -1468,7 +1468,7 @@ ls -la /run/spire/sockets/agent.sock</code></pre>
     {
       number: 12,
       title: 'Building a Complete Zero Trust Platform',
-      slug: 'module-12',
+      slug: 'building-zero-trust-platform',
       subtitle: 'Capstone project: assemble everything into a production architecture',
       duration: '4 hours',
       objectives: [
@@ -1529,7 +1529,7 @@ ls -la /run/spire/sockets/agent.sock</code></pre>
     {
       number: 13,
       title: 'SPIFFE for AI Infrastructure',
-      slug: 'module-13',
+      slug: 'spiffe-for-ai-infrastructure',
       subtitle: 'Bonus: securing AI agents, LLM pipelines, and vector databases',
       duration: '2 hours',
       objectives: [

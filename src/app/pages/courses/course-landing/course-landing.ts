@@ -34,7 +34,7 @@ import { SeoService } from '../../../services/seo.service';
         <p class="text-lg md:text-xl text-muted-foreground max-w-3xl leading-relaxed mb-8">{{ c.subtitle }}</p>
 
         <div class="flex flex-wrap gap-3 mb-10">
-          <a [routerLink]="'/courses/' + c.slug + '/module-1'"
+          <a [routerLink]="'/courses/' + c.slug + '/' + c.modules[0].slug"
              class="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
             Start Module 1 — Free
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
