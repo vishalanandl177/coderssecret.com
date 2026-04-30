@@ -61,6 +61,7 @@ import { RouterLink } from '@angular/router';
               <li><a routerLink="/courses" class="text-muted-foreground transition-colors hover:text-foreground">Free Courses</a></li>
               <li><a routerLink="/courses/mastering-spiffe-spire" class="text-muted-foreground transition-colors hover:text-foreground">SPIFFE & SPIRE Course</a></li>
               <li><a routerLink="/courses/cloud-native-security-engineering" class="text-muted-foreground transition-colors hover:text-foreground">Cloud Native Security</a></li>
+              <li><a routerLink="/courses/production-rag-systems-engineering" class="text-muted-foreground transition-colors hover:text-foreground">Production RAG Engineering</a></li>
               <li><a routerLink="/cheatsheets" class="text-muted-foreground transition-colors hover:text-foreground">Cheat Sheets</a></li>
               <li><a routerLink="/games" class="text-muted-foreground transition-colors hover:text-foreground">Coding Games</a></li>
             </ul>

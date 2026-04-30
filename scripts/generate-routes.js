@@ -551,6 +551,66 @@ fs.writeFileSync(path.join(homeDir, 'index.html'), `<!doctype html>
 </head><body><p>Redirecting to <a href="/">home page</a>...</p></body></html>`);
 created++;
 
+  // ── Production RAG Systems Engineering course ──
+  const ragDir = path.join(OUTPUT_DIR, 'courses', 'production-rag-systems-engineering');
+  fs.mkdirSync(ragDir, { recursive: true });
+  fs.writeFileSync(path.join(ragDir, 'index.html'), makeHtml({
+    title: 'Production-Grade RAG Systems Engineering — Free Course',
+    description: 'Build scalable, reliable RAG systems. Embeddings, vector databases, hybrid retrieval, reranking, AI agents, evaluation, security, and Kubernetes deployment. 16 modules, 50+ labs, free.',
+    url: '/courses/production-rag-systems-engineering',
+    content: '<h1>Production-Grade RAG Systems Engineering</h1><p>16 modules, 50+ hands-on labs, completely free.</p>',
+  }));
+  created++;
+
+  const ragModules = [
+    { slug: 'introduction-ai-rag-systems', title: 'Introduction to AI & RAG Systems' },
+    { slug: 'foundations-search-retrieval', title: 'Foundations of Search & Retrieval' },
+    { slug: 'embeddings-deep-dive', title: 'Embeddings Deep Dive' },
+    { slug: 'vector-databases-engineering', title: 'Vector Databases Engineering' },
+    { slug: 'document-processing-chunking', title: 'Document Processing & Chunking' },
+    { slug: 'building-basic-rag-systems', title: 'Building Basic RAG Systems' },
+    { slug: 'advanced-retrieval-engineering', title: 'Advanced Retrieval Engineering' },
+    { slug: 'ai-agents-agentic-rag', title: 'AI Agents & Agentic RAG' },
+    { slug: 'production-rag-architecture', title: 'Production RAG Architecture' },
+    { slug: 'rag-evaluation-quality-engineering', title: 'RAG Evaluation & Quality Engineering' },
+    { slug: 'ai-observability-engineering', title: 'AI Observability Engineering' },
+    { slug: 'security-rag-systems', title: 'Security for RAG Systems' },
+    { slug: 'deploying-rag-systems', title: 'Deploying RAG Systems' },
+    { slug: 'advanced-rag-architectures', title: 'Advanced RAG Architectures' },
+    { slug: 'ai-infrastructure-future-systems', title: 'AI Infrastructure & Future Systems' },
+    { slug: 'production-capstone-project', title: 'Production Capstone Project' },
+  ];
+  ragModules.forEach((mod, i) => {
+    const modDir = path.join(OUTPUT_DIR, 'courses', 'production-rag-systems-engineering', mod.slug);
+    fs.mkdirSync(modDir, { recursive: true });
+    fs.writeFileSync(path.join(modDir, 'index.html'), makeHtml({
+      title: `Module ${i + 1}: ${mod.title} — Production RAG Engineering`,
+      description: `Module ${i + 1} of the Production-Grade RAG Systems Engineering course.`,
+      url: `/courses/production-rag-systems-engineering/${mod.slug}`,
+      content: `<h1>Module ${i + 1}: ${mod.title}</h1><p><a href="/courses/production-rag-systems-engineering">← Back to course</a></p>`,
+    }));
+    created++;
+  });
+
+  // RAG SEO pages
+  const ragSeoPages = [
+    { slug: 'what-is-rag', title: 'What is RAG? Retrieval-Augmented Generation Explained' },
+    { slug: 'vector-database-comparison', title: 'Vector Database Comparison: Qdrant vs Pinecone vs pgvector' },
+    { slug: 'hybrid-search-explained', title: 'Hybrid Search: Combining Keyword and Semantic Search' },
+    { slug: 'ai-agents-explained', title: 'AI Agents: From Simple RAG to Agentic Systems' },
+  ];
+  ragSeoPages.forEach(seo => {
+    const seoDir = path.join(OUTPUT_DIR, 'courses', seo.slug);
+    fs.mkdirSync(seoDir, { recursive: true });
+    fs.writeFileSync(path.join(seoDir, 'index.html'), makeHtml({
+      title: `${seo.title} — CodersSecret`,
+      description: seo.title,
+      url: `/courses/${seo.slug}`,
+      content: `<h1>${seo.title}</h1><p><a href="/courses/production-rag-systems-engineering">Start the free RAG course</a></p>`,
+    }));
+    created++;
+  });
+
 // ── Glossary pages ──
 const glossaryTerms = [
   { slug: 'spiffe', term: 'SPIFFE', desc: 'Secure Production Identity Framework For Everyone — CNCF standard for workload identity.' },

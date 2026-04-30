@@ -109,6 +109,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/courses/course-landing/course-landing').then(m => m.CourseLandingComponent),
   },
   {
+    path: 'courses/production-rag-systems-engineering',
+    loadComponent: () => import('./pages/courses/course-landing/course-landing').then(m => m.CourseLandingComponent),
+  },
+  {
     path: 'courses/mastering-spiffe-spire/:moduleSlug/slides',
     loadComponent: () => import('./pages/courses/course-slides/course-slides').then(m => m.CourseSlidesComponent),
   },
@@ -122,6 +126,14 @@ export const routes: Routes = [
   },
   {
     path: 'courses/cloud-native-security-engineering/:moduleSlug',
+    loadComponent: () => import('./pages/courses/course-module/course-module').then(m => m.CourseModuleComponent),
+  },
+  {
+    path: 'courses/production-rag-systems-engineering/:moduleSlug/slides',
+    loadComponent: () => import('./pages/courses/course-slides/course-slides').then(m => m.CourseSlidesComponent),
+  },
+  {
+    path: 'courses/production-rag-systems-engineering/:moduleSlug',
     loadComponent: () => import('./pages/courses/course-module/course-module').then(m => m.CourseModuleComponent),
   },
   {
