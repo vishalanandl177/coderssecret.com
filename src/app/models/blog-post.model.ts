@@ -1438,6 +1438,21 @@ grep "request_time" access.log | awk -F'request_time=' '{print $2}' | \\
     content: `
       <p>GitHub Actions is the most popular CI/CD platform for open source and increasingly for enterprise. But most teams use it like a simple script runner &mdash; one workflow, no caching, no parallelism, 20-minute builds. This guide shows you the patterns that make CI/CD fast, reliable, and maintainable.</p>
 
+      <div class="pipeline-diagram">
+        <div class="pipeline-title">Optimized CI/CD Pipeline Architecture</div>
+        <div class="pipeline-steps">
+          <div class="pipeline-step" style="border-color:#3b82f6">Push<br><strong>Trigger</strong><br>concurrency group</div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step" style="border-color:#a855f7">Lint<br><strong>Fast Fail</strong><br>cached deps</div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step" style="border-color:#f97316">Test<br><strong>Matrix</strong><br>parallel versions</div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step" style="border-color:#22c55e">Build<br><strong>Cache Hit</strong><br>incremental</div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step" style="border-color:#06b6d4">Deploy<br><strong>OIDC Auth</strong><br>zero secrets</div>
+        </div>
+      </div>
+
       <h2>Workflow Fundamentals Done Right</h2>
 
       <pre><code># .github/workflows/ci.yml
@@ -4406,6 +4421,21 @@ services:
     content: `
       <p>Every time you click &ldquo;Create Instance&rdquo; in the AWS console, you are creating infrastructure that cannot be reproduced, reviewed, or rolled back. Terraform replaces console clicking with code &mdash; declarative configuration files that describe your entire infrastructure and can be version-controlled, peer-reviewed, and applied automatically.</p>
 
+      <div class="pipeline-diagram">
+        <div class="pipeline-title">Terraform Workflow: Code &rarr; Plan &rarr; Apply</div>
+        <div class="pipeline-steps">
+          <div class="pipeline-step" style="border-color:#3b82f6">Write<br><strong>.tf files</strong><br>HCL config</div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step" style="border-color:#a855f7">Init<br><strong>Providers</strong><br>download plugins</div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step" style="border-color:#eab308">Plan<br><strong>Preview</strong><br>safe, read-only</div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step" style="border-color:#22c55e">Apply<br><strong>Create</strong><br>real infra changes</div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step" style="border-color:#ef4444">State<br><strong>Track</strong><br>source of truth</div>
+        </div>
+      </div>
+
       <h2>Core Concepts in 5 Minutes</h2>
 
       <ul>
@@ -5352,6 +5382,19 @@ jobs:
       <p>Your Django view takes 30 seconds because it sends emails, generates PDFs, and calls three external APIs. Your users are staring at a loading spinner. The fix is not faster code &mdash; it is moving slow work to a background task queue.</p>
 
       <p>Celery is the standard solution for Python. This guide takes you from basic tasks to production-grade workflows with retries, chains, monitoring, and the gotchas that bite every team.</p>
+
+      <div class="pipeline-diagram">
+        <div class="pipeline-title">Celery Task Queue Architecture</div>
+        <div class="pipeline-steps">
+          <div class="pipeline-step" style="border-color:#3b82f6">Django View<br><strong>Producer</strong><br>task.delay()</div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step" style="border-color:#ef4444">Redis<br><strong>Broker</strong><br>message queue</div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step" style="border-color:#22c55e">Celery Worker<br><strong>Consumer</strong><br>executes task</div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <div class="pipeline-step" style="border-color:#a855f7">Result<br><strong>Backend</strong><br>Redis / DB</div>
+        </div>
+      </div>
 
       <h2>Setup: Django + Celery + Redis</h2>
 
