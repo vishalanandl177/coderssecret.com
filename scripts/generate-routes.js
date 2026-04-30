@@ -526,6 +526,31 @@ if (courseContent) {
   });
 }
 
+// ── Slides pages (/slides/{slug}) — pre-render for every blog post ──
+for (const post of posts) {
+  const slideDir = path.join(OUTPUT_DIR, 'slides', post.slug);
+  fs.mkdirSync(slideDir, { recursive: true });
+  fs.writeFileSync(path.join(slideDir, 'index.html'), makeHtml({
+    title: `${escapeHtml(post.title)} — Watch as Slides | CodersSecret`,
+    description: `Watch "${escapeHtml(post.title)}" as narrated slides with voice narration. 20x lighter than video, zero ads, fully free.`,
+    url: `/slides/${post.slug}`,
+    content: `<h1>${escapeHtml(post.title)} — Slides</h1><p>Watch this tutorial as narrated slides with voice narration.</p><p><a href="/blog/${post.slug}">Read the full article</a></p>`,
+  }));
+  created++;
+}
+
+// ── /home/ redirect (Google sometimes discovers /home/ instead of /) ──
+const homeDir = path.join(OUTPUT_DIR, 'home');
+fs.mkdirSync(homeDir, { recursive: true });
+fs.writeFileSync(path.join(homeDir, 'index.html'), `<!doctype html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta http-equiv="refresh" content="0;url=/">
+<link rel="canonical" href="https://coderssecret.com/">
+<title>Redirecting to CodersSecret</title>
+</head><body><p>Redirecting to <a href="/">home page</a>...</p></body></html>`);
+created++;
+
 // ── About page (/about) ──────────────────────
 const aboutDir = path.join(OUTPUT_DIR, 'about');
 fs.mkdirSync(aboutDir, { recursive: true });
