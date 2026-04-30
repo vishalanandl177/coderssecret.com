@@ -197,6 +197,31 @@ import { SeoService } from '../../../services/seo.service';
       </div>
     </section>
 
+    <!-- FAQ -->
+    @if (c.faqs && c.faqs.length > 0) {
+    <section class="bg-accent/20 border-y border-border/40 py-16">
+      <div class="container max-w-4xl mx-auto px-6">
+        <h2 class="text-2xl md:text-3xl font-bold mb-8">Frequently Asked Questions</h2>
+        <div class="space-y-4">
+          @for (faq of c.faqs; track faq.question) {
+            <div class="rounded-xl border border-border/60 bg-card overflow-hidden">
+              <button (click)="toggleFaq(faq.question)"
+                      class="w-full flex items-center justify-between p-5 text-left hover:bg-accent/50 transition-colors">
+                <span class="font-semibold text-foreground pr-4">{{ faq.question }}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground shrink-0" [class.rotate-180]="openFaqs().has(faq.question)"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              @if (openFaqs().has(faq.question)) {
+                <div class="px-5 pb-5 border-t border-border/40">
+                  <p class="text-sm text-muted-foreground leading-relaxed pt-3">{{ faq.answer }}</p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+    }
+
     <!-- Tags -->
     <section class="container max-w-6xl mx-auto px-6 pb-16">
       <h2 class="text-lg font-semibold mb-4">Course Topics</h2>
@@ -213,6 +238,8 @@ export class CourseLandingComponent {
   course = signal<Course | undefined>(undefined);
   private openModulesSet = signal(new Set<number>());
   openModules = this.openModulesSet.asReadonly();
+  private openFaqsSet = signal(new Set<string>());
+  openFaqs = this.openFaqsSet.asReadonly();
   private seo = inject(SeoService);
   private route = inject(ActivatedRoute);
 
@@ -267,6 +294,15 @@ export class CourseLandingComponent {
             'inLanguage': 'en',
             'isAccessibleForFree': true,
           },
+          ...(c.faqs ? [{
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            'mainEntity': c.faqs.map(faq => ({
+              '@type': 'Question',
+              'name': faq.question,
+              'acceptedAnswer': { '@type': 'Answer', 'text': faq.answer },
+            })),
+          }] : []),
         ],
       });
     }
@@ -276,6 +312,12 @@ export class CourseLandingComponent {
     const s = new Set(this.openModulesSet());
     if (s.has(num)) s.delete(num); else s.add(num);
     this.openModulesSet.set(s);
+  }
+
+  toggleFaq(question: string) {
+    const s = new Set(this.openFaqsSet());
+    if (s.has(question)) s.delete(question); else s.add(question);
+    this.openFaqsSet.set(s);
   }
 
   getTotalLabs(): number {

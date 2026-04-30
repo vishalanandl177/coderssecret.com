@@ -128,6 +128,15 @@ export const routes: Routes = [
     path: 'courses/:seoSlug',
     loadComponent: () => import('./pages/courses/seo-landing/seo-landing').then(m => m.SeoLandingComponent),
   },
+  // Glossary
+  {
+    path: 'glossary',
+    loadComponent: () => import('./pages/glossary/glossary').then(m => m.GlossaryComponent),
+  },
+  {
+    path: 'glossary/:term',
+    loadComponent: () => import('./pages/glossary/glossary').then(m => m.GlossaryComponent),
+  },
   {
     path: 'privacy',
     loadComponent: () => import('./pages/privacy/privacy').then(m => m.PrivacyComponent),

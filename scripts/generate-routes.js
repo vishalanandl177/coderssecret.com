@@ -551,6 +551,40 @@ fs.writeFileSync(path.join(homeDir, 'index.html'), `<!doctype html>
 </head><body><p>Redirecting to <a href="/">home page</a>...</p></body></html>`);
 created++;
 
+// ── Glossary pages ──
+const glossaryTerms = [
+  { slug: 'spiffe', term: 'SPIFFE', desc: 'Secure Production Identity Framework For Everyone — CNCF standard for workload identity.' },
+  { slug: 'spire', term: 'SPIRE', desc: 'SPIFFE Runtime Environment — production implementation that issues and manages workload identities.' },
+  { slug: 'zero-trust', term: 'Zero Trust', desc: 'Security architecture: never trust, always verify. Every request authenticated regardless of network location.' },
+  { slug: 'workload-identity', term: 'Workload Identity', desc: 'Cryptographic identity for services and containers — replaces shared secrets and API keys.' },
+  { slug: 'mtls', term: 'mTLS', desc: 'Mutual TLS — both client and server verify certificates. Foundation of Zero Trust communication.' },
+  { slug: 'svid', term: 'SVID', desc: 'SPIFFE Verifiable Identity Document — X.509 certificate or JWT proving workload identity.' },
+  { slug: 'opa', term: 'OPA', desc: 'Open Policy Agent — CNCF policy engine for policy-as-code with Rego language.' },
+  { slug: 'falco', term: 'Falco', desc: 'CNCF runtime security tool — monitors syscalls and alerts on suspicious container behavior.' },
+  { slug: 'service-mesh', term: 'Service Mesh', desc: 'Infrastructure layer of sidecar proxies handling mTLS, load balancing, and observability.' },
+  { slug: 'sigstore', term: 'Sigstore', desc: 'Keyless container image signing and verification for supply chain security.' },
+];
+const glossaryHubDir = path.join(OUTPUT_DIR, 'glossary');
+fs.mkdirSync(glossaryHubDir, { recursive: true });
+fs.writeFileSync(path.join(glossaryHubDir, 'index.html'), makeHtml({
+  title: 'Cloud Native Security Glossary — CodersSecret',
+  description: 'Definitions for SPIFFE, SPIRE, Zero Trust, workload identity, mTLS, OPA, Falco, and more cloud-native security terms.',
+  url: '/glossary',
+  content: '<h1>Cloud Native Security Glossary</h1><ul>' + glossaryTerms.map(t => `<li><a href="/glossary/${t.slug}">${t.term}</a>: ${t.desc}</li>`).join('') + '</ul>',
+}));
+created++;
+glossaryTerms.forEach(t => {
+  const termDir = path.join(OUTPUT_DIR, 'glossary', t.slug);
+  fs.mkdirSync(termDir, { recursive: true });
+  fs.writeFileSync(path.join(termDir, 'index.html'), makeHtml({
+    title: `What is ${t.term}? — CodersSecret Glossary`,
+    description: t.desc,
+    url: `/glossary/${t.slug}`,
+    content: `<h1>What is ${t.term}?</h1><p>${t.desc}</p><p><a href="/glossary">← All glossary terms</a></p>`,
+  }));
+  created++;
+});
+
 // ── About page (/about) ──────────────────────
 const aboutDir = path.join(OUTPUT_DIR, 'about');
 fs.mkdirSync(aboutDir, { recursive: true });

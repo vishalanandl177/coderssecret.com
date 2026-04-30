@@ -64,6 +64,7 @@ export interface Course {
   targetAudience: string[];
   modules: CourseModule[];
   seoPages: CourseSeoPage[];
+  faqs?: { question: string; answer: string }[];
 }
 
 export const COURSES: Course[] = [
@@ -382,6 +383,16 @@ export const COURSES: Course[] = [
           <p>For most organizations adopting zero trust, SPIFFE/SPIRE provides the most comprehensive and portable solution. Our free course teaches it from the ground up.</p>
         `,
       },
+    ],
+    faqs: [
+      { question: 'What is SPIFFE?', answer: 'SPIFFE (Secure Production Identity Framework For Everyone) is a CNCF standard that defines how workloads identify themselves to each other using cryptographic certificates, independent of network location.' },
+      { question: 'What is SPIRE?', answer: 'SPIRE (SPIFFE Runtime Environment) is the production implementation of SPIFFE. It automatically issues, rotates, and manages cryptographic identities for every workload in your infrastructure.' },
+      { question: 'Is this course really free?', answer: 'Yes, 100% free. 13 modules, 30+ hands-on labs, all course content, and the companion GitHub repository are completely free with no paywalls or upsells.' },
+      { question: 'Who is this course for?', answer: 'Platform engineers, DevOps engineers, security engineers, SREs, Kubernetes engineers, and backend developers who want to learn production-grade workload identity and Zero Trust security.' },
+      { question: 'Do I need prior SPIFFE experience?', answer: 'No. The course starts from Zero Trust fundamentals and builds up to production SPIRE deployments, federation, and AI infrastructure security.' },
+      { question: 'What is workload identity?', answer: 'Workload identity gives every service, container, or process a unique cryptographic identity — like a passport for machines. It replaces shared secrets, API keys, and IP-based trust with automatic, short-lived certificates.' },
+      { question: 'How does SPIFFE compare to HashiCorp Vault?', answer: 'SPIFFE provides workload identity (who is this service?). Vault provides secret management (what secrets can it access?). They are complementary — workloads can authenticate to Vault using their SPIFFE SVID instead of static Vault tokens.' },
+      { question: 'What is Zero Trust?', answer: 'Zero Trust is a security architecture that requires cryptographic verification of every request, regardless of network location. It replaces the traditional perimeter model where everything inside the network is trusted.' },
     ],
     modules: [
     {
@@ -1991,6 +2002,16 @@ spiffe://ai.company.org/pipeline/training/job-123
           <p>Our <a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> course covers secure communication across Modules 5-8 with full lab environments.</p>
         `,
       },
+    ],
+    faqs: [
+      { question: 'What is cloud native security?', answer: 'Cloud native security is a comprehensive approach to securing containerized, orchestrated, and microservice-based systems. It covers workload identity, Zero Trust networking, policy-as-code, runtime threat detection, and supply chain security.' },
+      { question: 'Is this course beginner-friendly?', answer: 'Yes. The course starts with security fundamentals and Kubernetes basics, then progressively builds to advanced topics like SPIFFE federation, eBPF runtime security, and AI infrastructure protection.' },
+      { question: 'Is this course free?', answer: 'Yes, 100% free. 16 modules, 50+ hands-on labs, companion GitHub repositories, and all course content are completely free.' },
+      { question: 'What tools does this course cover?', answer: 'Kubernetes, SPIFFE/SPIRE, OPA, Kyverno, Gatekeeper, Falco, Tetragon, eBPF, Sigstore, Cosign, SLSA, HashiCorp Vault, Istio, Envoy, OpenTelemetry, and GitHub Actions security.' },
+      { question: 'What is the difference between this course and the SPIFFE & SPIRE course?', answer: 'The SPIFFE & SPIRE course goes deep on workload identity specifically. This Cloud Native Security Engineering course covers the full security stack — identity is one of five pillars alongside Zero Trust, policy, runtime protection, and supply chain security.' },
+      { question: 'What is OPA vs Kyverno?', answer: 'OPA (Open Policy Agent) uses the Rego language for powerful policy expressions. Kyverno uses Kubernetes-native YAML for easier adoption. Both enforce security policies via admission control. The course covers both so you can choose.' },
+      { question: 'What is runtime security?', answer: 'Runtime security detects and prevents threats inside running containers — shell execution, privilege escalation, sensitive file access, cryptomining. Tools like Falco (detection) and Tetragon (enforcement) use eBPF to monitor at the kernel level.' },
+      { question: 'What is supply chain security?', answer: 'Supply chain security ensures that every artifact from source code to running container is verified and untampered. It includes image signing (Cosign), build provenance (SLSA), and vulnerability tracking (SBOM).' },
     ],
     modules: [
     {
