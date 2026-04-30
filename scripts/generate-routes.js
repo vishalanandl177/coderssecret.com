@@ -444,6 +444,86 @@ if (courseContent) {
     }));
     created++;
   });
+
+  // ── Cloud Native Security Engineering course ──
+  const cnsDir = path.join(OUTPUT_DIR, 'courses', 'cloud-native-security-engineering');
+  fs.mkdirSync(cnsDir, { recursive: true });
+  fs.writeFileSync(path.join(cnsDir, 'index.html'), makeHtml({
+    title: 'Cloud Native Security Engineering — Free Course',
+    description: 'The most practical cloud-native security course. 16 modules covering Kubernetes security, Zero Trust, SPIFFE/SPIRE, OPA, Falco, eBPF, Sigstore, Vault, and AI infrastructure security. 50+ hands-on labs, 100% free.',
+    url: '/courses/cloud-native-security-engineering',
+    content: `<h1>Cloud Native Security Engineering</h1>
+      <p>Securing Kubernetes, Workloads, APIs & Zero Trust Systems. 16 modules, 50+ labs, completely free.</p>
+      <h2>Curriculum</h2>
+      <ol>
+        <li><a href="/courses/cloud-native-security-engineering/introduction-cloud-native-security">Introduction to Cloud Native Security</a></li>
+        <li><a href="/courses/cloud-native-security-engineering/kubernetes-foundations-security">Kubernetes Foundations for Security</a></li>
+        <li><a href="/courses/cloud-native-security-engineering/containers-workload-security">Containers & Workload Security</a></li>
+        <li><a href="/courses/cloud-native-security-engineering/kubernetes-authentication-authorization">Kubernetes Authentication & Authorization</a></li>
+        <li><a href="/courses/cloud-native-security-engineering/zero-trust-security-fundamentals">Zero Trust Security Fundamentals</a></li>
+        <li><a href="/courses/cloud-native-security-engineering/spiffe-spire-deep-dive">SPIFFE & SPIRE Deep Dive</a></li>
+        <li><a href="/courses/cloud-native-security-engineering/service-mesh-security">Service Mesh Security</a></li>
+        <li><a href="/courses/cloud-native-security-engineering/policy-as-code-security">Policy-as-Code Security</a></li>
+        <li><a href="/courses/cloud-native-security-engineering/secrets-management-machine-identity">Secrets Management & Machine Identity</a></li>
+        <li><a href="/courses/cloud-native-security-engineering/runtime-security-threat-detection">Runtime Security & Threat Detection</a></li>
+        <li><a href="/courses/cloud-native-security-engineering/supply-chain-security">Supply Chain Security</a></li>
+        <li><a href="/courses/cloud-native-security-engineering/secure-cicd-pipelines">Secure CI/CD Pipelines</a></li>
+        <li><a href="/courses/cloud-native-security-engineering/observability-security-monitoring">Observability & Security Monitoring</a></li>
+        <li><a href="/courses/cloud-native-security-engineering/multi-cluster-multi-cloud-security">Multi-Cluster & Multi-Cloud Security</a></li>
+        <li><a href="/courses/cloud-native-security-engineering/ai-infrastructure-security">AI Infrastructure Security</a></li>
+        <li><a href="/courses/cloud-native-security-engineering/production-architecture-capstone">Production Architecture & Capstone</a></li>
+      </ol>`,
+  }));
+  created++;
+
+  const cnsModules = [
+    { slug: 'introduction-cloud-native-security', title: 'Introduction to Cloud Native Security', desc: 'Why traditional security fails in cloud-native systems. Threat landscape, security principles, and the five pillars.' },
+    { slug: 'kubernetes-foundations-security', title: 'Kubernetes Foundations for Security', desc: 'Kubernetes architecture, API request flow, RBAC, admission controllers, and the Kubernetes attack surface.' },
+    { slug: 'containers-workload-security', title: 'Containers & Workload Security', desc: 'Linux isolation, seccomp, distroless images, Pod Security Standards, and container escape prevention.' },
+    { slug: 'kubernetes-authentication-authorization', title: 'Kubernetes Authentication & Authorization', desc: 'Service accounts, OIDC, RBAC deep dive, and identity in distributed systems.' },
+    { slug: 'zero-trust-security-fundamentals', title: 'Zero Trust Security Fundamentals', desc: 'Identity-based security, mTLS, microsegmentation, and east-west security for Kubernetes.' },
+    { slug: 'spiffe-spire-deep-dive', title: 'SPIFFE & SPIRE Deep Dive', desc: 'Production workload identity with SPIFFE/SPIRE on Kubernetes. SVIDs, attestation, federation.' },
+    { slug: 'service-mesh-security', title: 'Service Mesh Security', desc: 'Envoy, Istio, Linkerd — transparent mTLS, identity propagation, and authorization policies.' },
+    { slug: 'policy-as-code-security', title: 'Policy-as-Code Security', desc: 'OPA Gatekeeper, Kyverno, admission controllers, and automated compliance enforcement.' },
+    { slug: 'secrets-management-machine-identity', title: 'Secrets Management & Machine Identity', desc: 'HashiCorp Vault, dynamic secrets, certificate rotation, and replacing secret sprawl with workload identity.' },
+    { slug: 'runtime-security-threat-detection', title: 'Runtime Security & Threat Detection', desc: 'Falco, Tetragon, eBPF — detecting container escapes, unauthorized access, and runtime threats.' },
+    { slug: 'supply-chain-security', title: 'Supply Chain Security', desc: 'Sigstore, Cosign, SLSA, SBOM — image signing, provenance verification, and vulnerability tracking.' },
+    { slug: 'secure-cicd-pipelines', title: 'Secure CI/CD Pipelines', desc: 'GitHub Actions hardening, secret scanning, OIDC deployment, and secure artifact signing.' },
+    { slug: 'observability-security-monitoring', title: 'Observability & Security Monitoring', desc: 'OpenTelemetry, Kubernetes audit logs, security dashboards, and threat telemetry.' },
+    { slug: 'multi-cluster-multi-cloud-security', title: 'Multi-Cluster & Multi-Cloud Security', desc: 'Federation, cross-cloud identity, hybrid infrastructure, and trust boundaries at scale.' },
+    { slug: 'ai-infrastructure-security', title: 'AI Infrastructure Security', desc: 'Securing AI agents, LLM endpoints, MCP servers, vector databases, and inference pipelines.' },
+    { slug: 'production-architecture-capstone', title: 'Production Architecture & Capstone', desc: 'Build a production-grade cloud-native security platform combining all five pillars.' },
+  ];
+  cnsModules.forEach((mod, i) => {
+    const modDir = path.join(OUTPUT_DIR, 'courses', 'cloud-native-security-engineering', mod.slug);
+    fs.mkdirSync(modDir, { recursive: true });
+    fs.writeFileSync(path.join(modDir, 'index.html'), makeHtml({
+      title: `Module ${i + 1}: ${mod.title} — Cloud Native Security Engineering`,
+      description: mod.desc,
+      url: `/courses/cloud-native-security-engineering/${mod.slug}`,
+      content: `<h1>Module ${i + 1}: ${mod.title}</h1><p>${mod.desc}</p><p><a href="/courses/cloud-native-security-engineering">← Back to course curriculum</a></p>`,
+    }));
+    created++;
+  });
+
+  // CNS SEO pages
+  const cnsSeoPages = [
+    { slug: 'cloud-native-security-explained', title: 'Cloud Native Security Explained', desc: 'Why traditional security fails in cloud-native systems and how workload identity, Zero Trust, and policy-as-code create production-grade security.' },
+    { slug: 'kubernetes-runtime-security', title: 'Kubernetes Runtime Security: Falco, Tetragon, and eBPF', desc: 'Detect container escapes, unauthorized syscalls, and runtime threats using Falco, Tetragon, and eBPF.' },
+    { slug: 'kubernetes-supply-chain-security', title: 'Kubernetes Supply Chain Security: Sigstore, SLSA, and SBOM', desc: 'Secure your software supply chain with image signing, provenance verification, and vulnerability tracking.' },
+    { slug: 'secure-service-to-service-communication', title: 'Secure Service-to-Service Communication in Kubernetes', desc: 'Implement mTLS, workload identity, and authorization for secure east-west traffic.' },
+  ];
+  cnsSeoPages.forEach(seo => {
+    const seoDir = path.join(OUTPUT_DIR, 'courses', seo.slug);
+    fs.mkdirSync(seoDir, { recursive: true });
+    fs.writeFileSync(path.join(seoDir, 'index.html'), makeHtml({
+      title: `${seo.title} — CodersSecret`,
+      description: seo.desc,
+      url: `/courses/${seo.slug}`,
+      content: `<h1>${seo.title}</h1><p>${seo.desc}</p><p>Start the free <a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> course.</p>`,
+    }));
+    created++;
+  });
 }
 
 // ── About page (/about) ──────────────────────
