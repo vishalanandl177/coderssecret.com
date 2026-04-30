@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" width="1200" height="480">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#0c1424"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#14b8a6"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#14b8a6" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#14b8a6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="480" fill="url(#bg)"/>
+  <circle cx="950" cy="240" r="350" fill="url(#glow)"/>
+
+  <!-- FREE badge -->
+  <rect x="60" y="60" width="100" height="32" rx="16" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="110" y="80" text-anchor="middle" fill="#22c55e" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="700" letter-spacing="2">FREE</text>
+
+  <!-- Module count -->
+  <rect x="170" y="60" width="120" height="32" rx="16" fill="#06b6d4" fill-opacity="0.15" stroke="#06b6d4" stroke-width="1.5"/>
+  <text x="230" y="80" text-anchor="middle" fill="#67e8f9" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600">16 MODULES</text>
+
+  <!-- Title -->
+  <text x="60" y="200" fill="#f1f5f9" font-family="Inter, system-ui, sans-serif" font-size="56" font-weight="800" letter-spacing="-1">
+    Cloud Native
+  </text>
+  <text x="60" y="265" fill="url(#accent)" font-family="Inter, system-ui, sans-serif" font-size="56" font-weight="800" letter-spacing="-1">
+    Security Engineering
+  </text>
+
+  <!-- Subtitle -->
+  <text x="60" y="320" fill="#94a3b8" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="500">
+    Securing Kubernetes, Workloads, APIs &amp; Zero Trust
+  </text>
+
+  <!-- Tags -->
+  <g font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#cbd5e1">
+    <rect x="60" y="370" width="110" height="32" rx="16" fill="#1e293b" stroke="#334155"/>
+    <text x="115" y="390" text-anchor="middle">K8s Security</text>
+
+    <rect x="180" y="370" width="100" height="32" rx="16" fill="#1e293b" stroke="#334155"/>
+    <text x="230" y="390" text-anchor="middle">Kubernetes</text>
+
+    <rect x="290" y="370" width="80" height="32" rx="16" fill="#1e293b" stroke="#334155"/>
+    <text x="330" y="390" text-anchor="middle">eBPF</text>
+
+    <rect x="380" y="370" width="80" height="32" rx="16" fill="#1e293b" stroke="#334155"/>
+    <text x="420" y="390" text-anchor="middle">Envoy</text>
+
+    <rect x="470" y="370" width="80" height="32" rx="16" fill="#1e293b" stroke="#334155"/>
+    <text x="510" y="390" text-anchor="middle">CNCF</text>
+  </g>
+
+  <!-- Decorative shield/lock icon -->
+  <g transform="translate(950, 200)" stroke="url(#accent)" stroke-width="3" fill="none" opacity="0.7">
+    <path d="M 0 -80 L 60 -50 L 60 30 Q 60 90 0 110 Q -60 90 -60 30 L -60 -50 Z"/>
+    <circle cx="0" cy="10" r="20" fill="#14b8a6" fill-opacity="0.15"/>
+    <path d="M -10 10 L -3 17 L 13 0" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5" fill="none"/>
+  </g>
+
+  <!-- Brand -->
+  <text x="60" y="445" fill="#64748b" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" letter-spacing="2">
+    CODERSSECRET.COM
+  </text>
+</svg>

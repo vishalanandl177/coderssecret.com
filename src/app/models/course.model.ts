@@ -2099,6 +2099,11 @@ roleRef:
       commonMistakes: ['Granting cluster-admin to the default service account', 'Not disabling auto-mounting of service account tokens', 'Leaving the kubelet read-only port (10255) exposed', 'Not encrypting etcd at rest', 'Using wildcards (*) in RBAC rules for convenience'],
       productionNotes: ['Always disable auto-mounting of service account tokens: automountServiceAccountToken: false. Only mount when the pod actually needs API access.', 'Audit RBAC regularly with tools like kubectl-who-can or rbac-police. Permissions accumulate over time.', 'Enable audit logging on the API server to track who accessed what and when.'],
       glossary: [{ term: 'RBAC', definition: 'Role-Based Access Control — Kubernetes authorization mechanism' }, { term: 'ClusterRole', definition: 'Cluster-wide set of permissions (dangerous if bound broadly)' }, { term: 'Admission Controller', definition: 'Plugin that intercepts API requests after auth but before persistence' }, { term: 'etcd', definition: 'Key-value store holding all Kubernetes cluster state including secrets' }, { term: 'Service Account', definition: 'Identity assigned to pods for API server authentication' }],
+      realWorldUseCases: ['Hardening RBAC for SOC 2 compliance', 'Detecting privilege escalation via overpermissioned service accounts', 'Configuring admission control for multi-tenant clusters', 'Auditing API server access for security investigations'],
+      securityRisks: ['cluster-admin bound to default service account', 'etcd accessible without mTLS', 'Kubelet read-only port (10255) exposed', 'Anonymous API authentication enabled'],
+      thinkLikeAnEngineer: ['How would you audit RBAC across 50 namespaces with 200 service accounts?', 'What is the minimum RBAC needed for a CI/CD pipeline to deploy safely?'],
+      operationalStory: 'A platform team discovered that 12 of their 30 namespaces had service accounts with cluster-admin — all created during initial setup and never scoped down. A single compromised pod in any of those namespaces could read every secret in the cluster. One RBAC audit and cleanup fixed it, but the vulnerability had been open for 18 months.',
+      careerRelevance: 'RBAC design is the #1 Kubernetes security skill. Every production cluster audit starts with RBAC review. Engineers who can design least-privilege RBAC are essential for any organization running Kubernetes at scale.',
     },    {
       number: 3, title: 'Containers & Workload Security', slug: 'containers-workload-security',
       subtitle: 'Hardening containers from image build to runtime with Pod Security Standards, seccomp, and distroless images',
@@ -2157,7 +2162,10 @@ metadata:
       productionNotes: ['Use distroless or scratch base images for all production workloads. A container with no shell cannot be used for interactive exploitation.', 'Apply the restricted Pod Security Standard to all production namespaces. Use warn mode first to identify non-compliant workloads before enforcing.'],
       securityRisks: ['privileged: true gives the container ALL capabilities including CAP_SYS_ADMIN — equivalent to root on the host', 'hostPID exposes all host processes to the container — enables credential theft from other pods', 'hostNetwork puts the container on the host network stack — bypasses all NetworkPolicies'],
       glossary: [{ term: 'Namespace (Linux)', definition: 'Kernel feature that isolates what a process can see (PID, network, mount, etc.)' }, { term: 'cgroup', definition: 'Control group — limits CPU, memory, and I/O resources for a set of processes' }, { term: 'Seccomp', definition: 'Secure computing mode — filters which syscalls a process can make' }, { term: 'Distroless', definition: 'Container image containing only the application binary and runtime — no OS tools' }, { term: 'Pod Security Standard', definition: 'Kubernetes policy level (Privileged/Baseline/Restricted) for container hardening' }],
-    },    {
+    
+      realWorldUseCases: ['Hardening container images for production', 'Implementing Pod Security Standards cluster-wide', 'Building distroless CI pipelines', 'Container escape prevention in multi-tenant clusters'],
+      operationalStory: 'A container running as root with hostPID was used by an attacker to read K8s secrets from kubelet process memory. After enforcing Pod Security Standards cluster-wide, privileged containers were blocked before reaching production.',
+      careerRelevance: 'Container hardening is foundational for any K8s security role. Organizations need engineers who build secure-by-default container pipelines.',},    {
       number: 4, title: 'Kubernetes Authentication & Authorization', slug: 'kubernetes-authentication-authorization',
       subtitle: 'Service accounts, OIDC, RBAC deep dive, and identity in distributed systems',
       duration: '3 hours',
@@ -2188,7 +2196,10 @@ metadata:
       whyThisMatters: 'RBAC misconfigurations are the #1 cause of Kubernetes privilege escalation. Every production cluster needs well-designed authentication and authorization — this module teaches you to build it right from the start.',
       commonMistakes: ['Using cluster-admin for CI/CD service accounts', 'Not disabling auto-mounting of service account tokens', 'Granting list secrets permission without understanding the blast radius', 'Using X.509 certificates for human users (impossible to revoke without CA rotation)'],
       glossary: [{ term: 'OIDC', definition: 'OpenID Connect — federated identity protocol for single sign-on' }, { term: 'RBAC', definition: 'Role-Based Access Control — maps roles to permissions to subjects' }, { term: 'Service Account', definition: 'Kubernetes identity for pods, used for API server authentication' }, { term: 'Projected Token', definition: 'Short-lived, audience-bound service account token (K8s 1.24+)' }],
-    },    {
+    
+      realWorldUseCases: ['OIDC integration for developer kubectl access', 'Service account token audit and cleanup', 'Cross-cluster identity challenges', 'Debugging auth failures in production'],
+      operationalStory: 'A company using X.509 client certificates for developer access could not revoke a terminated employee access without rotating the entire CA — disrupting all 50 developers. After switching to OIDC via Dex, revocation was instant via the identity provider.',
+      careerRelevance: 'Authentication and authorization design is fundamental to every Kubernetes security architecture. Engineers who understand the full auth flow are essential for platform teams.',},    {
       number: 5, title: 'Zero Trust Security Fundamentals', slug: 'zero-trust-security-fundamentals',
       subtitle: 'Identity-based security, mTLS, trust domains, and microsegmentation for cloud-native systems',
       duration: '3 hours',
@@ -2220,7 +2231,10 @@ metadata:
       beforeAfter: { before: ['Trust the network', 'Unencrypted east-west traffic', 'IP-based access control', 'Perimeter-only security', 'Implicit trust inside the cluster'], after: ['Verify every request', 'mTLS on all connections', 'Identity-based policies', 'Defense in depth everywhere', 'Cryptographic proof of identity'] },
       commonMistakes: ['Thinking NetworkPolicies alone = zero trust (they do not encrypt or authenticate)', 'Implementing mTLS but not authorization (authenticated does not mean authorized)', 'Deploying zero trust for external traffic only, ignoring east-west', 'Using long-lived certificates instead of short-lived automatically rotated ones'],
       glossary: [{ term: 'mTLS', definition: 'Mutual TLS — both client and server verify certificates' }, { term: 'Microsegmentation', definition: 'Fine-grained network boundaries around individual services' }, { term: 'East-West Traffic', definition: 'Service-to-service communication inside the cluster' }, { term: 'North-South Traffic', definition: 'External traffic entering/leaving the cluster' }, { term: 'Zero Trust', definition: 'Security model: never trust, always verify, regardless of source' }],
-    },    {
+    
+      realWorldUseCases: ['mTLS between all production services', 'Microsegmentation for PCI-DSS compliance', 'East-west encryption in financial services', 'Zero trust architecture for healthcare data'],
+      operationalStory: 'A healthcare company passed their HIPAA audit only after implementing mTLS between all services handling patient data. NetworkPolicies alone were insufficient — the auditor required encrypted, authenticated service communication.',
+      careerRelevance: 'Zero trust is the industry direction. Engineers who can implement mTLS and microsegmentation are increasingly required for security-sensitive industries.',},    {
       number: 6, title: 'SPIFFE & SPIRE Deep Dive', slug: 'spiffe-spire-deep-dive',
       subtitle: 'Production workload identity with the CNCF standard — from concepts to Kubernetes deployment',
       duration: '4 hours',
@@ -2251,7 +2265,10 @@ metadata:
       whyThisMatters: 'Workload identity is the foundation of cloud-native zero trust. Without it, services cannot prove who they are, mTLS is impossible to manage at scale, and authorization policies have nothing to anchor on. This module gives you the identity layer everything else depends on.',
       commonMistakes: ['Using SQLite for SPIRE Server in production (no HA)', 'Not monitoring SVID rotation — stalled rotation = imminent certificate expiry', 'Overly broad ClusterSPIFFEID selectors matching unintended workloads', 'Confusing SPIFFE (identity) with authorization (what identity can do)'],
       glossary: [{ term: 'SPIFFE', definition: 'Secure Production Identity Framework For Everyone — the standard' }, { term: 'SPIRE', definition: 'SPIFFE Runtime Environment — the implementation' }, { term: 'SVID', definition: 'SPIFFE Verifiable Identity Document — certificate or JWT' }, { term: 'Trust Domain', definition: 'Root of trust identified by domain name' }, { term: 'Attestation', definition: 'Process of verifying node or workload identity' }],
-    },    {
+    
+      realWorldUseCases: ['Automatic workload identity for 500+ microservices', 'Cross-cluster identity with SPIFFE federation', 'Replacing shared secrets with SVID-based authentication', 'Kubernetes + VM hybrid identity'],
+      operationalStory: 'A fintech company replaced 200+ shared API keys with SPIFFE SVIDs over 3 months. Each service got unique, auto-rotating cryptographic identity. Secret sprawl dropped to zero and the security team could finally audit who accessed what.',
+      careerRelevance: 'SPIFFE/SPIRE expertise is rare and increasingly demanded. Bloomberg, Uber, and Pinterest use it at scale — and they need engineers who understand it.',},    {
       number: 7, title: 'Service Mesh Security', slug: 'service-mesh-security',
       subtitle: 'Envoy, Istio, and Linkerd — transparent mTLS, identity propagation, and authorization policies',
       duration: '3.5 hours',
@@ -2304,7 +2321,10 @@ spec:
       whyThisMatters: 'Service meshes are the most practical way to deploy zero trust at scale. Instead of modifying every application to handle mTLS, the mesh proxy handles it transparently. This module teaches you to deploy and configure the encryption and authorization layer for production Kubernetes.',
       commonMistakes: ['Enabling permissive mTLS instead of strict — allows plaintext fallback', 'Not testing AuthorizationPolicies before enforcing — blocks legitimate traffic', 'Running service mesh without understanding resource overhead (CPU, memory per sidecar)', 'Deploying mesh without SPIRE — default Istio CA uses weaker attestation'],
       glossary: [{ term: 'Service Mesh', definition: 'Infrastructure layer of sidecar proxies handling L7 traffic between services' }, { term: 'Envoy', definition: 'High-performance proxy used as the sidecar in most service meshes' }, { term: 'PeerAuthentication', definition: 'Istio resource controlling mTLS mode (permissive/strict)' }, { term: 'AuthorizationPolicy', definition: 'Istio resource controlling which services can access which endpoints' }],
-    },    {
+    
+      realWorldUseCases: ['Transparent mTLS for all east-west traffic', 'Identity-based authorization in Istio', 'Service mesh migration from permissive to strict mTLS', 'Envoy SDS integration with SPIRE'],
+      operationalStory: 'During an Istio migration, a team enabled strict mTLS without checking all services. 12 services that bypassed the sidecar proxy broke immediately. Lesson: migrate from permissive to strict incrementally, one namespace at a time.',
+      careerRelevance: 'Service mesh expertise combined with security knowledge is a rare and valuable skill set. Organizations deploying Istio at scale need engineers who understand both.',},    {
       number: 8, title: 'Policy-as-Code Security', slug: 'policy-as-code-security',
       subtitle: 'OPA, Kyverno, Gatekeeper, and admission controllers for automated security enforcement',
       duration: '3.5 hours',
@@ -2368,7 +2388,10 @@ spec:
       commonMistakes: ['Deploying policies in Enforce mode without testing in Audit mode first', 'Writing overly broad policies that block legitimate workloads', 'Not versioning policies in Git alongside application code', 'Forgetting to exclude system namespaces (kube-system) from restrictive policies'],
       designTradeoffs: [{ option: 'OPA Gatekeeper', pros: ['Powerful Rego language', 'Broader ecosystem (works beyond K8s)', 'Strong community'], cons: ['Steep learning curve', 'Limited mutation support', 'Separate template + constraint model'] }, { option: 'Kyverno', pros: ['Kubernetes-native YAML', 'Easy to learn', 'Full mutation and generation', 'Policy reports built-in'], cons: ['K8s-specific only', 'Less expressive than Rego for complex logic'] }],
       glossary: [{ term: 'Admission Controller', definition: 'Intercepts API requests after auth, before persistence — can mutate or reject' }, { term: 'OPA', definition: 'Open Policy Agent — general-purpose policy engine' }, { term: 'Rego', definition: 'Declarative policy language used by OPA' }, { term: 'Kyverno', definition: 'Kubernetes-native policy engine using YAML policies' }, { term: 'Gatekeeper', definition: 'Kubernetes admission controller that uses OPA for policy enforcement' }],
-    },    {
+    
+      realWorldUseCases: ['Blocking privileged containers via admission control', 'Requiring resource limits on all deployments', 'Automated compliance enforcement in CI/CD', 'Multi-tenant policy isolation'],
+      operationalStory: 'A team deployed Kyverno in Enforce mode without testing. It blocked their monitoring stack from deploying because the DaemonSet needed hostNetwork. After adding policy exceptions for system namespaces, everything recovered. Lesson: always test in Audit mode first.',
+      careerRelevance: 'Policy-as-code is becoming mandatory for regulated industries. Engineers who can design and test admission policies are essential for platform security.',},    {
       number: 9, title: 'Secrets Management & Machine Identity', slug: 'secrets-management-machine-identity',
       subtitle: 'Vault, dynamic secrets, certificate rotation, and replacing secret sprawl with workload identity',
       duration: '3.5 hours',
@@ -2404,7 +2427,10 @@ vault read database/creds/readonly
       commonMistakes: ['Storing Vault tokens as Kubernetes Secrets (replaces one secret problem with another)', 'Not encrypting Kubernetes Secrets at rest in etcd', 'Using static database passwords shared across all services', 'Not implementing credential rotation — "it works fine" until the breach'],
       beforeAfter: { before: ['API keys in env vars', 'Shared database passwords', 'Long-lived certificates', 'Vault tokens as secrets', 'Manual rotation (or never)'], after: ['SVID-based authentication', 'Dynamic per-service credentials', 'Auto-rotated short-lived certs', 'Identity-based Vault auth', 'Automatic rotation always'] },
       glossary: [{ term: 'Secret Sprawl', definition: 'Uncontrolled proliferation of credentials across systems and configs' }, { term: 'Dynamic Secrets', definition: 'Credentials generated on-demand with automatic expiration' }, { term: 'Vault', definition: 'HashiCorp secret management platform' }, { term: 'Transit Encryption', definition: 'Vault engine for encrypting/decrypting data without storing it' }],
-    },    {
+    
+      realWorldUseCases: ['Eliminating static database passwords with Vault dynamic secrets', 'SPIFFE-based Vault authentication (no token distribution)', 'Certificate rotation for internal PKI', 'Encrypting application data with Vault transit'],
+      operationalStory: 'An e-commerce platform had 47 services sharing the same database password via environment variables. When the password was rotated, 12 services crashed because their cached connections used the old password. After switching to Vault dynamic credentials, each service got unique credentials with automatic rotation — zero-downtime rotations became routine.',
+      careerRelevance: 'Secrets management is a critical skill for DevOps and platform engineering roles. Organizations need engineers who can eliminate secret sprawl and implement dynamic credential workflows.',},    {
       number: 10, title: 'Runtime Security & Threat Detection', slug: 'runtime-security-threat-detection',
       subtitle: 'Falco, Tetragon, eBPF — detecting container escapes, unauthorized access, and runtime threats',
       duration: '3.5 hours',
@@ -2441,7 +2467,10 @@ vault read database/creds/readonly
       whyThisMatters: 'All the identity, encryption, and policy controls in earlier modules prevent unauthorized access. But what about an authorized workload that gets compromised? Runtime security is the last line of defense — it detects and responds to threats that bypass all other controls.',
       commonMistakes: ['Running Falco without custom rules (defaults miss many threats)', 'Not integrating alerts with incident response workflows', 'Using Tetragon enforcement rules without thorough testing (can block legitimate operations)', 'Not preserving forensic evidence when responding to incidents'],
       glossary: [{ term: 'Falco', definition: 'CNCF runtime security tool that monitors syscalls for suspicious behavior' }, { term: 'Tetragon', definition: 'Cilium eBPF-based runtime enforcement engine' }, { term: 'eBPF', definition: 'Extended Berkeley Packet Filter — runs programs in the kernel sandbox' }, { term: 'Syscall', definition: 'System call — interface between user programs and the kernel' }],
-    },    {
+    
+      realWorldUseCases: ['Detecting cryptominers in production containers', 'Container escape attempt alerting', 'Runtime threat detection for compliance (PCI-DSS)', 'Automated incident response for security events'],
+      operationalStory: 'A production cluster was running a cryptominer for 3 weeks before anyone noticed the CPU spike. After deploying Falco, the same behavior was detected within 30 seconds and the security team was alerted via PagerDuty. The compromised container was isolated automatically.',
+      careerRelevance: 'Runtime security is the fastest-growing area of Kubernetes security. Falco and eBPF skills are increasingly listed in security engineering and SRE job descriptions.',},    {
       number: 11, title: 'Cloud Native Supply Chain Security', slug: 'supply-chain-security',
       subtitle: 'Sigstore, SLSA, SBOM, image signing, and provenance verification',
       duration: '3 hours',
@@ -2477,7 +2506,10 @@ grype sbom:sbom.json</code></pre>
       whyThisMatters: 'Supply chain attacks (SolarWinds, Log4j, codecov) are among the most devastating security incidents. They bypass all runtime security because the malicious code IS the application. Supply chain security ensures you only deploy what you built, from the source you trust.',
       commonMistakes: ['Not verifying image signatures before deployment', 'Using base images from untrusted registries', 'Not generating SBOMs — unable to assess CVE impact', 'Building images on developer machines instead of isolated CI runners'],
       glossary: [{ term: 'Sigstore', definition: 'Open-source project for signing, verifying, and protecting software' }, { term: 'Cosign', definition: 'Container image signing and verification tool' }, { term: 'SLSA', definition: 'Supply-chain Levels for Software Artifacts — build provenance framework' }, { term: 'SBOM', definition: 'Software Bill of Materials — inventory of components in an artifact' }, { term: 'Rekor', definition: 'Immutable transparency log for signing events' }],
-    },    {
+    
+      realWorldUseCases: ['Image signing in CI/CD pipelines', 'SBOM generation for vulnerability tracking', 'Admission control rejecting unsigned images', 'Compliance with US Executive Order 14028 (software supply chain security)'],
+      operationalStory: 'When Log4Shell hit, teams without SBOMs spent days scanning every container image to find affected versions. Teams with SBOMs queried their inventory in minutes and patched within hours. The difference: days of uncertainty vs hours of response.',
+      careerRelevance: 'Supply chain security is driven by regulatory pressure (US EO 14028, EU CRA). Engineers who understand Sigstore, SLSA, and SBOMs are ahead of regulatory requirements.',},    {
       number: 12, title: 'Secure CI/CD Pipelines', slug: 'secure-cicd-pipelines',
       subtitle: 'Harden GitHub Actions, protect secrets, isolate pipelines, and implement secure deployment workflows',
       duration: '3 hours',
@@ -2531,7 +2563,10 @@ jobs:
       whyThisMatters: 'A compromised CI/CD pipeline is the fastest path from attacker to production. Securing the pipeline secures the entire delivery chain — from source code to running workload.',
       commonMistakes: ['Using permissions: write-all in workflows', 'Storing cloud credentials as repository secrets instead of OIDC', 'Not scanning for leaked secrets before they reach the main branch', 'Using unpinned action versions (uses: actions/checkout@main instead of SHA)'],
       glossary: [{ term: 'OIDC', definition: 'OpenID Connect — used for keyless authentication from CI to cloud' }, { term: 'gitleaks', definition: 'Tool for detecting hardcoded secrets in Git repositories' }, { term: 'Branch Protection', definition: 'GitHub rules requiring reviews, status checks, and signed commits' }, { term: 'Pinned Actions', definition: 'Referencing GitHub Actions by commit SHA instead of mutable tags' }],
-    },    {
+    
+      realWorldUseCases: ['Hardening GitHub Actions for production deployments', 'OIDC-based cloud authentication (zero static secrets)', 'Secret scanning in pre-commit hooks', 'Secure artifact signing in CI pipelines'],
+      operationalStory: 'A malicious PR modified a GitHub Actions workflow to exfiltrate repository secrets to an external server. The team had no workflow approval process and the PR was auto-merged. After adding branch protection, workflow approval, and OIDC auth, the attack vector was eliminated.',
+      careerRelevance: 'CI/CD security is a growing specialization as DevSecOps becomes standard. Engineers who can harden pipelines are essential for any organization with continuous deployment.',},    {
       number: 13, title: 'Observability & Security Monitoring', slug: 'observability-security-monitoring',
       subtitle: 'OpenTelemetry, audit logging, distributed tracing, and security telemetry',
       duration: '3 hours',
@@ -2566,7 +2601,10 @@ rules:
       keyTakeaways: ['Security observability connects all controls into unified monitoring', 'Kubernetes audit logs are essential for compliance and incident investigation', 'OpenTelemetry provides the collection layer for security telemetry', 'Dashboard the security posture: auth failures, SVID health, policy violations, runtime alerts', 'Alert on security metrics — do not wait for incidents to discover monitoring gaps'],
       whyThisMatters: 'You have deployed identity, encryption, policy, and runtime security. But are they working? Observability tells you. Without it, you only discover problems after the breach.',
       glossary: [{ term: 'Audit Log', definition: 'Kubernetes record of every API request — who, what, when, result' }, { term: 'OpenTelemetry', definition: 'CNCF observability framework for traces, metrics, and logs' }, { term: 'SIEM', definition: 'Security Information and Event Management — centralized security log analysis' }],
-    },    {
+    
+      realWorldUseCases: ['Security dashboards for SOC teams', 'Kubernetes audit log analysis for compliance', 'Correlating Falco alerts with application traces', 'SIEM integration for centralized security monitoring'],
+      operationalStory: 'A security team discovered a privilege escalation attempt only after reviewing audit logs 2 weeks later. After deploying real-time alerting on audit events, the same pattern was caught in under 5 minutes.',
+      careerRelevance: 'Security observability bridges the gap between security engineering and SRE. Engineers who can build security dashboards and alerting are valuable across both disciplines.',},    {
       number: 14, title: 'Multi-Cluster & Multi-Cloud Security', slug: 'multi-cluster-multi-cloud-security',
       subtitle: 'Federation, cross-cloud identity, hybrid infrastructure, and trust boundaries at scale',
       duration: '3 hours',
@@ -2594,7 +2632,10 @@ rules:
       whyThisMatters: 'Most production environments span multiple clusters, clouds, or data centers. Multi-cluster security is not an advanced topic — it is the reality of modern infrastructure. This module teaches you to design trust boundaries and implement federation for real-world deployments.',
       commonMistakes: ['Using one trust domain for everything (no blast radius isolation)', 'Not planning trust domain names before deployment (hard to rename)', 'Federating without understanding the security implications (full trust of remote domain)', 'Different security policies across clusters without coordination'],
       glossary: [{ term: 'Trust Domain', definition: 'Root of trust identified by a domain name, corresponding to one SPIRE Server' }, { term: 'Federation', definition: 'Cross-trust-domain trust via bundle exchange' }, { term: 'Trust Bundle', definition: 'CA certificates used to verify SVIDs from a trust domain' }, { term: 'Hybrid Infrastructure', definition: 'Mix of Kubernetes, VMs, and cloud services in one architecture' }],
-    },    {
+    
+      realWorldUseCases: ['Multi-cluster identity for global deployments', 'Cross-cloud trust between AWS and GCP', 'Hybrid identity for Kubernetes + VM workloads', 'Organizational mergers requiring trust domain federation'],
+      operationalStory: 'A global company expanded from 2 to 8 Kubernetes clusters across 3 clouds. Each cluster had its own identity system — separate Vault instances, separate CAs. After deploying federated SPIRE, all clusters shared trust automatically. Cross-cluster service calls dropped from 500ms (token exchange) to 5ms (direct mTLS).',
+      careerRelevance: 'Multi-cloud and multi-cluster architectures are the reality for most enterprises. Engineers who can design trust boundaries and implement federation are essential for platform teams at scale.',},    {
       number: 15, title: 'AI Infrastructure Security', slug: 'ai-infrastructure-security',
       subtitle: 'Securing AI agents, LLM endpoints, MCP servers, vector databases, and inference pipelines',
       duration: '3 hours',
@@ -2631,7 +2672,10 @@ allow {
       whyThisMatters: 'AI infrastructure is the next frontier for security engineering. As AI agents become more autonomous, the blast radius of a compromised agent grows. Engineers who understand workload identity for AI systems today are positioning themselves for the most in-demand security roles of tomorrow.',
       beforeAfter: { before: ['Shared API keys for all AI agents', 'No distinction between agent roles', 'Unencrypted agent-to-service traffic', 'No audit trail for AI tool access'], after: ['Unique SPIFFE identity per AI agent', 'OPA policies per agent role', 'mTLS between agents and services', 'Complete audit trail with verified identity'] },
       glossary: [{ term: 'MCP', definition: 'Model Context Protocol — standard for AI agents to access tools and data' }, { term: 'Vector Database', definition: 'Database optimized for storing and searching high-dimensional embeddings' }, { term: 'LLM', definition: 'Large Language Model — AI model for text generation and reasoning' }, { term: 'AI Agent', definition: 'Autonomous AI system that makes decisions and takes actions' }],
-    },    {
+    
+      realWorldUseCases: ['AI agent identity for autonomous systems', 'Securing MCP server access with workload identity', 'Vector database access control with mTLS', 'LLM endpoint cost protection via identity-based rate limiting'],
+      operationalStory: 'A company running 20 AI agents with a single shared API key discovered that a compromised agent was making 10,000 LLM calls per hour — costing $500/day. After deploying SPIFFE with per-agent identity and OPA rate limiting, the rogue agent was blocked within seconds.',
+      careerRelevance: 'AI infrastructure security is an emerging discipline with very few practitioners. Engineers who understand both workload identity and AI systems are uniquely positioned for the next wave of platform engineering roles.',},    {
       number: 16, title: 'Production Architecture & Capstone', slug: 'production-architecture-capstone',
       subtitle: 'Build a production-grade cloud-native security platform combining all five pillars',
       duration: '5 hours',
@@ -2671,6 +2715,8 @@ allow {
       thinkLikeAnEngineer: ['How would you present this architecture to a CISO for approval?', 'What is the total compute overhead of the full security stack?', 'Which pillar would you deploy first for maximum security impact?', 'How would you measure the ROI of this security investment?'],
       operationalStory: 'A startup grew from 10 to 200 microservices in 18 months. At 50 services, they added SPIRE for workload identity. At 100, they added Envoy for mTLS. At 150, they added OPA for authorization. At 200, they added Falco for runtime detection. Each layer was deployed incrementally, validated independently, and integrated progressively. The full stack now catches security issues that no single tool could detect alone — from unauthorized access to runtime exploitation to supply chain compromise.',
       glossary: [{ term: 'Defense in Depth', definition: 'Multiple overlapping security layers so failure of one does not compromise the system' }, { term: 'Blast Radius', definition: 'The scope of damage a security incident can cause' }, { term: 'Reference Architecture', definition: 'Documented, tested architecture pattern for organizational adoption' }, { term: 'Five Pillars', definition: 'Identity, Zero Trust, Policy, Runtime, Supply Chain — complete cloud-native security' }],
-    },    ],
+    
+      realWorldUseCases: ['Building production-grade security platforms', 'Architecture design for security compliance', 'Attack simulation and penetration testing', 'Security architecture documentation for stakeholder review'],
+      careerRelevance: 'Engineers who can architect complete security platforms — not just individual tools — are the most valuable security hires. This capstone proves you can design, deploy, and operate the full stack.',},    ],
   },
 ];
