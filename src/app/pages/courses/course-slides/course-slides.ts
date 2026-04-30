@@ -54,6 +54,32 @@ export class CourseSlidesComponent {
       },
     ];
 
+    // Why This Matters slide
+    if (mod.whyThisMatters) {
+      generatedSlides.push({
+        type: 'content',
+        eyebrow: 'Why This Matters',
+        title: 'Why This Module Matters',
+        body: mod.whyThisMatters.substring(0, 200) + (mod.whyThisMatters.length > 200 ? '...' : ''),
+        narration: mod.whyThisMatters,
+      });
+    }
+
+    // Before/After transformation slide
+    if (mod.beforeAfter) {
+      generatedSlides.push({
+        type: 'grid',
+        eyebrow: 'Transformation',
+        title: 'Before vs After',
+        items: [
+          ...mod.beforeAfter.before.map(b => ({ title: 'Before: ' + b, desc: '' })),
+          ...mod.beforeAfter.after.map(a => ({ title: 'After: ' + a, desc: '' })),
+        ],
+        narration: `Before: ${mod.beforeAfter.before.join('. ')}. After: ${mod.beforeAfter.after.join('. ')}.`,
+      });
+    }
+
+    // Content sections from HTML
     const contentHtml = mod.content;
     const h2Regex = /<h2>(.*?)<\/h2>/g;
     let match;
@@ -89,22 +115,118 @@ export class CourseSlidesComponent {
       }
     }
 
+    // Real-World Use Cases slide
+    if (mod.realWorldUseCases && mod.realWorldUseCases.length > 0) {
+      generatedSlides.push({
+        type: 'grid',
+        eyebrow: 'Real World',
+        title: 'Real-World Use Cases',
+        items: mod.realWorldUseCases.map(uc => ({ title: uc, desc: '' })),
+        narration: `Real-world use cases for this module include: ${mod.realWorldUseCases.join('. ')}.`,
+      });
+    }
+
+    // Common Mistakes slide
+    if (mod.commonMistakes && mod.commonMistakes.length > 0) {
+      generatedSlides.push({
+        type: 'grid',
+        eyebrow: 'Watch Out',
+        title: 'Common Mistakes to Avoid',
+        items: mod.commonMistakes.slice(0, 5).map(m => ({ title: m, desc: '' })),
+        narration: `Common mistakes engineers make: ${mod.commonMistakes.join('. ')}.`,
+      });
+    }
+
+    // Production Notes slide
+    if (mod.productionNotes && mod.productionNotes.length > 0) {
+      generatedSlides.push({
+        type: 'content',
+        eyebrow: 'Production',
+        title: 'Production Notes',
+        bullets: mod.productionNotes,
+        narration: `Important production notes: ${mod.productionNotes.join('. ')}.`,
+      });
+    }
+
+    // Design Tradeoffs slide
+    if (mod.designTradeoffs && mod.designTradeoffs.length > 0) {
+      generatedSlides.push({
+        type: 'grid',
+        eyebrow: 'Tradeoffs',
+        title: 'Design Tradeoffs',
+        items: mod.designTradeoffs.map(t => ({
+          title: t.option,
+          desc: 'Pros: ' + t.pros.join(', ') + ' | Cons: ' + t.cons.join(', '),
+        })),
+        narration: `Design tradeoffs to consider: ${mod.designTradeoffs.map(t => t.option + '. Pros: ' + t.pros.join(', ') + '. Cons: ' + t.cons.join(', ')).join('. ')}.`,
+      });
+    }
+
+    // Security Risks slide
+    if (mod.securityRisks && mod.securityRisks.length > 0) {
+      generatedSlides.push({
+        type: 'grid',
+        eyebrow: 'Security',
+        title: 'Security Risks to Watch',
+        items: mod.securityRisks.map(r => ({ title: r, desc: '' })),
+        narration: `Security risks to be aware of: ${mod.securityRisks.join('. ')}.`,
+      });
+    }
+
+    // Think Like an Engineer slide
+    if (mod.thinkLikeAnEngineer && mod.thinkLikeAnEngineer.length > 0) {
+      generatedSlides.push({
+        type: 'grid',
+        eyebrow: 'Think Deeper',
+        title: 'Think Like a Platform Engineer',
+        items: mod.thinkLikeAnEngineer.map(q => ({ title: q, desc: '' })),
+        narration: `Architecture thinking questions: ${mod.thinkLikeAnEngineer.join('. ')}.`,
+      });
+    }
+
+    // Operational Story slide
+    if (mod.operationalStory) {
+      generatedSlides.push({
+        type: 'content',
+        eyebrow: 'Production Story',
+        title: 'From the Field',
+        body: mod.operationalStory.substring(0, 250) + (mod.operationalStory.length > 250 ? '...' : ''),
+        narration: mod.operationalStory,
+      });
+    }
+
+    // Labs slide
     if (mod.labs.length > 0) {
       generatedSlides.push({
         type: 'grid',
+        eyebrow: 'Hands-On',
         title: 'Hands-On Labs',
         items: mod.labs.map(lab => ({ title: lab.title, desc: lab.objective })),
         narration: `This module includes ${mod.labs.length} hands-on labs: ${mod.labs.map(l => l.title).join(', ')}.`,
       });
     }
 
+    // Key Takeaways slide
     generatedSlides.push({
       type: 'grid',
+      eyebrow: 'Summary',
       title: 'Key Takeaways',
       items: mod.keyTakeaways.map(t => ({ title: t, desc: '' })),
       narration: `Let us recap the key takeaways from this module. ${mod.keyTakeaways.join('. ')}.`,
     });
 
+    // Career Relevance slide
+    if (mod.careerRelevance) {
+      generatedSlides.push({
+        type: 'content',
+        eyebrow: 'Career Impact',
+        title: 'Why This Skill Matters',
+        body: mod.careerRelevance,
+        narration: mod.careerRelevance,
+      });
+    }
+
+    // End slide
     generatedSlides.push({
       type: 'end',
       title: `Module ${mod.number} Complete!`,
@@ -113,7 +235,7 @@ export class CourseSlidesComponent {
         : 'Congratulations! You have completed the entire course.',
       narration: mod.number < course.modules.length
         ? `You have completed Module ${mod.number}. Great work! Next up is Module ${mod.number + 1}: ${course.modules[mod.number]?.title}.`
-        : `Congratulations! You have completed the entire Mastering SPIFFE and SPIRE course. You are now equipped to deploy zero trust identity in production.`,
+        : `Congratulations! You have completed the entire course. You are now equipped with production-grade cloud-native security skills.`,
     });
 
     this.slides.set(generatedSlides);
