@@ -26,15 +26,17 @@ export class CourseSlidesComponent {
     const route = inject(ActivatedRoute);
     const router = inject(Router);
     const moduleSlug = route.snapshot.paramMap.get('moduleSlug') ?? '';
-    const course = COURSES.find(c => c.slug === 'mastering-spiffe-spire');
+    const urlSegments = route.snapshot.pathFromRoot.flatMap(r => r.url.map(s => s.path));
+    const courseSlugFromUrl = urlSegments[1] || '';
+    const course = COURSES.find(c => c.slug === courseSlugFromUrl);
 
     if (!course) { router.navigate(['/courses']); return; }
 
     const mod = course.modules.find(m => m.slug === moduleSlug);
-    if (!mod) { router.navigate(['/courses/mastering-spiffe-spire']); return; }
+    if (!mod) { router.navigate(['/courses/' + course.slug]); return; }
 
     this.deckTitle.set(`Module ${mod.number}: ${mod.title}`);
-    this.backUrl.set(`/courses/mastering-spiffe-spire/${mod.slug}`);
+    this.backUrl.set(`/courses/${course.slug}/${mod.slug}`);
 
     const generatedSlides: SlideData[] = [
       {

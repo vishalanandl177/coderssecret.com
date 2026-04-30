@@ -105,11 +105,23 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/courses/course-landing/course-landing').then(m => m.CourseLandingComponent),
   },
   {
+    path: 'courses/cloud-native-security-engineering',
+    loadComponent: () => import('./pages/courses/course-landing/course-landing').then(m => m.CourseLandingComponent),
+  },
+  {
     path: 'courses/mastering-spiffe-spire/:moduleSlug/slides',
     loadComponent: () => import('./pages/courses/course-slides/course-slides').then(m => m.CourseSlidesComponent),
   },
   {
     path: 'courses/mastering-spiffe-spire/:moduleSlug',
+    loadComponent: () => import('./pages/courses/course-module/course-module').then(m => m.CourseModuleComponent),
+  },
+  {
+    path: 'courses/cloud-native-security-engineering/:moduleSlug/slides',
+    loadComponent: () => import('./pages/courses/course-slides/course-slides').then(m => m.CourseSlidesComponent),
+  },
+  {
+    path: 'courses/cloud-native-security-engineering/:moduleSlug',
     loadComponent: () => import('./pages/courses/course-module/course-module').then(m => m.CourseModuleComponent),
   },
   {

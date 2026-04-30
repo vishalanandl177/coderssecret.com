@@ -217,7 +217,8 @@ export class CourseLandingComponent {
   private route = inject(ActivatedRoute);
 
   constructor() {
-    const c = COURSES.find(c => c.slug === 'mastering-spiffe-spire');
+    const urlSlug = this.route.snapshot.url.map(s => s.path).pop() || '';
+    const c = COURSES.find(c => c.slug === urlSlug);
     if (c) {
       this.course.set(c);
       this.seo.update({
