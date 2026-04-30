@@ -85,7 +85,11 @@ import { BLOG_POSTS, CATEGORIES } from '../../models/blog-post.model';
               <span class="rounded-full bg-cyan-500/10 border border-cyan-500/30 px-2.5 py-0.5 text-xs font-semibold text-cyan-500">30+ Hands-On Labs</span>
             </div>
             <h3 class="text-xl font-bold mb-2">Mastering SPIFFE & SPIRE: Zero Trust for Cloud Native Systems</h3>
-            <p class="text-sm text-muted-foreground mb-4">The most comprehensive free course on workload identity. Production-focused — not just theory. Deploy SPIRE on Kubernetes, configure mTLS with Envoy, enforce OPA policies, federate clusters, and secure AI infrastructure.</p>
+            <p class="text-sm text-muted-foreground mb-2">13 modules, 30+ hands-on labs — workload identity from fundamentals to production federation.</p>
+            <h3 class="text-lg font-bold mb-2 mt-4">Cloud Native Security Engineering</h3>
+            <p class="text-sm text-muted-foreground mb-2">16 modules, 50+ labs — Kubernetes security, SPIFFE, OPA, Falco, Sigstore, and AI infrastructure.</p>
+            <h3 class="text-lg font-bold mb-2 mt-4">Production-Grade RAG Systems Engineering</h3>
+            <p class="text-sm text-muted-foreground mb-4">16 modules, 50+ labs — embeddings, vector databases, hybrid search, AI agents, evaluation, and deployment.</p>
             <div class="flex flex-wrap gap-3">
               <a routerLink="/courses/mastering-spiffe-spire"
                  class="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold !text-primary-foreground !no-underline shadow hover:shadow-lg transition-all">
