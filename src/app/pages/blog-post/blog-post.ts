@@ -332,10 +332,17 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   constructor() {
     this.route.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(params => {
+      .subscribe(async params => {
         const slug = params.get('slug');
         this.post = BLOG_POSTS.find(p => p.slug === slug);
         if (this.post) {
+          // Dynamically load content for this specific post
+          try {
+            const contentModule = await import(`../../models/blog-content/${slug}.ts`);
+            this.post = { ...this.post, content: contentModule.CONTENT };
+          } catch {
+            // Content not found — post.content stays empty
+          }
           const cat = CATEGORIES.find(c => c.slug === this.post!.category);
           this.categoryName = cat?.name ?? '';
           this.categoryColor = this.getCategoryColor(this.post.category);

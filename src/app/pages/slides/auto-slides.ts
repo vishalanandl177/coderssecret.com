@@ -34,7 +34,7 @@ export class AutoSlidesComponent {
   backUrl = signal('/blog');
 
   constructor() {
-    this.route.paramMap.pipe(takeUntilDestroyed()).subscribe(params => {
+    this.route.paramMap.pipe(takeUntilDestroyed()).subscribe(async params => {
       const slug = params.get('slug');
       const post = BLOG_POSTS.find(p => p.slug === slug);
       if (!post) return;
@@ -57,7 +57,14 @@ export class AutoSlidesComponent {
         ],
       });
 
-      this.slides.set(this.generateSlides(post.title, post.excerpt, post.content, post.tags, categoryName));
+      // Dynamically load content for this post
+      let content = post.content;
+      try {
+        const contentModule = await import(`../../models/blog-content/${slug}.ts`);
+        content = contentModule.CONTENT;
+      } catch {}
+
+      this.slides.set(this.generateSlides(post.title, post.excerpt, content, post.tags, categoryName));
     });
   }
 
