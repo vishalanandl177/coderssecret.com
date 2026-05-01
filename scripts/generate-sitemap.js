@@ -480,7 +480,6 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
     <priority>0.8</priority>
   </url>
   <url>
-  <url>
     <loc>${SITE_URL}/courses/production-rag-systems-engineering</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
@@ -606,6 +605,7 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
     <loc>${SITE_URL}/consultation</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
