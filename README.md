@@ -22,11 +22,14 @@ CodersSecret is a modern developer blog built with Angular 21, Tailwind CSS 4, a
 
 ## Features
 
-- **18+ in-depth blog posts** with interactive diagrams
-- **Dynamic SEO** — per-page titles, meta descriptions, Open Graph, Twitter Cards, JSON-LD structured data
-- **Interactive diagrams** — sequence flows, comparison cards, bar charts, pipeline animations, decision trees, layer diagrams
+- **80+ in-depth blog posts** with interactive diagrams and slides
+- **3 free courses** — 45 modules, 130+ hands-on labs (SPIFFE/SPIRE, Cloud Native Security, Production RAG)
+- **10 glossary pages** with architecture SVGs
+- **261 pre-rendered pages** for SEO
+- **Dynamic SEO** — per-page titles, meta descriptions, Open Graph, Twitter Cards, JSON-LD (Course, FAQPage, DefinedTerm, BreadcrumbList)
+- **Interactive diagrams** — sequence flows, comparison cards, pipeline diagrams, SVG architecture visuals
 - **Syntax highlighted code blocks** with copy-to-clipboard button
-- **Dark/Light theme** toggle with system preference detection
+- **Dark/Light theme** toggle with system preference and `prefers-color-scheme` detection
 - **Reading progress bar** on blog posts
 - **Table of contents** (auto-generated from headings)
 - **Share buttons** (X/Twitter, LinkedIn, copy link)
