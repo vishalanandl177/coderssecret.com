@@ -357,6 +357,13 @@ const cheatsheets = [
   { slug: 'git', name: 'Git Cheatsheet', desc: 'Git commands: branch, merge, rebase, stash, reset, log, cherry-pick, and undoing mistakes.' },
   { slug: 'sql', name: 'SQL Cheatsheet', desc: 'SQL reference: SELECT, JOIN, GROUP BY, window functions, CTEs, indexes, and performance.' },
   { slug: 'python', name: 'Python Cheatsheet', desc: 'Essential Python syntax: data types, strings, lists, dicts, functions, classes, file I/O, and more.' },
+  { slug: 'spiffe-spire', name: 'SPIFFE & SPIRE Cheatsheet', desc: 'Production reference for SPIFFE workload identity and SPIRE: SPIFFE IDs, X.509/JWT SVIDs, registration entries, Kubernetes attestor selectors, federation bundle endpoints, and diagnostics.' },
+  { slug: 'opa-rego', name: 'OPA & Rego Cheatsheet', desc: 'Production reference for Open Policy Agent and Rego: syntax, Gatekeeper Kubernetes admission, OPA CLI (eval/test/run), bundle distribution, and testing patterns.' },
+  { slug: 'api-security', name: 'API Security Cheatsheet', desc: 'Production reference for securing HTTP APIs: JWT verification, OAuth2/OIDC flows, security headers (HSTS/CSP/XFO), CORS, mTLS, webhook signatures, and rate limiting.' },
+  { slug: 'linux-networking', name: 'Linux Networking Cheatsheet', desc: 'Production reference for Linux networking: ip / ss / lsof, tcpdump, openssl s_client, iptables/nftables, eBPF observability with bpftrace and Hubble.' },
+  { slug: 'runtime-security', name: 'Runtime Security Cheatsheet (Falco / eBPF)', desc: 'Production reference for Linux runtime security: Falco rule syntax, high-signal detection rules, eBPF observability with Tetragon, syscall reference, and detection-engineering tuning.' },
+  { slug: 'service-mesh', name: 'Service Mesh Cheatsheet (Istio / Envoy)', desc: 'Production reference for Istio and Envoy: mesh-wide mTLS, AuthorizationPolicy patterns, RequestAuthentication for JWTs, traffic management, and istioctl/Envoy diagnostics.' },
+  { slug: 'devsecops', name: 'DevSecOps & Supply Chain Cheatsheet', desc: 'Production reference for software supply chain security: cosign keyless signing, SBOM generation with syft, SLSA provenance levels, Kyverno admission policy, and hardened GitHub Actions patterns.' },
 ];
 for (const cs of cheatsheets) {
   const csDir = cs.slug ? path.join(OUTPUT_DIR, 'cheatsheets', cs.slug) : path.join(OUTPUT_DIR, 'cheatsheets');

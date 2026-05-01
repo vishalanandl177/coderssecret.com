@@ -107,6 +107,34 @@ export const routes: Routes = [
     path: 'cheatsheets/sql',
     loadComponent: () => import('./pages/cheatsheets/sql/sql').then(m => m.SqlCheatsheetComponent),
   },
+  {
+    path: 'cheatsheets/spiffe-spire',
+    loadComponent: () => import('./pages/cheatsheets/spiffe-spire/spiffe-spire').then(m => m.SpiffeSpireCheatsheetComponent),
+  },
+  {
+    path: 'cheatsheets/opa-rego',
+    loadComponent: () => import('./pages/cheatsheets/opa-rego/opa-rego').then(m => m.OpaRegoCheatsheetComponent),
+  },
+  {
+    path: 'cheatsheets/api-security',
+    loadComponent: () => import('./pages/cheatsheets/api-security/api-security').then(m => m.ApiSecurityCheatsheetComponent),
+  },
+  {
+    path: 'cheatsheets/linux-networking',
+    loadComponent: () => import('./pages/cheatsheets/linux-networking/linux-networking').then(m => m.LinuxNetworkingCheatsheetComponent),
+  },
+  {
+    path: 'cheatsheets/runtime-security',
+    loadComponent: () => import('./pages/cheatsheets/runtime-security/runtime-security').then(m => m.RuntimeSecurityCheatsheetComponent),
+  },
+  {
+    path: 'cheatsheets/service-mesh',
+    loadComponent: () => import('./pages/cheatsheets/service-mesh/service-mesh').then(m => m.ServiceMeshCheatsheetComponent),
+  },
+  {
+    path: 'cheatsheets/devsecops',
+    loadComponent: () => import('./pages/cheatsheets/devsecops/devsecops').then(m => m.DevSecOpsCheatsheetComponent),
+  },
   // Courses — all lazy-loaded
   {
     path: 'courses',
