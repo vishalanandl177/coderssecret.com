@@ -76,6 +76,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/cheatsheets/hub/hub').then(m => m.CheatsheetsHubComponent),
   },
   {
+    path: 'cheatsheets/kubernetes-security',
+    loadComponent: () => import('./pages/cheatsheets/kubernetes-security/kubernetes-security').then(m => m.KubernetesSecurityCheatsheetComponent),
+  },
+  {
     path: 'cheatsheets/python',
     loadComponent: () => import('./pages/cheatsheets/python/python').then(m => m.PythonCheatsheetComponent),
   },

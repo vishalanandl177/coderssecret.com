@@ -336,12 +336,13 @@ for (const game of games) {
 
 // ── Cheatsheets pages ────────────────────────
 const cheatsheets = [
-  { slug: '', name: 'Developer Cheat Sheets', desc: 'Quick-reference cheat sheets for Python, Kubernetes, Git, Docker, and SQL.' },
-  { slug: 'python', name: 'Python Cheat Sheet', desc: 'Essential Python syntax: data types, strings, lists, dicts, functions, classes, file I/O, and more.' },
-  { slug: 'kubernetes', name: 'Kubernetes Cheat Sheet', desc: 'Essential kubectl commands: pods, deployments, services, debugging, config, and cluster ops.' },
-  { slug: 'git', name: 'Git Cheat Sheet', desc: 'Git commands: branch, merge, rebase, stash, reset, log, cherry-pick, and undoing mistakes.' },
-  { slug: 'docker', name: 'Docker Cheat Sheet', desc: 'Docker commands: build, run, compose, volumes, networks, debugging, and cleanup.' },
-  { slug: 'sql', name: 'SQL Cheat Sheet', desc: 'SQL reference: SELECT, JOIN, GROUP BY, window functions, CTEs, indexes, and performance.' },
+  { slug: '', name: 'Production Engineering Reference Sheets', desc: 'Production-grade reference guides for cloud-native security and infrastructure engineering: Kubernetes Security, kubectl, SPIFFE/SPIRE, OPA/Rego, API security, runtime detection, service mesh, and supply chain.' },
+  { slug: 'kubernetes-security', name: 'Kubernetes Security Cheatsheet', desc: 'Production Kubernetes security reference: RBAC audit, PodSecurity standards, NetworkPolicy default-deny, secrets, image signing, runtime forensics. Commands with security warnings and production tips for every entry.' },
+  { slug: 'kubernetes', name: 'Kubernetes (kubectl) Cheatsheet', desc: 'Essential kubectl commands: pods, deployments, services, debugging, config, and cluster ops.' },
+  { slug: 'docker', name: 'Docker Cheatsheet', desc: 'Docker commands: build, run, compose, volumes, networks, debugging, and cleanup.' },
+  { slug: 'git', name: 'Git Cheatsheet', desc: 'Git commands: branch, merge, rebase, stash, reset, log, cherry-pick, and undoing mistakes.' },
+  { slug: 'sql', name: 'SQL Cheatsheet', desc: 'SQL reference: SELECT, JOIN, GROUP BY, window functions, CTEs, indexes, and performance.' },
+  { slug: 'python', name: 'Python Cheatsheet', desc: 'Essential Python syntax: data types, strings, lists, dicts, functions, classes, file I/O, and more.' },
 ];
 for (const cs of cheatsheets) {
   const csDir = cs.slug ? path.join(OUTPUT_DIR, 'cheatsheets', cs.slug) : path.join(OUTPUT_DIR, 'cheatsheets');
