@@ -43,6 +43,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/games/hub/hub').then(m => m.GamesHubComponent),
   },
   {
+    path: 'games/kubernetes-security-simulator',
+    loadComponent: () => import('./pages/games/kubernetes-security-simulator/kubernetes-security-simulator').then(m => m.KubernetesSecuritySimulatorComponent),
+  },
+  {
     path: 'games/guess-output',
     loadComponent: () => import('./pages/games/guess-output/guess-output').then(m => m.GuessOutputComponent),
   },

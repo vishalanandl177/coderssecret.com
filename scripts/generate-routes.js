@@ -261,10 +261,17 @@ for (const cat of categories) {
 const games = [
   {
     slug: '',
-    title: 'Developer Games — Coding Challenges & Interactive Tools',
-    description: 'Fun coding challenges for developers: spot bugs, guess code outputs, debug production scenarios, test typing speed, and more. Sharpen your skills while having fun.',
-    heading: 'Developer Games',
-    content: 'Interactive games and tools for software engineers: Guess the Output, Spot the Bug, DevOps Scenario Simulator, Code Typing Speed Test, Tech Salary Calculator, and Linux Command Challenge.',
+    title: 'Cloud Native Security Simulators & Labs',
+    description: 'Interactive Kubernetes security labs, Zero Trust simulations, threat-modeling challenges, and infrastructure-engineering drills. Learn cloud-native security by playing — free and ad-free.',
+    heading: 'Cloud Native Security Simulators & Labs',
+    content: 'Interactive cloud-native security simulators and engineering drills: Kubernetes Security Simulator, Zero Trust Network Builder, API Attack & Defense, Incident Response Simulator, Supply Chain Defense, Service Mesh Routing, Threat Modeling Challenge, Secure Architecture Builder, Kubernetes Escape Room, AI Infrastructure Security, plus DevOps Scenario, Linux Command Challenge, Spot the Bug, Guess the Output, Code Typing Speed Test, and Tech Salary Calculator.',
+  },
+  {
+    slug: 'kubernetes-security-simulator',
+    title: 'Kubernetes Security Simulator — Interactive Lab',
+    description: 'Interactive Kubernetes security lab: spot RBAC misconfigurations, network policy gaps, privileged pods, leaked secrets, and supply-chain risks across 6 production scenarios. Free, no signup.',
+    heading: 'Kubernetes Security Simulator',
+    content: 'Interactive Kubernetes security lab. Six production scenarios cover RBAC misconfigurations, missing NetworkPolicies, privileged pods, leaked secrets, image security, and shared-namespace tenancy — with explanations grounded in real CVEs and post-mortems.',
   },
   {
     slug: 'guess-output',
