@@ -288,128 +288,128 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering/introduction-cloud-native-security</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering/introduction-cloud-native-security</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering/kubernetes-foundations-security</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering/kubernetes-foundations-security</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering/containers-workload-security</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering/containers-workload-security</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering/kubernetes-authentication-authorization</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering/kubernetes-authentication-authorization</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering/zero-trust-security-fundamentals</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering/zero-trust-security-fundamentals</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering/spiffe-spire-deep-dive</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering/spiffe-spire-deep-dive</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering/service-mesh-security</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering/service-mesh-security</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering/policy-as-code-security</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering/policy-as-code-security</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering/secrets-management-machine-identity</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering/secrets-management-machine-identity</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering/runtime-security-threat-detection</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering/runtime-security-threat-detection</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering/supply-chain-security</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering/supply-chain-security</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering/secure-cicd-pipelines</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering/secure-cicd-pipelines</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering/observability-security-monitoring</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering/observability-security-monitoring</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering/multi-cluster-multi-cloud-security</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering/multi-cluster-multi-cloud-security</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering/ai-infrastructure-security</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering/ai-infrastructure-security</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-engineering/production-architecture-capstone</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-engineering/production-architecture-capstone</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/cloud-native-security-explained</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/cloud-native-security-explained</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/kubernetes-runtime-security</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/kubernetes-runtime-security</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/kubernetes-supply-chain-security</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/kubernetes-supply-chain-security</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>\${SITE_URL}/courses/secure-service-to-service-communication</loc>
-    <lastmod>\${today}</lastmod>
+    <loc>${SITE_URL}/courses/secure-service-to-service-communication</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
