@@ -721,10 +721,8 @@ export class HomeComponent implements OnInit {
   private categoryCountsMap = signal<Record<string, number>>({});
 
   async ngOnInit() {
-    const [{ BLOG_POSTS, CATEGORIES }, { COURSES }] = await Promise.all([
-      import('../../models/blog-post.model'),
-      import('../../models/course.model'),
-    ]);
+    // Only load blog metadata (48KB) — NOT the course model (418KB)
+    const { BLOG_POSTS, CATEGORIES } = await import('../../models/blog-post.model');
 
     const featured = BLOG_POSTS.find(p => p.featured);
     this.featuredPost.set(featured ? this.toCard(featured) : undefined);
@@ -737,8 +735,10 @@ export class HomeComponent implements OnInit {
     this.categories.set(CATEGORIES.filter(c => c.slug !== ''));
     this.totalPosts.set(BLOG_POSTS.length);
     this.uniqueTags.set(new Set(BLOG_POSTS.flatMap(p => p.tags)).size);
-    this.totalCourseModules.set(COURSES.reduce((sum, c) => sum + c.modules.length, 0));
-    this.totalLabs.set(COURSES.reduce((sum, c) => sum + c.modules.reduce((s, m) => s + m.labs.length, 0), 0));
+    // Course stats: hardcoded to avoid importing 418KB course model for 2 numbers
+    // Update when adding/removing courses: 3 courses, 45 modules, 130+ labs
+    this.totalCourseModules.set(45);
+    this.totalLabs.set(130);
     this.avgReadTime.set(Math.round(
       BLOG_POSTS.reduce((sum, p) => { const m = p.readTime.match(/(\d+)/); return sum + (m ? parseInt(m[1], 10) : 0); }, 0) / Math.max(BLOG_POSTS.length, 1)
     ));
