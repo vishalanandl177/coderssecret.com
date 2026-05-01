@@ -32,14 +32,13 @@ type CategoryInfo = { name: string; slug: string };
 
           <!-- Heading -->
           <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.05] animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-            Where <span class="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent">Code</span>
-            Meets
+            Master <span class="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent">Cloud Native Security</span>
             <br class="hidden sm:block" />
-            <span class="bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 bg-clip-text text-transparent">Creativity</span>
+            &amp; <span class="bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 bg-clip-text text-transparent">Production Engineering</span>
           </h1>
 
           <p class="mt-6 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-            Battle-tested guides on Python, DevOps, APIs, and system design — written by engineers, for engineers who ship.
+            Practical courses, labs, and architecture guides on Kubernetes security, SPIFFE/SPIRE, workload identity, Zero Trust, DevSecOps, and API security — written by engineers, for engineers who ship.
             <span class="block mt-2 text-foreground font-medium">Read articles, or <span class="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent font-bold">watch every tutorial as narrated slides</span>.</span>
           </p>
 
@@ -802,7 +801,7 @@ export class HomeComponent implements OnInit {
   constructor() {
     this.seo.update({
       title: 'CodersSecret',
-      description: 'Battle-tested tutorials on Python, DevOps, APIs, AI, and system design — plus every article available as narrated slide presentations. Read or watch: 20× lighter than video, zero ads, fully free.',
+      description: 'Learn cloud native security, Kubernetes security, workload identity, SPIFFE/SPIRE, Zero Trust, DevSecOps, API security, and production engineering through practical courses, labs, diagrams, and real-world architecture guides.',
       url: '/',
     });
     // Inject FAQPage JSON-LD schema for rich snippets in Google search
