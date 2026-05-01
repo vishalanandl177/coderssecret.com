@@ -281,6 +281,13 @@ const games = [
     content: 'Interactive workload-identity lab. Six production scenarios cover SPIFFE ID design, SPIRE registration entries and selectors, mTLS bootstrap with short-lived SVIDs, SPIFFE-based authorization policy, federation trust bundle exchange across clusters, and SVID rotation pitfalls in real Go code.',
   },
   {
+    slug: 'api-attack-defense',
+    title: 'API Attack & Defense — Interactive API Security Lab',
+    description: 'Interactive API security simulator: spot JWT verification bypasses, OAuth redirect_uri exploits, mass assignment, rate-limit bypasses, CORS misconfigurations, and webhook timing attacks across 6 production scenarios. Free, no signup.',
+    heading: 'API Attack & Defense',
+    content: 'Interactive API security lab. Six scenarios cover JWT algorithm confusion (RS256/HS256), OAuth redirect_uri startsWith bypasses, mass assignment / overposting via spread operators, rate-limit bypasses through X-Forwarded-For spoofing, CORS wildcard + credentials misconfigurations, and webhook signature timing side-channels.',
+  },
+  {
     slug: 'guess-output',
     title: 'Guess the Output — Python & JavaScript Code Quiz',
     description: 'Test your knowledge with tricky Python and JavaScript code snippets. Can you predict the output? 10 questions covering classic language quirks.',

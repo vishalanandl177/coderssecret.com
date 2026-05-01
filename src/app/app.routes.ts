@@ -51,6 +51,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/games/zero-trust-network-builder/zero-trust-network-builder').then(m => m.ZeroTrustNetworkBuilderComponent),
   },
   {
+    path: 'games/api-attack-defense',
+    loadComponent: () => import('./pages/games/api-attack-defense/api-attack-defense').then(m => m.ApiAttackDefenseComponent),
+  },
+  {
     path: 'games/guess-output',
     loadComponent: () => import('./pages/games/guess-output/guess-output').then(m => m.GuessOutputComponent),
   },

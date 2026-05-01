@@ -96,6 +96,12 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>${SITE_URL}/games/api-attack-defense</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>${SITE_URL}/games/guess-output</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>

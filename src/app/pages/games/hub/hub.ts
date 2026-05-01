@@ -226,8 +226,8 @@ export class GamesHubComponent {
       shortName: 'API Attack & Defense',
       icon: '🎯',
       category: 'security',
-      status: 'coming-soon',
-      description: 'Identify vulnerable API endpoints, harden auth flows, and stop attacks. Practice catching JWT verification bugs, OAuth misconfigurations, and broken access control before production does.',
+      status: 'available',
+      description: 'Spot the vulnerable endpoint before the attacker does. Six scenarios covering JWT algorithm confusion, OAuth redirect bypasses, mass assignment, rate-limit spoofing, CORS misconfiguration, and webhook timing attacks.',
       concepts: [
         { label: 'JWT' },
         { label: 'OAuth' },
@@ -235,10 +235,10 @@ export class GamesHubComponent {
         { label: 'Auth Flaws' },
         { label: 'OWASP API Top 10' },
       ],
-      difficulty: 'Medium',
+      difficulty: 'Hard',
       time: '~12 min',
       color: '#ef4444',
-      href: null,
+      href: '/games/api-attack-defense',
     },
     {
       slug: 'incident-response-simulator',
