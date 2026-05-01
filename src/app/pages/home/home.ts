@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { BLOG_POSTS, CATEGORIES, BlogPost } from '../../models/blog-post.model';
-import { COURSES } from '../../models/course.model';
 import { SeoService } from '../../services/seo.service';
+
+type PostCard = { id: string; title: string; slug: string; excerpt: string; category: string; date: string; readTime: string; tags: string[]; author: string; featured?: boolean; popularRank?: number; coverImage: string };
+type CategoryInfo = { name: string; slug: string };
 
 @Component({
   selector: 'app-home',
@@ -67,23 +68,23 @@ import { SeoService } from '../../services/seo.service';
           <!-- Stats -->
           <div class="mt-16 grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-12 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
             <div class="text-center">
-              <div class="text-3xl md:text-4xl font-extrabold tracking-tight">{{ totalPosts }}</div>
+              <div class="text-3xl md:text-4xl font-extrabold tracking-tight">{{ totalPosts() }}</div>
               <div class="mt-1 text-xs md:text-sm text-muted-foreground">Articles</div>
             </div>
             <div class="text-center">
-              <div class="text-3xl md:text-4xl font-extrabold tracking-tight">{{ categories.length }}</div>
+              <div class="text-3xl md:text-4xl font-extrabold tracking-tight">{{ categories().length }}</div>
               <div class="mt-1 text-xs md:text-sm text-muted-foreground">Categories</div>
             </div>
             <div class="text-center">
-              <div class="text-3xl md:text-4xl font-extrabold tracking-tight">{{ uniqueTags }}</div>
+              <div class="text-3xl md:text-4xl font-extrabold tracking-tight">{{ uniqueTags() }}</div>
               <div class="mt-1 text-xs md:text-sm text-muted-foreground">Topics</div>
             </div>
             <div class="text-center">
-              <div class="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">{{ totalCourseModules }}</div>
+              <div class="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">{{ totalCourseModules() }}</div>
               <div class="mt-1 text-xs md:text-sm text-muted-foreground">Course Modules</div>
             </div>
             <div class="text-center">
-              <div class="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">{{ totalLabs }}+</div>
+              <div class="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">{{ totalLabs() }}+</div>
               <div class="mt-1 text-xs md:text-sm text-muted-foreground">Hands-On Labs</div>
             </div>
           </div>
@@ -160,7 +161,7 @@ import { SeoService } from '../../services/seo.service';
                   <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-500/20 text-green-600 flex-shrink-0 mt-0.5">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                   </span>
-                  <span class="text-foreground"><strong>Available on every article.</strong> Click "Watch as Slides" on any of {{ totalPosts }}+ tutorials.</span>
+                  <span class="text-foreground"><strong>Available on every article.</strong> Click "Watch as Slides" on any of {{ totalPosts() }}+ tutorials.</span>
                 </div>
               </div>
             </div>
@@ -255,7 +256,7 @@ import { SeoService } from '../../services/seo.service';
           </p>
         </div>
         <div class="flex flex-wrap justify-center gap-2 mt-8">
-          @for (cat of categories; track cat.slug) {
+          @for (cat of categories(); track cat.slug) {
             <a [routerLink]="['/category', cat.slug]"
                class="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/60 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-muted-foreground transition-all duration-300 hover:text-foreground hover:bg-accent">
               {{ cat.name }}
@@ -266,10 +267,10 @@ import { SeoService } from '../../services/seo.service';
     </section>
 
     <!-- Featured Post — Full-width spotlight -->
-    @if (featuredPost) {
+    @if (featuredPost(); as fp) {
       <section class="py-16 md:py-20 animate-in fade-in duration-700">
         <div class="container max-w-6xl mx-auto px-6">
-          <a [routerLink]="['/blog', featuredPost.slug]" class="group block relative">
+          <a [routerLink]="['/blog', fp.slug]" class="group block relative">
             <div class="relative rounded-2xl overflow-hidden border border-border bg-gradient-to-br from-violet-500/10 via-card to-blue-500/10 p-[1px]">
               <div class="rounded-[calc(1rem-1px)] bg-card/95 backdrop-blur-xl p-8 md:p-12 lg:p-16">
                 <!-- Decorative corner elements -->
@@ -284,21 +285,21 @@ import { SeoService } from '../../services/seo.service';
 
                 <div class="max-w-3xl">
                   <div class="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-6">
-                    <time class="font-mono text-xs" [attr.datetime]="featuredPost.date">{{ featuredPost.date }}</time>
+                    <time class="font-mono text-xs" [attr.datetime]="fp.date">{{ fp.date }}</time>
                     <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
-                    <span>{{ featuredPost.readTime }}</span>
+                    <span>{{ fp.readTime }}</span>
                   </div>
 
                   <h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.1] transition-colors duration-300 group-hover:text-primary">
-                    {{ featuredPost.title }}
+                    {{ fp.title }}
                   </h2>
 
                   <p class="mt-5 text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl">
-                    {{ featuredPost.excerpt }}
+                    {{ fp.excerpt }}
                   </p>
 
                   <div class="mt-6 flex flex-wrap gap-2">
-                    @for (tag of featuredPost.tags; track tag) {
+                    @for (tag of fp.tags; track tag) {
                       <span class="inline-flex items-center rounded-full border border-border/60 bg-secondary/50 px-3 py-1 text-xs font-medium text-secondary-foreground">
                         {{ tag }}
                       </span>
@@ -343,15 +344,15 @@ import { SeoService } from '../../services/seo.service';
                   <span class="rounded-full bg-teal-500/15 border border-teal-500/30 px-2.5 py-0.5 text-[10px] font-bold text-teal-500 uppercase tracking-wider">New</span>
                 </div>
                 <h3 class="text-lg md:text-xl font-bold tracking-tight">Mastering SPIFFE &amp; SPIRE</h3>
-                <p class="mt-1 text-sm text-muted-foreground">Zero Trust for Cloud Native Systems — {{ totalCourseModules }} modules, {{ totalLabs }}+ labs, no paywall.</p>
+                <p class="mt-1 text-sm text-muted-foreground">Zero Trust for Cloud Native Systems — {{ totalCourseModules() }} modules, {{ totalLabs() }}+ labs, no paywall.</p>
               </div>
               <div class="flex items-center gap-3 shrink-0">
                 <div class="text-center">
-                  <div class="text-2xl font-extrabold bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">{{ totalCourseModules }}</div>
+                  <div class="text-2xl font-extrabold bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">{{ totalCourseModules() }}</div>
                   <div class="text-[10px] text-muted-foreground">Modules</div>
                 </div>
                 <div class="text-center">
-                  <div class="text-2xl font-extrabold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">{{ totalLabs }}+</div>
+                  <div class="text-2xl font-extrabold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">{{ totalLabs() }}+</div>
                   <div class="text-[10px] text-muted-foreground">Labs</div>
                 </div>
                 <span class="inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-4 py-2 text-xs font-bold transition-all duration-300 group-hover:gap-2.5">
@@ -361,7 +362,7 @@ import { SeoService } from '../../services/seo.service';
               </div>
             </div>
           </a>
-          @for (cat of categories; track cat.slug; let i = $index) {
+          @for (cat of categories(); track cat.slug; let i = $index) {
             <a [routerLink]="['/category', cat.slug]"
                class="group relative overflow-hidden rounded-2xl border border-border/60 p-6 md:p-8 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 hover:border-transparent active:scale-[0.98]"
                [class]="i === 0 ? 'col-span-2 row-span-2 md:col-span-2 md:row-span-2' : ''"
@@ -400,7 +401,7 @@ import { SeoService } from '../../services/seo.service';
     </section>
 
     <!-- Most Popular — Ranked by traffic -->
-    @if (popularPosts.length > 0) {
+    @if (popularPosts().length > 0) {
       <section class="py-16 animate-in fade-in duration-700">
         <div class="container max-w-6xl mx-auto px-6">
           <div class="flex items-end justify-between mb-10">
@@ -411,7 +412,7 @@ import { SeoService } from '../../services/seo.service';
           </div>
 
           <div class="grid md:grid-cols-3 gap-4">
-            @for (post of popularPosts; track post.id; let i = $index) {
+            @for (post of popularPosts(); track post.id; let i = $index) {
               <article class="group">
                 <a [routerLink]="['/blog', post.slug]" class="block h-full">
                   <div class="relative h-full rounded-2xl border border-border/60 bg-card overflow-hidden transition-all duration-500 hover:shadow-xl hover:-translate-y-1 hover:border-primary/20">
@@ -484,7 +485,7 @@ import { SeoService } from '../../services/seo.service';
         </div>
 
         <div class="grid md:grid-cols-2 gap-5">
-          @for (post of latestPosts; track post.id; let i = $index) {
+          @for (post of latestPosts(); track post.id; let i = $index) {
             <article class="group" [class]="i === 0 ? 'md:col-span-2' : ''">
               <a [routerLink]="['/blog', post.slug]" class="block h-full">
                 <div class="relative h-full rounded-2xl border border-border/60 bg-card overflow-hidden transition-all duration-500 hover:shadow-xl hover:-translate-y-1 hover:border-primary/20"
@@ -560,7 +561,7 @@ import { SeoService } from '../../services/seo.service';
           <p class="mt-2 text-muted-foreground">Click any tag to find related articles</p>
         </div>
         <div class="flex flex-wrap gap-2">
-          @for (tag of trendingTags; track tag.name) {
+          @for (tag of trendingTags(); track tag.name) {
             <a [routerLink]="['/blog']" [queryParams]="{tag: tag.name}"
                class="group inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 backdrop-blur-sm px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-md hover:-translate-y-0.5"
                [style.fontSize.px]="11 + tag.count">
@@ -582,19 +583,19 @@ import { SeoService } from '../../services/seo.service';
           </div>
           <div class="grid grid-cols-2 md:grid-cols-5 gap-8">
             <div class="text-center">
-              <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">{{ totalPosts }}+</div>
+              <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">{{ totalPosts() }}+</div>
               <div class="mt-2 text-sm text-muted-foreground">In-Depth Articles</div>
             </div>
             <div class="text-center">
-              <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">{{ avgReadTime }}</div>
+              <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">{{ avgReadTime() }}</div>
               <div class="mt-2 text-sm text-muted-foreground">Avg Read Time (min)</div>
             </div>
             <div class="text-center">
-              <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-pink-500 to-orange-500 bg-clip-text text-transparent">{{ uniqueTags }}+</div>
+              <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-pink-500 to-orange-500 bg-clip-text text-transparent">{{ uniqueTags() }}+</div>
               <div class="mt-2 text-sm text-muted-foreground">Topics Covered</div>
             </div>
             <div class="text-center">
-              <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-teal-500 to-green-500 bg-clip-text text-transparent">{{ totalPosts }}</div>
+              <div class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-teal-500 to-green-500 bg-clip-text text-transparent">{{ totalPosts() }}</div>
               <div class="mt-2 text-sm text-muted-foreground">Slide Tutorials</div>
             </div>
             <div class="text-center">
@@ -705,34 +706,55 @@ import { SeoService } from '../../services/seo.service';
 
   `,
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   private seo = inject(SeoService);
-  featuredPost: BlogPost | undefined = BLOG_POSTS.find(p => p.featured);
-  popularPosts = BLOG_POSTS.filter(p => p.popularRank != null).sort((a, b) => (a.popularRank ?? 99) - (b.popularRank ?? 99)).slice(0, 6);
-  latestPosts = BLOG_POSTS.filter(p => p !== this.featuredPost).slice(0, 4);
-  categories = CATEGORIES.filter(c => c.slug !== '');
-  totalPosts = BLOG_POSTS.length;
-  uniqueTags = new Set(BLOG_POSTS.flatMap(p => p.tags)).size;
-  totalCourseModules = COURSES.reduce((sum, c) => sum + c.modules.length, 0);
-  totalLabs = COURSES.reduce((sum, c) => sum + c.modules.reduce((s, m) => s + m.labs.length, 0), 0);
-  avgReadTime = Math.round(
-    BLOG_POSTS.reduce((sum, p) => {
-      const m = p.readTime.match(/(\d+)/);
-      return sum + (m ? parseInt(m[1], 10) : 0);
-    }, 0) / Math.max(BLOG_POSTS.length, 1)
-  );
+  featuredPost = signal<PostCard | undefined>(undefined);
+  popularPosts = signal<PostCard[]>([]);
+  latestPosts = signal<PostCard[]>([]);
+  categories = signal<CategoryInfo[]>([]);
+  totalPosts = signal(0);
+  uniqueTags = signal(0);
+  totalCourseModules = signal(0);
+  totalLabs = signal(0);
+  avgReadTime = signal(0);
+  trendingTags = signal<{ name: string; count: number }[]>([]);
+  private categoryCountsMap = signal<Record<string, number>>({});
 
-  // Trending tags — top 20 most-used tags with counts
-  trendingTags = (() => {
+  async ngOnInit() {
+    const [{ BLOG_POSTS, CATEGORIES }, { COURSES }] = await Promise.all([
+      import('../../models/blog-post.model'),
+      import('../../models/course.model'),
+    ]);
+
+    const featured = BLOG_POSTS.find(p => p.featured);
+    this.featuredPost.set(featured ? this.toCard(featured) : undefined);
+    this.popularPosts.set(
+      BLOG_POSTS.filter(p => p.popularRank != null)
+        .sort((a, b) => (a.popularRank ?? 99) - (b.popularRank ?? 99))
+        .slice(0, 6).map(p => this.toCard(p))
+    );
+    this.latestPosts.set(BLOG_POSTS.filter(p => !p.featured).slice(0, 4).map(p => this.toCard(p)));
+    this.categories.set(CATEGORIES.filter(c => c.slug !== ''));
+    this.totalPosts.set(BLOG_POSTS.length);
+    this.uniqueTags.set(new Set(BLOG_POSTS.flatMap(p => p.tags)).size);
+    this.totalCourseModules.set(COURSES.reduce((sum, c) => sum + c.modules.length, 0));
+    this.totalLabs.set(COURSES.reduce((sum, c) => sum + c.modules.reduce((s, m) => s + m.labs.length, 0), 0));
+    this.avgReadTime.set(Math.round(
+      BLOG_POSTS.reduce((sum, p) => { const m = p.readTime.match(/(\d+)/); return sum + (m ? parseInt(m[1], 10) : 0); }, 0) / Math.max(BLOG_POSTS.length, 1)
+    ));
+
     const counts: Record<string, number> = {};
-    for (const p of BLOG_POSTS) {
-      for (const t of p.tags) counts[t] = (counts[t] || 0) + 1;
-    }
-    return Object.entries(counts)
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 20);
-  })();
+    for (const p of BLOG_POSTS) { for (const t of p.tags) counts[t] = (counts[t] || 0) + 1; }
+    this.trendingTags.set(Object.entries(counts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 20));
+
+    const catCounts: Record<string, number> = {};
+    for (const p of BLOG_POSTS) { catCounts[p.category] = (catCounts[p.category] || 0) + 1; }
+    this.categoryCountsMap.set(catCounts);
+  }
+
+  private toCard(p: any): PostCard {
+    return { id: p.id, title: p.title, slug: p.slug, excerpt: p.excerpt, category: p.category, date: p.date, readTime: p.readTime, tags: p.tags, author: p.author, featured: p.featured, popularRank: p.popularRank, coverImage: p.coverImage };
+  }
 
   faqs = [
     {
@@ -846,6 +868,6 @@ export class HomeComponent {
   }
 
   getCategoryCount(slug: string): number {
-    return BLOG_POSTS.filter(p => p.category === slug).length;
+    return this.categoryCountsMap()[slug] || 0;
   }
 }
