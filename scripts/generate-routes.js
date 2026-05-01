@@ -274,6 +274,13 @@ const games = [
     content: 'Interactive Kubernetes security lab. Six production scenarios cover RBAC misconfigurations, missing NetworkPolicies, privileged pods, leaked secrets, image security, and shared-namespace tenancy — with explanations grounded in real CVEs and post-mortems.',
   },
   {
+    slug: 'zero-trust-network-builder',
+    title: 'Zero Trust Network Builder — SPIFFE/SPIRE Workload Identity Lab',
+    description: 'Interactive Zero Trust simulator. Design SPIFFE ID schemes, configure SPIRE attestation, bootstrap mTLS, federate trust domains, and rotate SVIDs across 6 production scenarios. Free, no signup.',
+    heading: 'Zero Trust Network Builder',
+    content: 'Interactive workload-identity lab. Six production scenarios cover SPIFFE ID design, SPIRE registration entries and selectors, mTLS bootstrap with short-lived SVIDs, SPIFFE-based authorization policy, federation trust bundle exchange across clusters, and SVID rotation pitfalls in real Go code.',
+  },
+  {
     slug: 'guess-output',
     title: 'Guess the Output — Python & JavaScript Code Quiz',
     description: 'Test your knowledge with tricky Python and JavaScript code snippets. Can you predict the output? 10 questions covering classic language quirks.',

@@ -206,8 +206,8 @@ export class GamesHubComponent {
       shortName: 'Zero Trust Builder',
       icon: '🔐',
       category: 'security',
-      status: 'coming-soon',
-      description: 'Design secure service-to-service communication using SPIFFE workload identity and mTLS. Configure trust boundaries, federate trust domains, and propagate identity across clusters.',
+      status: 'available',
+      description: 'Design secure service-to-service communication using SPIFFE workload identity and mTLS. Configure SPIRE attestation, federate trust domains, and rotate SVIDs across 6 production scenarios.',
       concepts: [
         { label: 'SPIFFE' },
         { label: 'SPIRE' },
@@ -216,9 +216,9 @@ export class GamesHubComponent {
         { label: 'Federation' },
       ],
       difficulty: 'Hard',
-      time: '~15 min',
+      time: '~12 min',
       color: '#06b6d4',
-      href: null,
+      href: '/games/zero-trust-network-builder',
     },
     {
       slug: 'api-attack-defense',
