@@ -246,8 +246,8 @@ export class GamesHubComponent {
       shortName: 'Incident Response',
       icon: '🚨',
       category: 'security',
-      status: 'coming-soon',
-      description: 'You are on call. A Falco alert fires. Triage the event, analyze runtime telemetry, contain lateral movement, and hand off a post-incident report — all under a clock.',
+      status: 'available',
+      description: 'You are on call. Triage Falco alerts, contain lateral movement via stolen SA tokens, identify crypto-miner indicators, catch container drift, read suspicious audit logs, and detect fileless attacks via eBPF — all in the first 60 seconds of an incident.',
       concepts: [
         { label: 'Falco' },
         { label: 'Runtime Security' },
@@ -258,7 +258,7 @@ export class GamesHubComponent {
       difficulty: 'Hard',
       time: '~15 min',
       color: '#dc2626',
-      href: null,
+      href: '/games/incident-response-simulator',
     },
     {
       slug: 'supply-chain-defense',
@@ -266,8 +266,8 @@ export class GamesHubComponent {
       shortName: 'Supply Chain Defense',
       icon: '🔗',
       category: 'security',
-      status: 'coming-soon',
-      description: 'Secure CI/CD pipelines against compromised dependencies, malicious commits, and unsigned artifacts. Verify Sigstore signatures, validate SBOMs, enforce SLSA-level provenance.',
+      status: 'available',
+      description: 'Spot Sigstore identity gaps, SBOM blind spots, SLSA L2 vs L3 confusion, dependency confusion attacks, GitHub Actions secret leaks, and admission policy scope gaps across 6 production CI/CD scenarios.',
       concepts: [
         { label: 'Sigstore' },
         { label: 'SBOM' },
@@ -278,7 +278,7 @@ export class GamesHubComponent {
       difficulty: 'Medium',
       time: '~12 min',
       color: '#22c55e',
-      href: null,
+      href: '/games/supply-chain-defense',
     },
     {
       slug: 'service-mesh-routing',
@@ -286,8 +286,8 @@ export class GamesHubComponent {
       shortName: 'Service Mesh Routing',
       icon: '🌐',
       category: 'security',
-      status: 'coming-soon',
-      description: 'Configure traffic routing, mTLS-by-default, and authorization policy across an Istio/Envoy mesh. Optimize for trust without breaking the service graph.',
+      status: 'available',
+      description: 'Spot mTLS rollout flaws, AuthorizationPolicy semantics, JWT validation gaps, traffic-shift ordering bugs, retry-storm patterns, and Envoy diagnostic flows across 6 Istio/Envoy production scenarios.',
       concepts: [
         { label: 'Istio' },
         { label: 'Envoy' },
@@ -298,7 +298,7 @@ export class GamesHubComponent {
       difficulty: 'Medium',
       time: '~12 min',
       color: '#8b5cf6',
-      href: null,
+      href: '/games/service-mesh-routing',
     },
     {
       slug: 'threat-modeling-challenge',
@@ -306,8 +306,8 @@ export class GamesHubComponent {
       shortName: 'Threat Modeling',
       icon: '🧠',
       category: 'security',
-      status: 'coming-soon',
-      description: 'Identify the attack surface of a given architecture, map data flows, enumerate threats with STRIDE, and propose mitigations. Real cloud-native systems, real trade-offs.',
+      status: 'available',
+      description: 'Classify threats with STRIDE, identify trust boundaries, classify PII under GDPR, build attack trees prioritising CI/CD over RCE, prioritise by impact-times-likelihood, and rank mitigations across 6 production scenarios.',
       concepts: [
         { label: 'STRIDE' },
         { label: 'Attack Surface' },
@@ -317,7 +317,7 @@ export class GamesHubComponent {
       difficulty: 'Hard',
       time: '~15 min',
       color: '#a855f7',
-      href: null,
+      href: '/games/threat-modeling-challenge',
     },
     {
       slug: 'secure-architecture-builder',
@@ -325,8 +325,8 @@ export class GamesHubComponent {
       shortName: 'Architecture Builder',
       icon: '🏗️',
       category: 'security',
-      status: 'coming-soon',
-      description: 'Drag-and-drop infrastructure components onto a canvas, apply Zero Trust controls, and ship a secure production design. Get instant feedback on weak boundaries and missing controls.',
+      status: 'available',
+      description: 'Design VPC layouts, place WAFs at edge and origin, replace SSH bastions with SSM + IAM auth, pick the right secret store, authenticate CDN-to-origin, and design multi-region resilience across 6 production scenarios.',
       concepts: [
         { label: 'Architecture' },
         { label: 'Zero Trust' },
@@ -336,7 +336,7 @@ export class GamesHubComponent {
       difficulty: 'Hard',
       time: '~20 min',
       color: '#3b82f6',
-      href: null,
+      href: '/games/secure-architecture-builder',
     },
     {
       slug: 'kubernetes-escape-room',
@@ -344,8 +344,8 @@ export class GamesHubComponent {
       shortName: 'K8s Escape Room',
       icon: '🔓',
       category: 'security',
-      status: 'coming-soon',
-      description: 'You have shell access in a low-privilege pod. Solve a chain of misconfigurations — secrets leaks, privilege escalation, container escape — to "escape" the cluster. Defensive perspective: which control would have stopped each step?',
+      status: 'available',
+      description: 'Walk through real Kubernetes compromise chains — SA token recon, docker.sock escape, hostPID, etcd snapshot leaks, pods/exec → cluster-admin, container-runtime CVEs — and identify the defensive control that breaks each step.',
       concepts: [
         { label: 'Privilege Escalation' },
         { label: 'Container Escape' },
@@ -355,7 +355,7 @@ export class GamesHubComponent {
       difficulty: 'Hard',
       time: '~20 min',
       color: '#ec4899',
-      href: null,
+      href: '/games/kubernetes-escape-room',
     },
     {
       slug: 'ai-infrastructure-security',
@@ -363,8 +363,8 @@ export class GamesHubComponent {
       shortName: 'AI Infra Security',
       icon: '🤖',
       category: 'security',
-      status: 'coming-soon',
-      description: 'Secure AI agents, manage machine identity for inference services, and protect model-serving infrastructure from prompt injection, model extraction, and credential abuse.',
+      status: 'available',
+      description: 'Identify indirect prompt injection, model extraction attacks, multi-tenant vector DB leaks, agent tool over-scoping, inference cost abuse, and MCP server identity gaps across 6 production AI infrastructure scenarios.',
       concepts: [
         { label: 'AI Agents' },
         { label: 'Machine Identity' },
@@ -374,7 +374,7 @@ export class GamesHubComponent {
       difficulty: 'Hard',
       time: '~15 min',
       color: '#14b8a6',
-      href: null,
+      href: '/games/ai-infrastructure-security',
     },
   ];
 

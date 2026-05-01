@@ -55,6 +55,34 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/games/api-attack-defense/api-attack-defense').then(m => m.ApiAttackDefenseComponent),
   },
   {
+    path: 'games/incident-response-simulator',
+    loadComponent: () => import('./pages/games/incident-response-simulator/incident-response-simulator').then(m => m.IncidentResponseSimulatorComponent),
+  },
+  {
+    path: 'games/supply-chain-defense',
+    loadComponent: () => import('./pages/games/supply-chain-defense/supply-chain-defense').then(m => m.SupplyChainDefenseComponent),
+  },
+  {
+    path: 'games/service-mesh-routing',
+    loadComponent: () => import('./pages/games/service-mesh-routing/service-mesh-routing').then(m => m.ServiceMeshRoutingComponent),
+  },
+  {
+    path: 'games/threat-modeling-challenge',
+    loadComponent: () => import('./pages/games/threat-modeling-challenge/threat-modeling-challenge').then(m => m.ThreatModelingChallengeComponent),
+  },
+  {
+    path: 'games/secure-architecture-builder',
+    loadComponent: () => import('./pages/games/secure-architecture-builder/secure-architecture-builder').then(m => m.SecureArchitectureBuilderComponent),
+  },
+  {
+    path: 'games/kubernetes-escape-room',
+    loadComponent: () => import('./pages/games/kubernetes-escape-room/kubernetes-escape-room').then(m => m.KubernetesEscapeRoomComponent),
+  },
+  {
+    path: 'games/ai-infrastructure-security',
+    loadComponent: () => import('./pages/games/ai-infrastructure-security/ai-infrastructure-security').then(m => m.AiInfrastructureSecurityComponent),
+  },
+  {
     path: 'games/guess-output',
     loadComponent: () => import('./pages/games/guess-output/guess-output').then(m => m.GuessOutputComponent),
   },
