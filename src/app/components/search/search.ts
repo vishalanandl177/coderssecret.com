@@ -1,7 +1,8 @@
 import { Component, signal, computed, HostListener, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { BLOG_POSTS, BlogPost } from '../../models/blog-post.model';
 import { AnalyticsService } from '../../services/analytics.service';
+
+type SearchablePost = { id: string; title: string; slug: string; excerpt: string; tags: string[]; category: string; author: string };
 
 @Component({
   selector: 'app-search',
@@ -68,11 +69,13 @@ export class SearchComponent {
   isOpen = signal(false);
   query = signal('');
   selectedIndex = signal(0);
+  private posts = signal<SearchablePost[]>([]);
+  private postsLoaded = false;
 
   results = computed(() => {
     const q = this.query().toLowerCase().trim();
     if (!q) return [];
-    return BLOG_POSTS.filter(
+    return this.posts().filter(
       post =>
         post.title.toLowerCase().includes(q) ||
         post.excerpt.toLowerCase().includes(q) ||
@@ -85,6 +88,13 @@ export class SearchComponent {
   private analytics = inject(AnalyticsService);
 
   constructor(private router: Router) {}
+
+  private async loadPosts() {
+    if (this.postsLoaded) return;
+    const { BLOG_POSTS } = await import('../../models/blog-post.model');
+    this.posts.set(BLOG_POSTS.map(p => ({ id: p.id, title: p.title, slug: p.slug, excerpt: p.excerpt, tags: p.tags, category: p.category, author: p.author })));
+    this.postsLoaded = true;
+  }
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboard(event: KeyboardEvent) {
@@ -110,6 +120,7 @@ export class SearchComponent {
     this.isOpen.set(true);
     this.query.set('');
     this.selectedIndex.set(0);
+    this.loadPosts();
     setTimeout(() => {
       const input = document.querySelector('app-search input') as HTMLInputElement;
       input?.focus();
@@ -140,7 +151,7 @@ export class SearchComponent {
     }
   }
 
-  navigateTo(post: BlogPost) {
+  navigateTo(post: SearchablePost) {
     this.analytics.trackSearch(this.query(), this.results().length);
     this.close();
     this.router.navigate(['/blog', post.slug]);
