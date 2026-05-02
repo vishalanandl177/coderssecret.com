@@ -186,6 +186,57 @@ def update_user(user_id, data):
 
       <p>Choose Memcached when you only need cache, you have huge fleets, and you value operational simplicity. Choose Redis when you need data structures, persistence, or pub/sub.</p>
 
+      <svg viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Distributed cache topology showing Redis Cluster with hash slots, primaries, and replicas">
+        <rect width="800" height="360" fill="#0f172a" rx="12"/>
+        <text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700">DISTRIBUTED CACHE TOPOLOGY (Redis Cluster)</text>
+        <rect x="40" y="60" width="160" height="50" rx="6" fill="#1e293b" stroke="#3b82f6"/>
+        <text x="120" y="84" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="700">Application pod</text>
+        <text x="120" y="100" text-anchor="middle" fill="#94a3b8" font-size="9">cluster-aware client</text>
+        <text x="120" y="135" text-anchor="middle" fill="#94a3b8" font-size="9">CRC16(key) % 16384</text>
+        <text x="120" y="150" text-anchor="middle" fill="#94a3b8" font-size="9">&rarr; slot &rarr; primary</text>
+        <line x1="200" y1="85" x2="260" y2="85" stroke="#3b82f6" stroke-width="1.2" marker-end="url(#dctArr)"/>
+        <line x1="200" y1="95" x2="260" y2="195" stroke="#3b82f6" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#dctArr)"/>
+        <line x1="200" y1="105" x2="260" y2="295" stroke="#3b82f6" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#dctArr)"/>
+        <rect x="260" y="65" width="180" height="60" rx="6" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/>
+        <text x="350" y="86" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">Primary 1</text>
+        <text x="350" y="102" text-anchor="middle" fill="#94a3b8" font-size="9">slots 0&ndash;5460</text>
+        <text x="350" y="118" text-anchor="middle" fill="#94a3b8" font-size="9">~33% of keyspace</text>
+        <line x1="440" y1="95" x2="500" y2="95" stroke="#22c55e" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#dctArr)"/>
+        <text x="470" y="88" text-anchor="middle" fill="#94a3b8" font-size="8">replicate</text>
+        <rect x="500" y="65" width="180" height="60" rx="6" fill="#94a3b8" fill-opacity="0.2" stroke="#94a3b8" stroke-dasharray="3 2"/>
+        <text x="590" y="86" text-anchor="middle" fill="#cbd5e1" font-size="11" font-weight="700">Replica 1</text>
+        <text x="590" y="102" text-anchor="middle" fill="#94a3b8" font-size="9">read-only</text>
+        <text x="590" y="118" text-anchor="middle" fill="#94a3b8" font-size="9">promotable</text>
+        <rect x="260" y="170" width="180" height="60" rx="6" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/>
+        <text x="350" y="191" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">Primary 2</text>
+        <text x="350" y="207" text-anchor="middle" fill="#94a3b8" font-size="9">slots 5461&ndash;10922</text>
+        <text x="350" y="223" text-anchor="middle" fill="#94a3b8" font-size="9">~33% of keyspace</text>
+        <line x1="440" y1="200" x2="500" y2="200" stroke="#22c55e" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#dctArr)"/>
+        <rect x="500" y="170" width="180" height="60" rx="6" fill="#94a3b8" fill-opacity="0.2" stroke="#94a3b8" stroke-dasharray="3 2"/>
+        <text x="590" y="191" text-anchor="middle" fill="#cbd5e1" font-size="11" font-weight="700">Replica 2</text>
+        <text x="590" y="207" text-anchor="middle" fill="#94a3b8" font-size="9">read-only</text>
+        <rect x="260" y="275" width="180" height="60" rx="6" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/>
+        <text x="350" y="296" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">Primary 3</text>
+        <text x="350" y="312" text-anchor="middle" fill="#94a3b8" font-size="9">slots 10923&ndash;16383</text>
+        <text x="350" y="328" text-anchor="middle" fill="#94a3b8" font-size="9">~33% of keyspace</text>
+        <line x1="440" y1="305" x2="500" y2="305" stroke="#22c55e" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#dctArr)"/>
+        <rect x="500" y="275" width="180" height="60" rx="6" fill="#94a3b8" fill-opacity="0.2" stroke="#94a3b8" stroke-dasharray="3 2"/>
+        <text x="590" y="296" text-anchor="middle" fill="#cbd5e1" font-size="11" font-weight="700">Replica 3</text>
+        <text x="590" y="312" text-anchor="middle" fill="#94a3b8" font-size="9">read-only</text>
+        <text x="120" y="200" fill="#94a3b8" font-size="9">Cluster gossip:</text>
+        <text x="120" y="216" fill="#94a3b8" font-size="9">primaries exchange</text>
+        <text x="120" y="232" fill="#94a3b8" font-size="9">slot ownership +</text>
+        <text x="120" y="248" fill="#94a3b8" font-size="9">node liveness state.</text>
+        <text x="120" y="280" fill="#94a3b8" font-size="9">Failover: replica</text>
+        <text x="120" y="296" fill="#94a3b8" font-size="9">promoted on majority</text>
+        <text x="120" y="312" fill="#94a3b8" font-size="9">consensus.</text>
+        <defs>
+          <marker id="dctArr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/>
+          </marker>
+        </defs>
+      </svg>
+
       <h3>CDN Edge Caching</h3>
 
       <p>CDN caching is a distributed cache the size of the internet. Cloudflare, Fastly, Akamai, CloudFront each maintain hundreds of edge POPs caching content close to end users. The CDN behaves like a giant reverse-proxy cache, keyed by URL and modulated by request headers (Vary).</p>
@@ -230,6 +281,47 @@ def update_user(user_id, data):
       <h3>Versioned Cache Keys</h3>
 
       <p>Bake a version into the cache key (<code>user:123:v42</code>). To invalidate, increment the version &mdash; old keys remain in cache but are never read again, and they expire naturally via TTL. Useful when you cannot reliably enumerate all entries to invalidate (e.g. precomputed search results).</p>
+
+      <svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cache invalidation flow showing CDC pipeline propagating database writes to distributed cache invalidations">
+        <rect width="800" height="380" fill="#0f172a" rx="12"/>
+        <text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700">CACHE INVALIDATION FLOW (CDC-based)</text>
+        <rect x="40" y="70" width="120" height="60" rx="6" fill="#1e293b" stroke="#3b82f6"/>
+        <text x="100" y="98" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="700">App: write</text>
+        <text x="100" y="116" text-anchor="middle" fill="#94a3b8" font-size="9">UPDATE users SET ...</text>
+        <line x1="160" y1="100" x2="220" y2="100" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#civArr)"/>
+        <rect x="220" y="70" width="120" height="60" rx="6" fill="#1e293b" stroke="#22c55e"/>
+        <text x="280" y="98" text-anchor="middle" fill="#bbf7d0" font-size="11" font-weight="700">Database</text>
+        <text x="280" y="116" text-anchor="middle" fill="#94a3b8" font-size="9">commits, writes WAL</text>
+        <line x1="280" y1="130" x2="280" y2="170" stroke="#22c55e" stroke-width="1.2" marker-end="url(#civArr)"/>
+        <text x="300" y="155" fill="#94a3b8" font-size="9">binlog / WAL</text>
+        <rect x="220" y="170" width="120" height="50" rx="6" fill="#1e293b" stroke="#fbbf24"/>
+        <text x="280" y="195" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="700">Debezium / DMS</text>
+        <text x="280" y="210" text-anchor="middle" fill="#94a3b8" font-size="9">tails the WAL</text>
+        <line x1="340" y1="195" x2="400" y2="195" stroke="#fbbf24" stroke-width="1.2" marker-end="url(#civArr)"/>
+        <rect x="400" y="170" width="120" height="50" rx="6" fill="#1e293b" stroke="#fbbf24"/>
+        <text x="460" y="195" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="700">Kafka topic</text>
+        <text x="460" y="210" text-anchor="middle" fill="#94a3b8" font-size="9">user.changes</text>
+        <line x1="520" y1="195" x2="580" y2="195" stroke="#fbbf24" stroke-width="1.2" marker-end="url(#civArr)"/>
+        <rect x="580" y="170" width="160" height="50" rx="6" fill="#1e293b" stroke="#a855f7"/>
+        <text x="660" y="195" text-anchor="middle" fill="#ddd6fe" font-size="11" font-weight="700">Invalidator service</text>
+        <text x="660" y="210" text-anchor="middle" fill="#94a3b8" font-size="9">consumes events</text>
+        <line x1="660" y1="220" x2="660" y2="280" stroke="#a855f7" stroke-width="1.2" marker-end="url(#civArr)"/>
+        <text x="680" y="252" fill="#94a3b8" font-size="9">DEL keys</text>
+        <rect x="580" y="280" width="160" height="50" rx="6" fill="#1e293b" stroke="#ec4899"/>
+        <text x="660" y="305" text-anchor="middle" fill="#fbcfe8" font-size="11" font-weight="700">Distributed cache</text>
+        <text x="660" y="320" text-anchor="middle" fill="#94a3b8" font-size="9">user:123 evicted</text>
+        <text x="400" y="270" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="700">App reads &darr;</text>
+        <rect x="100" y="280" width="380" height="50" rx="6" fill="#1e293b" stroke="#94a3b8" stroke-dasharray="4 3"/>
+        <text x="290" y="300" text-anchor="middle" fill="#cbd5e1" font-size="10">Next read for user:123 is a miss &rarr; refetch from DB &rarr; repopulate</text>
+        <text x="290" y="316" text-anchor="middle" fill="#94a3b8" font-size="9">Total invalidation latency: typically 100&ndash;500ms after the DB commit</text>
+        <line x1="290" y1="280" x2="290" y2="135" stroke="#94a3b8" stroke-width="1" stroke-dasharray="2 2"/>
+        <line x1="290" y1="135" x2="240" y2="135" stroke="#94a3b8" stroke-width="1" stroke-dasharray="2 2" marker-end="url(#civArr)"/>
+        <defs>
+          <marker id="civArr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/>
+          </marker>
+        </defs>
+      </svg>
 
       <h2>The Thundering Herd and Cache Stampede</h2>
 
@@ -356,6 +448,53 @@ def update_user(user_id, data):
 
       <p>The architectural decision tracks the <a href="/blog/distributed-systems-algorithms-production-guide" class="text-primary underline">CAP discussion</a>: you cannot have global strong consistency and local low latency simultaneously.</p>
 
+      <svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Multi-region cache architecture showing regional Redis clusters with cross-region invalidation pipeline">
+        <rect width="800" height="380" fill="#0f172a" rx="12"/>
+        <text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700">MULTI-REGION CACHE ARCHITECTURE</text>
+        <rect x="40" y="60" width="220" height="240" rx="10" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/>
+        <text x="150" y="84" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="700">us-east region</text>
+        <rect x="60" y="100" width="180" height="40" rx="4" fill="#3b82f6" fill-opacity="0.15"/>
+        <text x="150" y="124" text-anchor="middle" fill="#bfdbfe" font-size="10" font-weight="700">App fleet (us-east)</text>
+        <line x1="150" y1="140" x2="150" y2="160" stroke="#94a3b8" stroke-width="1" marker-end="url(#mrcArr)"/>
+        <rect x="60" y="160" width="180" height="40" rx="4" fill="#22c55e" fill-opacity="0.15"/>
+        <text x="150" y="184" text-anchor="middle" fill="#86efac" font-size="10" font-weight="700">Redis Cluster (us-east)</text>
+        <line x1="150" y1="200" x2="150" y2="220" stroke="#94a3b8" stroke-width="1" marker-end="url(#mrcArr)"/>
+        <rect x="60" y="220" width="180" height="40" rx="4" fill="#94a3b8" fill-opacity="0.15"/>
+        <text x="150" y="244" text-anchor="middle" fill="#cbd5e1" font-size="10" font-weight="700">DB primary</text>
+        <text x="150" y="285" text-anchor="middle" fill="#94a3b8" font-size="9">writes &amp; reads local</text>
+        <rect x="540" y="60" width="220" height="240" rx="10" fill="#1e293b" stroke="#a855f7" stroke-width="1.5"/>
+        <text x="650" y="84" text-anchor="middle" fill="#c4b5fd" font-size="12" font-weight="700">eu-west region</text>
+        <rect x="560" y="100" width="180" height="40" rx="4" fill="#a855f7" fill-opacity="0.15"/>
+        <text x="650" y="124" text-anchor="middle" fill="#ddd6fe" font-size="10" font-weight="700">App fleet (eu-west)</text>
+        <line x1="650" y1="140" x2="650" y2="160" stroke="#94a3b8" stroke-width="1" marker-end="url(#mrcArr)"/>
+        <rect x="560" y="160" width="180" height="40" rx="4" fill="#22c55e" fill-opacity="0.15"/>
+        <text x="650" y="184" text-anchor="middle" fill="#86efac" font-size="10" font-weight="700">Redis Cluster (eu-west)</text>
+        <line x1="650" y1="200" x2="650" y2="220" stroke="#94a3b8" stroke-width="1" marker-end="url(#mrcArr)"/>
+        <rect x="560" y="220" width="180" height="40" rx="4" fill="#94a3b8" fill-opacity="0.15"/>
+        <text x="650" y="244" text-anchor="middle" fill="#cbd5e1" font-size="10" font-weight="700">DB read replica</text>
+        <text x="650" y="285" text-anchor="middle" fill="#94a3b8" font-size="9">reads local; writes routed home</text>
+        <rect x="290" y="120" width="220" height="200" rx="10" fill="#1e293b" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="400" y="146" text-anchor="middle" fill="#fcd34d" font-size="12" font-weight="700">Cross-region pipeline</text>
+        <rect x="310" y="160" width="180" height="32" rx="4" fill="#fbbf24" fill-opacity="0.15"/>
+        <text x="400" y="180" text-anchor="middle" fill="#fcd34d" font-size="9" font-weight="700">Kafka MirrorMaker</text>
+        <rect x="310" y="200" width="180" height="32" rx="4" fill="#fbbf24" fill-opacity="0.15"/>
+        <text x="400" y="220" text-anchor="middle" fill="#fcd34d" font-size="9" font-weight="700">Debezium CDC events</text>
+        <rect x="310" y="240" width="180" height="32" rx="4" fill="#fbbf24" fill-opacity="0.15"/>
+        <text x="400" y="260" text-anchor="middle" fill="#fcd34d" font-size="9" font-weight="700">Invalidator per region</text>
+        <text x="400" y="295" text-anchor="middle" fill="#94a3b8" font-size="9">~100&ndash;500ms eventual</text>
+        <line x1="240" y1="180" x2="295" y2="180" stroke="#fbbf24" stroke-width="1.2" stroke-dasharray="3 2" marker-end="url(#mrcArr)"/>
+        <line x1="505" y1="180" x2="555" y2="180" stroke="#fbbf24" stroke-width="1.2" stroke-dasharray="3 2" marker-end="url(#mrcArr)"/>
+        <line x1="295" y1="256" x2="240" y2="256" stroke="#fbbf24" stroke-width="1.2" stroke-dasharray="3 2" marker-end="url(#mrcArr)"/>
+        <line x1="505" y1="256" x2="555" y2="256" stroke="#fbbf24" stroke-width="1.2" stroke-dasharray="3 2" marker-end="url(#mrcArr)"/>
+        <text x="400" y="335" text-anchor="middle" fill="#94a3b8" font-size="10">Each region: read locally; invalidate locally on cross-region writes propagated through CDC.</text>
+        <text x="400" y="354" text-anchor="middle" fill="#94a3b8" font-size="10">Eventual consistency between regions; latency stays sub-millisecond per region.</text>
+        <defs>
+          <marker id="mrcArr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/>
+          </marker>
+        </defs>
+      </svg>
+
       <h2>Database-Layer Caching</h2>
 
       <p>Modern databases include their own caching layers, and the application cache often sits on top of these.</p>
@@ -392,6 +531,21 @@ def update_user(user_id, data):
 
       <p>The classic vulnerability is web cache deception (Omer Gil, 2017): an attacker requests <code>example.com/account/profile.css</code> &mdash; the CDN sees the .css extension and caches the response, but the application ignores the extension and serves the user&apos;s authenticated profile. Now the next request for the same path serves that profile to anyone. Cache only what the application explicitly marks as cacheable.</p>
 
+      <aside class="callout callout-security">
+        <strong>Security warning</strong>
+        <p>Always include the tenant ID (or user ID for per-user data) in the cache key. The most insidious cache bug is &ldquo;tenant A briefly sees tenant B&apos;s data&rdquo; from a missed key qualifier &mdash; the bug rarely fires in single-tenant testing and only surfaces under load. Treat tenant scoping at the cache layer as non-negotiable.</p>
+      </aside>
+
+      <aside class="callout callout-mistake">
+        <strong>Common mistake</strong>
+        <p>SET-on-write instead of DEL-on-write. With SET, two writes can race and the older value can win. With DEL, the next read repopulates from the source of truth. Always DEL.</p>
+      </aside>
+
+      <aside class="callout callout-troubleshoot">
+        <strong>Troubleshooting</strong>
+        <p>Hit-rate dropped suddenly? Check (1) recent deploys that changed the cache key shape; (2) eviction rate spike (memory pressure); (3) TTL changes that shortened freshness; (4) downstream errors causing the application to skip cache writes. The right log/metric to surface: per-key-prefix miss count, broken down by suspected cause.</p>
+      </aside>
+
       <p>For the broader API security picture, see the <a href="/games/api-attack-defense" class="text-primary underline">API Attack &amp; Defense Simulator</a> for hands-on practice and the <a href="/courses/cloud-native-security-engineering" class="text-primary underline">Cloud Native Security Engineering course</a> for the systematic walk through.</p>
 
       <h2>Observability</h2>
@@ -425,6 +579,12 @@ def update_user(user_id, data):
 
       <h3>What about caching at the edge with workers (Cloudflare Workers, Lambda@Edge)?</h3>
       <p>Excellent fit for content that varies by region, country, or device class but does not need per-user customisation. Edge workers can compose responses from cached fragments and origin calls, often achieving 95%+ hit rates with sub-50ms latency globally.</p>
+
+      <h2>Conclusion</h2>
+
+      <p>Caching is the highest-leverage performance tool in your stack and one of the easiest to get subtly wrong. Every cache eventually causes an outage if you do not design for the failure modes &mdash; stale data, thundering herds, hot keys, cascading failure when the cache itself goes down. The systems that get it right are the ones that started with the failure modes in mind.</p>
+
+      <p>The high-leverage takeaways: <strong>measure first &mdash; do not cache what is already fast enough</strong>; <strong>define the freshness contract before choosing the strategy</strong>; <strong>cache-aside is the default; write-through only when most writes will be read soon; write-back only when data loss windows are acceptable</strong>; <strong>DEL on writes, never SET</strong>; <strong>multi-layer beats single-layer &mdash; CDN at the edge, distributed cache for shared application state, in-process for hot keys</strong>; <strong>defend against thundering herd before it bites you, not after</strong>; <strong>treat the cache as a tier with its own SLOs, observability, and security posture</strong>. The cache that does not emit hit-rate, eviction, latency, and stampede metrics is just guessing about whether it is helping.</p>
 
       <h2>Where to Go Next</h2>
 

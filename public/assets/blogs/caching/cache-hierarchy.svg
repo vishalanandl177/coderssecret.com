@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" role="img" aria-label="Multi-layer cache hierarchy from browser to origin database">
+  <rect width="800" height="360" fill="#0f172a" rx="12"/>
+  <text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700">CACHE HIERARCHY</text>
+  <text x="60" y="68" fill="#94a3b8" font-size="11" font-weight="700">faster ↑</text>
+  <text x="60" y="320" fill="#94a3b8" font-size="11" font-weight="700">slower ↓</text>
+  <rect x="160" y="60" width="480" height="35" rx="6" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/>
+  <text x="180" y="82" fill="#86efac" font-size="11" font-weight="700">Browser cache</text>
+  <text x="620" y="82" text-anchor="end" fill="#94a3b8" font-size="10">~ns · Cache-Control / SW</text>
+  <rect x="160" y="105" width="480" height="35" rx="6" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6"/>
+  <text x="180" y="127" fill="#bfdbfe" font-size="11" font-weight="700">CDN edge (Cloudflare, Fastly, CloudFront)</text>
+  <text x="620" y="127" text-anchor="end" fill="#94a3b8" font-size="10">~10ms · geo-distributed</text>
+  <rect x="160" y="150" width="480" height="35" rx="6" fill="#a855f7" fill-opacity="0.2" stroke="#a855f7"/>
+  <text x="180" y="172" fill="#ddd6fe" font-size="11" font-weight="700">Reverse proxy (Varnish, NGINX)</text>
+  <text x="620" y="172" text-anchor="end" fill="#94a3b8" font-size="10">~5ms · per-DC</text>
+  <rect x="160" y="195" width="480" height="35" rx="6" fill="#ec4899" fill-opacity="0.2" stroke="#ec4899"/>
+  <text x="180" y="217" fill="#fbcfe8" font-size="11" font-weight="700">In-process cache (Caffeine, lru_cache)</text>
+  <text x="620" y="217" text-anchor="end" fill="#94a3b8" font-size="10">~µs · per-pod</text>
+  <rect x="160" y="240" width="480" height="35" rx="6" fill="#fbbf24" fill-opacity="0.2" stroke="#fbbf24"/>
+  <text x="180" y="262" fill="#fcd34d" font-size="11" font-weight="700">Distributed cache (Redis, Memcached)</text>
+  <text x="620" y="262" text-anchor="end" fill="#94a3b8" font-size="10">~1–3ms · cluster-wide</text>
+  <rect x="160" y="285" width="480" height="35" rx="6" fill="#94a3b8" fill-opacity="0.2" stroke="#94a3b8"/>
+  <text x="180" y="307" fill="#cbd5e1" font-size="11" font-weight="700">Database / origin storage</text>
+  <text x="620" y="307" text-anchor="end" fill="#94a3b8" font-size="10">~10s of ms or more</text>
+</svg>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" role="img" aria-label="Distributed job queue: producers, broker, workers, DLQ">
+  <rect width="800" height="360" fill="#0f172a" rx="12"/>
+  <text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700">DISTRIBUTED JOB QUEUE</text>
+  <rect x="40" y="70" width="120" height="40" rx="6" fill="#1e293b" stroke="#3b82f6"/>
+  <text x="100" y="94" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="700">Producer A</text>
+  <rect x="40" y="120" width="120" height="40" rx="6" fill="#1e293b" stroke="#3b82f6"/>
+  <text x="100" y="144" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="700">Producer B</text>
+  <rect x="40" y="170" width="120" height="40" rx="6" fill="#1e293b" stroke="#3b82f6"/>
+  <text x="100" y="194" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="700">Producer C</text>
+  <rect x="240" y="80" width="170" height="220" rx="8" fill="#1e293b" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="325" y="106" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="700">Broker</text>
+  <text x="325" y="120" text-anchor="middle" fill="#94a3b8" font-size="9">(Redis / RabbitMQ)</text>
+  <rect x="260" y="135" width="130" height="22" fill="#fbbf24" fill-opacity="0.2"/>
+  <text x="325" y="150" text-anchor="middle" fill="#fcd34d" font-size="9">priority queue</text>
+  <rect x="260" y="160" width="130" height="22" fill="#fbbf24" fill-opacity="0.2"/>
+  <text x="325" y="175" text-anchor="middle" fill="#fcd34d" font-size="9">scheduled / delayed</text>
+  <rect x="260" y="185" width="130" height="22" fill="#fbbf24" fill-opacity="0.2"/>
+  <text x="325" y="200" text-anchor="middle" fill="#fcd34d" font-size="9">retry queue (backoff)</text>
+  <rect x="260" y="210" width="130" height="22" fill="#fca5a5" fill-opacity="0.2"/>
+  <text x="325" y="225" text-anchor="middle" fill="#fca5a5" font-size="9">dead letter queue</text>
+  <rect x="490" y="80" width="170" height="40" rx="6" fill="#1e293b" stroke="#22c55e"/>
+  <text x="575" y="104" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">Worker 1 (busy)</text>
+  <rect x="490" y="150" width="170" height="40" rx="6" fill="#1e293b" stroke="#22c55e"/>
+  <text x="575" y="174" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">Worker 2 (busy)</text>
+  <rect x="490" y="220" width="170" height="40" rx="6" fill="#1e293b" stroke="#22c55e"/>
+  <text x="575" y="244" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">Worker N (idle)</text>
+</svg>

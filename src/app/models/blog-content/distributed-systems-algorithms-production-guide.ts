@@ -345,6 +345,34 @@ export const CONTENT = `
 
       <p>Many real systems offer <em>tunable</em> consistency: Cassandra lets you pick consistency level per query; MongoDB exposes <code>readConcern</code> and <code>writeConcern</code>; DynamoDB lets you flag <code>ConsistentRead</code> on a per-call basis. The right answer depends on the operation: a balance check needs strict consistency; a &quot;number of likes&quot; can tolerate eventual.</p>
 
+      <svg viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Consistency models comparison from linearizable to eventual showing trade-offs in latency and availability">
+        <rect width="800" height="360" fill="#0f172a" rx="12"/>
+        <text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700">CONSISTENCY MODELS &mdash; STRENGTH vs LATENCY</text>
+        <text x="60" y="68" fill="#cbd5e1" font-size="11" font-weight="700">stronger &uarr;</text>
+        <text x="700" y="68" fill="#cbd5e1" font-size="11" font-weight="700">cheaper / faster &rarr;</text>
+        <rect x="60" y="80" width="680" height="40" rx="6" fill="#3b82f6" fill-opacity="0.25" stroke="#3b82f6"/>
+        <text x="80" y="105" fill="#bfdbfe" font-size="11" font-weight="700">Linearizable</text>
+        <text x="220" y="105" fill="#cbd5e1" font-size="10">every op atomic at one instant; reads see latest write globally</text>
+        <text x="700" y="105" text-anchor="end" fill="#94a3b8" font-size="10">Spanner, etcd</text>
+        <rect x="60" y="125" width="680" height="40" rx="6" fill="#22c55e" fill-opacity="0.25" stroke="#22c55e"/>
+        <text x="80" y="150" fill="#bbf7d0" font-size="11" font-weight="700">Sequential</text>
+        <text x="220" y="150" fill="#cbd5e1" font-size="10">all clients see ops in same order; not necessarily wall-clock order</text>
+        <text x="700" y="150" text-anchor="end" fill="#94a3b8" font-size="10">single-leader DBs</text>
+        <rect x="60" y="170" width="680" height="40" rx="6" fill="#fbbf24" fill-opacity="0.25" stroke="#fbbf24"/>
+        <text x="80" y="195" fill="#fcd34d" font-size="11" font-weight="700">Causal</text>
+        <text x="220" y="195" fill="#cbd5e1" font-size="10">causally related writes seen in causal order; concurrent ones can reorder</text>
+        <text x="700" y="195" text-anchor="end" fill="#94a3b8" font-size="10">session systems</text>
+        <rect x="60" y="215" width="680" height="40" rx="6" fill="#a855f7" fill-opacity="0.25" stroke="#a855f7"/>
+        <text x="80" y="240" fill="#ddd6fe" font-size="11" font-weight="700">Read-your-writes</text>
+        <text x="220" y="240" fill="#cbd5e1" font-size="10">a client always sees its own previous writes; others lag</text>
+        <text x="700" y="240" text-anchor="end" fill="#94a3b8" font-size="10">social feeds</text>
+        <rect x="60" y="260" width="680" height="40" rx="6" fill="#ec4899" fill-opacity="0.25" stroke="#ec4899"/>
+        <text x="80" y="285" fill="#fbcfe8" font-size="11" font-weight="700">Eventual</text>
+        <text x="220" y="285" fill="#cbd5e1" font-size="10">replicas converge if writes stop; no in-flight ordering guarantees</text>
+        <text x="700" y="285" text-anchor="end" fill="#94a3b8" font-size="10">DynamoDB default</text>
+        <text x="400" y="332" text-anchor="middle" fill="#94a3b8" font-size="10">Tunable per query in Cassandra (CL=ONE..ALL), MongoDB (readConcern/writeConcern), DynamoDB (ConsistentRead).</text>
+      </svg>
+
       <h2>Production Failure Scenarios</h2>
 
       <h3>Split Brain</h3>
@@ -358,6 +386,16 @@ export const CONTENT = `
       <h3>The Stuck etcd Cluster</h3>
 
       <p>The most common etcd outage in production Kubernetes clusters: a 3-node etcd cluster loses 2 nodes (perhaps a node-pool replacement gone wrong, or an AZ failure). The remaining node cannot reach quorum, refuses writes, and the entire Kubernetes API freezes. The recovery is a careful single-node restoration from backup, then re-adding the other members. The lesson: 5-node etcd clusters across 3 AZs for any production workload, and tested backup/restore runbooks.</p>
+
+      <aside class="callout callout-production">
+        <strong>Production note</strong>
+        <p>Most managed Kubernetes (EKS, GKE, AKS) operate the etcd cluster for you, but your application&apos;s availability is still tied to its quorum. When the managed control plane has an incident, your <code>kubectl</code> calls hang and any controller (HPA, Deployment, Job) that needs to write state stops reconciling. Cache cluster state in memory in your operators, build for control-plane unavailability, and never assume <code>kube-apiserver</code> is always reachable.</p>
+      </aside>
+
+      <aside class="callout callout-mistake">
+        <strong>Common mistake</strong>
+        <p>Running an even-numbered Raft cluster (4 or 6 nodes). It does not give you better fault tolerance than 3 or 5 &mdash; you still need a majority &mdash; and it raises the cost of every commit. Always odd: 3 for most clusters, 5 for clusters that must tolerate 2 simultaneous failures.</p>
+      </aside>
 
       <h2>Observability for Distributed Systems</h2>
 
@@ -391,6 +429,12 @@ export const CONTENT = `
 
       <h3>What is the &quot;reading from a follower&quot; consistency hazard?</h3>
       <p>A common pattern is to send writes to a leader and reads to followers (to scale read throughput). The hazard: a follower may not have replicated the most recent writes, so a client that just wrote a value can read its own old value. Solutions: stickify reads to the leader for a short window after each write; use a consistency token (like CockroachDB&apos;s <code>follower_read_timestamp</code>) that the follower waits to satisfy; or accept the inconsistency for non-critical reads.</p>
+
+      <h2>Conclusion</h2>
+
+      <p>Distributed systems algorithms are not magic. Every behaviour you see in production &mdash; etcd refusing writes during a partition, Cassandra returning slightly stale rows under <code>LOCAL_QUORUM</code>, Redis Cluster reshuffling slots when you add a node, Kafka pausing for milliseconds during a controller election &mdash; is the direct consequence of a small set of well-defined algorithms making correct trade-offs. Once you can name the algorithm, you can predict the failure mode; once you can predict the failure mode, you can design around it.</p>
+
+      <p>The high-leverage takeaways for production engineers: <strong>the partition-tolerance choice is the only meaningful one in CAP &mdash; pick whether you want availability or consistency under partition, and design around that</strong>; <strong>3-node Raft for control-plane state, 5-node for higher-availability</strong>; <strong>quorum math (W + R &gt; N) gives strong consistency with leaderless replication</strong>; <strong>consistent hashing with vnodes is the default partitioning scheme for any cluster you expect to grow</strong>; <strong>vector clocks detect divergence, CRDTs resolve it deterministically</strong>; <strong>do not trust clocks for correctness</strong>. Every distributed datastore you operate is an instance of these primitives composed in some configuration; reading docs through that lens makes them dramatically more comprehensible.</p>
 
       <h2>Where to Go Next</h2>
 

@@ -1322,3 +1322,82 @@
   border-top: 1px solid hsl(var(--border) / 0.6);
   margin: 2rem 0;
 }
+
+/* ─────────────────────────────────────────────────────────────────
+ * Reusable callout components for blog content
+ * Use inside [innerHTML]-rendered HTML (no Angular components needed):
+ *   <aside class="callout callout-production">...</aside>
+ *   <aside class="callout callout-security">...</aside>
+ *   <aside class="callout callout-performance">...</aside>
+ *   <aside class="callout callout-mistake">...</aside>
+ *   <aside class="callout callout-troubleshoot">...</aside>
+ * Each callout supports a <strong> label (rendered as the title) and
+ * an optional <p> body. Dark-theme compatible by design.
+ * ───────────────────────────────────────────────────────────────── */
+.callout {
+  position: relative;
+  margin: 1.75rem 0;
+  padding: 1rem 1.25rem 1rem 3rem;
+  border-radius: 0.75rem;
+  border: 1px solid;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.callout > strong:first-child {
+  display: block;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.callout > p {
+  margin: 0;
+  color: hsl(var(--foreground) / 0.9);
+}
+
+.callout::before {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.callout-production {
+  border-color: hsl(217 91% 60% / 0.35);
+  background: hsl(217 91% 60% / 0.06);
+}
+.callout-production > strong:first-child { color: hsl(217 91% 70%); }
+.callout-production::before { content: "🛠"; }
+
+.callout-security {
+  border-color: hsl(0 84% 60% / 0.4);
+  background: hsl(0 84% 60% / 0.06);
+}
+.callout-security > strong:first-child { color: hsl(0 84% 70%); }
+.callout-security::before { content: "🛡"; }
+
+.callout-performance {
+  border-color: hsl(38 92% 50% / 0.4);
+  background: hsl(38 92% 50% / 0.06);
+}
+.callout-performance > strong:first-child { color: hsl(38 92% 60%); }
+.callout-performance::before { content: "⚡"; }
+
+.callout-mistake {
+  border-color: hsl(330 81% 60% / 0.4);
+  background: hsl(330 81% 60% / 0.06);
+}
+.callout-mistake > strong:first-child { color: hsl(330 81% 70%); }
+.callout-mistake::before { content: "⚠"; }
+
+.callout-troubleshoot {
+  border-color: hsl(280 87% 65% / 0.4);
+  background: hsl(280 87% 65% / 0.06);
+}
+.callout-troubleshoot > strong:first-child { color: hsl(280 87% 75%); }
+.callout-troubleshoot::before { content: "🔍"; }
+

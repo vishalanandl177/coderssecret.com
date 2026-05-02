@@ -120,7 +120,7 @@ verifyImages:
         },
       ],
       explanation: 'The hardened pattern: pin the expected signer identity. In cosign: --certificate-identity-regexp ".*@example.com$" --certificate-oidc-issuer "https://accounts.google.com". In Kyverno verifyImages: attestors with an entries.keyless block specifying subject and issuer. Even better, gate on a specific repo name in the certificate identity (e.g. "ci@github.com:example/payments-api"). The whole point of keyless is the verifiable identity — use it.',
-      learnMore: { label: 'Sigstore in production', href: '/cheatsheets/devsecops' },
+      learnMore: { label: 'Sigstore in production', href: '/courses/cloud-native-security-engineering/secure-cicd-pipelines' },
     },
     {
       id: 'sbom-transitive-blind-spot',
@@ -162,7 +162,7 @@ $ syft registry/api:latest -o spdx-json | jq '.packages | length'
         },
       ],
       explanation: 'A "clean" SBOM is often an incomplete SBOM. The hardening pattern: (1) measure SBOM coverage in CI — count packages and compare to expected; (2) generate the SBOM at the source (build time) when full module info is available, not after the fact; (3) sign and attach the SBOM as a Sigstore attestation so consumers can verify it; (4) use language-aware scanners (osv-scanner, govulncheck) in addition to image scanners. Trivy + grype catch what they can see; if they can\'t see the modules, they can\'t catch their CVEs.',
-      learnMore: { label: 'Build trustworthy SBOMs', href: '/cheatsheets/devsecops' },
+      learnMore: { label: 'Build trustworthy SBOMs', href: '/courses/cloud-native-security-engineering/secure-cicd-pipelines' },
     },
     {
       id: 'slsa-l2-vs-l3',

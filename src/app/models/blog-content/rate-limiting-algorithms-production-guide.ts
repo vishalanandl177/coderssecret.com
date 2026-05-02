@@ -294,6 +294,28 @@ spec:
 
       <p>AWS API Gateway, Google Cloud Endpoints, and Azure API Management all expose rate limiting natively. Their algorithms are typically token-bucket-based with per-region scope. The trade-off versus self-hosting is operational cost vs control: managed gateways are easy to operate and hard to customise.</p>
 
+      <h2>Multi-Region Rate Limiting</h2>
+
+      <p>Multi-region adds a coordination problem on top of an already-coordination-heavy primitive. The honest engineering choice is between three models, each with a different latency / consistency trade-off:</p>
+
+      <h3>Per-Region Independent Limits</h3>
+
+      <p>Each region runs its own Redis (or its own gateway-local counters) and enforces a regional quota. A customer with a 1000 req/min global limit gets 1000 req/min in <em>each</em> region they hit. Simple, very low latency (no cross-region calls), but a customer can effectively multiply their limit by routing across regions. Acceptable when the limit is loose-by-design (DDoS volumetric, free-tier evaluation) and the cost asymmetry of cross-region travel discourages abuse anyway.</p>
+
+      <h3>Global Aggregation with Regional Caches</h3>
+
+      <p>Each region keeps a local counter. Periodically (every 1&ndash;5 seconds), regions push their deltas to a global aggregator that reconciles a true global count and pushes back per-region quotas based on observed traffic distribution. The model behind Envoy&apos;s global rate-limiting service running in cell-aware mode, and the pattern Cloudflare publishes for their edge fleet. Bounded inconsistency &mdash; an attacker can briefly exceed the global limit in the aggregation window &mdash; but throughput is regional and latency stays sub-millisecond.</p>
+
+      <h3>Globally-Routed Rate-Limit Service</h3>
+
+      <p>Every gateway, in every region, calls a single global rate-limit service for every check. Strict global consistency. Adds 50&ndash;200ms of cross-region latency to <em>every request</em>, which makes this the wrong choice for any user-facing path. Used only for authoritative scenarios where exact billing-grade enforcement matters (paid API quotas where overage costs real money) and the rate-limit service is not on the hot path of latency-sensitive traffic.</p>
+
+      <h3>Practical Multi-Region Pattern</h3>
+
+      <p>The pattern most production teams converge on is layered: <strong>per-region independent limits</strong> for volumetric / DDoS / abuse defense (no cross-region cost), <strong>global aggregation with regional caches</strong> for per-customer business quotas (small consistency window is fine), and <strong>billing-time reconciliation</strong> for hard contractual quotas (after-the-fact ledgers, not request-time enforcement). Each layer enforces what the latency budget allows.</p>
+
+      <p>For globally distributed systems, the choice is the same as the consistency choice covered in the <a href="/blog/distributed-systems-algorithms-production-guide" class="text-primary underline">Distributed Systems Algorithms guide</a> &mdash; you cannot have both global strong consistency and per-region low latency. The rate-limiter design just makes the trade-off explicit.</p>
+
       <h2>Adaptive Rate Limiting</h2>
 
       <p>Static rate limits assume you know the right number in advance. Real systems learn it. Adaptive rate limiting (also called &quot;load shedding&quot; in some literatures) adjusts the allowed rate based on observed load &mdash; if the upstream is responding slowly, lower the rate; if everything is healthy, raise it.</p>
@@ -326,6 +348,16 @@ spec:
       <h3>Trusting the X-Forwarded-For Header</h3>
 
       <p>If your rate limiter keys on client IP and you read the IP from <code>X-Forwarded-For</code>, an attacker can spoof the header and rotate IPs trivially. Only trust XFF when set by an upstream proxy you control, and only the rightmost portion (your own proxies&apos; values, not the original client&apos;s claim).</p>
+
+      <aside class="callout callout-security">
+        <strong>Security warning</strong>
+        <p>If your application is reachable directly (not only via the CDN/LB), an attacker can hit the origin and spoof <code>X-Forwarded-For</code> with arbitrary values. Lock the origin to only accept traffic from your edge proxy (header-based gate or IP allowlist), and make the rate limiter trust only headers added by trusted hops.</p>
+      </aside>
+
+      <aside class="callout callout-performance">
+        <strong>Performance tip</strong>
+        <p>The Redis Lua script approach is the safest distributed pattern but adds 1&ndash;2ms of network latency per request. For high-throughput hot paths (login, search), front the Redis check with a per-pod local token bucket sized at 1/N of the global rate &mdash; the local bucket absorbs the burst, the Redis check happens only when the local bucket is exhausted.</p>
+      </aside>
 
       <h3>Using Burst as Capacity</h3>
 
@@ -381,6 +413,12 @@ spec:
 
       <h3>Should rate limits be public or hidden?</h3>
       <p>Public for legitimate users (so they can build clients that respect the limits). Returns the standard <code>X-RateLimit-Limit</code>, <code>X-RateLimit-Remaining</code>, <code>X-RateLimit-Reset</code> headers. Hidden for abuse-detection rules &mdash; if an attacker knows the threshold for triggering bot-detection, they can stay just under it.</p>
+
+      <h2>Conclusion</h2>
+
+      <p>Rate limiting is the most universally applicable defensive control in modern infrastructure. Get the algorithm right and a misbehaving client&apos;s burst is absorbed before it touches your application. Get it wrong and you DDoS yourself with retries, leak free inference compute, or block legitimate users while attackers rotate IPs and walk past you.</p>
+
+      <p>The high-leverage takeaways: <strong>token bucket for burst-friendly user-facing APIs, leaky bucket for strict downstream pacing, sliding-window counter as the boundary-safe default at scale</strong>; <strong>centralised Redis with a Lua script is the safest distributed pattern; local + reconcile is the lowest-latency one</strong>; <strong>combine layers &mdash; CDN for volumetric, gateway for per-API-key, application for per-action</strong>; <strong>treat authentication endpoints as a special class with stricter limits and dual per-IP / per-username scoping</strong>; <strong>cost-based weighting for paid services so an LLM call costs more bucket capacity than a GET</strong>. Decide deliberately whether the limiter fails open or closed, instrument the actual acceptance rate, and tune from real data, not guesses.</p>
 
       <h2>Where to Go Next</h2>
 

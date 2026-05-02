@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 380" role="img" aria-label="Raft leader election state diagram">
+  <rect width="800" height="380" fill="#0f172a" rx="12"/>
+  <text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700">RAFT LEADER ELECTION</text>
+  <rect x="30" y="60" width="180" height="280" rx="10" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="120" y="84" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="700">FOLLOWER</text>
+  <text x="120" y="112" text-anchor="middle" fill="#94a3b8" font-size="10">Receives heartbeats from leader</text>
+  <text x="120" y="140" text-anchor="middle" fill="#94a3b8" font-size="10">Election timeout: 150–300ms</text>
+  <text x="120" y="200" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">No heartbeat?</text>
+  <text x="120" y="216" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">↓ become candidate</text>
+  <line x1="210" y1="200" x2="280" y2="200" stroke="#fbbf24" stroke-width="2" marker-end="url(#a)"/>
+  <rect x="290" y="60" width="180" height="280" rx="10" fill="#1e293b" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="380" y="84" text-anchor="middle" fill="#fcd34d" font-size="12" font-weight="700">CANDIDATE</text>
+  <text x="380" y="112" text-anchor="middle" fill="#94a3b8" font-size="10">Increment term, vote for self</text>
+  <text x="380" y="140" text-anchor="middle" fill="#94a3b8" font-size="10">RequestVote RPCs to peers</text>
+  <text x="380" y="200" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">Majority votes?</text>
+  <text x="380" y="216" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">↓ become leader</text>
+  <line x1="470" y1="200" x2="540" y2="200" stroke="#22c55e" stroke-width="2" marker-end="url(#a)"/>
+  <rect x="550" y="60" width="220" height="280" rx="10" fill="#1e293b" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="660" y="84" text-anchor="middle" fill="#86efac" font-size="12" font-weight="700">LEADER</text>
+  <text x="660" y="112" text-anchor="middle" fill="#94a3b8" font-size="10">AppendEntries heartbeats ~50ms</text>
+  <text x="660" y="140" text-anchor="middle" fill="#94a3b8" font-size="10">Replicate log to majority</text>
+  <text x="660" y="200" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">Commit on majority ack</text>
+  <defs><marker id="a" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#94a3b8"/></marker></defs>
+</svg>

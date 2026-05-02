@@ -132,6 +132,55 @@ export const CONTENT = `
 
       <p>Real production lesson: pure bin packing fights against resilience. Tightly packed nodes have no headroom for the next pod or for memory spikes. Spread-out nodes are robust but waste money. The right answer depends on whether your cluster autoscaler is aggressive enough to recover the &quot;waste&quot; nodes &mdash; if it is, packing wins; if it is not, spreading wins.</p>
 
+      <svg viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Workload placement comparison showing pack vs spread strategies across nodes">
+        <rect width="800" height="360" fill="#0f172a" rx="12"/>
+        <text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700">WORKLOAD PLACEMENT &mdash; PACK vs SPREAD</text>
+        <text x="200" y="68" text-anchor="middle" fill="#fcd34d" font-size="12" font-weight="700">PACK (MostAllocated, FFD)</text>
+        <text x="200" y="84" text-anchor="middle" fill="#94a3b8" font-size="9">enables aggressive autoscaler scale-down</text>
+        <rect x="60" y="100" width="80" height="180" rx="6" fill="none" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="100" y="296" text-anchor="middle" fill="#fcd34d" font-size="10" font-weight="700">Node A</text>
+        <rect x="65" y="120" width="70" height="40" rx="3" fill="#fbbf24" fill-opacity="0.5"/>
+        <text x="100" y="144" text-anchor="middle" fill="#fef3c7" font-size="9">pod 1</text>
+        <rect x="65" y="165" width="70" height="40" rx="3" fill="#fbbf24" fill-opacity="0.5"/>
+        <text x="100" y="189" text-anchor="middle" fill="#fef3c7" font-size="9">pod 2</text>
+        <rect x="65" y="210" width="70" height="40" rx="3" fill="#fbbf24" fill-opacity="0.5"/>
+        <text x="100" y="234" text-anchor="middle" fill="#fef3c7" font-size="9">pod 3</text>
+        <text x="100" y="270" text-anchor="middle" fill="#94a3b8" font-size="8">95% util</text>
+        <rect x="160" y="100" width="80" height="180" rx="6" fill="none" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="200" y="296" text-anchor="middle" fill="#fcd34d" font-size="10" font-weight="700">Node B</text>
+        <rect x="165" y="120" width="70" height="60" rx="3" fill="#fbbf24" fill-opacity="0.5"/>
+        <text x="200" y="154" text-anchor="middle" fill="#fef3c7" font-size="9">pod 4</text>
+        <rect x="165" y="185" width="70" height="40" rx="3" fill="#fbbf24" fill-opacity="0.5"/>
+        <text x="200" y="209" text-anchor="middle" fill="#fef3c7" font-size="9">pod 5</text>
+        <text x="200" y="270" text-anchor="middle" fill="#94a3b8" font-size="8">82% util</text>
+        <rect x="260" y="100" width="80" height="180" rx="6" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <text x="300" y="296" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="700">Node C</text>
+        <text x="300" y="195" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="700">EMPTY</text>
+        <text x="300" y="215" text-anchor="middle" fill="#86efac" font-size="9">scale down</text>
+        <text x="300" y="270" text-anchor="middle" fill="#94a3b8" font-size="8">0% util</text>
+        <text x="600" y="68" text-anchor="middle" fill="#86efac" font-size="12" font-weight="700">SPREAD (LeastAllocated, balanced)</text>
+        <text x="600" y="84" text-anchor="middle" fill="#94a3b8" font-size="9">resilient to noisy neighbours, more headroom</text>
+        <rect x="460" y="100" width="80" height="180" rx="6" fill="none" stroke="#86efac" stroke-width="1.5"/>
+        <text x="500" y="296" text-anchor="middle" fill="#bbf7d0" font-size="10" font-weight="700">Node A</text>
+        <rect x="465" y="200" width="70" height="40" rx="3" fill="#22c55e" fill-opacity="0.5"/>
+        <text x="500" y="224" text-anchor="middle" fill="#dcfce7" font-size="9">pod 1</text>
+        <text x="500" y="270" text-anchor="middle" fill="#94a3b8" font-size="8">42% util</text>
+        <rect x="560" y="100" width="80" height="180" rx="6" fill="none" stroke="#86efac" stroke-width="1.5"/>
+        <text x="600" y="296" text-anchor="middle" fill="#bbf7d0" font-size="10" font-weight="700">Node B</text>
+        <rect x="565" y="180" width="70" height="60" rx="3" fill="#22c55e" fill-opacity="0.5"/>
+        <text x="600" y="214" text-anchor="middle" fill="#dcfce7" font-size="9">pod 2</text>
+        <text x="600" y="270" text-anchor="middle" fill="#94a3b8" font-size="8">55% util</text>
+        <rect x="660" y="100" width="80" height="180" rx="6" fill="none" stroke="#86efac" stroke-width="1.5"/>
+        <text x="700" y="296" text-anchor="middle" fill="#bbf7d0" font-size="10" font-weight="700">Node C</text>
+        <rect x="665" y="160" width="70" height="40" rx="3" fill="#22c55e" fill-opacity="0.5"/>
+        <text x="700" y="184" text-anchor="middle" fill="#dcfce7" font-size="9">pod 3</text>
+        <rect x="665" y="205" width="70" height="40" rx="3" fill="#22c55e" fill-opacity="0.5"/>
+        <text x="700" y="229" text-anchor="middle" fill="#dcfce7" font-size="9">pod 4</text>
+        <text x="700" y="270" text-anchor="middle" fill="#94a3b8" font-size="8">63% util</text>
+        <text x="400" y="335" text-anchor="middle" fill="#94a3b8" font-size="10">PodTopologySpread + node anti-affinity tunes the balance per workload class.</text>
+        <text x="400" y="352" text-anchor="middle" fill="#94a3b8" font-size="10">Production reality: pack non-critical workloads, spread latency-sensitive ones.</text>
+      </svg>
+
       <h2>Distributed Cron and Periodic Jobs</h2>
 
       <p>Scheduling jobs that should run periodically (every minute, hourly, nightly) is harder than it looks at scale. Single-node cron is reliable on one machine but does not survive that machine going down. Running cron on every node duplicates work. Running it on a designated leader node creates a single point of failure.</p>
@@ -200,15 +249,69 @@ with DAG(
 
       <p>Airflow excels at: complex dependencies (fan-out, fan-in, dynamic tasks), backfills (retry past dates), and observability (the UI is one of the best in the space). It struggles with: low-latency triggering (Airflow is designed for batch, not sub-second scheduling), and operational complexity at large DAG counts (the metadata database and scheduler can become bottlenecks at thousands of DAGs).</p>
 
+      <svg viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Task orchestration pipeline showing an Airflow DAG with sequential and fan-out tasks">
+        <rect width="800" height="360" fill="#0f172a" rx="12"/>
+        <text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700">TASK ORCHESTRATION PIPELINE (Airflow DAG)</text>
+        <rect x="40" y="80" width="120" height="60" rx="6" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6"/>
+        <text x="100" y="106" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="700">extract</text>
+        <text x="100" y="122" text-anchor="middle" fill="#94a3b8" font-size="9">pull from source</text>
+        <line x1="160" y1="110" x2="200" y2="110" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#dagArr)"/>
+        <rect x="200" y="80" width="120" height="60" rx="6" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/>
+        <text x="260" y="106" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">validate</text>
+        <text x="260" y="122" text-anchor="middle" fill="#94a3b8" font-size="9">schema check</text>
+        <line x1="320" y1="110" x2="360" y2="60" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#dagArr)"/>
+        <line x1="320" y1="110" x2="360" y2="110" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#dagArr)"/>
+        <line x1="320" y1="110" x2="360" y2="160" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#dagArr)"/>
+        <rect x="360" y="40" width="120" height="50" rx="6" fill="#fbbf24" fill-opacity="0.2" stroke="#fbbf24"/>
+        <text x="420" y="62" text-anchor="middle" fill="#fcd34d" font-size="10" font-weight="700">load_users</text>
+        <text x="420" y="78" text-anchor="middle" fill="#94a3b8" font-size="8">parallel branch 1</text>
+        <rect x="360" y="95" width="120" height="50" rx="6" fill="#fbbf24" fill-opacity="0.2" stroke="#fbbf24"/>
+        <text x="420" y="117" text-anchor="middle" fill="#fcd34d" font-size="10" font-weight="700">load_orders</text>
+        <text x="420" y="133" text-anchor="middle" fill="#94a3b8" font-size="8">parallel branch 2</text>
+        <rect x="360" y="150" width="120" height="50" rx="6" fill="#fbbf24" fill-opacity="0.2" stroke="#fbbf24"/>
+        <text x="420" y="172" text-anchor="middle" fill="#fcd34d" font-size="10" font-weight="700">load_events</text>
+        <text x="420" y="188" text-anchor="middle" fill="#94a3b8" font-size="8">parallel branch 3</text>
+        <line x1="480" y1="65" x2="520" y2="115" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#dagArr)"/>
+        <line x1="480" y1="120" x2="520" y2="120" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#dagArr)"/>
+        <line x1="480" y1="175" x2="520" y2="125" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#dagArr)"/>
+        <rect x="520" y="90" width="120" height="60" rx="6" fill="#a855f7" fill-opacity="0.2" stroke="#a855f7"/>
+        <text x="580" y="116" text-anchor="middle" fill="#ddd6fe" font-size="11" font-weight="700">aggregate</text>
+        <text x="580" y="132" text-anchor="middle" fill="#94a3b8" font-size="9">join + rollup</text>
+        <line x1="640" y1="120" x2="680" y2="120" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#dagArr)"/>
+        <rect x="680" y="90" width="100" height="60" rx="6" fill="#ec4899" fill-opacity="0.2" stroke="#ec4899"/>
+        <text x="730" y="116" text-anchor="middle" fill="#fbcfe8" font-size="11" font-weight="700">notify</text>
+        <text x="730" y="132" text-anchor="middle" fill="#94a3b8" font-size="9">alert on success</text>
+        <text x="100" y="220" fill="#cbd5e1" font-size="11" font-weight="700">Scheduler</text>
+        <text x="100" y="236" fill="#94a3b8" font-size="10">parses DAG, evaluates schedule (cron), enqueues runnable tasks.</text>
+        <text x="100" y="262" fill="#cbd5e1" font-size="11" font-weight="700">Executor</text>
+        <text x="100" y="278" fill="#94a3b8" font-size="10">picks tasks off the queue (Local / Celery / KubernetesExecutor) and runs them.</text>
+        <text x="100" y="304" fill="#cbd5e1" font-size="11" font-weight="700">Metadata DB (Postgres)</text>
+        <text x="100" y="320" fill="#94a3b8" font-size="10">tracks every task instance: queued / running / success / failed / retrying.</text>
+        <text x="100" y="346" fill="#94a3b8" font-size="10">Retries: exponential backoff with jitter. Failures fan into the DLQ-equivalent UI for manual triage.</text>
+        <defs>
+          <marker id="dagArr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/>
+          </marker>
+        </defs>
+      </svg>
+
       <h3>HashiCorp Nomad</h3>
 
       <p>Nomad is a generalist scheduler &mdash; it schedules anything, not just containers. Batch jobs, system services, periodic tasks, parameterized jobs, and dispatched jobs (one-off invocations of a job template). The scheduler uses bin-packing with anti-affinity and constraint solving.</p>
 
       <p>Nomad&apos;s differentiator from Kubernetes: simpler operational model, a single binary, multi-region native (federated clusters out of the box), and it can run in environments where Kubernetes is overkill (edge, IoT, simple batch farms).</p>
 
-      <h3>Apache Mesos</h3>
+      <h3>Apache Mesos and the Two-Level Scheduling Model</h3>
 
-      <p>Historically significant (Twitter, Apple, eBay all ran Mesos at huge scale), now in decline relative to Kubernetes. Mesos&apos; model was a two-level scheduler: a master scheduler offered resources to <strong>frameworks</strong> (Marathon, Spark, Aurora), which made their own placement decisions. Powerful but complex; Kubernetes&apos; integrated approach won the operational simplicity battle.</p>
+      <p>Mesos was the dominant cluster scheduler before Kubernetes &mdash; Twitter, Apple, eBay, Airbnb, and Uber ran Mesos at huge scale. It is in decline operationally (the project was archived by the ASF in 2021 and most users have migrated to Kubernetes), but the design ideas it pioneered remain influential and worth understanding.</p>
+
+      <p>Mesos&apos; defining innovation was the <strong>two-level scheduler</strong>. A central Mesos master tracked cluster resources and offered them &mdash; literally, as resource offers &mdash; to <strong>frameworks</strong> (Marathon for long-running services, Chronos for cron, Aurora for batch + services, and frameworks for Spark, Hadoop, Cassandra, Kafka, Jenkins). Each framework received offers and decided whether to accept any of them and what to schedule. The master never made placement decisions itself; it just brokered offers.</p>
+
+      <p>The advantages were real: a single cluster could run dozens of workload types each with its own scheduling logic; framework authors could implement domain-specific algorithms (Spark could co-locate stages, Hadoop could place near HDFS replicas) without modifying the master; and resource offers were a clean separation between &quot;what is available&quot; and &quot;who decides what to do with it&quot;.</p>
+
+      <p>The disadvantages were also real and ultimately decisive. Operating Mesos meant operating the master, the agents, ZooKeeper for HA, <em>and</em> at least one framework per workload type &mdash; typically Marathon for services, Chronos for cron, sometimes Aurora as a Marathon alternative. Each framework had its own configuration model, its own UI, its own operational gotchas. Kubernetes&apos; integrated &quot;one scheduler, one API, one operational model&quot; was easier to onboard, easier to staff for, and ultimately won the platform-engineering battle. The K8s scheduling framework (with its plugin extension points) is a more disciplined re-thinking of the Mesos two-level idea inside a single integrated control plane.</p>
+
+      <p>If you operate Mesos today, you are likely already on a migration path to Kubernetes or Nomad. The Mesos design ideas show up in modern systems &mdash; the Kubernetes scheduler framework, the Yunikorn multi-tenant resource fairness model, the Yarn capacity scheduler &mdash; in cleaner forms.</p>
 
       <h3>Custom Job Queues (Sidekiq, Celery, RQ, BullMQ)</h3>
 
@@ -350,6 +453,21 @@ with DAG(
 
       <p>If a worker takes longer than the visibility timeout to process a message, the message becomes visible again and another worker picks it up &mdash; double processing. Workers for long jobs should periodically extend the visibility timeout (heartbeat) or split the job into smaller chunks.</p>
 
+      <aside class="callout callout-mistake">
+        <strong>Common mistake</strong>
+        <p>Setting CPU and memory <em>limits</em> equal to <em>requests</em>. Limits set requests work for memory (the kernel kills you when exceeded) but for CPU, the kubelet uses CFS quotas that can throttle even when other cores are idle. Set CPU requests at p95 of usage; leave CPU limits unset (or set them generously above p99) for non-batch latency-sensitive workloads.</p>
+      </aside>
+
+      <aside class="callout callout-production">
+        <strong>Production note</strong>
+        <p>The most expensive scheduling decision is the one made at deploy time, not runtime. <code>topologySpreadConstraints</code>, <code>podAntiAffinity</code>, <code>nodeSelector</code>, and the right <code>PriorityClass</code> are baked into the manifest &mdash; the scheduler can only pick from what you allowed. Treat deploy manifests as scheduler policy and review them in code review.</p>
+      </aside>
+
+      <aside class="callout callout-troubleshoot">
+        <strong>Troubleshooting</strong>
+        <p>A pod stuck in Pending? Run <code>kubectl describe pod &lt;name&gt;</code> &mdash; the events list the exact reason (<em>0/N nodes are available: 3 Insufficient cpu, 2 node(s) had taint, ...</em>). Aggregate this across pods to spot patterns: insufficient CPU means resource pressure, taint mismatches mean a labelling drift, &ldquo;didn&apos;t match Pod&apos;s node affinity&rdquo; means a deploy referencing a label that does not exist.</p>
+      </aside>
+
       <h2>Observability</h2>
 
       <p>Production schedulers need:</p>
@@ -391,6 +509,12 @@ with DAG(
 
       <h3>What is &quot;gang scheduling&quot; and when do I need it?</h3>
       <p>Gang scheduling guarantees that a set of related pods all start together, or none of them start. Required for distributed ML training (rank 0 cannot do useful work without rank 1...N), Spark jobs (the driver needs all executors), and MPI workloads. The default Kubernetes scheduler does not support it; Volcano, Yunikorn, and KubeFlow&apos;s training-operator add it.</p>
+
+      <h2>Conclusion</h2>
+
+      <p>Scheduling decides what runs where. Get it right and your nodes are evenly utilised, your jobs survive failures, and your priorities are respected without manual intervention. Get it wrong and you end up with thrashing pods, starved background work, and a cluster running at 30% utilisation while telling you it has no room.</p>
+
+      <p>The high-leverage takeaways for production engineers: <strong>topology spread across zones is the difference between &quot;single-AZ outage&quot; and &quot;customer-impacting outage&quot;</strong>; <strong>resource requests should be set at p95 of actual usage, not p99-of-peak-day, otherwise the scheduler refuses to pack</strong>; <strong>PriorityClasses + PodDisruptionBudgets together let you reason about both preemption and drain safety</strong>; <strong>distributed cron needs leader election, not &quot;cron on every node&quot; or &quot;cron on the master&quot;</strong>; <strong>queue-based orchestration needs idempotency keys, exponential backoff with jitter, dead-letter queues, and visibility timeouts &mdash; not all four is incomplete</strong>; <strong>fairness is not free &mdash; pick a tenancy model (DRF, dedicated namespaces, dedicated clusters) that matches your actual isolation requirements</strong>. The scheduler that quietly does the right thing is the one that has been instrumented and tuned over real production traffic.</p>
 
       <h2>Where to Go Next</h2>
 

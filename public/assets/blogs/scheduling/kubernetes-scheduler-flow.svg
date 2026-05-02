@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 380" role="img" aria-label="Kubernetes scheduler flow: filter, score, bind">
+  <rect width="800" height="380" fill="#0f172a" rx="12"/>
+  <text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700">KUBERNETES SCHEDULER FLOW</text>
+  <rect x="40" y="60" width="120" height="50" rx="6" fill="#1e293b" stroke="#3b82f6"/>
+  <text x="100" y="80" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="700">Pending Pod</text>
+  <line x1="160" y1="85" x2="200" y2="85" stroke="#94a3b8" marker-end="url(#a)"/>
+  <rect x="200" y="60" width="160" height="50" rx="6" fill="#fbbf24" fill-opacity="0.15" stroke="#fbbf24"/>
+  <text x="280" y="80" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="700">FILTER (predicates)</text>
+  <text x="280" y="98" text-anchor="middle" fill="#94a3b8" font-size="9">resource fit, affinity, taints</text>
+  <line x1="360" y1="85" x2="400" y2="85" stroke="#94a3b8" marker-end="url(#a)"/>
+  <rect x="400" y="60" width="160" height="50" rx="6" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e"/>
+  <text x="480" y="80" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">SCORE (priorities)</text>
+  <text x="480" y="98" text-anchor="middle" fill="#94a3b8" font-size="9">image locality, balance, spread</text>
+  <line x1="560" y1="85" x2="600" y2="85" stroke="#94a3b8" marker-end="url(#a)"/>
+  <rect x="600" y="60" width="160" height="50" rx="6" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6"/>
+  <text x="680" y="80" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="700">BIND</text>
+  <text x="680" y="98" text-anchor="middle" fill="#94a3b8" font-size="9">write Pod.spec.nodeName</text>
+  <text x="400" y="160" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="700">CLUSTER NODES</text>
+  <rect x="80" y="180" width="100" height="80" rx="6" fill="#1e293b" stroke="#94a3b8"/>
+  <text x="130" y="220" text-anchor="middle" fill="#fca5a5" font-size="9">FAIL: CPU full</text>
+  <rect x="200" y="180" width="100" height="80" rx="6" fill="#1e293b" stroke="#94a3b8"/>
+  <text x="250" y="220" text-anchor="middle" fill="#fca5a5" font-size="9">FAIL: taint</text>
+  <rect x="320" y="180" width="100" height="80" rx="6" fill="#1e293b" stroke="#22c55e"/>
+  <text x="370" y="220" text-anchor="middle" fill="#86efac" font-size="9">PASS, score 78</text>
+  <rect x="440" y="180" width="100" height="80" rx="6" fill="#1e293b" stroke="#22c55e"/>
+  <text x="490" y="220" text-anchor="middle" fill="#86efac" font-size="9" font-weight="700">PASS, 92 ✓</text>
+  <rect x="560" y="180" width="100" height="80" rx="6" fill="#1e293b" stroke="#22c55e"/>
+  <text x="610" y="220" text-anchor="middle" fill="#86efac" font-size="9">PASS, score 81</text>
+  <rect x="680" y="180" width="100" height="80" rx="6" fill="#1e293b" stroke="#94a3b8"/>
+  <text x="730" y="220" text-anchor="middle" fill="#fca5a5" font-size="9">FAIL: affinity</text>
+  <line x1="490" y1="260" x2="490" y2="295" stroke="#22c55e" stroke-width="2" marker-end="url(#a)"/>
+  <rect x="350" y="295" width="280" height="50" rx="6" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e"/>
+  <text x="490" y="316" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">Pod scheduled to Node D</text>
+  <defs><marker id="a" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/></marker></defs>
+</svg>

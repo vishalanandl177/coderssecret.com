@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" role="img" aria-label="Distributed rate limiter architecture: edge, gateway, Redis, origin">
+  <rect width="800" height="360" fill="#0f172a" rx="12"/>
+  <text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700">DISTRIBUTED RATE LIMITER ARCHITECTURE</text>
+  <rect x="40" y="70" width="120" height="70" rx="6" fill="#1e293b" stroke="#3b82f6"/>
+  <text x="100" y="98" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="700">Edge / CDN</text>
+  <text x="100" y="116" text-anchor="middle" fill="#94a3b8" font-size="9">Per-IP: 10,000/min</text>
+  <line x1="160" y1="105" x2="220" y2="105" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#a)"/>
+  <rect x="220" y="60" width="160" height="180" rx="6" fill="#1e293b" stroke="#fbbf24"/>
+  <text x="300" y="86" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="700">API Gateway</text>
+  <text x="300" y="100" text-anchor="middle" fill="#94a3b8" font-size="9">(N replicas)</text>
+  <rect x="240" y="115" width="50" height="32" fill="#fbbf24" fill-opacity="0.15" stroke="#fbbf24"/>
+  <rect x="310" y="115" width="50" height="32" fill="#fbbf24" fill-opacity="0.15" stroke="#fbbf24"/>
+  <rect x="240" y="155" width="50" height="32" fill="#fbbf24" fill-opacity="0.15" stroke="#fbbf24"/>
+  <rect x="310" y="155" width="50" height="32" fill="#fbbf24" fill-opacity="0.15" stroke="#fbbf24"/>
+  <text x="300" y="208" text-anchor="middle" fill="#94a3b8" font-size="9">Per-API-key via Lua</text>
+  <line x1="380" y1="150" x2="500" y2="150" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="500" y1="170" x2="380" y2="170" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#a)"/>
+  <rect x="500" y="105" width="170" height="120" rx="6" fill="#1e293b" stroke="#22c55e"/>
+  <text x="585" y="132" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">Redis Cluster</text>
+  <text x="585" y="150" text-anchor="middle" fill="#94a3b8" font-size="9">Atomic token-bucket</text>
+  <line x1="300" y1="240" x2="300" y2="280" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#a)"/>
+  <rect x="220" y="280" width="160" height="60" rx="6" fill="#1e293b" stroke="#94a3b8"/>
+  <text x="300" y="306" text-anchor="middle" fill="#cbd5e1" font-size="11" font-weight="700">Origin services</text>
+  <defs><marker id="a" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/></marker></defs>
+</svg>
