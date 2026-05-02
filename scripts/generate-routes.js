@@ -689,6 +689,43 @@ created++;
     created++;
   });
 
+  // ── Distributed Systems Engineering course ──
+  const dseDir = path.join(OUTPUT_DIR, 'courses', 'distributed-systems-engineering');
+  fs.mkdirSync(dseDir, { recursive: true });
+  fs.writeFileSync(path.join(dseDir, 'index.html'), makeHtml({
+    title: 'Distributed Systems Engineering: Building Scalable, Reliable & Secure Systems — Free Course',
+    description: 'Production-grade, beginner-friendly but deeply practical course on distributed systems. CAP, consensus (Raft/Paxos), distributed data, scalability, reliability, Zero Trust, observability, Kubernetes. 12 modules, hands-on labs, free.',
+    url: '/courses/distributed-systems-engineering',
+    content: '<h1>Distributed Systems Engineering</h1><p>12 modules, hands-on labs every module, completely free. CAP, consensus, replication, scalability, reliability, Zero Trust security, observability, Kubernetes-native architecture, real failure scenarios, and production system design.</p>',
+  }));
+  created++;
+
+  const dseModules = [
+    { slug: 'foundations-distributed-systems', title: 'Foundations of Distributed Systems' },
+    { slug: 'networking-distributed-communication', title: 'Networking & Distributed Communication' },
+    { slug: 'event-driven-asynchronous-systems', title: 'Event-Driven & Asynchronous Systems' },
+    { slug: 'distributed-data-management', title: 'Distributed Data Management' },
+    { slug: 'consensus-coordination', title: 'Consensus & Coordination' },
+    { slug: 'scalability-engineering', title: 'Scalability Engineering' },
+    { slug: 'reliability-failure-engineering', title: 'Reliability & Failure Engineering' },
+    { slug: 'distributed-security-zero-trust', title: 'Distributed Security & Zero Trust' },
+    { slug: 'observability-debugging', title: 'Observability & Debugging' },
+    { slug: 'kubernetes-cloud-native-distributed-systems', title: 'Kubernetes & Cloud Native Distributed Systems' },
+    { slug: 'real-world-failure-scenarios', title: 'Real-World Failure Scenarios' },
+    { slug: 'production-system-design-capstone', title: 'Production System Design & Capstone' },
+  ];
+  dseModules.forEach((mod, i) => {
+    const modDir = path.join(OUTPUT_DIR, 'courses', 'distributed-systems-engineering', mod.slug);
+    fs.mkdirSync(modDir, { recursive: true });
+    fs.writeFileSync(path.join(modDir, 'index.html'), makeHtml({
+      title: `Module ${i + 1}: ${mod.title} — Distributed Systems Engineering`,
+      description: `Module ${i + 1} of the Distributed Systems Engineering course.`,
+      url: `/courses/distributed-systems-engineering/${mod.slug}`,
+      content: `<h1>Module ${i + 1}: ${mod.title}</h1><p><a href="/courses/distributed-systems-engineering">← Back to course</a></p>`,
+    }));
+    created++;
+  });
+
 // ── Glossary pages ──
 const glossaryTerms = [
   { slug: 'spiffe', term: 'SPIFFE', desc: 'Secure Production Identity Framework For Everyone — CNCF standard for workload identity.' },

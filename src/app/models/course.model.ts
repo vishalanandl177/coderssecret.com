@@ -3493,4 +3493,1323 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
       glossary: [{ term: 'Capstone', definition: 'Final project integrating all course concepts into one production system' }, { term: 'Quality Gate', definition: 'CI/CD check blocking deployment if metrics degrade' }, { term: 'Production RAG', definition: 'RAG system with security, observability, multi-tenancy, and deployment automation' }],
     },    ],
   },
+  {
+    id: '4',
+    slug: 'distributed-systems-engineering',
+    title: 'Distributed Systems Engineering: Building Scalable, Reliable & Secure Systems',
+    subtitle: 'A production-grade, beginner-friendly but deeply practical course on how real distributed systems actually work — from foundations through Kubernetes, observability, Zero Trust, and real-world failure recovery.',
+    excerpt: 'Learn how production distributed systems actually work. CAP, consensus (Raft/Paxos), distributed data, scalability, reliability, Zero Trust, observability, Kubernetes-native architecture, and real failure scenarios — taught from operational reality, not textbooks. 12 modules, hands-on labs, completely free.',
+    description: 'The most practical distributed systems course you can take for free. Twelve modules walk you from foundations (CAP, latency, fault tolerance) through networking (gRPC, retries, load balancing), event-driven systems (Kafka, NATS), distributed data (replication, sharding, quorums), consensus (Raft, etcd, leader election), scalability (autoscaling, caching, rate limiting), reliability engineering (circuit breakers, chaos), Zero Trust (SPIFFE/SPIRE, mTLS, OPA), observability (OpenTelemetry, tracing), Kubernetes cloud-native architecture, real failure scenarios (split brain, retry storms, cache stampede), and production system design. Architecture-first. Diagram-heavy. Hands-on labs every module. Built for engineers who operate real systems.',
+    totalDuration: '50+ hours',
+    level: 'Beginner to Advanced',
+    category: 'backend',
+    tags: ['Distributed Systems', 'Cloud Native', 'Kubernetes', 'Architecture', 'Scalability', 'Reliability', 'Zero Trust', 'SPIFFE', 'SPIRE', 'mTLS', 'Observability', 'OpenTelemetry', 'Raft', 'Consensus', 'Kafka', 'Service Mesh', 'Production Engineering', 'SRE', 'Platform Engineering'],
+    targetAudience: [
+      'Backend Engineers stepping into distributed systems work',
+      'Platform Engineers building internal developer platforms',
+      'DevOps Engineers operating distributed infrastructure',
+      'SREs responsible for production reliability',
+      'Software architects designing scalable systems',
+      'Engineers preparing for senior/staff-level system design',
+      'Beginners who want a structured foundation in modern distributed systems',
+    ],
+    instructor: {
+      name: 'Vishal Anand',
+      title: 'Senior Product Engineer & Tech Lead',
+      bio: 'Senior Product Engineer and Tech Lead with hands-on experience building production distributed systems at scale. Creator of DRF API Logger (1.6M+ downloads) and the Mastering SPIFFE & SPIRE course. Teaches engineering from operational reality — no theory without code, no concepts without labs.',
+      github: 'https://github.com/vishalanandl177',
+      achievements: [
+        'Creator of DRF API Logger — 1.6M+ downloads',
+        'Author of Mastering SPIFFE & SPIRE — comprehensive workload identity course',
+        'Author of Cloud Native Security Engineering — 16-module free course',
+        'Builds and operates production distributed systems',
+      ],
+    },
+    modules: [
+      {
+        number: 1,
+        title: 'Foundations of Distributed Systems',
+        slug: 'foundations-distributed-systems',
+        subtitle: 'What a distributed system actually is, why we build them, and the trade-offs that define every design decision after this point.',
+        duration: '3 hours',
+        objectives: [
+          'Define a distributed system from a production-engineering perspective',
+          'Understand why distributed systems replace monoliths and what it costs you',
+          'Internalise CAP and PACELC as decision frameworks, not academic theorems',
+          'Reason about latency, availability, fault tolerance, and consistency as a coupled system',
+          'Build the mental model that every later module depends on',
+        ],
+        svgDiagram: '<svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="420" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold">MONOLITH vs DISTRIBUTED</text><rect x="40" y="60" width="320" height="320" rx="10" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/><text x="200" y="86" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="bold">MONOLITH</text><rect x="80" y="110" width="240" height="240" rx="6" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6"/><text x="200" y="138" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="bold">Single Process</text><text x="200" y="170" text-anchor="middle" fill="#94a3b8" font-size="9">Auth · Orders · Payments</text><text x="200" y="186" text-anchor="middle" fill="#94a3b8" font-size="9">Search · Email · Reports</text><text x="200" y="220" text-anchor="middle" fill="#bfdbfe" font-size="10">In-process calls (~ns)</text><text x="200" y="240" text-anchor="middle" fill="#bfdbfe" font-size="10">One database</text><text x="200" y="260" text-anchor="middle" fill="#bfdbfe" font-size="10">Atomic transactions</text><text x="200" y="290" text-anchor="middle" fill="#fca5a5" font-size="10">Single point of failure</text><text x="200" y="306" text-anchor="middle" fill="#fca5a5" font-size="10">Scales vertically only</text><text x="200" y="322" text-anchor="middle" fill="#fca5a5" font-size="10">Deploy = full restart</text><rect x="440" y="60" width="320" height="320" rx="10" fill="#1e293b" stroke="#22c55e" stroke-width="2"/><text x="600" y="86" text-anchor="middle" fill="#86efac" font-size="12" font-weight="bold">DISTRIBUTED</text><circle cx="510" cy="150" r="22" fill="#22c55e" fill-opacity="0.3" stroke="#22c55e"/><text x="510" y="154" text-anchor="middle" fill="#bbf7d0" font-size="9" font-weight="bold">Auth</text><circle cx="600" cy="130" r="22" fill="#22c55e" fill-opacity="0.3" stroke="#22c55e"/><text x="600" y="134" text-anchor="middle" fill="#bbf7d0" font-size="9" font-weight="bold">Orders</text><circle cx="690" cy="150" r="22" fill="#22c55e" fill-opacity="0.3" stroke="#22c55e"/><text x="690" y="154" text-anchor="middle" fill="#bbf7d0" font-size="9" font-weight="bold">Pay</text><circle cx="510" cy="230" r="22" fill="#22c55e" fill-opacity="0.3" stroke="#22c55e"/><text x="510" y="234" text-anchor="middle" fill="#bbf7d0" font-size="9" font-weight="bold">Search</text><circle cx="690" cy="230" r="22" fill="#22c55e" fill-opacity="0.3" stroke="#22c55e"/><text x="690" y="234" text-anchor="middle" fill="#bbf7d0" font-size="9" font-weight="bold">Email</text><line x1="532" y1="150" x2="578" y2="135" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 2"/><line x1="622" y1="135" x2="668" y2="150" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 2"/><line x1="510" y1="172" x2="510" y2="208" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 2"/><line x1="690" y1="172" x2="690" y2="208" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 2"/><text x="600" y="290" text-anchor="middle" fill="#bbf7d0" font-size="10">Network calls (~ms)</text><text x="600" y="306" text-anchor="middle" fill="#bbf7d0" font-size="10">Many databases</text><text x="600" y="322" text-anchor="middle" fill="#bbf7d0" font-size="10">Independent deploys</text><text x="600" y="346" text-anchor="middle" fill="#86efac" font-size="10" font-weight="bold">Scales horizontally</text><text x="400" y="402" text-anchor="middle" fill="#94a3b8" font-size="10">Choose distributed when failure isolation, independent scaling, or team autonomy outweighs the operational cost.</text></svg>',
+        content: `
+          <p>A distributed system is not <em>multiple servers</em>. A distributed system is what you get when failure of one component should not equal failure of the whole, when independent teams need to ship without coordinating every release, and when one machine is no longer enough to handle the load. Everything else &mdash; the consensus protocols, the service meshes, the observability pipelines &mdash; is mechanical detail that exists because we made the foundational choice to spread state and computation across many machines.</p>
+
+          <p>This module sets the mental model that every later module depends on. By the end you should be able to read a system architecture and name the trade-offs the designer made, predict the failure modes from the topology alone, and decide for any given service whether distribution is the right call or premature complexity.</p>
+
+          <h2>Why Distribute? The Real Reasons</h2>
+
+          <p>The standard answer is &ldquo;scale&rdquo;. The honest answer is more nuanced. Real production teams move from monolith to distributed for one or more of:</p>
+          <ul>
+            <li><strong>Failure isolation</strong> &mdash; if the recommendation service crashes, the checkout flow should still work. A monolith dies as one process; distributed services degrade independently.</li>
+            <li><strong>Independent deploys</strong> &mdash; a 200-engineer org cannot rally around a single deploy train. Microservices let teams ship without lockstep coordination.</li>
+            <li><strong>Independent scaling</strong> &mdash; the search service may need 10x compute while the user-profile service needs 1x. A monolith forces them to scale together.</li>
+            <li><strong>Geographic distribution</strong> &mdash; users in Singapore expect low latency from Singapore. A single-region monolith cannot serve global traffic well.</li>
+            <li><strong>Heterogeneous storage</strong> &mdash; one service needs Postgres, another needs Redis, a third needs S3. Distribution lets each pick its store.</li>
+          </ul>
+
+          <p>The cost ledger is real too. Every distributed boundary introduces latency, partial failure, network unreliability, debugging complexity, deployment coordination, and observability work that did not exist in the monolith. <strong>Distribute when one of the reasons above outweighs the operational tax</strong> &mdash; and not before.</p>
+
+          <h2>The CAP Theorem &mdash; A Decision Tool, Not a Theorem</h2>
+
+          <p>Eric Brewer&apos;s CAP theorem (formalised by Gilbert &amp; Lynch in 2002) says: in a system with replication, you can have at most two of <strong>Consistency</strong> (every read sees the latest write), <strong>Availability</strong> (every request gets a non-error response), and <strong>Partition tolerance</strong> (the system continues operating across network partitions).</p>
+
+          <p>Network partitions are inevitable in real production environments &mdash; cables get cut, NICs fail, packet loss spikes during deploys. So you do not get to opt out of P. The actual question CAP forces is: <strong>during a partition, would you rather refuse writes (preserve consistency) or accept potentially stale data (preserve availability)?</strong></p>
+
+          <ul>
+            <li><strong>CP</strong> systems (etcd, ZooKeeper, Spanner): refuse writes during a partition rather than diverge. Used for control-plane state, leader election, configuration.</li>
+            <li><strong>AP</strong> systems (Cassandra, DynamoDB default, Riak): keep accepting reads/writes; reconcile divergent replicas later. Used for high-availability data planes.</li>
+          </ul>
+
+          <p>The <strong>PACELC extension</strong> (Daniel Abadi, 2010) sharpens the picture: <em>even when there is no Partition</em>, you trade off between <strong>Latency and Consistency</strong>. Spanner is CP/EC (strict consistency at the cost of cross-region latency). DynamoDB is AP/EL by default (low latency at the cost of eventual consistency). The honest decision framework is PACELC, not just CAP.</p>
+
+          <h2>Latency &mdash; The Tax You Pay</h2>
+
+          <p>The numbers every distributed-systems engineer should know:</p>
+          <ul>
+            <li>L1 cache reference: ~0.5ns</li>
+            <li>Main memory reference: ~100ns (200x slower than L1)</li>
+            <li>SSD random read: ~150&micro;s</li>
+            <li>Network round-trip same-DC: ~0.5ms</li>
+            <li>Network round-trip same-region: ~1&ndash;5ms</li>
+            <li>Network round-trip cross-continent: ~80&ndash;200ms</li>
+          </ul>
+
+          <p>Every microservice boundary you cross is at least 0.5ms in the same DC. Every cross-region call is 100ms. A user-facing request that passes through 8 services, hits a cross-region database, and waits on a cache miss can easily reach 500ms even if every service is healthy. The architecture determines the latency floor; you cannot tune your way out of bad topology.</p>
+
+          <h2>Availability and the &ldquo;Nines&rdquo;</h2>
+
+          <p>Availability is typically expressed as a percentage of uptime over a window. The famous &ldquo;nines&rdquo; ladder:</p>
+          <ul>
+            <li>99% (two nines) &rArr; 3.65 days of downtime per year</li>
+            <li>99.9% (three nines) &rArr; 8.76 hours per year</li>
+            <li>99.99% (four nines) &rArr; ~52 minutes per year</li>
+            <li>99.999% (five nines) &rArr; ~5.26 minutes per year</li>
+          </ul>
+
+          <p>Two practical realities. First, claimed availability rarely matches measured availability &mdash; cloud providers exclude maintenance windows, regional issues, and certain failure modes. Second, the dependency math is brutal: a service that depends on five 99.9% services has availability of <code>0.999^5 = 99.5%</code>. Independent dependencies multiply, and your effective SLO is bounded by your weakest critical path.</p>
+
+          <h2>Fault Tolerance &mdash; Designing for &ldquo;When&rdquo;, Not &ldquo;If&rdquo;</h2>
+
+          <p>Fault tolerance is the property that the system continues to operate (perhaps at reduced capacity) even when some components fail. The standard tools:</p>
+          <ul>
+            <li><strong>Redundancy</strong> &mdash; multiple replicas behind a load balancer; if one dies, others take over.</li>
+            <li><strong>Timeouts</strong> &mdash; do not wait forever for a dead dependency. Always set a timeout and have a fallback.</li>
+            <li><strong>Retries with exponential backoff and jitter</strong> &mdash; a failed call is retried, but with increasing delay (and randomness) so you do not hammer a recovering service.</li>
+            <li><strong>Circuit breakers</strong> &mdash; after N consecutive failures, stop calling the failing dependency for a window so it can recover.</li>
+            <li><strong>Bulkheads</strong> &mdash; isolate workloads so noisy neighbours cannot starve critical paths.</li>
+            <li><strong>Graceful degradation</strong> &mdash; when a non-critical dependency fails, return reduced functionality rather than full error.</li>
+          </ul>
+
+          <p>Modules 6 and 7 cover these patterns in depth. For now, the key idea: <strong>plan for partial failure as a normal mode of operation, not an emergency</strong>.</p>
+
+          <h2>Consistency Models &mdash; What You Promise</h2>
+
+          <p>From strongest to weakest:</p>
+          <ul>
+            <li><strong>Linearizable</strong> &mdash; every operation appears to happen at a single instant; reads see the latest write globally. Spanner, etcd Raft.</li>
+            <li><strong>Sequential consistency</strong> &mdash; all clients see the same order of operations, not necessarily wall-clock order. Single-leader DBs.</li>
+            <li><strong>Causal consistency</strong> &mdash; causally related operations are seen in causal order; concurrent operations may reorder. Common in collaborative editing.</li>
+            <li><strong>Read-your-writes</strong> &mdash; a client sees its own writes; other clients may lag.</li>
+            <li><strong>Eventual consistency</strong> &mdash; replicas converge if writes stop. The weakest useful guarantee. DynamoDB default.</li>
+          </ul>
+
+          <p>The right consistency depends on the operation: a balance check needs strong consistency; a &ldquo;number of likes&rdquo; can tolerate eventual. Many systems offer <em>tunable</em> consistency at query time (Cassandra <code>CL=QUORUM</code> vs <code>CL=ONE</code>; MongoDB <code>readConcern</code>; DynamoDB <code>ConsistentRead</code>).</p>
+
+          <h2>How This Course Is Structured</h2>
+
+          <p>The next 11 modules walk you through every layer of a real distributed system:</p>
+          <ul>
+            <li>Modules 2&ndash;3: how services talk (networking, gRPC, events, Kafka).</li>
+            <li>Modules 4&ndash;5: how data is split, replicated, and agreed upon (replication, sharding, consensus).</li>
+            <li>Modules 6&ndash;7: how systems handle scale and failure (autoscaling, circuit breakers, chaos).</li>
+            <li>Module 8: the security primitives that hold modern distributed systems together (Zero Trust, mTLS, SPIFFE).</li>
+            <li>Module 9: how you observe and debug distributed systems (tracing, metrics, logs).</li>
+            <li>Module 10: how Kubernetes changes everything.</li>
+            <li>Module 11: real failure scenarios you will see in production.</li>
+            <li>Module 12: how to design end-to-end production systems.</li>
+          </ul>
+
+          <p>For deeper foundational reading, the <a href="/blog/distributed-systems-algorithms-production-guide" class="text-primary underline">Distributed Systems Algorithms guide</a> goes into Raft/Paxos, quorum math, vector clocks, and CRDTs at the algorithm level. For hands-on practice, the <a href="/games/kubernetes-security-simulator" class="text-primary underline">Kubernetes Security Simulator</a> exercises the operational decisions that matter from Module 8 onwards.</p>
+        `,
+        labs: [
+          { title: 'Lab 1.1 — Latency Simulation Across Service Boundaries', objective: 'Measure how cross-service network hops accumulate latency in a real microservice topology.', repoPath: 'module-1/lab-latency-simulation', steps: ['Spin up 5 small services (Go or Python) on docker-compose', 'Wire them in a chain: A → B → C → D → E', 'Add 5ms artificial latency per hop', 'Send 1000 requests through the chain and record p50/p95/p99', 'Compare to a single-monolith implementation', 'Plot the cumulative latency'], duration: '45 minutes', difficulty: 'Beginner', expectedOutput: 'Clear visualisation showing the 5x latency multiplier of the chain topology vs the monolith.' },
+          { title: 'Lab 1.2 — Failure Isolation Test', objective: 'Demonstrate failure isolation: kill one microservice and observe how the system degrades vs how a monolith fails.', repoPath: 'module-1/lab-failure-isolation', steps: ['Use the same 5-service chain from Lab 1.1', 'Add graceful degradation in service A: if D fails, return cached or partial response', 'Send traffic, kill service D mid-flight', 'Observe error rate, response codes, response shape', 'Repeat with the monolithic implementation'], duration: '45 minutes', difficulty: 'Beginner', expectedOutput: 'Distributed version returns degraded but valid responses; monolith returns 5xx errors.' },
+          { title: 'Lab 1.3 — Availability Math', objective: 'Calculate end-to-end availability for a real architecture and identify the weakest link.', repoPath: 'module-1/lab-availability-math', steps: ['Document a real microservice architecture you operate (or a fictional one with 6 services)', 'Assign each service its measured or claimed availability', 'Compute end-to-end availability for the critical path', 'Identify the single change that would most improve overall SLO', 'Document the find-and-fix recommendation'], duration: '30 minutes', difficulty: 'Beginner' },
+        ],
+        keyTakeaways: [
+          'A distributed system exists for failure isolation, independent scaling, and team autonomy &mdash; not just &ldquo;scale&rdquo;',
+          'CAP/PACELC frame the trade-offs you must make consciously; pretending otherwise leads to surprise outages',
+          'Latency is set by topology before it is set by code &mdash; bad architecture cannot be tuned',
+          'Effective availability is the product of dependency availabilities &mdash; mind your critical path',
+          'Plan for partial failure as a normal operating mode, not an emergency',
+        ],
+        whyThisMatters: 'Every senior engineer who works on production systems eventually owns or designs a distributed component. The engineers who succeed are the ones who internalise these foundations early &mdash; CAP, latency math, availability math, partial-failure thinking &mdash; and use them as a decision framework. The engineers who skip the foundations end up reinventing distributed databases badly and debugging the same outage classes for years. This module is the lens you carry into every later module.',
+        productionNotes: [
+          'Track a critical-path availability dashboard (multiply each dependency&apos;s SLO) so the org sees the math, not the wishful thinking.',
+          'Every cross-service call gets a timeout. Default: <em>do not let your services have unbounded patience</em>. Specific timeouts are part of every service contract.',
+          'When you run the availability math, the answer always points at one or two services. That is your investment list, not a hypothetical.',
+        ],
+        commonMistakes: [
+          'Adopting microservices because &ldquo;everyone else does&rdquo; before measuring whether failure isolation, independent scaling, or team autonomy actually justify the operational tax.',
+          'Treating CAP as a textbook quiz question rather than a runtime decision &mdash; the question is &ldquo;during a real partition, what should this service do?&rdquo;',
+          'Assuming dependencies have advertised availability when measured availability is materially different.',
+        ],
+        glossary: [
+          { term: 'CAP Theorem', definition: 'In a distributed system, you can have at most two of Consistency, Availability, and Partition tolerance simultaneously.' },
+          { term: 'PACELC', definition: 'Extension of CAP: even without partition, trade off Latency vs Consistency.' },
+          { term: 'Availability', definition: 'Percentage of time the system serves successful responses; often expressed as nines (99.9%, 99.99%, ...).' },
+          { term: 'Fault tolerance', definition: 'The system continues to operate in some form when components fail.' },
+          { term: 'Linearizability', definition: 'The strongest consistency model: every operation appears to happen at a single instant.' },
+        ],
+      },
+      {
+        number: 2,
+        title: 'Networking & Distributed Communication',
+        slug: 'networking-distributed-communication',
+        subtitle: 'How services actually talk: TCP, HTTP/2, gRPC, service discovery, load balancing, retries, and the timeout discipline that keeps systems from melting.',
+        duration: '4 hours',
+        objectives: [
+          'Read a TCP/IP packet flow and explain what each layer does in production',
+          'Compare HTTP/1.1, HTTP/2, and gRPC and pick the right one per workload',
+          'Implement service discovery without inventing a worse DNS',
+          'Design retry, timeout, and load-balancing policies that survive load',
+          'Diagnose and prevent retry storms before they cause outages',
+        ],
+        svgDiagram: '<svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="380" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold">DISTRIBUTED COMMUNICATION STACK</text><rect x="60" y="60" width="680" height="40" rx="6" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6"/><text x="80" y="84" fill="#bfdbfe" font-size="11" font-weight="bold">L7 application</text><text x="720" y="84" text-anchor="end" fill="#94a3b8" font-size="10">gRPC, HTTP/2, REST, GraphQL</text><rect x="60" y="105" width="680" height="40" rx="6" fill="#a855f7" fill-opacity="0.2" stroke="#a855f7"/><text x="80" y="129" fill="#ddd6fe" font-size="11" font-weight="bold">L7 service mesh</text><text x="720" y="129" text-anchor="end" fill="#94a3b8" font-size="10">Envoy, Istio, Linkerd, retries, mTLS</text><rect x="60" y="150" width="680" height="40" rx="6" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/><text x="80" y="174" fill="#86efac" font-size="11" font-weight="bold">L4 transport</text><text x="720" y="174" text-anchor="end" fill="#94a3b8" font-size="10">TCP / TLS / QUIC, connection pool</text><rect x="60" y="195" width="680" height="40" rx="6" fill="#fbbf24" fill-opacity="0.2" stroke="#fbbf24"/><text x="80" y="219" fill="#fcd34d" font-size="11" font-weight="bold">Discovery</text><text x="720" y="219" text-anchor="end" fill="#94a3b8" font-size="10">DNS, service registry, K8s Services, Consul</text><rect x="60" y="240" width="680" height="40" rx="6" fill="#ec4899" fill-opacity="0.2" stroke="#ec4899"/><text x="80" y="264" fill="#fbcfe8" font-size="11" font-weight="bold">Load balancing</text><text x="720" y="264" text-anchor="end" fill="#94a3b8" font-size="10">L4 / L7, EWMA, least-request, ring hash</text><rect x="60" y="285" width="680" height="40" rx="6" fill="#94a3b8" fill-opacity="0.2" stroke="#94a3b8"/><text x="80" y="309" fill="#cbd5e1" font-size="11" font-weight="bold">Resilience</text><text x="720" y="309" text-anchor="end" fill="#94a3b8" font-size="10">Timeout, retry budget, circuit breaker, bulkhead</text><text x="400" y="356" text-anchor="middle" fill="#94a3b8" font-size="10">Each layer adds latency, mode of failure, and operational lever. Owning the stack means knowing which lever fits which incident.</text></svg>',
+        content: `
+          <p>Two services talking is not one network call. It is, on a typical Kubernetes cluster, a TLS handshake, a DNS lookup, a service-mesh sidecar interception, an L4 load-balancer pick, an L7 retry policy, an actual HTTP/2 stream, deserialization on the receiver, and an audit log on the way back. Most distributed-systems incidents are not algorithm bugs &mdash; they are <em>network bugs that look like algorithm bugs</em>.</p>
+
+          <p>This module unpacks the stack so the next time your p99 latency doubles you know which layer to suspect.</p>
+
+          <h2>TCP/IP &mdash; What Lives Underneath</h2>
+
+          <p>The two-line summary every backend engineer needs: <strong>TCP gives you reliability</strong> (ordered delivery, retransmission, flow control) <strong>and connection state</strong> (the three-way handshake takes 1 RTT before the first byte of payload). <strong>IP gives you routing</strong> (each packet finds its way through a graph of routers without the endpoints knowing the path).</p>
+
+          <p>The TCP three-way handshake (<code>SYN → SYN/ACK → ACK</code>) is the per-connection latency floor. TLS adds another 1&ndash;2 RTTs for the handshake. So the first request on a fresh connection costs you 2&ndash;3 RTTs of pure overhead before anything useful happens. That is why <strong>connection pooling</strong> matters: amortise the handshake cost across many requests on the same connection.</p>
+
+          <h2>HTTP/1.1 vs HTTP/2 vs gRPC &mdash; What Each Buys You</h2>
+
+          <ul>
+            <li><strong>HTTP/1.1</strong>: text-based request/response, head-of-line blocking on a single connection. Workaround: clients open many connections in parallel. Still the right answer for cacheable static content and many web APIs.</li>
+            <li><strong>HTTP/2</strong>: binary framing, multiplexed streams over a single connection (no head-of-line blocking at HTTP level), header compression (HPACK). Same one-connection-many-requests philosophy. Required by gRPC.</li>
+            <li><strong>gRPC</strong>: an RPC framework on top of HTTP/2 with Protocol Buffers (Protobuf) serialization. Strongly-typed interfaces, code generation in many languages, streaming RPCs, deadlines built into the protocol. The de-facto choice for service-to-service communication in modern infrastructure.</li>
+          </ul>
+
+          <p>The practical guidance: use <strong>gRPC for service-to-service</strong> calls in your own infra (typed contracts, low overhead, streaming when you need it). Use <strong>HTTP/JSON</strong> for external APIs (browser-callable, tool-friendly, debuggable with curl). Avoid HTTP/1.1 for internal traffic unless you have a specific reason.</p>
+
+          <h2>Service Discovery &mdash; How Services Find Each Other</h2>
+
+          <p>Static IP addresses do not work in a world where pods restart, scale up, or move between nodes every few minutes. Service discovery is the indirection: clients ask &ldquo;where is the orders service?&rdquo; and get back the current set of healthy endpoints.</p>
+
+          <p>The mainstream patterns:</p>
+          <ul>
+            <li><strong>DNS-based</strong> &mdash; Kubernetes Services give every service a DNS name (<code>orders.payments.svc.cluster.local</code>) that resolves to the current Pod IPs. Simple, integrates with everything, but DNS TTL caching can lag.</li>
+            <li><strong>Service registry</strong> &mdash; Consul, etcd, ZooKeeper. Services register on startup; clients query the registry. Fast updates; richer metadata (datacentre, health, weights).</li>
+            <li><strong>Service mesh</strong> &mdash; the sidecar (Envoy) handles discovery via xDS protocol from a control plane (Istio, Linkerd). Clients call <code>orders</code> as if it were local; the sidecar resolves the actual endpoints.</li>
+          </ul>
+
+          <h2>Load Balancing</h2>
+
+          <p>Load balancers turn a list of endpoints into a single virtual endpoint with traffic distribution. Two layers, distinct trade-offs:</p>
+          <ul>
+            <li><strong>L4 load balancers</strong> (AWS NLB, kube-proxy iptables/IPVS) operate at the TCP layer. Cheap, fast, opaque to the application. Best for raw connection distribution; cannot do per-request routing.</li>
+            <li><strong>L7 load balancers</strong> (Envoy, NGINX, AWS ALB) understand HTTP. Can do header-based routing, path matching, retries, weighted shifting, mTLS termination, observability. Add latency (~1&ndash;5ms) but unlock the production-engineering toolbox.</li>
+          </ul>
+
+          <p>Algorithm choice matters. <strong>Round robin</strong> is fine for uniform endpoints; <strong>least-request</strong> handles variable backend speed (Envoy default); <strong>EWMA</strong> tracks a smoothed latency estimate and prefers fast endpoints; <strong>ring hash / consistent hash</strong> sticks the same key to the same backend (useful for cache locality).</p>
+
+          <h2>Retries, Timeouts, and the Storm</h2>
+
+          <p>Two rules that, applied with discipline, prevent most outages:</p>
+          <ol>
+            <li><strong>Every call has a timeout</strong>. Default is &ldquo;wait forever&rdquo; in most languages. Override it. The timeout should be shorter than your caller&apos;s timeout (so retries can fire within the deadline budget).</li>
+            <li><strong>Every retry has exponential backoff with jitter</strong>. Wait 1s, then 2s, then 4s &mdash; with random jitter to avoid synchronising retries. AWS&apos;s &ldquo;Decorrelated Jitter&rdquo; algorithm is the standard.</li>
+          </ol>
+
+          <p>The <strong>retry storm</strong> is the canonical anti-pattern: a backend brownout causes timeouts; clients retry; their retries push more load onto the backend; the backend cannot recover; clients keep retrying. The defence is the <strong>retry budget</strong>: cap retries at a percentage of total RPS (e.g. retries cannot exceed 10% of in-flight requests). Envoy and gRPC client libraries support this directly.</p>
+
+          <p>The <a href="/blog/rate-limiting-algorithms-production-guide" class="text-primary underline">Rate Limiting Algorithms guide</a> covers the related primitive of <em>capping arrival rate</em>; combined with retry budgets, it is the front-of-house resilience kit.</p>
+
+          <h2>Connection Pooling</h2>
+
+          <p>HTTP/2 lets one TCP connection carry many requests. For high-throughput service-to-service calls, every client should hold an open pool of connections to each upstream and reuse them. Pool sizing rules of thumb:</p>
+          <ul>
+            <li>Min pool: <code>p99_concurrency × 1.2</code> (avoid head-of-line blocking on the bottom).</li>
+            <li>Max pool: large enough to avoid queueing under burst, small enough to not exhaust the upstream&apos;s file descriptors.</li>
+            <li>Idle timeout: 30&ndash;60s. Short enough to recover from broken connections; long enough to amortise handshake.</li>
+          </ul>
+
+          <h2>DNS as Distributed-Systems Risk</h2>
+
+          <p>DNS is the cause of more &ldquo;unexplained&rdquo; outages than any other piece of distributed-systems infrastructure. Common failure modes:</p>
+          <ul>
+            <li>Resolver caches a stale entry; service is moved; clients call dead endpoints for the TTL window.</li>
+            <li>Coredns / kube-dns hits a query-rate limit; lookups time out; entire mesh stalls.</li>
+            <li>External resolver (8.8.8.8) is unreachable; in-cluster lookups slow because of fallback chains.</li>
+          </ul>
+
+          <p>Mitigations: short TTLs for in-cluster names (5&ndash;30s), use <code>NodeLocal DNSCache</code> on Kubernetes, monitor DNS error rate as a first-class metric, prefer service-mesh discovery (sidecar handles endpoint changes via xDS, no DNS in the data path).</p>
+        `,
+        labs: [
+          { title: 'Lab 2.1 — gRPC vs REST Latency Bake-off', objective: 'Measure real latency and throughput of gRPC vs HTTP/JSON for the same logical workload.', repoPath: 'module-2/lab-grpc-vs-rest', steps: ['Implement the same service interface as gRPC and HTTP/JSON', 'Generate identical client and server code', 'Run a 5-minute load test at 100 / 1000 / 5000 RPS', 'Capture p50/p95/p99 latency, throughput, CPU usage', 'Compare wire size for a representative request'], duration: '60 minutes', difficulty: 'Beginner', expectedOutput: 'gRPC shows 2&ndash;5x lower wire bytes and 30&ndash;50% lower latency at high RPS.' },
+          { title: 'Lab 2.2 — Retry Storm Reproduction and Defence', objective: 'Cause and contain a retry storm in a controlled environment.', repoPath: 'module-2/lab-retry-storm', steps: ['Stand up a 3-service chain', 'Inject a 50% error rate at the bottom service', 'Configure callers with naive retries (no backoff, no budget)', 'Observe the QPS amplification', 'Add exponential backoff with jitter; observe', 'Add a retry budget; observe full recovery'], duration: '90 minutes', difficulty: 'Intermediate' },
+          { title: 'Lab 2.3 — DNS-Caused Outage Triage', objective: 'Reproduce a stale-DNS outage and walk through the triage flow.', repoPath: 'module-2/lab-dns-outage', steps: ['Deploy a service with DNS TTL 300s', 'Move the service to a new IP', 'Watch existing clients fail until cache expires', 'Reproduce with TTL 5s and observe smooth handoff', 'Document the runbook'], duration: '45 minutes', difficulty: 'Intermediate' },
+        ],
+        keyTakeaways: [
+          'Most distributed-systems incidents are network incidents that look like application bugs',
+          'Use gRPC for service-to-service, HTTP/JSON for external; avoid HTTP/1.1 internally',
+          'Every call has a timeout. Every retry has exponential backoff with jitter. Every retry policy has a budget',
+          'Service discovery is mandatory infrastructure &mdash; pick DNS, registry, or mesh deliberately',
+          'DNS is the cause of more unexplained outages than any other layer',
+        ],
+        whyThisMatters: 'The patterns in this module are the difference between a service that survives a bad day and one that cascades into a multi-team incident. Engineers who internalise timeouts, retries with budgets, and connection pooling can read an incident timeline and immediately see where the design failed. Engineers who skip them tend to debug the same outage repeatedly.',
+        commonMistakes: [
+          'Setting infinite retries on a non-idempotent endpoint &mdash; one downstream blip becomes duplicate side effects everywhere.',
+          'Not setting per-call timeouts; the system inherits the default of &ldquo;wait forever&rdquo;.',
+          'Using HTTP/1.1 for high-throughput internal communication; you pay for handshakes you do not need.',
+        ],
+        glossary: [
+          { term: 'gRPC', definition: 'Open-source RPC framework using HTTP/2 + Protocol Buffers; standard for service-to-service in modern infra.' },
+          { term: 'Connection pooling', definition: 'Reusing TCP/HTTP connections across requests to amortise handshake cost.' },
+          { term: 'Retry storm', definition: 'Failure mode where retries amplify load on an already-struggling backend, preventing recovery.' },
+          { term: 'Retry budget', definition: 'Cap on total retries as a percentage of RPS; prevents retry storms.' },
+          { term: 'Service discovery', definition: 'Mechanism by which clients find healthy endpoints for a service (DNS, registry, mesh).' },
+        ],
+      },
+      {
+        number: 3,
+        title: 'Event-Driven & Asynchronous Systems',
+        slug: 'event-driven-asynchronous-systems',
+        subtitle: 'How Kafka, RabbitMQ, NATS, and pub/sub patterns let services decouple in time and scale &mdash; and the failure modes that come with them.',
+        duration: '4 hours',
+        objectives: [
+          'Choose between message queues, pub/sub, and event streaming for a given workload',
+          'Reason about partitioning, ordering, and consumer groups in Kafka',
+          'Implement backpressure correctly so producers do not melt consumers',
+          'Design exactly-once semantics where you actually need them &mdash; and at-least-once where you do not',
+          'Diagnose the canonical event-pipeline outages: lag spikes, rebalances, and stuck consumers',
+        ],
+        svgDiagram: '<svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="380" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold">KAFKA EVENT PIPELINE</text><rect x="40" y="70" width="120" height="60" rx="6" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6"/><text x="100" y="98" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="bold">Producer</text><text x="100" y="116" text-anchor="middle" fill="#94a3b8" font-size="9">orders-service</text><line x1="160" y1="100" x2="220" y2="100" stroke="#94a3b8" marker-end="url(#a3)"/><rect x="220" y="60" width="220" height="240" rx="8" fill="#1e293b" stroke="#fbbf24" stroke-width="1.5"/><text x="330" y="86" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="bold">Topic: orders</text><rect x="240" y="100" width="180" height="36" rx="3" fill="#fbbf24" fill-opacity="0.2"/><text x="330" y="123" text-anchor="middle" fill="#fcd34d" font-size="9">partition 0  |  offsets 0..N</text><rect x="240" y="142" width="180" height="36" rx="3" fill="#fbbf24" fill-opacity="0.2"/><text x="330" y="165" text-anchor="middle" fill="#fcd34d" font-size="9">partition 1  |  offsets 0..N</text><rect x="240" y="184" width="180" height="36" rx="3" fill="#fbbf24" fill-opacity="0.2"/><text x="330" y="207" text-anchor="middle" fill="#fcd34d" font-size="9">partition 2  |  offsets 0..N</text><rect x="240" y="226" width="180" height="36" rx="3" fill="#fbbf24" fill-opacity="0.2"/><text x="330" y="249" text-anchor="middle" fill="#fcd34d" font-size="9">partition 3  |  offsets 0..N</text><text x="330" y="285" text-anchor="middle" fill="#94a3b8" font-size="9">key-hash partitions; durable log</text><line x1="440" y1="120" x2="500" y2="100" stroke="#22c55e" marker-end="url(#a3)"/><line x1="440" y1="160" x2="500" y2="160" stroke="#22c55e" marker-end="url(#a3)"/><line x1="440" y1="200" x2="500" y2="220" stroke="#22c55e" marker-end="url(#a3)"/><rect x="500" y="80" width="120" height="40" rx="6" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/><text x="560" y="104" text-anchor="middle" fill="#86efac" font-size="11" font-weight="bold">Consumer A1</text><rect x="500" y="140" width="120" height="40" rx="6" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/><text x="560" y="164" text-anchor="middle" fill="#86efac" font-size="11" font-weight="bold">Consumer A2</text><rect x="500" y="200" width="120" height="40" rx="6" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/><text x="560" y="224" text-anchor="middle" fill="#86efac" font-size="11" font-weight="bold">Consumer A3</text><rect x="640" y="80" width="120" height="160" rx="6" fill="#a855f7" fill-opacity="0.1" stroke="#a855f7"/><text x="700" y="104" text-anchor="middle" fill="#ddd6fe" font-size="11" font-weight="bold">Consumer Group B</text><text x="700" y="160" text-anchor="middle" fill="#94a3b8" font-size="9">independent</text><text x="700" y="174" text-anchor="middle" fill="#94a3b8" font-size="9">offset cursor</text><text x="400" y="335" text-anchor="middle" fill="#94a3b8" font-size="10">Each consumer in a group owns a subset of partitions; ordering is per-partition; multiple groups read independently.</text><defs><marker id="a3" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/></marker></defs></svg>',
+        content: `
+          <p>Synchronous communication couples services in time. Asynchronous communication couples them only in <em>contract</em>. The producer publishes an event; the consumer reads it whenever it is ready, retries if it fails, and runs at a different rate than the producer. That decoupling is what lets event-driven systems scale to billions of events per day &mdash; and what creates the operational failure modes you have to learn to recognise.</p>
+
+          <h2>Queue vs Pub/Sub vs Event Streaming &mdash; Pick One Deliberately</h2>
+
+          <ul>
+            <li><strong>Message queue (RabbitMQ, SQS)</strong>: each message is delivered to one consumer. Used for work distribution: a queue of jobs, workers pull and process. Messages disappear after ack.</li>
+            <li><strong>Pub/sub (Redis Pub/Sub, NATS, Google Pub/Sub)</strong>: each message is delivered to all subscribers. Used for fan-out notifications. Often ephemeral &mdash; missed messages are missed.</li>
+            <li><strong>Event streaming (Kafka, Kinesis, Pulsar)</strong>: messages are appended to a durable log; consumers read at their own pace, can replay history, can have many independent groups. The dominant pattern for high-throughput data pipelines.</li>
+          </ul>
+
+          <h2>Kafka in Production</h2>
+
+          <p>Kafka&apos;s mental model: a <strong>topic</strong> is a named, durable, append-only log split into <strong>partitions</strong>. Each partition is replicated across brokers (typically 3x). A <strong>producer</strong> writes records, optionally with a key; the key&apos;s hash determines the partition. A <strong>consumer group</strong> reads the topic; Kafka assigns each partition to one consumer in the group, so partition count caps consumer parallelism.</p>
+
+          <p>Three properties to internalise:</p>
+          <ol>
+            <li><strong>Ordering is per-partition</strong>. Records with the same key land in the same partition and are read in order. Across partitions, ordering is undefined. Choose your key to align with the units you need ordered (e.g. user_id for per-user event ordering).</li>
+            <li><strong>Consumer groups are independent</strong>. Two consumer groups reading the same topic do not affect each other &mdash; each tracks its own offset. This is the foundation of event-driven architectures: the orders topic feeds a billing pipeline AND a search-indexer AND an audit log, all reading the same stream independently.</li>
+            <li><strong>Replication is for durability, not for read scale</strong>. Reads always go to the partition leader. Replicas exist so you can survive broker loss; they do not load-balance reads.</li>
+          </ol>
+
+          <h2>Delivery Guarantees &mdash; What Exactly-Once Actually Means</h2>
+
+          <p>Three levels:</p>
+          <ul>
+            <li><strong>At-most-once</strong> &mdash; fire and forget; on failure the message is lost. Acceptable for telemetry where loss is fine.</li>
+            <li><strong>At-least-once</strong> &mdash; the message will be delivered; possibly more than once. The default in most systems. Requires consumer-side <strong>idempotency</strong> (deduplication via idempotency keys).</li>
+            <li><strong>Exactly-once</strong> &mdash; the message is processed exactly once, end-to-end. Kafka&apos;s exactly-once semantics work between Kafka topics; once a message leaves Kafka and writes to an external system, you are back to &ldquo;at-least-once + idempotency&rdquo;.</li>
+          </ul>
+
+          <p>Practical guidance: <strong>design for at-least-once with consumer-side idempotency</strong> as the default. Reach for exactly-once only when you genuinely cannot make consumers idempotent, and accept the operational cost.</p>
+
+          <h2>Backpressure</h2>
+
+          <p>Backpressure is the signal flowing upstream from a saturated consumer to a producer: &ldquo;slow down, I cannot keep up&rdquo;. Without it, producers happily fill queues until memory or disk runs out. Mechanisms:</p>
+          <ul>
+            <li>Bounded queues with blocking enqueue; the producer blocks when the queue is full.</li>
+            <li>Reactive streams (Project Reactor, RxJava) with explicit demand signals.</li>
+            <li>HTTP/2 flow control built into the protocol.</li>
+            <li>Consumer-lag-driven producer throttling: if Kafka consumer lag exceeds a threshold, the producer service intentionally slows.</li>
+          </ul>
+
+          <p>The opposite anti-pattern: an unbounded in-memory queue that quietly grows until the JVM OOMs. Always bound your queues.</p>
+
+          <h2>Common Production Failures</h2>
+
+          <ul>
+            <li><strong>Consumer lag spike</strong>: the canonical Kafka alert. A consumer group falls behind the head of the log. Causes: consumer slowed down, partition imbalance, downstream dependency degraded. The metric to watch: <code>kafka_consumer_lag_max</code> per group.</li>
+            <li><strong>Rebalance storm</strong>: every time a consumer joins or leaves the group, all partition assignments are recomputed and consumers pause. Frequent rebalances kill throughput. Causes: aggressive session timeouts, slow processing exceeding heartbeat, scaling churn. Mitigation: tune <code>session.timeout.ms</code>, <code>heartbeat.interval.ms</code>, and use cooperative rebalance.</li>
+            <li><strong>Hot partition</strong>: a partition key with skewed traffic (e.g. one big tenant) overloads one broker while others sit idle. Mitigation: salt the key, increase partition count, or use a different partitioning scheme.</li>
+            <li><strong>Stuck consumer</strong>: a consumer hangs on one bad message and stops making progress. Mitigation: per-message timeouts, dead-letter queue, observability on per-message processing time.</li>
+          </ul>
+        `,
+        labs: [
+          { title: 'Lab 3.1 — Kafka Event Pipeline End-to-End', objective: 'Build a producer/consumer pipeline with proper key-based partitioning and consumer groups.', repoPath: 'module-3/lab-kafka-pipeline', steps: ['Spin up Kafka via docker-compose', 'Write a producer that emits orders keyed by user_id', 'Write two consumer groups (billing, audit) reading the same topic', 'Verify per-key ordering on each partition', 'Kill a broker and verify durability'], duration: '90 minutes', difficulty: 'Intermediate' },
+          { title: 'Lab 3.2 — Backpressure in a Reactive Pipeline', objective: 'Reproduce a runaway producer; introduce bounded queues; observe stable throughput.', repoPath: 'module-3/lab-backpressure', steps: ['Implement an unbounded in-memory queue between producer and consumer', 'Run with producer at 10x consumer rate; watch memory grow', 'Replace with a bounded queue', 'Observe blocking on the producer; system stabilises'], duration: '60 minutes', difficulty: 'Intermediate' },
+          { title: 'Lab 3.3 — Idempotent Consumer with Dedup', objective: 'Design a consumer that processes at-least-once messages exactly once via idempotency keys.', repoPath: 'module-3/lab-idempotent-consumer', steps: ['Use a Postgres table with unique constraint on idempotency_key', 'Process orders; on duplicate, ignore', 'Inject duplicate messages; verify only one effect per key'], duration: '60 minutes', difficulty: 'Intermediate' },
+        ],
+        keyTakeaways: [
+          'Async decouples in time, not in contract &mdash; the contract still has to be designed carefully',
+          'Pick queue / pub-sub / event-streaming based on whether you need work-distribution, fan-out, or replayable log',
+          'Default to at-least-once + consumer-side idempotency; reach for exactly-once only with reason',
+          'Always bound your queues; unbounded is a delayed OOM',
+          'Watch consumer lag as a first-class metric; it is the early warning of every event-pipeline incident',
+        ],
+        commonMistakes: [
+          'Choosing exactly-once because it sounds safer; ignoring the operational cost and accepting the false sense of security.',
+          'Single-partition topics for &ldquo;simplicity&rdquo;; they cap consumer parallelism at 1 and become bottlenecks.',
+          'Ignoring partition keys; uniform random keys feel safe but break per-entity ordering.',
+        ],
+        glossary: [
+          { term: 'Topic', definition: 'A named, durable, append-only log in Kafka, split into partitions for parallelism.' },
+          { term: 'Consumer group', definition: 'A set of consumers that share partition assignments; each partition is read by exactly one consumer in the group.' },
+          { term: 'Idempotency', definition: 'Property where applying the same operation multiple times produces the same effect as applying it once.' },
+          { term: 'Backpressure', definition: 'Signal flowing upstream telling producers to slow down because consumers cannot keep up.' },
+          { term: 'Consumer lag', definition: 'How far behind the head of the log a consumer group is; the canonical Kafka health metric.' },
+        ],
+      },
+      {
+        number: 4,
+        title: 'Distributed Data Management',
+        slug: 'distributed-data-management',
+        subtitle: 'How modern systems split, replicate, and reconcile data across many machines &mdash; replication, sharding, quorums, consistency models, and the distributed databases that implement them.',
+        duration: '5 hours',
+        objectives: [
+          'Pick between hash and range partitioning based on access patterns',
+          'Design replication strategies (single-leader, multi-leader, leaderless) and their failover behaviour',
+          'Apply quorum math (W + R > N) to choose consistency levels',
+          'Read a Cassandra / DynamoDB / PostgreSQL replication topology and predict its failure modes',
+          'Avoid the classic distributed-data anti-patterns: hot partitions, replication lag, write conflicts',
+        ],
+        svgDiagram: '<svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="380" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold">SHARDING + REPLICATION TOPOLOGY</text><text x="200" y="68" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="bold">Shard A (keys 0..k1)</text><circle cx="120" cy="120" r="20" fill="#3b82f6" fill-opacity="0.4" stroke="#3b82f6"/><text x="120" y="124" text-anchor="middle" fill="#bfdbfe" font-size="9" font-weight="bold">leader</text><circle cx="200" cy="120" r="18" fill="#1e293b" stroke="#3b82f6" stroke-dasharray="3 2"/><text x="200" y="124" text-anchor="middle" fill="#bfdbfe" font-size="8">replica</text><circle cx="280" cy="120" r="18" fill="#1e293b" stroke="#3b82f6" stroke-dasharray="3 2"/><text x="280" y="124" text-anchor="middle" fill="#bfdbfe" font-size="8">replica</text><line x1="140" y1="120" x2="180" y2="120" stroke="#3b82f6" stroke-dasharray="3 2"/><line x1="220" y1="120" x2="260" y2="120" stroke="#3b82f6" stroke-dasharray="3 2"/><text x="600" y="68" text-anchor="middle" fill="#22c55e" font-size="11" font-weight="bold">Shard B (keys k1..k2)</text><circle cx="520" cy="120" r="20" fill="#22c55e" fill-opacity="0.4" stroke="#22c55e"/><text x="520" y="124" text-anchor="middle" fill="#bbf7d0" font-size="9" font-weight="bold">leader</text><circle cx="600" cy="120" r="18" fill="#1e293b" stroke="#22c55e" stroke-dasharray="3 2"/><text x="600" y="124" text-anchor="middle" fill="#bbf7d0" font-size="8">replica</text><circle cx="680" cy="120" r="18" fill="#1e293b" stroke="#22c55e" stroke-dasharray="3 2"/><text x="680" y="124" text-anchor="middle" fill="#bbf7d0" font-size="8">replica</text><line x1="540" y1="120" x2="580" y2="120" stroke="#22c55e" stroke-dasharray="3 2"/><line x1="620" y1="120" x2="660" y2="120" stroke="#22c55e" stroke-dasharray="3 2"/><text x="200" y="200" text-anchor="middle" fill="#a855f7" font-size="11" font-weight="bold">Shard C (keys k2..k3)</text><circle cx="120" cy="252" r="20" fill="#a855f7" fill-opacity="0.4" stroke="#a855f7"/><text x="120" y="256" text-anchor="middle" fill="#ddd6fe" font-size="9" font-weight="bold">leader</text><circle cx="200" cy="252" r="18" fill="#1e293b" stroke="#a855f7" stroke-dasharray="3 2"/><text x="200" y="256" text-anchor="middle" fill="#ddd6fe" font-size="8">replica</text><circle cx="280" cy="252" r="18" fill="#1e293b" stroke="#a855f7" stroke-dasharray="3 2"/><text x="280" y="256" text-anchor="middle" fill="#ddd6fe" font-size="8">replica</text><text x="600" y="200" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="bold">Shard D (keys k3..)</text><circle cx="520" cy="252" r="20" fill="#fbbf24" fill-opacity="0.4" stroke="#fbbf24"/><text x="520" y="256" text-anchor="middle" fill="#fef3c7" font-size="9" font-weight="bold">leader</text><circle cx="600" cy="252" r="18" fill="#1e293b" stroke="#fbbf24" stroke-dasharray="3 2"/><text x="600" y="256" text-anchor="middle" fill="#fef3c7" font-size="8">replica</text><circle cx="680" cy="252" r="18" fill="#1e293b" stroke="#fbbf24" stroke-dasharray="3 2"/><text x="680" y="256" text-anchor="middle" fill="#fef3c7" font-size="8">replica</text><text x="400" y="320" text-anchor="middle" fill="#cbd5e1" font-size="11" font-weight="bold">Sharding splits the keyspace; replication protects each shard.</text><text x="400" y="340" text-anchor="middle" fill="#94a3b8" font-size="10">Per-shard quorum: W=2 R=2 N=3. Cross-shard transactions are expensive &mdash; design to avoid them.</text></svg>',
+        content: `
+          <p>One machine cannot hold all your data and one machine cannot survive forever. Distributed data management is the discipline of splitting state across many machines (sharding) and keeping multiple copies of each piece (replication) so that the system stays available, durable, and fast enough &mdash; while exposing a coherent enough story to applications that they can be written without thinking about every node.</p>
+
+          <h2>Replication Strategies</h2>
+
+          <p>Three classic models, each a different trade-off:</p>
+          <ul>
+            <li><strong>Single-leader</strong> (PostgreSQL streaming, MySQL, MongoDB primary): all writes go through one leader. Followers replicate the leader&apos;s log. Simple to reason about, but the leader is a bottleneck and a SPOF (mitigated by automatic failover).</li>
+            <li><strong>Multi-leader</strong> (multi-region MySQL with bidirectional replication, CRDT-backed systems): writes accepted at multiple nodes; conflicts resolved by merge rules. Harder; useful for geo-distributed systems where local writes matter.</li>
+            <li><strong>Leaderless</strong> (Cassandra, DynamoDB, Riak): writes are sent to multiple replicas in parallel; reads are reconciled via quorum. No single &ldquo;leader&rdquo; per partition.</li>
+          </ul>
+
+          <p>Synchronous vs asynchronous replication is orthogonal:</p>
+          <ul>
+            <li><strong>Synchronous</strong>: write is acknowledged after at least one replica confirms. Higher latency, no data loss on leader crash.</li>
+            <li><strong>Asynchronous</strong>: write is acknowledged on leader commit; replicas catch up later. Lower latency; potential data loss window.</li>
+            <li><strong>Semi-synchronous</strong>: hybrid; ack after any one replica confirms.</li>
+          </ul>
+
+          <h2>Sharding Strategies</h2>
+
+          <p><strong>Hash partitioning</strong>: <code>partition = hash(key) % N</code>. Excellent load distribution; range queries are expensive (every shard touched). Used by Cassandra, DynamoDB, Redis Cluster.</p>
+
+          <p><strong>Range partitioning</strong>: each shard owns a contiguous key range. Range queries are efficient; hot spots are easy to create (a key prefix that is heavily written becomes a single-shard bottleneck). Used by HBase, BigTable, CockroachDB, MongoDB sharded clusters.</p>
+
+          <p><strong>Consistent hashing</strong>: solves the &ldquo;adding a node forces all keys to move&rdquo; problem of naive hash partitioning. Each node is hashed onto a ring; each key belongs to the next node clockwise. Adding a node only moves <code>1/N</code> of keys. Combined with virtual nodes (256 vnodes per physical node in Cassandra) for smoother rebalancing.</p>
+
+          <p>The <a href="/blog/distributed-systems-algorithms-production-guide" class="text-primary underline">Distributed Systems Algorithms guide</a> goes deeper on consistent hashing math.</p>
+
+          <h2>Quorum Math</h2>
+
+          <p>With <code>N</code> replicas, write quorum <code>W</code>, and read quorum <code>R</code>, you achieve strong consistency when <code>W + R &gt; N</code>. The intuition: any read overlaps any write by at least one node, so the latest write is visible.</p>
+
+          <ul>
+            <li>N=3, W=2, R=2: tolerates 1 failure for both reads and writes; strong consistency. Standard Cassandra production.</li>
+            <li>N=3, W=3, R=1: every write hits all replicas; reads are fast and consistent; one failure blocks writes. Read-heavy workloads.</li>
+            <li>N=3, W=1, R=1: maximum availability and lowest latency; eventual consistency only. DynamoDB default.</li>
+            <li>N=5, W=3, R=3: tolerates 2 simultaneous failures; strong consistency. Mission-critical Cassandra clusters.</li>
+          </ul>
+
+          <p>Cassandra exposes this as consistency levels (<code>ONE</code>, <code>QUORUM</code>, <code>LOCAL_QUORUM</code>, <code>EACH_QUORUM</code>, <code>ALL</code>). For multi-region deployments <code>LOCAL_QUORUM</code> is critical &mdash; it requires a quorum within the local datacentre but does not wait for cross-region acks.</p>
+
+          <h2>Consistency Models in Practice</h2>
+
+          <p>The same hierarchy you saw in Module 1 (Linearizable → Sequential → Causal → Read-your-writes → Eventual) shows up in every real database, often as <em>tunable</em> guarantees:</p>
+          <ul>
+            <li>Cassandra: per-query consistency level.</li>
+            <li>MongoDB: <code>readConcern</code> (local, majority, linearizable) + <code>writeConcern</code>.</li>
+            <li>DynamoDB: per-call <code>ConsistentRead</code> flag.</li>
+            <li>Spanner / CockroachDB: linearizable by default, with explicit follower-read modes.</li>
+          </ul>
+
+          <h2>Distributed Database Choices</h2>
+
+          <ul>
+            <li><strong>Postgres / MySQL</strong>: single-leader replication; horizontal scale via read replicas or external sharding (Citus, Vitess). Strong consistency on the leader; read lag on replicas.</li>
+            <li><strong>Cassandra</strong>: leaderless, hash-partitioned, AP-leaning. High write throughput, tunable consistency. Great for write-heavy time-series; less great for low-latency reads of small data.</li>
+            <li><strong>DynamoDB</strong>: managed, hash-partitioned, AP-leaning. Eventual or strong consistency per call. Excellent if you stay within its access patterns; expensive if you fight them.</li>
+            <li><strong>CockroachDB</strong>: distributed SQL with per-range Raft consensus. Linearizable by default; horizontal scale; SQL surface. The heaviest of the modern options.</li>
+            <li><strong>Spanner / TiDB</strong>: globally-distributed SQL with linearizable transactions backed by TrueTime / TSO. Premium pricing for premium consistency.</li>
+            <li><strong>Redis Cluster</strong>: in-memory, hash-slot partitioned, asynchronous replication. Great cache or session store; not your primary database.</li>
+          </ul>
+
+          <h2>Common Pitfalls</h2>
+
+          <ul>
+            <li><strong>Read-your-writes anomaly</strong>: writing to leader, reading from a replica, getting your own old value. Fix: stickify reads to leader for a short window after a write.</li>
+            <li><strong>Hot partition</strong>: a partition key with skewed traffic (one tenant, one celebrity user) overloads one node. Fix: salted keys, increased shard count, multi-tenant isolation.</li>
+            <li><strong>Cross-shard transactions</strong>: expensive (2PC, distributed locking). Design data models to keep related data in the same shard wherever possible.</li>
+            <li><strong>Replication lag spikes</strong>: replicas fall behind during bulk writes; reads served from lagging replicas return stale data. Monitor lag in seconds or bytes; fail reads to leader past a threshold.</li>
+          </ul>
+        `,
+        labs: [
+          { title: 'Lab 4.1 — Postgres Streaming Replication + Failover', objective: 'Set up Postgres primary + replica, force failover, observe data loss window with sync vs async replication.', repoPath: 'module-4/lab-postgres-replication', steps: ['Spin up primary + replica with docker-compose', 'Run async replication; cause primary crash mid-write; measure data loss', 'Switch to synchronous_commit=on; rerun; verify zero data loss'], duration: '60 minutes', difficulty: 'Intermediate' },
+          { title: 'Lab 4.2 — Cassandra Quorum Behaviour', objective: 'Run a 3-node Cassandra cluster, vary consistency levels, observe behaviour during node failure.', repoPath: 'module-4/lab-cassandra-quorum', steps: ['Spin up Cassandra cluster (3 nodes)', 'Write with CL=QUORUM; verify reads see latest', 'Kill one node; verify QUORUM still works', 'Kill two nodes; verify QUORUM fails; ONE still works (eventual)'], duration: '90 minutes', difficulty: 'Intermediate' },
+          { title: 'Lab 4.3 — Hot Partition Reproduction', objective: 'Cause and mitigate a hot partition in Redis Cluster.', repoPath: 'module-4/lab-hot-partition', steps: ['Send 90% of traffic to one key', 'Observe per-node QPS; identify the hot node', 'Apply key salting (key:0..key:9); redistribute', 'Confirm load balances'], duration: '45 minutes', difficulty: 'Intermediate' },
+        ],
+        keyTakeaways: [
+          'Replication is for durability and availability; sharding is for scale &mdash; you need both at scale',
+          'Quorum math (W + R > N) is the rule for strong consistency in leaderless systems',
+          'Hot partitions are the #1 distributed-data scalability bug; design key spaces deliberately',
+          'Cross-shard transactions are expensive; data models should make them rare',
+          'Replication lag is a first-class metric to alert on, not an implementation detail',
+        ],
+        commonMistakes: [
+          'Choosing eventual consistency without thinking through the read-your-writes anomaly.',
+          'Single-region Cassandra with consistency level QUORUM &mdash; works fine until you go multi-region and discover the cross-region quorum cost.',
+          'Treating replicas as a read-scale solution when replication lag means stale reads.',
+        ],
+        glossary: [
+          { term: 'Sharding', definition: 'Splitting data across multiple machines by partitioning the key space.' },
+          { term: 'Quorum', definition: 'Minimum number of nodes that must respond for an operation to be considered successful.' },
+          { term: 'Replication lag', definition: 'How far behind the leader a replica is; the staleness window for reads from that replica.' },
+          { term: 'Hot partition', definition: 'A partition with disproportionately high traffic, overloading one node.' },
+          { term: 'Eventual consistency', definition: 'Replicas converge to the same state if writes stop; the weakest useful guarantee.' },
+        ],
+      },
+      {
+        number: 5,
+        title: 'Consensus & Coordination',
+        slug: 'consensus-coordination',
+        subtitle: 'How distributed nodes agree &mdash; Raft, Paxos, leader election, distributed locking, and the etcd / ZooKeeper / Consul systems that production runs on.',
+        duration: '5 hours',
+        objectives: [
+          'Explain consensus as a problem and why it is fundamental to CP systems',
+          'Walk through Raft leader election, log replication, and safety in detail',
+          'Compare Raft and Paxos and pick between them in practice',
+          'Implement distributed locking correctly (with fencing tokens, not just SETNX)',
+          'Operate etcd, ZooKeeper, or Consul without taking down your cluster',
+        ],
+        svgDiagram: '<svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="380" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold">RAFT CONSENSUS &mdash; LOG REPLICATION</text><circle cx="120" cy="120" r="32" fill="#22c55e" fill-opacity="0.4" stroke="#22c55e" stroke-width="2"/><text x="120" y="124" text-anchor="middle" fill="#86efac" font-size="11" font-weight="bold">LEADER</text><text x="120" y="170" text-anchor="middle" fill="#94a3b8" font-size="9">term=7</text><circle cx="320" cy="80" r="28" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/><text x="320" y="84" text-anchor="middle" fill="#bfdbfe" font-size="10" font-weight="bold">FOLLOWER</text><text x="320" y="124" text-anchor="middle" fill="#94a3b8" font-size="9">term=7</text><circle cx="320" cy="200" r="28" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/><text x="320" y="204" text-anchor="middle" fill="#bfdbfe" font-size="10" font-weight="bold">FOLLOWER</text><text x="320" y="244" text-anchor="middle" fill="#94a3b8" font-size="9">term=7</text><circle cx="520" cy="80" r="28" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/><text x="520" y="84" text-anchor="middle" fill="#bfdbfe" font-size="10" font-weight="bold">FOLLOWER</text><circle cx="520" cy="200" r="28" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/><text x="520" y="204" text-anchor="middle" fill="#bfdbfe" font-size="10" font-weight="bold">FOLLOWER</text><line x1="150" y1="115" x2="290" y2="90" stroke="#22c55e" stroke-width="1.5" marker-end="url(#a5)"/><line x1="150" y1="135" x2="290" y2="195" stroke="#22c55e" stroke-width="1.5" marker-end="url(#a5)"/><line x1="350" y1="80" x2="490" y2="80" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 2"/><line x1="350" y1="200" x2="490" y2="200" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 2"/><text x="220" y="80" text-anchor="middle" fill="#86efac" font-size="9">AppendEntries</text><rect x="120" y="280" width="560" height="60" rx="8" fill="#1e293b" stroke="#475569"/><text x="400" y="302" text-anchor="middle" fill="#cbd5e1" font-size="10" font-weight="bold">Log replication: leader appends client cmd, replicates to majority, then commits.</text><text x="400" y="322" text-anchor="middle" fill="#94a3b8" font-size="10">3-node cluster: tolerates 1 failure. 5-node: tolerates 2. Always odd.</text><defs><marker id="a5" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/></marker></defs></svg>',
+        content: `
+          <p>Consensus is the hardest problem in distributed systems. It is also the most under-appreciated, because by the time you are using it &mdash; via Kubernetes etcd, Consul, HashiCorp Vault HA storage, CockroachDB ranges &mdash; someone else has implemented it correctly and you mostly do not notice it&apos;s there. Until you do.</p>
+
+          <h2>What Consensus Is</h2>
+
+          <p>The problem: a group of nodes must agree on a single value, even when some of them fail or messages are dropped. If they agree on a value, all surviving nodes must agree on the same value. The agreement must be safe under any failure pattern that does not partition more than half the nodes (the FLP impossibility result, 1985).</p>
+
+          <p>Consensus is the basis of every CP system. To have a single leader, you need consensus on who the leader is. To have replicated state, you need consensus on what the next state should be. To do distributed locking correctly, you need consensus on who holds the lock.</p>
+
+          <h2>Raft &mdash; Consensus for Humans</h2>
+
+          <p>Raft (Ongaro &amp; Ousterhout, 2014) was designed to be understandable. It decomposes consensus into three subproblems &mdash; leader election, log replication, and safety &mdash; and provides the same correctness guarantees as Paxos with a much simpler mental model.</p>
+
+          <p><strong>Leader election</strong>: every node is in one of three states (follower, candidate, leader). Followers expect heartbeats from the leader; if they do not arrive within a randomised election timeout (150&ndash;300ms), the follower transitions to candidate, increments the term number, and requests votes from peers. A candidate that gathers a majority becomes leader for that term. Term numbers are monotonic; older terms are rejected.</p>
+
+          <p><strong>Log replication</strong>: clients send commands to the leader. The leader appends to its log, sends <code>AppendEntries</code> to followers, and commits the entry once a majority have acknowledged. Followers apply committed entries to their state machines in order.</p>
+
+          <p><strong>Safety</strong>: election rules ensure a candidate can only win if its log is at least as up-to-date as a majority of followers. This guarantees committed entries are never lost.</p>
+
+          <h2>Paxos and Why You Probably Don&apos;t Implement It</h2>
+
+          <p>Paxos (Lamport, 1989) was the first practical consensus algorithm and is still mathematically influential. In production it has been largely displaced by Raft for new systems because Raft is meaningfully easier to implement correctly. Google&apos;s Chubby and Spanner use Paxos variants; etcd, Consul, CockroachDB, HashiCorp Vault, and most modern distributed systems use Raft.</p>
+
+          <h2>Cluster Sizing</h2>
+
+          <p>The fundamental rule: a Raft (or Paxos) cluster of <code>2N+1</code> nodes tolerates <code>N</code> simultaneous failures. So:</p>
+          <ul>
+            <li>3 nodes &rArr; tolerates 1 failure.</li>
+            <li>5 nodes &rArr; tolerates 2 failures.</li>
+            <li>7 nodes &rArr; tolerates 3 failures (rarely used; commit latency suffers).</li>
+          </ul>
+
+          <p>Always use odd numbers. A 4-node cluster requires 3 to commit; same fault tolerance as 3 nodes, more network traffic. A 6-node cluster requires 4 to commit; same fault tolerance as 5.</p>
+
+          <h2>Distributed Locking</h2>
+
+          <p>The naive Redis lock (<code>SET lock value NX EX 30</code>) famously fails under network partition: a client believes it holds the lock; the network blips; the lock TTL expires; another client acquires the lock; the original client wakes up and acts as if it still holds the lock; you have two writers.</p>
+
+          <p>The robust pattern: <strong>fencing tokens</strong>. The lock service issues a monotonically increasing token with each acquisition. The lock holder includes the token in every operation; the resource (database, file system) rejects operations from older tokens. Even if two clients believe they hold the lock, only the higher-token operation succeeds. etcd, ZooKeeper, and Consul all support this pattern; Redis does not natively.</p>
+
+          <h2>etcd, ZooKeeper, Consul &mdash; The Production Trio</h2>
+
+          <ul>
+            <li><strong>etcd</strong>: Raft-based KV store; the substrate of Kubernetes; used by Vault HA, Rook. Optimised for correctness and Kubernetes integration.</li>
+            <li><strong>ZooKeeper</strong>: ZAB-based (similar to Raft) coordination service; older, mature, used by HBase, Kafka (legacy), Solr.</li>
+            <li><strong>Consul</strong>: Raft-based service registry + KV + health checks + service mesh; HashiCorp&apos;s integrated approach.</li>
+          </ul>
+
+          <p>For new infrastructure, etcd is the default. For ZooKeeper-backed legacy systems (HBase, older Kafka), running ZooKeeper is the path of least resistance. Consul shines when you want the service-registry features alongside the coordination primitives.</p>
+
+          <h2>Operational Hazards</h2>
+
+          <ul>
+            <li><strong>Stuck quorum</strong>: 3-node etcd loses 2 nodes; remaining node cannot make progress. Recovery: single-node restoration from snapshot, then re-add members. Practice this drill.</li>
+            <li><strong>Slow disk</strong>: Raft commit requires fsync; a slow disk slows every write across the cluster. Use SSDs; alert on fsync latency.</li>
+            <li><strong>Network partition</strong>: minority side cannot elect a leader and refuses writes; majority side keeps working. Verify clients fail-fast on the minority side rather than hanging.</li>
+            <li><strong>Cluster too large</strong>: more than 7 voters and commit latency suffers; consider learner nodes for scale-out.</li>
+          </ul>
+        `,
+        labs: [
+          { title: 'Lab 5.1 — etcd Cluster Bootstrap and Failover', objective: 'Run a 3-node etcd cluster, write data, kill one node, verify availability; kill two, observe stuck quorum.', repoPath: 'module-5/lab-etcd-cluster', steps: ['Bootstrap 3-node etcd via docker-compose', 'Write keys, observe replication', 'Kill one node; verify writes still succeed', 'Kill two nodes; verify writes block', 'Restore from snapshot; re-add members'], duration: '90 minutes', difficulty: 'Intermediate' },
+          { title: 'Lab 5.2 — Distributed Lock with Fencing Token', objective: 'Implement a correct distributed lock using etcd Lease + fencing token; demonstrate why naive locks fail.', repoPath: 'module-5/lab-distributed-lock', steps: ['Implement naive Redis SETNX lock; reproduce partition failure mode', 'Implement etcd-based lock with fencing token', 'Resource (Postgres) rejects operations from old tokens', 'Demonstrate two-client race; only one operation succeeds'], duration: '90 minutes', difficulty: 'Advanced' },
+          { title: 'Lab 5.3 — Leader Election in Application Code', objective: 'Build a singleton-task pattern: many replicas, only one runs the periodic job at a time.', repoPath: 'module-5/lab-leader-election', steps: ['Use Kubernetes Lease object as election primitive', 'Run 3 replicas; only the leader executes the cron logic', 'Kill the leader; verify another replica takes over within seconds'], duration: '60 minutes', difficulty: 'Intermediate' },
+        ],
+        keyTakeaways: [
+          'Consensus is the substrate of every CP system; Kubernetes, Vault, and most modern infra rely on Raft etcd',
+          'Use Raft for new systems; Paxos is the older, harder alternative',
+          'Cluster size: 2N+1 tolerates N failures; always odd; 3 or 5 for nearly all real workloads',
+          'Distributed locking requires consensus + fencing tokens, not naive SETNX',
+          'A stuck quorum is recoverable but only if you have a tested runbook; never improvise',
+        ],
+        whyThisMatters: 'Engineers who understand consensus stop being scared of etcd. They can read a Raft log replay, recover a stuck cluster, and design a system around the trade-offs of CP versus AP rather than tripping over them. This is the module that separates engineers who treat distributed coordination as &ldquo;magic&rdquo; from engineers who treat it as load-bearing infrastructure they own.',
+        glossary: [
+          { term: 'Consensus', definition: 'The problem of getting a group of distributed nodes to agree on a single value, even with failures.' },
+          { term: 'Raft', definition: 'A consensus algorithm designed to be understandable; used by etcd, Consul, CockroachDB.' },
+          { term: 'Quorum', definition: 'Majority of nodes; required for any progress in Raft / Paxos.' },
+          { term: 'Fencing token', definition: 'Monotonic token issued by a lock service; prevents stale lock holders from corrupting state.' },
+          { term: 'Leader election', definition: 'Process by which a single node is chosen to coordinate; foundational to Raft and many distributed systems.' },
+        ],
+      },
+      {
+        number: 6,
+        title: 'Scalability Engineering',
+        slug: 'scalability-engineering',
+        subtitle: 'Horizontal scaling, autoscaling, caching, CDNs, rate limiting &mdash; how production systems handle 10x and 100x traffic without 10x and 100x cost.',
+        duration: '4 hours',
+        objectives: [
+          'Design stateless services that scale horizontally without coordination',
+          'Pick the right caching strategy (cache-aside, write-through, write-back) for the workload',
+          'Configure Kubernetes HPA, VPA, and Cluster Autoscaler so they actually work',
+          'Implement distributed rate limiting that survives multi-region',
+          'Identify the scalability bottleneck before it becomes the outage',
+        ],
+        svgDiagram: '<svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="380" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold">SCALABILITY STACK</text><rect x="60" y="60" width="680" height="40" rx="6" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/><text x="80" y="84" fill="#86efac" font-size="11" font-weight="bold">CDN edge</text><text x="720" y="84" text-anchor="end" fill="#94a3b8" font-size="10">cached static + dynamic, geo-distributed</text><rect x="60" y="105" width="680" height="40" rx="6" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6"/><text x="80" y="129" fill="#bfdbfe" font-size="11" font-weight="bold">Load balancer + WAF</text><text x="720" y="129" text-anchor="end" fill="#94a3b8" font-size="10">L7 routing, rate-limit, edge auth</text><rect x="60" y="150" width="680" height="40" rx="6" fill="#a855f7" fill-opacity="0.2" stroke="#a855f7"/><text x="80" y="174" fill="#ddd6fe" font-size="11" font-weight="bold">Stateless service tier</text><text x="720" y="174" text-anchor="end" fill="#94a3b8" font-size="10">HPA scales pods on CPU / RPS / latency</text><rect x="60" y="195" width="680" height="40" rx="6" fill="#fbbf24" fill-opacity="0.2" stroke="#fbbf24"/><text x="80" y="219" fill="#fcd34d" font-size="11" font-weight="bold">Distributed cache</text><text x="720" y="219" text-anchor="end" fill="#94a3b8" font-size="10">Redis Cluster, Memcached</text><rect x="60" y="240" width="680" height="40" rx="6" fill="#ec4899" fill-opacity="0.2" stroke="#ec4899"/><text x="80" y="264" fill="#fbcfe8" font-size="11" font-weight="bold">Async work queue</text><text x="720" y="264" text-anchor="end" fill="#94a3b8" font-size="10">Kafka / SQS / RabbitMQ</text><rect x="60" y="285" width="680" height="40" rx="6" fill="#94a3b8" fill-opacity="0.2" stroke="#94a3b8"/><text x="80" y="309" fill="#cbd5e1" font-size="11" font-weight="bold">Sharded data store</text><text x="720" y="309" text-anchor="end" fill="#94a3b8" font-size="10">Cassandra, Dynamo, sharded Postgres</text><text x="400" y="356" text-anchor="middle" fill="#94a3b8" font-size="10">Each layer absorbs a different class of load. Understanding which layer breaks first is the engineering skill.</text></svg>',
+        content: `
+          <p>Scalability is not adding more machines. Scalability is removing the contention points that prevent more machines from helping. Every system has a bottleneck; the question is whether the next 10x of load hits a bottleneck you have already moved or one that is still in the way.</p>
+
+          <h2>Horizontal vs Vertical Scaling</h2>
+
+          <p>Vertical scaling (bigger machines) hits hard limits and risks single points of failure. Horizontal scaling (more machines) is the path to real scale, but only works if your service is stateless or partitions correctly.</p>
+
+          <p><strong>Stateless services</strong> are the foundation. Stateless means: any replica can serve any request. If you can swap one pod for another at any time without state migration, you can scale linearly. Common state-leaking patterns to avoid:</p>
+          <ul>
+            <li>Local file caches that differ across replicas (move to Redis or shared filesystem).</li>
+            <li>Sticky sessions on the load balancer (use a session store like Redis instead).</li>
+            <li>In-process queues that hold work (move to Kafka/SQS).</li>
+            <li>Per-replica scheduled jobs (use a leader-elected singleton or distributed cron).</li>
+          </ul>
+
+          <h2>Caching as a Scaling Lever</h2>
+
+          <p>Caching multiplies effective capacity. The <a href="/blog/caching-strategies-production-guide" class="text-primary underline">Caching Strategies guide</a> covers this in depth. The summary:</p>
+          <ul>
+            <li><strong>Cache-aside</strong>: app checks cache, falls back to DB, populates cache. The default for read-heavy workloads.</li>
+            <li><strong>Write-through</strong>: writes go to cache + DB synchronously. The cache is always fresh; writes are slower.</li>
+            <li><strong>Write-back</strong>: writes go to cache; cache flushes to DB asynchronously. Fast writes; data loss window.</li>
+            <li><strong>Read-through</strong>: cache itself loads from DB on miss. Simpler app code; coupled cache and DB.</li>
+          </ul>
+
+          <p>Multi-layer caching is the production reality: browser → CDN → L7 cache → in-process → Redis. Each layer has different invalidation cost and different blast radius.</p>
+
+          <h2>CDN &mdash; Caching at the Edge</h2>
+
+          <p>CDNs (Cloudflare, Fastly, Akamai, CloudFront) cache content at hundreds of edge POPs close to users. The contract between origin and edge is the <code>Cache-Control</code> header. <code>public, max-age=3600, stale-while-revalidate=86400</code> tells the CDN: serve from cache for an hour, serve stale for a day while refreshing in the background.</p>
+
+          <p>Modern CDNs are also where you put: WAF, edge auth, geo routing, A/B test branching, and increasingly compute (Cloudflare Workers, Lambda@Edge). The edge is where the cheapest scaling lives.</p>
+
+          <h2>Autoscaling on Kubernetes</h2>
+
+          <p>Three layers of autoscaling, each independent:</p>
+          <ul>
+            <li><strong>HPA</strong> (Horizontal Pod Autoscaler): scale pod replicas based on CPU, memory, or custom metrics (RPS, latency, queue depth). Default scale-up is fast, scale-down conservative to avoid flapping.</li>
+            <li><strong>VPA</strong> (Vertical Pod Autoscaler): rightsize resource requests over time. Useful for batch and unpredictable workloads; clashes with HPA on the same metrics.</li>
+            <li><strong>Cluster Autoscaler / Karpenter</strong>: add nodes when pods cannot schedule due to resource shortage; remove underutilised nodes. Karpenter is the modern AWS-native replacement, faster and more flexible than Cluster Autoscaler.</li>
+          </ul>
+
+          <p>The classic mistake: HPA on CPU when the bottleneck is connection pool, database, or downstream RPC. Always scale on the metric closest to user latency &mdash; often p99 latency or RPS, not CPU.</p>
+
+          <h2>Distributed Rate Limiting</h2>
+
+          <p>The <a href="/blog/rate-limiting-algorithms-production-guide" class="text-primary underline">Rate Limiting Algorithms guide</a> covers token bucket, sliding window, distributed Redis-Lua patterns, and adaptive rate limiting. Three production rules:</p>
+          <ol>
+            <li>Layer rate limits: CDN volumetric, gateway per-API-key, application per-user-action.</li>
+            <li>Choose fail-open or fail-closed deliberately when the rate-limit service is unavailable.</li>
+            <li>Authentication endpoints get stricter limits than read endpoints.</li>
+          </ol>
+
+          <h2>Identifying the Bottleneck</h2>
+
+          <p>Every system has a current bottleneck. The skill is identifying it before the user does. Common bottlenecks in order of frequency:</p>
+          <ul>
+            <li>Database connection pool exhaustion (because pool size &lt; concurrent demand).</li>
+            <li>Single-shard hot key in Redis or Cassandra.</li>
+            <li>Synchronous external API call with no caching.</li>
+            <li>Disk I/O on a single node (Raft fsync, database writes).</li>
+            <li>Single-threaded code path in an otherwise concurrent service.</li>
+          </ul>
+
+          <p>The diagnostic flow: load test until something gives. Where is CPU? Where is memory? Where is the queue depth growing? Where is latency climbing first? The answer points at the bottleneck.</p>
+        `,
+        labs: [
+          { title: 'Lab 6.1 — HPA on Custom Metrics', objective: 'Configure HPA based on RPS or queue depth via Prometheus Adapter; observe scale-up under load.', repoPath: 'module-6/lab-hpa-custom', steps: ['Deploy app + Prometheus + Prometheus Adapter', 'Define HPA on RPS metric', 'Generate load; watch replicas scale up', 'Cool down; watch scale down'], duration: '90 minutes', difficulty: 'Intermediate' },
+          { title: 'Lab 6.2 — Cache-Aside with Stampede Protection', objective: 'Implement cache-aside with per-key locking to prevent thundering herd.', repoPath: 'module-6/lab-cache-stampede', steps: ['Implement naive cache-aside', 'Reproduce stampede on cache expiry', 'Add per-key Redis lock for recompute', 'Verify single recompute under load'], duration: '60 minutes', difficulty: 'Intermediate' },
+          { title: 'Lab 6.3 — Distributed Rate Limiter (Redis Lua)', objective: 'Implement an atomic token-bucket rate limiter as a Redis Lua script; load test it.', repoPath: 'module-6/lab-distributed-rate-limit', steps: ['Write Lua script for atomic token bucket update', 'Hit it from many concurrent clients', 'Verify the rate is enforced globally'], duration: '60 minutes', difficulty: 'Advanced' },
+        ],
+        keyTakeaways: [
+          'Stateless services are the foundation of horizontal scale &mdash; remove state-leaking patterns first',
+          'Multi-layer caching multiplies capacity; pick a strategy per layer deliberately',
+          'Scale on the metric closest to user latency, not on CPU when CPU is not the bottleneck',
+          'Distributed rate limiting requires consensus or aggregation &mdash; pick the trade-off',
+          'Every system has a bottleneck; the engineering work is moving it before it bites',
+        ],
+        commonMistakes: [
+          'Setting HPA on CPU when the database connection pool is the actual bottleneck.',
+          'Caching everything by default; sometimes the database is fast enough and the cache is just extra failure surface.',
+          'Cluster Autoscaler with no Pod Disruption Budgets; nodes scale down and take working pods with them.',
+        ],
+        glossary: [
+          { term: 'Stateless service', definition: 'A service where any replica can serve any request without local state; foundation of horizontal scaling.' },
+          { term: 'HPA', definition: 'Kubernetes Horizontal Pod Autoscaler; scales replicas based on metrics.' },
+          { term: 'Cluster Autoscaler / Karpenter', definition: 'Kubernetes node autoscalers; add/remove nodes based on pending pods.' },
+          { term: 'Thundering herd', definition: 'Failure mode when many concurrent requests miss the cache and overwhelm the origin.' },
+          { term: 'Cache stampede', definition: 'Same as thundering herd; many concurrent recomputes of the same expired cache key.' },
+        ],
+      },
+      {
+        number: 7,
+        title: 'Reliability & Failure Engineering',
+        slug: 'reliability-failure-engineering',
+        subtitle: 'Circuit breakers, bulkheads, graceful degradation, and chaos engineering &mdash; how reliability is engineered, not hoped for.',
+        duration: '4 hours',
+        objectives: [
+          'Design retry policies that survive a downstream brownout',
+          'Implement circuit breakers and understand the half-open state',
+          'Apply bulkhead isolation to prevent noisy neighbours',
+          'Build graceful degradation paths that turn outages into reduced functionality',
+          'Run chaos experiments without breaking production',
+        ],
+        svgDiagram: '<svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="380" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold">CIRCUIT BREAKER STATE MACHINE</text><circle cx="160" cy="190" r="60" fill="#22c55e" fill-opacity="0.25" stroke="#22c55e" stroke-width="2"/><text x="160" y="186" text-anchor="middle" fill="#86efac" font-size="13" font-weight="bold">CLOSED</text><text x="160" y="206" text-anchor="middle" fill="#94a3b8" font-size="9">requests pass</text><circle cx="640" cy="190" r="60" fill="#ef4444" fill-opacity="0.25" stroke="#ef4444" stroke-width="2"/><text x="640" y="186" text-anchor="middle" fill="#fca5a5" font-size="13" font-weight="bold">OPEN</text><text x="640" y="206" text-anchor="middle" fill="#94a3b8" font-size="9">requests fail-fast</text><circle cx="400" cy="80" r="55" fill="#fbbf24" fill-opacity="0.25" stroke="#fbbf24" stroke-width="2"/><text x="400" y="78" text-anchor="middle" fill="#fcd34d" font-size="13" font-weight="bold">HALF-OPEN</text><text x="400" y="96" text-anchor="middle" fill="#94a3b8" font-size="9">trial requests</text><line x1="220" y1="190" x2="580" y2="190" stroke="#fca5a5" stroke-width="1.5" marker-end="url(#a7)"/><text x="400" y="180" text-anchor="middle" fill="#fca5a5" font-size="10">N consecutive failures</text><line x1="610" y1="135" x2="450" y2="105" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#a7)"/><text x="540" y="115" text-anchor="middle" fill="#fcd34d" font-size="10">timeout elapsed</text><line x1="350" y1="105" x2="200" y2="160" stroke="#86efac" stroke-width="1.5" marker-end="url(#a7)"/><text x="270" y="120" text-anchor="middle" fill="#86efac" font-size="10">trial succeeds</text><line x1="450" y1="105" x2="600" y2="160" stroke="#fca5a5" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#a7)"/><text x="540" y="148" text-anchor="middle" fill="#fca5a5" font-size="10">trial fails</text><text x="400" y="320" text-anchor="middle" fill="#cbd5e1" font-size="11">CLOSED &rarr; OPEN on N failures. OPEN &rarr; HALF-OPEN after timeout. HALF-OPEN &rarr; CLOSED on success or back to OPEN on failure.</text><defs><marker id="a7" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/></marker></defs></svg>',
+        content: `
+          <p>Reliability is not the absence of failure. It is the system continuing to do something useful when failure inevitably arrives. Every production engineer eventually learns that the question is not <em>will this fail</em> but <em>how quickly will it recover, and will the failure be contained or amplified by the system around it</em>.</p>
+
+          <h2>The Resilience Toolkit</h2>
+
+          <p>Five patterns, each addressing a different failure class:</p>
+          <ul>
+            <li><strong>Timeouts</strong>: never wait forever. Every external call has a deadline; the deadline is tighter than your caller&apos;s deadline so you can retry within budget.</li>
+            <li><strong>Retries with exponential backoff and jitter</strong>: transient failures should be retried, with delay between attempts and randomness to avoid synchronisation.</li>
+            <li><strong>Circuit breakers</strong>: when a dependency is clearly down, stop calling it for a window so it can recover.</li>
+            <li><strong>Bulkheads</strong>: isolate workload pools so a noisy or failing tenant cannot starve the others.</li>
+            <li><strong>Graceful degradation</strong>: when a non-critical dependency fails, return reduced functionality rather than a full error.</li>
+          </ul>
+
+          <h2>Circuit Breakers in Detail</h2>
+
+          <p>A circuit breaker is a state machine with three states &mdash; CLOSED, OPEN, HALF-OPEN. In CLOSED state, requests flow normally. After N consecutive failures (or a failure rate above threshold over a window), the breaker trips to OPEN, and subsequent requests fail-fast without hitting the dependency. After a timeout (typically 5&ndash;30s), the breaker transitions to HALF-OPEN and allows a small number of trial requests; if they succeed, the breaker returns to CLOSED. If they fail, it goes back to OPEN.</p>
+
+          <p>The key behaviour: <strong>fail-fast in OPEN state</strong>. The breaker prevents the calling service from queuing up requests against a dead dependency, which would otherwise consume thread pool capacity and cascade the failure to the caller.</p>
+
+          <p>Production implementations: Hystrix (legacy, retired), Resilience4j (Java), Polly (.NET), Envoy circuit breaking, gRPC client interceptors, Istio destination rules with outlier detection. Service meshes do most of this for you.</p>
+
+          <h2>Bulkheads</h2>
+
+          <p>The bulkhead pattern (named for ship compartments) isolates resources so failure in one section cannot sink the ship. Two common forms:</p>
+          <ul>
+            <li><strong>Thread pool bulkheads</strong>: separate thread pools per dependency or per tenant. A slow upstream cannot exhaust the global thread pool.</li>
+            <li><strong>Connection pool bulkheads</strong>: separate connection pools to different downstreams. The pool to a slow database does not starve calls to a fast one.</li>
+          </ul>
+
+          <p>In Kubernetes, a stronger form: separate node pools or namespaces per tenant or per workload class. A misbehaving batch job in its own pool cannot impact the latency-sensitive tier.</p>
+
+          <h2>Graceful Degradation</h2>
+
+          <p>Real systems have many dependencies, only some of which are critical. Graceful degradation means: when a non-critical dependency fails, the system returns a useful but reduced response rather than an error.</p>
+
+          <p>Examples:</p>
+          <ul>
+            <li>Recommendations service is down; product page returns without recommendations.</li>
+            <li>Sentiment analysis fails; review still posts, sentiment computed later.</li>
+            <li>Personalisation service is slow; anonymous experience served as fallback.</li>
+            <li>Cache is unreachable; fall through to database with a circuit breaker so DB is not overwhelmed.</li>
+          </ul>
+
+          <p>The architectural insight: <strong>not all dependencies are equal</strong>. Identify the &ldquo;critical path&rdquo; (the dependencies whose failure must fail the request) and the &ldquo;enriching path&rdquo; (everything else). Treat them differently in your code &mdash; critical paths use timeouts and proper error propagation; enriching paths swallow errors with logging.</p>
+
+          <h2>Chaos Engineering</h2>
+
+          <p>Chaos engineering, popularised by Netflix, is the practice of intentionally injecting failures into production-like systems to validate that resilience patterns actually work. The principle: if you do not test failure handling, you do not know if it works.</p>
+
+          <p>Chaos experiments graduate in scope:</p>
+          <ol>
+            <li>Local: kill a process; restart; verify it recovers.</li>
+            <li>Staging: kill a pod; verify HPA + traffic shift recover service.</li>
+            <li>Production (off-peak): kill a node; verify cluster autoscaler + pod rescheduling work.</li>
+            <li>Production (peak): planned game day; multi-team participation; document outcomes.</li>
+          </ol>
+
+          <p>Tools: Chaos Mesh (Kubernetes-native), Gremlin (commercial), LitmusChaos, Toxiproxy (network-level), Pumba (container-level). Start small, build a chaos culture incrementally.</p>
+
+          <h2>Cascading Failures</h2>
+
+          <p>The most painful production outages are cascading: a small failure in one service causes load on dependencies, which cause load on their dependencies, which exhaust resources, which cause more failures. The cycle continues until the system stops.</p>
+
+          <p>Defences against cascading failure:</p>
+          <ul>
+            <li>Per-dependency circuit breakers to break the chain.</li>
+            <li>Retry budgets to cap retry amplification (Module 2).</li>
+            <li>Rate limits on internal RPCs to enforce backpressure.</li>
+            <li>Graceful degradation paths that do not depend on the failing service.</li>
+            <li>Load shedding: when a service is overloaded, return 503 to a percentage of requests rather than degrading all of them.</li>
+          </ul>
+        `,
+        labs: [
+          { title: 'Lab 7.1 — Circuit Breaker in Action', objective: 'Implement a circuit breaker (Resilience4j or hand-rolled), trigger failure modes, validate state transitions.', repoPath: 'module-7/lab-circuit-breaker', steps: ['Wrap a flaky downstream call with a circuit breaker', 'Inject 50% error rate; observe breaker trip to OPEN', 'Wait for timeout; observe HALF-OPEN; success returns to CLOSED', 'Compare with no breaker: caller threads exhaust'], duration: '60 minutes', difficulty: 'Intermediate' },
+          { title: 'Lab 7.2 — Chaos Mesh on Kubernetes', objective: 'Run chaos experiments on a kind cluster and observe how the application reacts.', repoPath: 'module-7/lab-chaos-mesh', steps: ['Install Chaos Mesh on a kind cluster', 'Inject pod-kill, network-loss, CPU stress experiments', 'Verify HPA, retry policies, circuit breakers all work', 'Document a chaos game-day runbook'], duration: '120 minutes', difficulty: 'Advanced' },
+          { title: 'Lab 7.3 — Graceful Degradation Architecture', objective: 'Refactor a service with multiple dependencies to degrade gracefully under partial failure.', repoPath: 'module-7/lab-graceful-degradation', steps: ['Identify critical vs enriching dependencies', 'Add fallback responses for enriching dependencies', 'Inject failures and verify reduced-but-valid responses', 'Compare to baseline (full error on any dependency failure)'], duration: '60 minutes', difficulty: 'Intermediate' },
+        ],
+        keyTakeaways: [
+          'Reliability is engineered with timeouts, retries, circuit breakers, bulkheads, and graceful degradation &mdash; not hoped for',
+          'Service meshes (Envoy / Istio) implement most of these patterns for free; use them',
+          'Identify critical-path vs enriching dependencies and treat them differently in code',
+          'Chaos engineering is the only way to know your resilience patterns actually work',
+          'Cascading failures kill systems; break the chain with circuit breakers and retry budgets',
+        ],
+        glossary: [
+          { term: 'Circuit breaker', definition: 'State machine that stops calling a failing dependency to prevent cascading failure.' },
+          { term: 'Bulkhead', definition: 'Resource isolation pattern; separate pools per dependency to contain failure.' },
+          { term: 'Graceful degradation', definition: 'Returning reduced functionality when a non-critical dependency fails.' },
+          { term: 'Chaos engineering', definition: 'Discipline of injecting failures into production-like systems to validate resilience.' },
+          { term: 'Retry budget', definition: 'Cap on retry traffic as a fraction of total RPS; prevents retry storms.' },
+        ],
+      },
+      {
+        number: 8,
+        title: 'Distributed Security & Zero Trust',
+        slug: 'distributed-security-zero-trust',
+        subtitle: 'How modern distributed systems authenticate workload-to-workload &mdash; mTLS, SPIFFE/SPIRE, OPA, and the Zero Trust patterns that replace network-perimeter security.',
+        duration: '5 hours',
+        objectives: [
+          'Explain Zero Trust as an architectural principle, not a product',
+          'Bootstrap mTLS between services with short-lived, automatically-rotated credentials',
+          'Use SPIFFE/SPIRE to issue cryptographic workload identity at scale',
+          'Enforce authorization with OPA / Rego at admission and at request time',
+          'Federate trust across clusters and clouds without leaking secrets',
+        ],
+        svgDiagram: '<svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="380" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold">SPIFFE WORKLOAD IDENTITY FLOW</text><circle cx="120" cy="180" r="40" fill="#22c55e" fill-opacity="0.25" stroke="#22c55e" stroke-width="2"/><text x="120" y="184" text-anchor="middle" fill="#86efac" font-size="11" font-weight="bold">Workload</text><text x="120" y="232" text-anchor="middle" fill="#94a3b8" font-size="9">orders-api</text><circle cx="400" cy="180" r="40" fill="#3b82f6" fill-opacity="0.25" stroke="#3b82f6" stroke-width="2"/><text x="400" y="180" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="bold">SPIRE</text><text x="400" y="194" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="bold">Agent</text><text x="400" y="232" text-anchor="middle" fill="#94a3b8" font-size="9">node-local</text><circle cx="680" cy="180" r="40" fill="#a855f7" fill-opacity="0.25" stroke="#a855f7" stroke-width="2"/><text x="680" y="180" text-anchor="middle" fill="#ddd6fe" font-size="11" font-weight="bold">SPIRE</text><text x="680" y="194" text-anchor="middle" fill="#ddd6fe" font-size="11" font-weight="bold">Server</text><text x="680" y="232" text-anchor="middle" fill="#94a3b8" font-size="9">control plane</text><line x1="160" y1="180" x2="360" y2="180" stroke="#22c55e" stroke-width="1.5" marker-end="url(#a8)"/><line x1="440" y1="180" x2="640" y2="180" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#a8)"/><line x1="640" y1="195" x2="440" y2="195" stroke="#a855f7" stroke-width="1.5" marker-end="url(#a8)"/><line x1="360" y1="195" x2="160" y2="195" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#a8)"/><text x="260" y="170" text-anchor="middle" fill="#86efac" font-size="9">attest</text><text x="540" y="170" text-anchor="middle" fill="#bfdbfe" font-size="9">forward</text><text x="540" y="208" text-anchor="middle" fill="#ddd6fe" font-size="9">SVID</text><text x="260" y="208" text-anchor="middle" fill="#bfdbfe" font-size="9">SVID</text><text x="400" y="290" text-anchor="middle" fill="#cbd5e1" font-size="11">Workload connects to local agent over Unix socket. Agent attests workload via Kubernetes selectors.</text><text x="400" y="306" text-anchor="middle" fill="#cbd5e1" font-size="11">SPIRE Server issues a short-lived SVID. Agent forwards to workload. Auto-rotated.</text><text x="400" y="338" text-anchor="middle" fill="#86efac" font-size="11" font-weight="bold">No shared secrets, no long-lived keys, identity travels with the workload.</text><defs><marker id="a8" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/></marker></defs></svg>',
+        content: `
+          <p>The classical security model assumed a trusted internal network behind a firewall. That assumption broke the moment one application talked to another over the internet, and it broke entirely with cloud-native architectures where workloads spin up and down across clusters, regions, and clouds in seconds. Zero Trust is the response: <strong>do not trust any caller based on network position; verify identity, posture, and policy on every request</strong>.</p>
+
+          <p>This module is the load-bearing security wall of distributed-systems engineering. After this you should be able to design how every internal API call authenticates, authorises, and audits itself, even across cluster and cloud boundaries.</p>
+
+          <h2>Zero Trust in One Sentence</h2>
+
+          <p>&ldquo;Never trust, always verify, assume breach.&rdquo; That is the operational summary. The architectural translation: every caller has a cryptographically verifiable identity; every authorization decision uses that identity plus context; every channel is encrypted; every action is logged; and the system is designed so a compromised component does not give the attacker the keys to the kingdom.</p>
+
+          <h2>mTLS &mdash; The Secure Channel</h2>
+
+          <p>Mutual TLS is the foundation: both client and server present certificates and verify each other&apos;s identity. Unlike server-side TLS (where only the server is identified), mTLS gives you bidirectional cryptographic identity on every connection.</p>
+
+          <p>The catch: mTLS is hard at scale because of credential management. Long-lived certificates leak, get committed to git, and never rotate. Short-lived certificates require an identity issuance system. That system is what SPIFFE/SPIRE provides.</p>
+
+          <h2>SPIFFE / SPIRE</h2>
+
+          <p>SPIFFE (Secure Production Identity Framework For Everyone) is a CNCF specification defining a universal format for workload identity:</p>
+          <ul>
+            <li><strong>SPIFFE ID</strong>: a URI like <code>spiffe://example.com/ns/orders/sa/orders-api</code> that uniquely names a workload.</li>
+            <li><strong>SVID (SPIFFE Verifiable Identity Document)</strong>: a cryptographic document (X.509 certificate or JWT) that proves the holder owns the SPIFFE ID. Short-lived (minutes to an hour) and auto-rotated.</li>
+            <li><strong>Workload API</strong>: a Unix-socket API workloads use to fetch their current SVID. No application code touches secrets directly.</li>
+          </ul>
+
+          <p>SPIRE is the reference implementation: a SPIRE Server issues SVIDs after a SPIRE Agent attests the workload via selectors (Kubernetes namespace, ServiceAccount, container image hash, etc.). The result: every workload has a unique cryptographic identity, automatically issued and rotated, with no shared secrets.</p>
+
+          <p>The free <a href="/courses/mastering-spiffe-spire" class="text-primary underline">Mastering SPIFFE &amp; SPIRE course</a> goes 13 modules deep on this topic. This module gives you the architectural picture; that course gives you the deployment.</p>
+
+          <h2>Authorization with OPA</h2>
+
+          <p>Authentication answers &ldquo;who is calling?&rdquo;; authorization answers &ldquo;is this caller allowed to do this?&rdquo;. OPA (Open Policy Agent) is the CNCF-graduated policy engine that lets you express authz rules as code (in the Rego language), evaluate them at admission time (Kubernetes admission webhook, Kyverno) or at request time (Envoy ext_authz, application middleware).</p>
+
+          <p>Sample Rego rule: &ldquo;a workload from <code>spiffe://example.com/ns/billing/sa/charger</code> may call <code>POST /charges</code> if its tenant_id matches the charge&apos;s tenant_id&rdquo;. The rule lives in version control, runs in CI, ships independently of application code.</p>
+
+          <h2>API Security</h2>
+
+          <p>For external API security &mdash; user authentication, token formats, OAuth, JWT &mdash; the patterns are different. Module 9 of the <a href="/courses/cloud-native-security-engineering" class="text-primary underline">Cloud Native Security Engineering</a> course covers these. The <a href="/games/api-attack-defense" class="text-primary underline">API Attack &amp; Defense Simulator</a> is the hands-on exercise.</p>
+
+          <p>For service-to-service inside your infrastructure: <strong>SPIFFE workload identity + mTLS + OPA authz</strong> is the production architecture. For human-to-API: OAuth + JWT + scope-based policy. The two patterns coexist; do not blur them.</p>
+
+          <h2>Federation Across Trust Domains</h2>
+
+          <p>Multi-cluster and multi-cloud distributed systems need workloads in one cluster to authenticate workloads in another. SPIFFE federation is the mechanism: each trust domain (cluster) exposes its trust bundle via a bundle endpoint; federated peers fetch and trust each other&apos;s bundles. SVIDs issued in one cluster are verifiable in another.</p>
+
+          <p>This is how you build cross-cluster service-to-service security without VPNs, shared secrets, or per-cluster identity sprawl. The <a href="/games/zero-trust-network-builder" class="text-primary underline">Zero Trust Network Builder</a> simulator walks through SPIFFE federation scenarios in production form.</p>
+
+          <h2>Operational Practice</h2>
+
+          <ul>
+            <li>Issue SVIDs valid for 1 hour or less; rotate automatically; never let credentials accumulate validity beyond what an attacker could exploit.</li>
+            <li>Authorization decisions log every allow/deny with the principal&apos;s SPIFFE ID; this is your audit trail.</li>
+            <li>Default-deny at the policy layer; explicit allow rules for known patterns; everything else rejected.</li>
+            <li>Treat the workload identity provider (SPIRE) as a tier-0 dependency; HA cluster, backups, tested restoration.</li>
+          </ul>
+        `,
+        labs: [
+          { title: 'Lab 8.1 — mTLS Between Two Services with SPIFFE', objective: 'Deploy two services on Kubernetes; bootstrap mTLS using SPIRE-issued SVIDs.', repoPath: 'module-8/lab-spiffe-mtls', steps: ['Install SPIRE on kind cluster', 'Register workloads with SPIRE selectors', 'Implement mTLS server using go-spiffe', 'Verify peer identity on every connection'], duration: '120 minutes', difficulty: 'Intermediate' },
+          { title: 'Lab 8.2 — OPA Authorization at Envoy', objective: 'Add OPA ext_authz to Envoy; enforce SPIFFE-ID-based access policy.', repoPath: 'module-8/lab-opa-envoy', steps: ['Deploy Envoy + OPA sidecar pattern', 'Write Rego policy: only orders-api can call payments-api', 'Send authorized and unauthorized calls; verify deny path'], duration: '90 minutes', difficulty: 'Advanced' },
+          { title: 'Lab 8.3 — SPIFFE Federation Across Two Clusters', objective: 'Stand up two kind clusters; federate trust; have a workload in cluster A authenticate to a workload in cluster B.', repoPath: 'module-8/lab-spiffe-federation', steps: ['Stand up two kind clusters', 'Install SPIRE in each with distinct trust domains', 'Configure bundle endpoint exchange', 'Cross-cluster mTLS verified by SPIFFE ID'], duration: '120 minutes', difficulty: 'Advanced' },
+        ],
+        keyTakeaways: [
+          'Zero Trust is an architectural principle: never trust caller location, always verify identity',
+          'mTLS gives bidirectional cryptographic identity; SPIFFE/SPIRE makes it scalable',
+          'Workload identity replaces shared secrets and long-lived credentials',
+          'OPA / Rego puts authorization policy into version control and CI',
+          'Federation extends Zero Trust across clusters and clouds without identity sprawl',
+        ],
+        whyThisMatters: 'This is the differentiator module of this course. Most distributed-systems training treats security as a separate topic added at the end. In real production engineering, security is woven into every architectural decision &mdash; the choice between shared secrets and SPIFFE workload identity is the same scale of architectural choice as the choice between monolith and microservices. Engineers who internalise this model design systems that scale and stay secure together. Engineers who do not end up retrofitting security after the first incident.',
+        glossary: [
+          { term: 'Zero Trust', definition: 'Security model that drops the assumption of a trusted internal network; verifies every request.' },
+          { term: 'mTLS', definition: 'Mutual TLS; both client and server authenticate via certificates.' },
+          { term: 'SPIFFE', definition: 'CNCF spec defining a universal workload identity format (SPIFFE ID + SVID).' },
+          { term: 'SPIRE', definition: 'CNCF reference implementation of SPIFFE; issues SVIDs after attesting workloads.' },
+          { term: 'OPA', definition: 'Open Policy Agent; CNCF policy engine for declarative authorization in Rego.' },
+        ],
+      },
+      {
+        number: 9,
+        title: 'Observability & Debugging',
+        slug: 'observability-debugging',
+        subtitle: 'Distributed tracing, metrics, structured logging, correlation IDs, and the OpenTelemetry / Prometheus / Grafana / Jaeger stack that lets you debug systems you cannot SSH into.',
+        duration: '4 hours',
+        objectives: [
+          'Instrument a service with OpenTelemetry traces, metrics, and logs',
+          'Correlate a single request across many services via trace IDs',
+          'Build the four golden signals (latency, traffic, errors, saturation) in Prometheus',
+          'Read a distributed trace and identify where latency accrues',
+          'Build the runbook a 3am on-call engineer actually uses',
+        ],
+        svgDiagram: '<svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="380" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold">DISTRIBUTED TRACING PIPELINE</text><rect x="40" y="80" width="120" height="50" rx="6" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6"/><text x="100" y="104" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="bold">Service A</text><text x="100" y="120" text-anchor="middle" fill="#94a3b8" font-size="9">OTel SDK</text><line x1="160" y1="105" x2="220" y2="105" stroke="#94a3b8" marker-end="url(#a9)"/><rect x="220" y="80" width="120" height="50" rx="6" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6"/><text x="280" y="104" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="bold">Service B</text><text x="280" y="120" text-anchor="middle" fill="#94a3b8" font-size="9">OTel SDK</text><line x1="340" y1="105" x2="400" y2="105" stroke="#94a3b8" marker-end="url(#a9)"/><rect x="400" y="80" width="120" height="50" rx="6" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6"/><text x="460" y="104" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="bold">Service C</text><text x="460" y="120" text-anchor="middle" fill="#94a3b8" font-size="9">OTel SDK</text><line x1="100" y1="130" x2="100" y2="170" stroke="#94a3b8" stroke-dasharray="3 2" marker-end="url(#a9)"/><line x1="280" y1="130" x2="280" y2="170" stroke="#94a3b8" stroke-dasharray="3 2" marker-end="url(#a9)"/><line x1="460" y1="130" x2="460" y2="170" stroke="#94a3b8" stroke-dasharray="3 2" marker-end="url(#a9)"/><rect x="40" y="170" width="600" height="50" rx="6" fill="#fbbf24" fill-opacity="0.2" stroke="#fbbf24"/><text x="340" y="194" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="bold">OTel Collector</text><text x="340" y="210" text-anchor="middle" fill="#94a3b8" font-size="9">batches, samples, fans out to backends</text><line x1="200" y1="220" x2="160" y2="270" stroke="#94a3b8" marker-end="url(#a9)"/><line x1="340" y1="220" x2="340" y2="270" stroke="#94a3b8" marker-end="url(#a9)"/><line x1="480" y1="220" x2="520" y2="270" stroke="#94a3b8" marker-end="url(#a9)"/><rect x="100" y="270" width="120" height="50" rx="6" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/><text x="160" y="294" text-anchor="middle" fill="#86efac" font-size="11" font-weight="bold">Jaeger / Tempo</text><text x="160" y="310" text-anchor="middle" fill="#94a3b8" font-size="9">traces</text><rect x="280" y="270" width="120" height="50" rx="6" fill="#a855f7" fill-opacity="0.2" stroke="#a855f7"/><text x="340" y="294" text-anchor="middle" fill="#ddd6fe" font-size="11" font-weight="bold">Prometheus</text><text x="340" y="310" text-anchor="middle" fill="#94a3b8" font-size="9">metrics</text><rect x="460" y="270" width="120" height="50" rx="6" fill="#ec4899" fill-opacity="0.2" stroke="#ec4899"/><text x="520" y="294" text-anchor="middle" fill="#fbcfe8" font-size="11" font-weight="bold">Loki / ES</text><text x="520" y="310" text-anchor="middle" fill="#94a3b8" font-size="9">logs</text><text x="660" y="294" fill="#cbd5e1" font-size="11" font-weight="bold">Grafana</text><text x="660" y="310" fill="#94a3b8" font-size="9">unified UI</text><line x1="220" y1="295" x2="240" y2="295" stroke="#94a3b8" stroke-width="0.8"/><line x1="400" y1="295" x2="420" y2="295" stroke="#94a3b8" stroke-width="0.8"/><defs><marker id="a9" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/></marker></defs></svg>',
+        content: `
+          <p>Observability is what separates a system you can debug from one you cannot. In a monolith, debugging means reading a stack trace. In a distributed system, debugging means reconstructing a request across many services from telemetry alone. If your observability is poor, your incidents are unrecoverable. If it is good, the system tells you where it broke.</p>
+
+          <h2>The Three Pillars (and the Fourth)</h2>
+
+          <ul>
+            <li><strong>Metrics</strong>: numeric time-series. Cheap to store, cheap to query, great for alerting and dashboards. Prometheus is the open-source standard.</li>
+            <li><strong>Logs</strong>: discrete events with timestamps and structure. Expensive to store at scale; great for debugging known issues.</li>
+            <li><strong>Traces</strong>: per-request causality across services. Heavy to capture and store; essential for debugging latency.</li>
+            <li><strong>Profiles</strong> (the modern fourth): CPU and allocation samples per service over time (Pyroscope, Parca). Catches what metrics aggregate away.</li>
+          </ul>
+
+          <h2>OpenTelemetry &mdash; The Standard</h2>
+
+          <p>OpenTelemetry (OTel) is the CNCF project that unifies instrumentation. One SDK in your application emits all three signals; an OTel Collector batches, samples, and ships them to whichever backends you choose. The vendor lock-in problem of older instrumentation libraries is solved.</p>
+
+          <p>Production pattern: every service uses the OTel SDK; an OTel Collector runs as a DaemonSet on Kubernetes; the Collector forwards traces to Jaeger/Tempo, metrics to Prometheus, logs to Loki or Elasticsearch. Grafana is the unified UI on top.</p>
+
+          <h2>Distributed Tracing</h2>
+
+          <p>A trace is a tree of spans, where each span represents a unit of work (an HTTP call, a database query, a message handler). The root span is the user request; child spans are everything it triggered. Spans carry a trace ID (propagated across service boundaries via the W3C Trace Context header) and a span ID (parent reference).</p>
+
+          <p>Tracing answers questions metrics cannot: <em>why is p99 of request type X high?</em> A trace shows you exactly which downstream service contributed the latency. <em>Why does this rare error happen?</em> The trace shows the full causal chain. <em>Where is this request actually going?</em> The trace reveals architectural surprises (services calling services you forgot existed).</p>
+
+          <h2>Sampling</h2>
+
+          <p>Tracing every request is expensive at scale. Sampling reduces volume:</p>
+          <ul>
+            <li><strong>Head-based sampling</strong>: decide at the start of the trace whether to keep it (e.g. 1% of all requests). Simple; misses error traces.</li>
+            <li><strong>Tail-based sampling</strong>: collect everything, decide after the trace completes (e.g. keep all error traces and a sample of success traces). Better visibility; harder to operate.</li>
+            <li><strong>Adaptive / hybrid</strong>: head-sample at modest rate; force-sample known interesting paths (errors, slow requests, specific endpoints).</li>
+          </ul>
+
+          <h2>The Four Golden Signals</h2>
+
+          <p>From the Google SRE book, the four metrics every service should emit:</p>
+          <ol>
+            <li><strong>Latency</strong>: time to serve a request. Track p50, p95, p99; alert on p99.</li>
+            <li><strong>Traffic</strong>: requests per second. Sudden change is a signal even if everything else looks fine.</li>
+            <li><strong>Errors</strong>: failed requests. Express as a rate (errors per second) or a ratio (error rate over total RPS).</li>
+            <li><strong>Saturation</strong>: how full the system is. CPU, memory, queue depth, connection pool utilisation. Saturation precedes other failures.</li>
+          </ol>
+
+          <p>Every dashboard, every alert, every SLO connects back to these four. If you only emit four metrics per service, emit these.</p>
+
+          <h2>Structured Logging and Correlation IDs</h2>
+
+          <p>Logs are useful when they are queryable. That means structured (JSON or key=value) and correlated. Every log line should include the trace ID so you can filter by request and the user/tenant ID so you can debug per-user issues.</p>
+
+          <p>The minimum log line for a service: <code>timestamp, level, service, trace_id, span_id, user_id, message, ...fields</code>. Anything less and your logs are unsearchable at scale.</p>
+
+          <h2>SLO and Error Budget</h2>
+
+          <p>Service Level Objectives (SLOs) translate the four golden signals into commitments. &ldquo;p99 latency &lt; 300ms over 30 days&rdquo; or &ldquo;99.9% of requests return 2xx/3xx over 30 days&rdquo;. The error budget is the difference between 100% and the SLO &mdash; the amount of failure you have permission to spend on risky changes, deploys, or experiments.</p>
+
+          <p>Operating with explicit SLOs and error budgets is the discipline of the modern SRE function. The pattern: when error budget is healthy, you ship features fast; when it is exhausted, you stop shipping and stabilise.</p>
+
+          <h2>Debugging Distributed Systems</h2>
+
+          <p>The flow that works in practice:</p>
+          <ol>
+            <li>Alert fires &rArr; identify the affected service from dashboard.</li>
+            <li>Check the four golden signals for that service.</li>
+            <li>Pick a representative failed trace; walk it span by span; identify where latency or error appears.</li>
+            <li>If it is a downstream service, recurse: open that service&apos;s dashboard, repeat.</li>
+            <li>If it is in the service itself, jump to logs filtered by that trace ID.</li>
+            <li>If logs do not show the cause, jump to profiles.</li>
+          </ol>
+
+          <p>That&apos;s the loop. Every minute saved in this loop is a minute off MTTR.</p>
+        `,
+        labs: [
+          { title: 'Lab 9.1 — Trace a Request End-to-End', objective: 'Instrument a 3-service chain with OTel; trace a request across all three; visualise in Jaeger.', repoPath: 'module-9/lab-end-to-end-tracing', steps: ['Add OTel SDK to each service', 'Propagate W3C Trace Context across HTTP/gRPC calls', 'Send a request; find the trace in Jaeger', 'Identify the slowest span'], duration: '60 minutes', difficulty: 'Intermediate' },
+          { title: 'Lab 9.2 — Build the Four Golden Signals', objective: 'Add Prometheus instrumentation for latency, traffic, errors, saturation; build a Grafana dashboard.', repoPath: 'module-9/lab-golden-signals', steps: ['Instrument requests with histogram + counter', 'Track connection pool saturation', 'Build a Grafana dashboard with all four signals', 'Define an SLO and visualise the burn rate'], duration: '90 minutes', difficulty: 'Intermediate' },
+          { title: 'Lab 9.3 — Incident Triage from Telemetry', objective: 'Inject a partial failure; use only the dashboards and traces to identify root cause.', repoPath: 'module-9/lab-incident-triage', steps: ['Inject a 30% error rate at one downstream service', 'Use only Grafana + Jaeger to identify which service', 'Identify which user-facing endpoint is most affected', 'Document the runbook'], duration: '60 minutes', difficulty: 'Intermediate' },
+        ],
+        keyTakeaways: [
+          'Observability has three pillars (metrics, logs, traces) plus a fourth (profiles); use them together',
+          'OpenTelemetry is the standard; one SDK, many backends',
+          'Distributed tracing answers latency questions metrics cannot &mdash; instrument every service',
+          'The four golden signals (latency, traffic, errors, saturation) are the minimum metric set per service',
+          'SLOs and error budgets convert observability into engineering discipline',
+        ],
+        glossary: [
+          { term: 'OpenTelemetry', definition: 'CNCF project unifying metrics, logs, and traces under one vendor-neutral SDK.' },
+          { term: 'Trace', definition: 'Tree of spans representing a single request across services.' },
+          { term: 'Span', definition: 'Single unit of work in a trace (one HTTP call, one query, one handler).' },
+          { term: 'SLO', definition: 'Service Level Objective; a measurable commitment about latency, availability, etc.' },
+          { term: 'Error budget', definition: '100% minus SLO; the failure allowance you can spend on risk.' },
+        ],
+      },
+      {
+        number: 10,
+        title: 'Kubernetes & Cloud Native Distributed Systems',
+        slug: 'kubernetes-cloud-native-distributed-systems',
+        subtitle: 'How Kubernetes changes distributed-systems design &mdash; cluster architecture, service mesh, ingress, autoscaling, and the operational primitives that everything else now sits on top of.',
+        duration: '5 hours',
+        objectives: [
+          'Read a Kubernetes cluster architecture (control plane, kubelet, kube-proxy, etcd, CNI)',
+          'Use Services, Ingress, and Gateway API correctly for distributed workloads',
+          'Compare service meshes (Istio, Linkerd, Cilium) and pick one with eyes open',
+          'Run StatefulSets, PVCs, and storage classes for stateful workloads',
+          'Operate workloads with HPA, VPA, Karpenter, and PodDisruptionBudgets in production',
+        ],
+        svgDiagram: '<svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="380" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold">KUBERNETES CLUSTER ARCHITECTURE</text><rect x="40" y="60" width="720" height="100" rx="8" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6"/><text x="400" y="84" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="bold">CONTROL PLANE</text><rect x="60" y="100" width="120" height="40" rx="4" fill="#3b82f6" fill-opacity="0.3"/><text x="120" y="124" text-anchor="middle" fill="#bfdbfe" font-size="10">apiserver</text><rect x="200" y="100" width="120" height="40" rx="4" fill="#3b82f6" fill-opacity="0.3"/><text x="260" y="124" text-anchor="middle" fill="#bfdbfe" font-size="10">scheduler</text><rect x="340" y="100" width="120" height="40" rx="4" fill="#3b82f6" fill-opacity="0.3"/><text x="400" y="124" text-anchor="middle" fill="#bfdbfe" font-size="10">ctrl-mgr</text><rect x="480" y="100" width="120" height="40" rx="4" fill="#3b82f6" fill-opacity="0.3"/><text x="540" y="124" text-anchor="middle" fill="#bfdbfe" font-size="10">cloud-ctrl</text><rect x="620" y="100" width="120" height="40" rx="4" fill="#22c55e" fill-opacity="0.3"/><text x="680" y="124" text-anchor="middle" fill="#86efac" font-size="10">etcd (Raft)</text><rect x="40" y="190" width="220" height="170" rx="8" fill="#a855f7" fill-opacity="0.15" stroke="#a855f7"/><text x="150" y="214" text-anchor="middle" fill="#c4b5fd" font-size="11" font-weight="bold">Node 1</text><rect x="60" y="226" width="180" height="22" rx="3" fill="#a855f7" fill-opacity="0.3"/><text x="150" y="241" text-anchor="middle" fill="#ddd6fe" font-size="9">kubelet</text><rect x="60" y="252" width="180" height="22" rx="3" fill="#a855f7" fill-opacity="0.3"/><text x="150" y="267" text-anchor="middle" fill="#ddd6fe" font-size="9">kube-proxy / CNI</text><rect x="60" y="282" width="180" height="22" rx="3" fill="#22c55e" fill-opacity="0.4"/><text x="150" y="297" text-anchor="middle" fill="#bbf7d0" font-size="9">pod: app-A</text><rect x="60" y="308" width="180" height="22" rx="3" fill="#22c55e" fill-opacity="0.4"/><text x="150" y="323" text-anchor="middle" fill="#bbf7d0" font-size="9">pod: app-B</text><rect x="280" y="190" width="220" height="170" rx="8" fill="#a855f7" fill-opacity="0.15" stroke="#a855f7"/><text x="390" y="214" text-anchor="middle" fill="#c4b5fd" font-size="11" font-weight="bold">Node 2</text><rect x="300" y="226" width="180" height="22" rx="3" fill="#a855f7" fill-opacity="0.3"/><text x="390" y="241" text-anchor="middle" fill="#ddd6fe" font-size="9">kubelet</text><rect x="300" y="252" width="180" height="22" rx="3" fill="#a855f7" fill-opacity="0.3"/><text x="390" y="267" text-anchor="middle" fill="#ddd6fe" font-size="9">kube-proxy / CNI</text><rect x="300" y="282" width="180" height="22" rx="3" fill="#22c55e" fill-opacity="0.4"/><text x="390" y="297" text-anchor="middle" fill="#bbf7d0" font-size="9">pod: app-A</text><rect x="300" y="308" width="180" height="22" rx="3" fill="#22c55e" fill-opacity="0.4"/><text x="390" y="323" text-anchor="middle" fill="#bbf7d0" font-size="9">pod: app-C</text><rect x="520" y="190" width="220" height="170" rx="8" fill="#a855f7" fill-opacity="0.15" stroke="#a855f7"/><text x="630" y="214" text-anchor="middle" fill="#c4b5fd" font-size="11" font-weight="bold">Node 3</text><rect x="540" y="226" width="180" height="22" rx="3" fill="#a855f7" fill-opacity="0.3"/><text x="630" y="241" text-anchor="middle" fill="#ddd6fe" font-size="9">kubelet</text><rect x="540" y="252" width="180" height="22" rx="3" fill="#a855f7" fill-opacity="0.3"/><text x="630" y="267" text-anchor="middle" fill="#ddd6fe" font-size="9">kube-proxy / CNI</text><rect x="540" y="282" width="180" height="22" rx="3" fill="#22c55e" fill-opacity="0.4"/><text x="630" y="297" text-anchor="middle" fill="#bbf7d0" font-size="9">pod: app-B</text><rect x="540" y="308" width="180" height="22" rx="3" fill="#22c55e" fill-opacity="0.4"/><text x="630" y="323" text-anchor="middle" fill="#bbf7d0" font-size="9">pod: app-C</text></svg>',
+        content: `
+          <p>Kubernetes is the substrate that runs most modern distributed systems. It is, itself, a distributed system &mdash; with consensus (etcd / Raft), partitioning (resources scheduled across nodes), replication (pods), and observability built in. Understanding how Kubernetes is constructed is now part of distributed-systems literacy.</p>
+
+          <h2>Cluster Architecture</h2>
+
+          <p>The control plane consists of:</p>
+          <ul>
+            <li><strong>kube-apiserver</strong>: the only component that writes to etcd; every other component talks to apiserver. Stateless; horizontally scalable.</li>
+            <li><strong>etcd</strong>: the source of truth for cluster state; Raft-replicated; 3 or 5 nodes.</li>
+            <li><strong>kube-scheduler</strong>: assigns pending pods to nodes based on resource fit, affinity, and topology.</li>
+            <li><strong>kube-controller-manager</strong>: runs reconciliation loops (Deployment, ReplicaSet, Node, Endpoints, etc.). Each controller leader-elects via etcd.</li>
+            <li><strong>cloud-controller-manager</strong>: runs cloud-specific controllers (load balancers, persistent volumes, node lifecycle).</li>
+          </ul>
+
+          <p>Each node runs:</p>
+          <ul>
+            <li><strong>kubelet</strong>: the node agent; pulls container images, runs containers via the container runtime, reports node and pod status to apiserver.</li>
+            <li><strong>kube-proxy</strong>: implements Service abstraction via iptables / IPVS rules. (Modern alternative: Cilium with no kube-proxy.)</li>
+            <li><strong>CNI plugin</strong>: pod networking (Cilium, Calico, AWS VPC CNI, etc.). Provides pod IPs, NetworkPolicy enforcement, often eBPF observability.</li>
+            <li><strong>Container runtime</strong>: containerd or CRI-O; runs the containers.</li>
+          </ul>
+
+          <h2>Service, Ingress, Gateway API</h2>
+
+          <ul>
+            <li><strong>Service</strong>: stable virtual IP for a set of pods; load-balances internal traffic; ClusterIP for in-cluster, LoadBalancer for cloud LB, NodePort for external on a port.</li>
+            <li><strong>Ingress</strong>: L7 routing for HTTP/HTTPS; needs an Ingress Controller (nginx-ingress, AWS ALB, Envoy-based, etc.). Older API; many extensions baked into annotations.</li>
+            <li><strong>Gateway API</strong>: the modern replacement for Ingress; richer, role-separated (Gateway/HTTPRoute/etc.), portable across implementations. The right choice for new infra.</li>
+          </ul>
+
+          <h2>Service Mesh</h2>
+
+          <p>A service mesh adds a sidecar proxy (Envoy) to every pod to handle service-to-service: mTLS, retries, circuit breaking, observability, traffic shifting, authorization. Three major options:</p>
+          <ul>
+            <li><strong>Istio</strong>: most feature-rich; substantial complexity. Best when you need the full toolkit.</li>
+            <li><strong>Linkerd</strong>: simpler, performance-focused; written in Rust; zero-config mTLS. Best for &ldquo;mesh basics, fast&rdquo;.</li>
+            <li><strong>Cilium service mesh</strong>: eBPF-based, no sidecar, integrated with the Cilium CNI. Best when you want one tool for networking + mesh.</li>
+          </ul>
+
+          <p>Service meshes implement most of the resilience patterns from Module 7 (timeouts, retries, circuit breakers) for free at the data plane. The cost is operational complexity and the latency tax of every request going through a sidecar.</p>
+
+          <h2>Stateful Workloads</h2>
+
+          <p>StatefulSets give pods stable identities (predictable name, predictable network address) and stable storage (PersistentVolumeClaims that follow the pod). The right pattern for databases, message queues, and any workload where pod identity matters.</p>
+
+          <p>StorageClasses define dynamic provisioning of PersistentVolumes from cloud-provider disks (EBS, PD, Azure Disk) or storage operators (Rook/Ceph, Longhorn). Choose access mode (ReadWriteOnce / ReadWriteMany), reclaim policy (Delete / Retain), and binding mode (Immediate / WaitForFirstConsumer) deliberately.</p>
+
+          <h2>Autoscaling, PDBs, and Operational Sanity</h2>
+
+          <ul>
+            <li><strong>HPA</strong>: scale pods on metrics. Always set <code>minReplicas &gt;= 2</code> for HA.</li>
+            <li><strong>VPA</strong>: rightsize resource requests; clashes with HPA on the same metric.</li>
+            <li><strong>Cluster Autoscaler / Karpenter</strong>: scale nodes. Karpenter is the modern default on AWS.</li>
+            <li><strong>PodDisruptionBudget</strong>: cap the number of unavailable pods during voluntary disruption (drain, scale-down, eviction). Without PDBs, the autoscaler will happily evict every replica simultaneously.</li>
+          </ul>
+
+          <h2>Operational Practice</h2>
+
+          <p>The Kubernetes operational discipline:</p>
+          <ul>
+            <li>Always run multi-AZ for production. Use <code>topologySpreadConstraints</code> to enforce it.</li>
+            <li>etcd: 5 nodes across 3 AZs, KMS-backed encryption at rest, tested backup/restore.</li>
+            <li>RBAC: deny by default; explicit allow per ServiceAccount; treat <code>cluster-admin</code> as root.</li>
+            <li>NetworkPolicy: default-deny per namespace; explicit allow rules.</li>
+            <li>PodSecurity admission: <em>restricted</em> profile by default, exceptions audited.</li>
+          </ul>
+
+          <p>Module 8 of the <a href="/courses/cloud-native-security-engineering/kubernetes-foundations-security" class="text-primary underline">Cloud Native Security Engineering course</a> covers Kubernetes hardening in depth. The <a href="/games/kubernetes-security-simulator" class="text-primary underline">Kubernetes Security Simulator</a> exercises the misconfigurations that cause real outages.</p>
+        `,
+        labs: [
+          { title: 'Lab 10.1 — Kind Cluster from Scratch', objective: 'Stand up a multi-node kind cluster, deploy a 3-tier app, expose via Ingress.', repoPath: 'module-10/lab-kind-cluster', steps: ['Create kind cluster with 3 worker nodes', 'Install nginx-ingress', 'Deploy frontend / API / DB', 'Verify external access via Ingress'], duration: '90 minutes', difficulty: 'Beginner' },
+          { title: 'Lab 10.2 — Linkerd Service Mesh', objective: 'Install Linkerd; observe automatic mTLS; verify mesh observability.', repoPath: 'module-10/lab-linkerd', steps: ['Install Linkerd CLI and control plane', 'Inject sidecars into namespace', 'Verify mTLS via Linkerd Viz', 'Inject failure with Toxiproxy; observe retry behaviour'], duration: '90 minutes', difficulty: 'Intermediate' },
+          { title: 'Lab 10.3 — StatefulSet for a Database', objective: 'Deploy Postgres as a StatefulSet with persistent storage; verify pod identity stability.', repoPath: 'module-10/lab-statefulset-postgres', steps: ['Define StatefulSet with PVC template', 'Deploy 3 replicas', 'Kill a pod; verify PVC reattaches to the same logical pod', 'Demonstrate stable network identity'], duration: '60 minutes', difficulty: 'Intermediate' },
+        ],
+        keyTakeaways: [
+          'Kubernetes is itself a distributed system; understanding its components is now part of distributed-systems literacy',
+          'Service / Ingress / Gateway API: pick Gateway API for new infra',
+          'Service mesh is optional but powerful; pick Istio for full features, Linkerd for simplicity, Cilium for unified networking',
+          'StatefulSets + PVCs handle stateful workloads correctly; do not run databases as Deployments',
+          'PDBs, multi-AZ topology spread, and tested etcd backups are the operational must-haves',
+        ],
+        glossary: [
+          { term: 'Kubernetes Service', definition: 'Stable virtual IP and DNS name for a set of pods; load-balances internal traffic.' },
+          { term: 'Service mesh', definition: 'Sidecar-based infrastructure for mTLS, retries, observability between services.' },
+          { term: 'StatefulSet', definition: 'Workload controller for pods that need stable identity and storage.' },
+          { term: 'PodDisruptionBudget', definition: 'Cap on simultaneous voluntary disruptions to a workload; prevents accidental full-replica eviction.' },
+          { term: 'Karpenter', definition: 'Modern Kubernetes node autoscaler on AWS; replaces Cluster Autoscaler with faster, more flexible provisioning.' },
+        ],
+      },
+      {
+        number: 11,
+        title: 'Real-World Failure Scenarios',
+        slug: 'real-world-failure-scenarios',
+        subtitle: 'Retry storms, cache stampedes, split brain, hot partitions, queue overload, DNS outages, service-discovery failures, cascading failures &mdash; the incidents that actually happen, and how to engineer them away.',
+        duration: '5 hours',
+        objectives: [
+          'Recognise the canonical distributed-systems failure modes by their telemetry signatures',
+          'Reproduce each failure in a controlled lab so the pattern is in your hands',
+          'Apply the architectural defences that make each failure hard or impossible',
+          'Write incident runbooks that an on-call engineer can actually use at 3am',
+          'Run a post-incident review that produces lasting improvements',
+        ],
+        svgDiagram: '<svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="380" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold">CASCADING FAILURE PROPAGATION</text><circle cx="120" cy="190" r="32" fill="#ef4444" fill-opacity="0.4" stroke="#ef4444" stroke-width="2"/><text x="120" y="194" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="bold">DB slow</text><line x1="152" y1="190" x2="218" y2="190" stroke="#ef4444" stroke-width="2" marker-end="url(#a11)"/><circle cx="260" cy="190" r="32" fill="#ef4444" fill-opacity="0.4" stroke="#ef4444" stroke-width="2"/><text x="260" y="186" text-anchor="middle" fill="#fca5a5" font-size="10" font-weight="bold">Service B</text><text x="260" y="200" text-anchor="middle" fill="#94a3b8" font-size="9">timeout</text><line x1="292" y1="190" x2="358" y2="190" stroke="#ef4444" stroke-width="2" marker-end="url(#a11)"/><circle cx="400" cy="190" r="32" fill="#ef4444" fill-opacity="0.4" stroke="#ef4444" stroke-width="2"/><text x="400" y="186" text-anchor="middle" fill="#fca5a5" font-size="10" font-weight="bold">Service A</text><text x="400" y="200" text-anchor="middle" fill="#94a3b8" font-size="9">retries</text><line x1="432" y1="190" x2="498" y2="190" stroke="#ef4444" stroke-width="2.5" marker-end="url(#a11)"/><circle cx="540" cy="190" r="32" fill="#ef4444" fill-opacity="0.5" stroke="#ef4444" stroke-width="2"/><text x="540" y="186" text-anchor="middle" fill="#fca5a5" font-size="10" font-weight="bold">Gateway</text><text x="540" y="200" text-anchor="middle" fill="#94a3b8" font-size="9">queue full</text><line x1="572" y1="190" x2="638" y2="190" stroke="#ef4444" stroke-width="3" marker-end="url(#a11)"/><circle cx="680" cy="190" r="32" fill="#ef4444" fill-opacity="0.6" stroke="#ef4444" stroke-width="2"/><text x="680" y="186" text-anchor="middle" fill="#fca5a5" font-size="10" font-weight="bold">Users</text><text x="680" y="200" text-anchor="middle" fill="#94a3b8" font-size="9">retry</text><line x1="680" y1="222" x2="540" y2="222" stroke="#ef4444" stroke-width="3" stroke-dasharray="4 3" marker-end="url(#a11)"/><line x1="540" y1="222" x2="400" y2="222" stroke="#ef4444" stroke-width="3" stroke-dasharray="4 3"/><text x="400" y="244" fill="#fca5a5" font-size="10" font-weight="bold">amplification &mdash; retries pile on the failing service</text><text x="400" y="290" text-anchor="middle" fill="#cbd5e1" font-size="11">Each retry adds to the failing service&apos;s load. Without circuit breakers + retry budgets, the system cannot recover.</text><text x="400" y="320" text-anchor="middle" fill="#86efac" font-size="11">Defences: circuit breakers, retry budgets, load shedding, graceful degradation.</text><defs><marker id="a11" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#fca5a5"/></marker></defs></svg>',
+        content: `
+          <p>Every distributed system fails the same way the others do. The taxonomy is small and the failure modes are well-documented, which means the patterns that defend against them are equally well-understood. The engineers who experience these incidents and build the defences are the ones the rest of the org calls when something is on fire.</p>
+
+          <p>This module walks the canonical incidents one at a time: what they look like, what causes them, how to defend.</p>
+
+          <h2>Retry Storms</h2>
+
+          <p><strong>Symptom</strong>: a downstream service has a brownout. Errors trigger client retries. Retries multiply load on the failing service. The service cannot recover. p99 latency stays high; error rate stays high; you cannot get out of it without a deploy or restart.</p>
+
+          <p><strong>Defence</strong>: every retry policy has a budget (cap retries at, say, 10% of total RPS). Exponential backoff with jitter. Circuit breakers stop calling the dead service so it can recover.</p>
+
+          <h2>Cache Stampedes</h2>
+
+          <p><strong>Symptom</strong>: a hot cache key expires under load. Hundreds of concurrent requests miss the cache and hit the origin. Origin overloads. Stays overloaded until the cache is repopulated.</p>
+
+          <p><strong>Defence</strong>: per-key locking on cache misses (only one recompute at a time). Probabilistic early expiration. Stale-while-revalidate semantics. The <a href="/blog/caching-strategies-production-guide" class="text-primary underline">Caching Strategies guide</a> covers all three patterns.</p>
+
+          <h2>Split Brain</h2>
+
+          <p><strong>Symptom</strong>: a network partition isolates two halves of a CP cluster. Both elect leaders independently. Both accept writes. When the partition heals, you have divergent state.</p>
+
+          <p><strong>Defence</strong>: real consensus algorithms (Raft, Paxos) require a majority quorum, so only one side can elect a leader; the other side cannot make progress. The lesson: do not invent your own &ldquo;HA&rdquo; without consensus underneath.</p>
+
+          <h2>Hot Partitions</h2>
+
+          <p><strong>Symptom</strong>: one shard / partition / Redis slot receives 10x the traffic of the others. That node saturates while others sit idle. p99 latency on the hot key climbs; the rest of the system looks fine.</p>
+
+          <p><strong>Defence</strong>: detect via per-partition QPS metrics. Mitigate by salting keys, splitting the hot key into N keys, or fronting with a per-pod local cache so the hot key never reaches the distributed cache.</p>
+
+          <h2>Queue Overload</h2>
+
+          <p><strong>Symptom</strong>: producers outpace consumers. Queue depth grows. Eventually the queue runs out of memory or disk; messages start failing or get dropped.</p>
+
+          <p><strong>Defence</strong>: backpressure. Bounded queues. Producer throttling on consumer-lag signals. Auto-scale consumers on lag.</p>
+
+          <h2>DNS Outages</h2>
+
+          <p><strong>Symptom</strong>: DNS resolver is slow or unreachable. Every service-to-service call stalls on lookup. The cluster appears to be hanging without errors.</p>
+
+          <p><strong>Defence</strong>: NodeLocal DNSCache to keep DNS off the critical path. Short TTLs combined with negative-caching tuning. Service-mesh-based discovery (sidecar handles endpoint changes via xDS, no DNS in the data path).</p>
+
+          <h2>Service Discovery Failures</h2>
+
+          <p><strong>Symptom</strong>: discovery system (Consul, etcd, kube-apiserver) is unhealthy. Services cannot find each other. Existing connections work; new connections fail.</p>
+
+          <p><strong>Defence</strong>: clients cache the last-known-good endpoint set with a generous TTL. The system tolerates a degraded discovery system if existing connections can survive the window.</p>
+
+          <h2>Cascading Failures</h2>
+
+          <p>The mother of all distributed-systems incidents. A small failure becomes a cluster-wide outage because every layer amplifies the load. The diagram above shows the basic shape: DB slows, Service B times out, Service A retries, the gateway queues up requests, users retry, the gateway saturates, more services fail.</p>
+
+          <p><strong>Defences</strong>: circuit breakers per dependency. Retry budgets capping amplification. Load shedding (return 503 to a percentage of requests when saturated). Graceful degradation paths so a non-critical failure doesn&apos;t block critical paths. The <a href="/games/incident-response-simulator" class="text-primary underline">Incident Response Simulator</a> walks through real scenarios.</p>
+
+          <h2>The Post-Incident Review</h2>
+
+          <p>The blameless post-mortem is the discipline that turns incidents into learning. The structure that works:</p>
+          <ol>
+            <li><strong>Timeline</strong>: minute-by-minute account of what happened. No interpretation; just facts.</li>
+            <li><strong>Impact</strong>: who was affected, for how long, in what way.</li>
+            <li><strong>Root cause</strong>: what enabled the incident. Often multiple contributing factors.</li>
+            <li><strong>Detection</strong>: how was the incident discovered? Could it have been earlier?</li>
+            <li><strong>Mitigation</strong>: what stopped the incident? Was it the right action?</li>
+            <li><strong>Action items</strong>: each one assigned, deadlined, tracked. Without these the document is theatre.</li>
+          </ol>
+        `,
+        labs: [
+          { title: 'Lab 11.1 — Reproduce a Retry Storm', objective: 'Configure naive retries; cause an outage; add backoff + budget; observe recovery.', repoPath: 'module-11/lab-retry-storm', steps: ['Set up 3-service chain with naive retries', 'Inject 50% errors on bottom service; observe storm', 'Add exponential backoff + budget; observe recovery'], duration: '90 minutes', difficulty: 'Intermediate' },
+          { title: 'Lab 11.2 — Cache Stampede on Expiry', objective: 'Cause a stampede when a hot key expires; add per-key locking; verify fix.', repoPath: 'module-11/lab-cache-stampede', steps: ['Identify a hot key with TTL 30s', 'Send 1000 concurrent requests at expiry; observe origin meltdown', 'Add per-key Redis lock for recompute', 'Repeat; verify single recompute'], duration: '60 minutes', difficulty: 'Intermediate' },
+          { title: 'Lab 11.3 — Post-Incident Review', objective: 'Write a complete post-mortem for one of the simulated incidents above.', repoPath: 'module-11/lab-post-incident', steps: ['Pick the retry-storm or cache-stampede incident', 'Reconstruct the timeline from logs/metrics', 'Document root cause, detection, mitigation', 'Define 3 concrete action items'], duration: '60 minutes', difficulty: 'Intermediate' },
+        ],
+        keyTakeaways: [
+          'Retry storms are caused by naive retries without budgets; cap them',
+          'Cache stampedes need per-key locking, probabilistic expiration, or stale-while-revalidate',
+          'Split brain is prevented by real consensus &mdash; do not invent HA without quorum math',
+          'Cascading failures need defences at every layer: circuit breakers, budgets, load shedding, degradation',
+          'Post-incident reviews convert incidents into engineering wins &mdash; without action items they are theatre',
+        ],
+        glossary: [
+          { term: 'Retry storm', definition: 'Failure mode where retries amplify load on a struggling backend.' },
+          { term: 'Cache stampede', definition: 'Many concurrent requests hit the origin when a hot cache key expires.' },
+          { term: 'Split brain', definition: 'A network partition causes two halves of a system to operate independently with divergent state.' },
+          { term: 'Hot partition', definition: 'A shard receiving disproportionately high traffic, overloading one node.' },
+          { term: 'Post-mortem', definition: 'Blameless review of an incident that produces tracked action items.' },
+        ],
+      },
+      {
+        number: 12,
+        title: 'Production System Design & Capstone',
+        slug: 'production-system-design-capstone',
+        subtitle: 'Multi-region architecture, disaster recovery, capacity planning, real production tradeoffs &mdash; and a capstone that integrates every module into one system.',
+        duration: '6 hours',
+        objectives: [
+          'Design a multi-region architecture and reason about its failure modes',
+          'Plan disaster recovery: RPO, RTO, runbooks, tested restoration',
+          'Design for cost &mdash; capacity reservations, autoscaling, regional placement',
+          'Read production architecture diagrams (Kafka, Kubernetes, Netflix, Uber, Google) and identify the trade-offs',
+          'Design a complete production system as the capstone and defend the choices',
+        ],
+        svgDiagram: '<svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="380" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="bold">MULTI-REGION ACTIVE-ACTIVE</text><circle cx="160" cy="180" r="80" fill="#3b82f6" fill-opacity="0.1" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4 3"/><text x="160" y="106" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="bold">us-east-1</text><circle cx="160" cy="160" r="14" fill="#3b82f6" fill-opacity="0.4" stroke="#3b82f6"/><text x="160" y="164" text-anchor="middle" fill="#bfdbfe" font-size="9" font-weight="bold">app</text><circle cx="120" cy="200" r="12" fill="#22c55e" fill-opacity="0.4" stroke="#22c55e"/><text x="120" y="204" text-anchor="middle" fill="#bbf7d0" font-size="8">db</text><circle cx="200" cy="200" r="12" fill="#fbbf24" fill-opacity="0.4" stroke="#fbbf24"/><text x="200" y="204" text-anchor="middle" fill="#fcd34d" font-size="8">cache</text><circle cx="640" cy="180" r="80" fill="#a855f7" fill-opacity="0.1" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="4 3"/><text x="640" y="106" text-anchor="middle" fill="#c4b5fd" font-size="11" font-weight="bold">eu-west-1</text><circle cx="640" cy="160" r="14" fill="#a855f7" fill-opacity="0.4" stroke="#a855f7"/><text x="640" y="164" text-anchor="middle" fill="#ddd6fe" font-size="9" font-weight="bold">app</text><circle cx="600" cy="200" r="12" fill="#22c55e" fill-opacity="0.4" stroke="#22c55e"/><text x="600" y="204" text-anchor="middle" fill="#bbf7d0" font-size="8">db</text><circle cx="680" cy="200" r="12" fill="#fbbf24" fill-opacity="0.4" stroke="#fbbf24"/><text x="680" y="204" text-anchor="middle" fill="#fcd34d" font-size="8">cache</text><line x1="240" y1="180" x2="560" y2="180" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#a12)"/><line x1="560" y1="195" x2="240" y2="195" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#a12)"/><text x="400" y="170" text-anchor="middle" fill="#fcd34d" font-size="10">cross-region replication</text><text x="400" y="210" text-anchor="middle" fill="#fcd34d" font-size="10">CDC for invalidation</text><rect x="280" y="50" width="240" height="40" rx="6" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/><text x="400" y="74" text-anchor="middle" fill="#86efac" font-size="11" font-weight="bold">Global LB (Route 53 / GCLB)</text><line x1="400" y1="90" x2="200" y2="120" stroke="#22c55e" stroke-width="1" stroke-dasharray="3 2"/><line x1="400" y1="90" x2="600" y2="120" stroke="#22c55e" stroke-width="1" stroke-dasharray="3 2"/><text x="400" y="320" text-anchor="middle" fill="#cbd5e1" font-size="11">Each region serves local traffic. Async cross-region replication for shared state.</text><text x="400" y="340" text-anchor="middle" fill="#94a3b8" font-size="10">Failover via DNS. RPO bounded by replication lag. RTO bounded by health-check + DNS TTL.</text><defs><marker id="a12" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#fcd34d"/></marker></defs></svg>',
+        content: `
+          <p>The capstone module ties every prior topic together. Production system design is the test of whether you can make CAP, replication, scaling, reliability, security, and observability cohere as a single coherent architecture. Most engineers can name the components; few can defend the choices.</p>
+
+          <h2>Multi-Region Architecture</h2>
+
+          <p>Three patterns:</p>
+          <ul>
+            <li><strong>Active-Passive</strong>: writes go to one region; standby region is a hot replica. Simple consistency story; failover is a deliberate, observable operation. RPO bounded by replication lag.</li>
+            <li><strong>Active-Active sharded</strong>: each region owns a shard of the keyspace. Reads and writes local to that region. Cross-region traffic only for cross-shard operations. The right pattern for most globally-distributed systems.</li>
+            <li><strong>Active-Active replicated</strong>: same data in every region; conflict resolution required. Useful for read-heavy global content (CDN-cached pages, profile reads). Dangerous for writes-with-consequence (payments) without globally-consistent storage like Spanner.</li>
+          </ul>
+
+          <h2>Disaster Recovery</h2>
+
+          <p>Two metrics that drive every DR design:</p>
+          <ul>
+            <li><strong>RPO (Recovery Point Objective)</strong>: how much data you can afford to lose. Driven by replication lag and backup cadence. RPO=0 requires synchronous cross-region replication (cost). RPO=1 hour means hourly backups suffice.</li>
+            <li><strong>RTO (Recovery Time Objective)</strong>: how long the recovery can take. Driven by failover automation, DNS TTL, warm-standby vs cold-restoration. RTO of minutes requires hot standbys; RTO of hours allows for backup-restore.</li>
+          </ul>
+
+          <p>The DR test discipline: <strong>untested DR is theater</strong>. Run a quarterly DR drill: simulate a regional outage, fail over, measure actual RTO, restore, document gaps.</p>
+
+          <h2>Capacity Planning</h2>
+
+          <p>Capacity engineering is forecasting load and provisioning to meet it without over-spending. The discipline:</p>
+          <ul>
+            <li>Track per-service RPS, p99 latency, resource utilisation over time.</li>
+            <li>Project growth from product roadmap and historic curves.</li>
+            <li>Identify bottleneck per service (CPU, RAM, connection pool, disk IOPS, downstream RPC).</li>
+            <li>Reserve capacity for traffic peaks (Black Friday, marketing events).</li>
+            <li>Set autoscaling boundaries that avoid surprises (HPA max not too low, not infinite).</li>
+            <li>Review monthly; update quarterly.</li>
+          </ul>
+
+          <h2>Cost Engineering</h2>
+
+          <p>At scale, cloud spend becomes architectural. Three high-leverage levers:</p>
+          <ul>
+            <li><strong>Right-sizing</strong>: VPA recommendations or manual analysis. Most workloads request 2&ndash;3x what they use; cutting that is direct savings.</li>
+            <li><strong>Spot / preemptible instances</strong>: 60&ndash;90% cheaper than on-demand. Use for batch, async, stateless web. Karpenter handles the eviction churn.</li>
+            <li><strong>Reserved capacity / savings plans</strong>: 30&ndash;60% cheaper for committed baseline. Buy enough to cover the steady-state, on-demand for the rest.</li>
+          </ul>
+
+          <h2>Production Architecture Case Studies</h2>
+
+          <p>Read three real production architectures and identify how they made every decision in this course:</p>
+          <ul>
+            <li><strong>Kafka at LinkedIn</strong>: trillions of events per day; partitioning by key, ZooKeeper (now KRaft) for metadata, MirrorMaker for cross-region.</li>
+            <li><strong>Cassandra at Netflix</strong>: leaderless replication, multi-region with LOCAL_QUORUM, custom backup tooling, the original Chaos Monkey.</li>
+            <li><strong>Uber&apos;s ringpop</strong>: SWIM gossip + consistent hashing for service partitioning.</li>
+            <li><strong>Spanner at Google</strong>: globally-consistent SQL via TrueTime; the gold standard for multi-region strong consistency.</li>
+          </ul>
+
+          <h2>Capstone Project</h2>
+
+          <p>Design and document a complete production distributed system. Your capstone should include:</p>
+          <ol>
+            <li>An architecture diagram showing every service, datastore, and external dependency.</li>
+            <li>The communication choice per boundary (sync HTTP, async Kafka, mTLS, etc.).</li>
+            <li>The data model and partitioning strategy per datastore.</li>
+            <li>The replication strategy and consistency guarantees.</li>
+            <li>The autoscaling and capacity plan.</li>
+            <li>The reliability patterns (circuit breakers, timeouts, retries, degradation).</li>
+            <li>The security architecture (workload identity, mTLS, authz).</li>
+            <li>The observability stack (traces, metrics, logs, SLOs).</li>
+            <li>The deployment architecture (CI/CD, regions, rollback strategy).</li>
+            <li>The DR plan with RPO/RTO targets.</li>
+          </ol>
+
+          <p>Defending the choices is the test. For each component you must be able to explain: <em>why this and not the alternative</em>. The answer is rarely the same for two systems &mdash; that is the discipline of system design.</p>
+        `,
+        labs: [
+          { title: 'Lab 12.1 — Multi-Region Active-Active Demo', objective: 'Stand up a small active-active app across two regions; observe failover.', repoPath: 'module-12/lab-multi-region', steps: ['Deploy app + DB in two simulated regions (kind clusters)', 'Configure CRDT-style or LWW conflict resolution', 'Simulate partition; observe behaviour', 'Heal partition; verify convergence'], duration: '120 minutes', difficulty: 'Advanced' },
+          { title: 'Lab 12.2 — DR Drill', objective: 'Practice a full disaster recovery drill from backup.', repoPath: 'module-12/lab-dr-drill', steps: ['Take a snapshot of a stateful service', 'Destroy the cluster', 'Restore from snapshot to a fresh cluster', 'Measure actual RTO; identify gaps'], duration: '120 minutes', difficulty: 'Advanced' },
+          { title: 'Lab 12.3 — Capstone Architecture Document', objective: 'Produce a complete production architecture for a distributed system of your choosing.', repoPath: 'module-12/lab-capstone', steps: ['Pick a domain (e-commerce, payments, analytics, social)', 'Document architecture per the 10-point list above', 'Defend each choice with an alternative + the trade-off you made', 'Submit to peer review'], duration: '4 hours', difficulty: 'Advanced' },
+        ],
+        keyTakeaways: [
+          'Multi-region is hard &mdash; pick active-passive or active-active sharded for most workloads',
+          'RPO and RTO drive every DR decision; untested DR is theater',
+          'Capacity planning is forecasting + bottleneck analysis + autoscaling discipline',
+          'Cost engineering is architectural at scale; right-size, spot, reserved capacity',
+          'The capstone is the test: can you defend every architectural choice with the trade-off?',
+        ],
+        whyThisMatters: 'This is the module that proves you can do system design at the senior / staff level. Anyone can list components; the engineer who can <em>defend</em> the choices &mdash; explain why this database and not that one, this consistency model and not the next, this region pattern and not the alternative &mdash; is the engineer who gets trusted with the architecture role. The capstone is your portfolio.',
+        glossary: [
+          { term: 'RPO', definition: 'Recovery Point Objective; how much data you can afford to lose in a disaster.' },
+          { term: 'RTO', definition: 'Recovery Time Objective; how long recovery can take.' },
+          { term: 'Active-Active', definition: 'Multiple regions accept reads and writes simultaneously.' },
+          { term: 'Active-Passive', definition: 'One region is primary; others are standby replicas activated only on failover.' },
+          { term: 'Capacity planning', definition: 'Discipline of forecasting load and provisioning to meet it efficiently.' },
+        ],
+      },
+    ],
+    seoPages: [
+      { slug: 'distributed-systems-engineering-explained', title: 'Distributed Systems Engineering: A Practical Walkthrough', description: 'A production-engineering walkthrough of distributed systems: CAP, consensus, replication, scalability, observability, and Zero Trust. Free 12-module course.', ctaModule: 1, content: '<h1>Distributed Systems Engineering: A Practical Walkthrough</h1><p>Distributed systems engineering is the discipline of building software that survives partial failure, scales horizontally, and stays observable across many machines. This is the field most modern infrastructure runs on &mdash; Kubernetes, Kafka, Cassandra, Spanner, every cloud platform.</p><p>The free <a href="/courses/distributed-systems-engineering">Distributed Systems Engineering course</a> walks you through 12 modules covering everything from CAP and latency to consensus, observability, Zero Trust, Kubernetes-native architecture, and real failure scenarios.</p>' },
+      { slug: 'how-distributed-systems-work', title: 'How Distributed Systems Actually Work in Production', description: 'A clear, practical explanation of how distributed systems work: replication, consensus, partitioning, observability, failure recovery — taught from real production engineering, not textbooks.', ctaModule: 1, content: '<h1>How Distributed Systems Actually Work</h1><p>Real production distributed systems are built on a small set of foundational ideas: state replication for durability, consensus for agreement, partitioning for scale, observability for debugging, and intentional failure handling for reliability.</p><p>The free <a href="/courses/distributed-systems-engineering">Distributed Systems Engineering course</a> teaches all of these from operational reality &mdash; with hands-on labs every module.</p>' },
+    ],
+    faqs: [
+      { question: 'Is this course beginner-friendly?', answer: 'Yes. Module 1 builds the mental model from scratch, and every subsequent module begins with foundational concepts before going production-deep. You should be comfortable with basic programming and Linux command line; everything distributed-systems-specific is taught in the course.' },
+      { question: 'How is this different from Designing Data-Intensive Applications?', answer: 'DDIA is the canonical book on distributed-systems theory and the algorithms layer. This course focuses on the operational and production-engineering layer: how Kubernetes changes the game, how Zero Trust integrates, how to run real systems with observability, how failure scenarios actually unfold. Read DDIA alongside this course; the two complement each other.' },
+      { question: 'Does the course require Kubernetes experience?', answer: 'No. Modules 1&ndash;9 are platform-agnostic. Module 10 introduces Kubernetes from the ground up, and Modules 11&ndash;12 use Kubernetes as the deployment substrate. If you already operate Kubernetes, you can skim Module 10.' },
+      { question: 'Is the course free?', answer: 'Yes. Every module, every lab, and every diagram is 100% free and ad-free. No paywall, no signup wall.' },
+      { question: 'How do the labs work?', answer: 'Each lab includes a self-contained scenario you can reproduce on a laptop with Docker or kind (Kubernetes in Docker). Lab repos are linked from each module. Labs are 30&ndash;90 minutes each and produce concrete operational outputs you can show in interviews.' },
+      { question: 'How does this course relate to the Mastering SPIFFE & SPIRE course?', answer: 'They are complementary. Mastering SPIFFE & SPIRE goes deep on workload identity. Module 8 of this course introduces SPIFFE/SPIRE and Zero Trust at the level you need to design distributed-systems security. Take the SPIFFE & SPIRE course after Module 8 if you want the full identity-system depth.' },
+    ],
+  },
 ];
