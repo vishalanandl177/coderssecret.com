@@ -3684,6 +3684,24 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           { term: 'Fault tolerance', definition: 'The system continues to operate in some form when components fail.' },
           { term: 'Linearizability', definition: 'The strongest consistency model: every operation appears to happen at a single instant.' },
         ],
+        operationalStory: 'A growing fintech moved from monolith to microservices on the assumption it would &ldquo;scale better&rdquo;. Six months later they were paying 3x the cloud bill for the same throughput, debugging a 7-service request chain over Slack at 3am, and shipping slower because every change required cross-team coordination on shared infra. The retro found that two services genuinely needed independent scaling (search, recommendations); the other five were team-org artifacts. They consolidated back to a 3-service core with two specialised satellites and recovered both cost and velocity. The lesson: distribution is a tax you pay for benefits; if the benefits are not real, the tax is just a tax.',
+        designTradeoffs: [
+          { option: 'Distributed (microservices)', pros: ['Failure isolation', 'Independent deploys', 'Independent scaling per service', 'Team autonomy at scale'], cons: ['Network latency on every boundary', 'Operational complexity (observability, deployment, security)', 'Distributed-systems failure modes (split brain, partial failure)', 'Higher cloud cost'] },
+          { option: 'Monolith', pros: ['In-process calls (~ns latency)', 'Simple operational model', 'Atomic transactions across the entire app', 'Lower compute cost'], cons: ['Single failure domain', 'Lockstep deploys', 'Vertical scaling only', 'Coordination tax across teams'] },
+          { option: 'Modular monolith', pros: ['Most monolith benefits + clean module boundaries', 'Refactor-able into microservices later', 'Lowest operational cost for early-stage products'], cons: ['Module boundaries enforced by discipline, not infrastructure', 'Still a single deploy unit'] },
+        ],
+        realWorldUseCases: [
+          'Stripe runs critical payment paths as a monolith with microservice satellites &mdash; chose simplicity for the money path, distribution for the periphery.',
+          'Shopify operates a Rails &ldquo;majestic monolith&rdquo; for the storefront with carved-out services for checkout and search; the architecture is a deliberate trade-off, not the result of an accident.',
+          'Amazon&apos;s famous &ldquo;two-pizza team&rdquo; rule was as much about deployment isolation (each team owns its services end-to-end) as about scaling.',
+          'Segment publicly migrated FROM microservices BACK to a monolith for parts of their stack when the operational complexity outweighed the benefits.',
+        ],
+        careerRelevance: 'Senior and staff engineers are evaluated on system-design judgment as much as code. The engineers who can explain WHY their architecture is distributed (and what they get for the tax) get trusted with bigger architectural calls. The engineers who default to microservices because &ldquo;that&apos;s what production looks like&rdquo; tend to ship slowly and burn budget. This module is the lens those judgments depend on.',
+        thinkLikeAnEngineer: [
+          'Before adopting microservices, calculate the latency floor your topology imposes. If your SLO is p99 &lt; 200ms and your chain has 8 hops &times; 5ms each, you are out of budget before any work happens.',
+          'Run the availability math on your critical path quarterly. If your effective availability is 99.5% and you committed 99.9%, the math points at one or two services as the investment list.',
+          'Treat every cross-service call as a contract: timeout, retry policy, error semantics, and observability are all part of the contract. Without them, the network has won.',
+        ],
       },
       {
         number: 2,
@@ -3813,6 +3831,28 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           { term: 'Retry budget', definition: 'Cap on total retries as a percentage of RPS; prevents retry storms.' },
           { term: 'Service discovery', definition: 'Mechanism by which clients find healthy endpoints for a service (DNS, registry, mesh).' },
         ],
+        productionNotes: [
+          'Set per-call timeouts at every layer. Default of &ldquo;wait forever&rdquo; in standard libraries is the source of half of all production stalls.',
+          'Run NodeLocal DNSCache on every Kubernetes cluster. The cost is one DaemonSet; the benefit is dropping DNS off the data path.',
+          'Treat retry policies as part of the service contract; document them and review at deployment.',
+        ],
+        operationalStory: 'A consumer-facing API team enabled aggressive client-side retries (3 attempts, no backoff) after seeing transient 503s in CI. Two weeks later their payments backend went into brownout. Within minutes the retry logic amplified normal traffic 4x; the backend could not recover; the entire mobile app was down for 22 minutes. Post-mortem: add retry budget (cap retries at 10% of RPS), exponential backoff with jitter, and circuit breaker on the client side. The fix was 50 lines of code and a config change.',
+        designTradeoffs: [
+          { option: 'gRPC for service-to-service', pros: ['Strong typing via Protobuf', '2-5x lower wire size than JSON', 'Streaming RPCs', 'Built-in deadlines'], cons: ['Harder to debug than HTTP/JSON', 'Browser support requires gRPC-Web', 'Smaller ecosystem than REST'] },
+          { option: 'HTTP/JSON for service-to-service', pros: ['Universal tooling (curl, Postman)', 'Browser-callable', 'Easy to log/debug'], cons: ['Verbose wire format', 'No built-in deadlines', 'Weak typing'] },
+          { option: 'Service mesh (Envoy/Istio)', pros: ['mTLS / retries / circuit breakers free', 'Centralised policy', 'Rich observability'], cons: ['Sidecar latency tax (~1-3ms/hop)', 'Operational complexity', 'Learning curve'] },
+        ],
+        realWorldUseCases: [
+          'Google uses gRPC internally for nearly all service-to-service traffic (it was open-sourced from their internal Stubby framework).',
+          'Cloudflare reduced internal latency by ~30% by moving from HTTP/1.1 to HTTP/2 with connection pooling.',
+          'Netflix&apos;s Hystrix circuit-breaker library (now retired in favour of Resilience4j) was created after a single dependency outage cascaded the entire viewing platform.',
+          'AWS published the &ldquo;decorrelated jitter&rdquo; backoff algorithm after measuring how poorly synchronised retries handled their load.',
+        ],
+        thinkLikeAnEngineer: [
+          'Before debating gRPC vs REST, ask: who calls this API? If browsers, REST. If your own services, gRPC unless there is a reason against.',
+          'Every retry policy is a load multiplier. Calculate the worst-case load on the downstream when every caller hits its retry cap simultaneously.',
+          'DNS is in the data path on every request. Treat its latency and error rate as first-class metrics, not infrastructure noise.',
+        ],
       },
       {
         number: 3,
@@ -3916,6 +3956,25 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           { term: 'Idempotency', definition: 'Property where applying the same operation multiple times produces the same effect as applying it once.' },
           { term: 'Backpressure', definition: 'Signal flowing upstream telling producers to slow down because consumers cannot keep up.' },
           { term: 'Consumer lag', definition: 'How far behind the head of the log a consumer group is; the canonical Kafka health metric.' },
+        ],
+        whyThisMatters: 'Async event pipelines are how every modern company scales beyond the synchronous-RPC limits of microservices. The teams that get event streams right ship features 3x faster (independent producers and consumers, no tight coupling) and survive failures better (decoupled in time means downstream slow does not block upstream fast). The teams that get them wrong end up with stuck consumers, lost messages, exactly-once theatre, and data loss they only discover during a regulatory audit.',
+        productionNotes: [
+          'Always bound queues. Unbounded in-memory queues are delayed OOMs.',
+          'Default to at-least-once + consumer-side idempotency. Reach for exactly-once only when you genuinely cannot make consumers idempotent.',
+          'Watch consumer lag as a first-class metric. Lag spikes precede every event-pipeline incident.',
+          'Tune Kafka session timeouts and heartbeat intervals carefully &mdash; too aggressive triggers rebalance storms.',
+        ],
+        operationalStory: 'A logistics startup chose &ldquo;exactly-once&rdquo; for their order-tracking event stream because it sounded safer. Six months later a region-level Kafka outage exposed how brittle the exactly-once semantics were under partial failure: messages stuck in transactional limbo, consumer offsets out of sync with downstream state, and no one on the team understood the recovery flow well enough to act in under an hour. They eventually rewrote the consumer to be idempotent (UNIQUE constraint on order_id + version) and downgraded to at-least-once delivery. Recovery time went from hours to minutes.',
+        designTradeoffs: [
+          { option: 'Kafka', pros: ['Durable replayable log', 'Multiple independent consumer groups', 'Massive throughput', 'Mature ecosystem'], cons: ['Operational complexity (ZooKeeper/KRaft, brokers)', 'Heavy for small workloads', 'Topic / partition design is permanent'] },
+          { option: 'RabbitMQ', pros: ['Flexible routing', 'Lower operational footprint', 'Simpler conceptually'], cons: ['Lower max throughput', 'No replay (messages disappear after ack)', 'Per-queue scalability limits'] },
+          { option: 'NATS / Redis Streams', pros: ['Lightweight', 'Easy to operate', 'Low latency'], cons: ['Less durable than Kafka', 'Smaller ecosystem', 'Not suited for huge volumes'] },
+        ],
+        realWorldUseCases: [
+          'LinkedIn (Kafka&apos;s birthplace) processes trillions of events per day across thousands of topics.',
+          'Slack uses Kafka to fan out every message event to many internal consumers (search indexing, push notifications, analytics).',
+          'Uber processes ride events through Kafka with strict per-rider ordering via partition keying.',
+          'Netflix uses Kafka for the event bus underlying their playback telemetry, which feeds recommendations, observability, and billing.',
         ],
       },
       {
@@ -4041,6 +4100,24 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           { term: 'Hot partition', definition: 'A partition with disproportionately high traffic, overloading one node.' },
           { term: 'Eventual consistency', definition: 'Replicas converge to the same state if writes stop; the weakest useful guarantee.' },
         ],
+        whyThisMatters: 'Distributed data is the hardest part of distributed systems &mdash; once data is split across machines, every read and write has to navigate replication lag, partition imbalance, and consistency trade-offs. Engineers who internalise the W+R&gt;N rule, hot-partition mitigations, and the difference between sync and async replication design data layers that hold up. Engineers who skip the foundations end up reinventing distributed databases badly and debugging the same outages for years.',
+        productionNotes: [
+          'Replication lag is a first-class metric to alert on. Past a threshold, fail reads back to the leader rather than serve stale data.',
+          'Hot partitions are the #1 distributed-data scalability bug. Detect via per-shard QPS dashboards; mitigate via key salting or tenant-aware shard routing.',
+          'Cross-shard transactions are expensive (2PC, distributed locking). Design data models to keep related data co-located in the same shard.',
+        ],
+        operationalStory: 'A SaaS platform launched a feature where one enterprise customer suddenly generated 90% of writes to a single shard. Cassandra p99 went from 10ms to 600ms within a day. The team scaled out vertically, then horizontally, neither helped — only one node was hot. The fix was salting the customer&apos;s key (customer_id:0..15) and aggregating reads across the salted partitions. p99 dropped back below 20ms. The lesson: skewed traffic is the rule, not the exception, for any multi-tenant system.',
+        designTradeoffs: [
+          { option: 'Single-leader (Postgres, MySQL)', pros: ['Strong consistency on the leader', 'Simple to reason about', 'Atomic transactions'], cons: ['Leader is a write bottleneck', 'Failover is the SPOF reconciliation problem', 'Read replicas have lag'] },
+          { option: 'Leaderless (Cassandra, DynamoDB)', pros: ['No single bottleneck', 'High write throughput', 'Tunable consistency'], cons: ['Complex consistency story', 'No cross-key transactions', 'Operational complexity'] },
+          { option: 'Multi-leader (CRDT-backed, multi-region MySQL)', pros: ['Local writes in every region', 'No coordination latency'], cons: ['Conflict resolution required', 'Hard to reason about'] },
+        ],
+        realWorldUseCases: [
+          'Cassandra at Netflix replicates user data across multiple regions with LOCAL_QUORUM for low-latency reads.',
+          'DynamoDB Global Tables provide multi-region active-active with last-writer-wins by default.',
+          'CockroachDB uses per-range Raft groups to provide globally-consistent SQL with horizontal scale.',
+          'Discord migrated from MongoDB to Cassandra (then to ScyllaDB) for their messages workload due to Cassandra&apos;s leaderless write throughput.',
+        ],
       },
       {
         number: 5,
@@ -4126,7 +4203,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
             <li><strong>Your 3-node etcd cluster lost 2 nodes. What is the recovery path?</strong> (Answer: do NOT add nodes to a stuck cluster. Snapshot from the surviving node, single-node restoration, then add members one at a time. Test this drill quarterly.)</li>
           </ol>
 
-          <p>For deeper coverage of how SPIRE Server uses Raft for HA, see the <a href="/courses/mastering-spiffe-spire/spire-architecture-components" class="text-primary underline">SPIRE Architecture &amp; Components module</a>. The <a href="/cheatsheets/spiffe-spire" class="text-primary underline">SPIFFE/SPIRE cheatsheet</a> is the fast operational reference once you start running etcd-backed identity systems.</p>
+          <p>For deeper coverage of how <a href="/glossary/spire" class="text-primary underline">SPIRE</a> Server uses Raft for HA, see the <a href="/courses/mastering-spiffe-spire/spire-architecture-components" class="text-primary underline">SPIRE Architecture &amp; Components module</a>. The <a href="/cheatsheets/spiffe-spire" class="text-primary underline">SPIFFE/SPIRE cheatsheet</a> is the fast operational reference once you start running etcd-backed identity systems. The underlying identity primitive (<a href="/glossary/spiffe" class="text-primary underline">SPIFFE</a>) is the standard the rest of the modern stack converges on.</p>
         `,
         labs: [
           { title: 'Lab 5.1 — etcd Cluster Bootstrap and Failover', objective: 'Run a 3-node etcd cluster, write data, kill one node, verify availability; kill two, observe stuck quorum.', repoPath: 'module-5/lab-etcd-cluster', steps: ['Bootstrap 3-node etcd via docker-compose', 'Write keys, observe replication', 'Kill one node; verify writes still succeed', 'Kill two nodes; verify writes block', 'Restore from snapshot; re-add members'], duration: '90 minutes', difficulty: 'Intermediate' },
@@ -4147,6 +4224,33 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           { term: 'Quorum', definition: 'Majority of nodes; required for any progress in Raft / Paxos.' },
           { term: 'Fencing token', definition: 'Monotonic token issued by a lock service; prevents stale lock holders from corrupting state.' },
           { term: 'Leader election', definition: 'Process by which a single node is chosen to coordinate; foundational to Raft and many distributed systems.' },
+        ],
+        productionNotes: [
+          'Always use odd-number Raft clusters: 3 for most workloads, 5 for high availability. Never even.',
+          'Practice etcd snapshot recovery quarterly. The runbook for recovering a stuck quorum is the difference between minutes and hours of cluster downtime.',
+          'Run etcd on dedicated SSDs with low fsync latency. Slow disks slow every write across the cluster.',
+        ],
+        commonMistakes: [
+          'Inventing your own &ldquo;HA&rdquo; with naive locks (Redis SETNX) instead of using consensus primitives. Always fails under partition.',
+          'Adding a node to a stuck Raft cluster instead of restoring from snapshot. New nodes need a quorum to join.',
+          'Running consensus on shared infrastructure (etcd on the same disk as your database). Slow neighbour = stuck quorum.',
+        ],
+        operationalStory: 'A 3-node etcd cluster on AWS lost two nodes during an AZ event. The remaining node could not reach quorum and refused all writes. The Kubernetes API froze. The on-call team panicked and tried to add new nodes, which made things worse — new members cannot join a cluster without quorum. Recovery required restoring from snapshot to a single node, then re-adding members one at a time. Total outage: 2 hours. Lesson: 5-node etcd across 3 AZs from the start, plus a tested runbook the team has actually executed in a drill.',
+        designTradeoffs: [
+          { option: 'Raft', pros: ['Designed for understandability', 'Stable, well-implemented in many libraries', 'Standard for new systems'], cons: ['Newer than Paxos', 'Performance very slightly behind multi-Paxos in some workloads'] },
+          { option: 'Paxos / Multi-Paxos', pros: ['Mathematically influential', 'Battle-tested in Google Spanner / Chubby'], cons: ['Notoriously hard to implement correctly', 'Many subtle production bugs'] },
+          { option: '3-node Raft cluster', pros: ['Tolerates 1 failure', 'Lowest commit latency', 'Cheapest infra'], cons: ['Loss of 2 nodes = stuck quorum'] },
+          { option: '5-node Raft cluster', pros: ['Tolerates 2 failures', 'Survives multi-AZ outages'], cons: ['Higher commit latency', 'More infra cost'] },
+        ],
+        realWorldUseCases: [
+          'etcd backs every Kubernetes cluster ever deployed; Raft is in your production stack whether you knew it or not.',
+          'CockroachDB runs thousands of Raft groups per cluster, one per data range.',
+          'HashiCorp Vault HA storage uses Raft for replicated secret state.',
+          'Consul uses Raft for the catalogue and KV store; Serf for the gossip layer.',
+        ],
+        thinkLikeAnEngineer: [
+          'Before you reach for a distributed lock, ask: do I need lock semantics, or do I need leader-elected singleton execution? They are different problems with different primitives.',
+          'When you see &ldquo;HA via two replicas&rdquo; in a design doc, ask: what happens during a partition? If the answer is fuzzy, you do not have HA &mdash; you have two SPOFs.',
         ],
       },
       {
@@ -4266,6 +4370,24 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           { term: 'Thundering herd', definition: 'Failure mode when many concurrent requests miss the cache and overwhelm the origin.' },
           { term: 'Cache stampede', definition: 'Same as thundering herd; many concurrent recomputes of the same expired cache key.' },
         ],
+        whyThisMatters: 'Scalability engineering separates the engineers who can ship a system that works at 1k RPS from the ones who can ship a system that works at 1M RPS. Most architectures hit a single bottleneck early; the engineering skill is identifying that bottleneck before it bites and moving it before users feel it. Once you internalise the &ldquo;every system has a bottleneck&rdquo; mindset, you stop being surprised when the database connection pool exhausts under load you thought was easy.',
+        productionNotes: [
+          'Profile workloads BEFORE setting resource requests. Most workloads request 2-3x what they use; right-sizing is direct cost savings.',
+          'Scale on the metric closest to user latency, not CPU. CPU at 30% with throttled latency means CPU is not your bottleneck.',
+          'For Karpenter on AWS, set node consolidation to be aggressive but combined with PodDisruptionBudgets so the consolidation does not cause outages.',
+        ],
+        operationalStory: 'A consumer team kept scaling their service horizontally as traffic grew. At 50 replicas, p99 latency suddenly spiked to 5 seconds and would not come down. Investigation showed the bottleneck was a 100-connection PostgreSQL pool shared across all 50 replicas; each replica fought for connections. The fix was a connection-pooler (PgBouncer) and per-replica pool limits aligned to the global ceiling. Latency returned to 30ms p99. The lesson: scaling pushes the bottleneck downstream; identify the bottleneck before scaling.',
+        designTradeoffs: [
+          { option: 'HPA on CPU', pros: ['Simple, default', 'Works well for CPU-bound workloads'], cons: ['Wrong signal for I/O-bound workloads', 'Lag between CPU spike and request latency'] },
+          { option: 'HPA on RPS / queue depth (custom metrics)', pros: ['Scales on the actual load signal', 'Faster reaction'], cons: ['Requires Prometheus Adapter', 'More tuning'] },
+          { option: 'KEDA event-driven scaling', pros: ['Scales on Kafka lag, queue depth, etc.', 'Scale to zero when idle'], cons: ['Extra component to operate', 'Cold-start tax on scale-up'] },
+        ],
+        realWorldUseCases: [
+          'AWS DynamoDB&apos;s burst capacity is a literal token-bucket implementation visible to users.',
+          'Cloudflare absorbs trillions of requests per day at the edge with a layered cache that serves most reads before any origin is involved.',
+          'Stripe enforces per-API-key rate limits with token-bucket counters in Redis Lua scripts.',
+          'Netflix uses adaptive concurrency limits (open-source library) to dynamically size connection pools based on observed latency.',
+        ],
       },
       {
         number: 7,
@@ -4365,7 +4487,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
             <li><strong>You start a chaos experiment in production. Within 5 seconds you have a real outage. What did you skip?</strong> (Answer: practice in staging first; start small (one pod, off-peak); have an explicit abort procedure; involve on-call.)</li>
           </ol>
 
-          <p>For runtime-detection patterns that pair with these resilience controls, see the <a href="/cheatsheets/runtime-security" class="text-primary underline">Runtime Security cheatsheet</a>. The <a href="/games/incident-response-simulator" class="text-primary underline">Incident Response Simulator</a> exercises chaos and triage scenarios.</p>
+          <p>For runtime-detection patterns that pair with these resilience controls, see the <a href="/cheatsheets/runtime-security" class="text-primary underline">Runtime Security cheatsheet</a> and the <a href="/glossary/falco" class="text-primary underline">Falco</a> glossary entry. The <a href="/games/incident-response-simulator" class="text-primary underline">Incident Response Simulator</a> exercises chaos and triage scenarios.</p>
         `,
         labs: [
           { title: 'Lab 7.1 — Circuit Breaker in Action', objective: 'Implement a circuit breaker (Resilience4j or hand-rolled), trigger failure modes, validate state transitions.', repoPath: 'module-7/lab-circuit-breaker', steps: ['Wrap a flaky downstream call with a circuit breaker', 'Inject 50% error rate; observe breaker trip to OPEN', 'Wait for timeout; observe HALF-OPEN; success returns to CLOSED', 'Compare with no breaker: caller threads exhaust'], duration: '60 minutes', difficulty: 'Intermediate' },
@@ -4385,6 +4507,36 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           { term: 'Graceful degradation', definition: 'Returning reduced functionality when a non-critical dependency fails.' },
           { term: 'Chaos engineering', definition: 'Discipline of injecting failures into production-like systems to validate resilience.' },
           { term: 'Retry budget', definition: 'Cap on retry traffic as a fraction of total RPS; prevents retry storms.' },
+        ],
+        whyThisMatters: 'Reliability is what separates engineers who get woken up at 3am from engineers whose systems quietly do the right thing during partial failure. The patterns in this module &mdash; circuit breakers, bulkheads, graceful degradation, chaos &mdash; turn outages into reduced functionality. The teams that adopt them ship faster (because they can deploy with confidence) and sleep better (because partial failure is contained, not amplified).',
+        productionNotes: [
+          'Use error-rate-over-window for circuit-breaker tripping, not consecutive-failure count. Consecutive counts trigger on noise.',
+          'Service meshes (Envoy/Istio/Linkerd) implement most resilience patterns at the data plane &mdash; do not rebuild them in application code if you have a mesh.',
+          'Identify critical-path vs enriching dependencies; treat them differently in code (critical = propagate errors, enriching = swallow with logging).',
+          'Run quarterly chaos game days. Untested resilience is hopeful resilience.',
+        ],
+        commonMistakes: [
+          'Setting infinite retries on non-idempotent calls. One downstream blip becomes duplicate side effects everywhere.',
+          'Cascading retries without budgets. A 3-hop chain with 3 retries each = 27x amplification on the failing service.',
+          'No fallback for &ldquo;enriching&rdquo; calls (recommendations, sentiment, personalisation). Their failure should NOT fail the request.',
+          'Chaos in production without practice in staging. The first real chaos experiment must not be your first chaos experiment.',
+        ],
+        operationalStory: 'A streaming video platform&apos;s user-profile service had a rare 30-second slow-response window. Their product service called it on every page load with no timeout. During the slow window, every request to the product page hung for 30 seconds; users hit refresh, multiplying load 5x; the product service exhausted its thread pool; the entire site went down. Root cause: missing timeout. Fix: add 200ms timeout + fallback to cached profile. The fix was 5 lines of code; the outage was 47 minutes.',
+        designTradeoffs: [
+          { option: 'Application-level resilience (Resilience4j, Polly)', pros: ['Tight integration with code', 'Per-call control'], cons: ['Per-language implementation', 'Hard to enforce consistently across teams'] },
+          { option: 'Service-mesh resilience (Envoy/Istio)', pros: ['Centralised, language-agnostic', 'Operator-controlled, no app changes'], cons: ['Sidecar latency tax', 'Operational complexity'] },
+          { option: 'Hybrid (mesh + app-level)', pros: ['Right tool per scenario'], cons: ['Two layers to reason about'] },
+        ],
+        realWorldUseCases: [
+          'Netflix&apos;s Hystrix (now retired) shaped the industry&apos;s circuit-breaker pattern; Resilience4j is the modern Java implementation.',
+          'AWS uses bulkhead isolation extensively in their internal services to contain noisy-neighbour problems.',
+          'Cloudflare&apos;s graceful-degradation patterns let them serve cached responses during origin outages.',
+          'Netflix&apos;s Chaos Monkey (now Chaos Engineering) is the canonical example of running fault-injection in production deliberately.',
+        ],
+        thinkLikeAnEngineer: [
+          'For every external call ask: what is the failure mode if this call hangs? If the answer is &ldquo;our entire service hangs too&rdquo;, you need a timeout AND a fallback.',
+          'Rank your dependencies by criticality once a quarter. Move enriching calls to non-blocking; tighten circuit breakers on critical ones.',
+          'Run a chaos drill before every major launch. The bug it finds is almost always something nobody predicted.',
         ],
       },
       {
@@ -4468,7 +4620,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
             <li><strong>Your service mesh (Istio) provides automatic mTLS. Do you still need SPIFFE?</strong> (Answer: Istio uses SPIFFE-style identity internally; explicit SPIFFE/SPIRE is needed for non-mesh workloads, federation across clusters, or richer authz.)</li>
           </ol>
 
-          <p>For implementation depth, take the free <a href="/courses/mastering-spiffe-spire" class="text-primary underline">Mastering SPIFFE &amp; SPIRE course</a>. The <a href="/cheatsheets/spiffe-spire" class="text-primary underline">SPIFFE/SPIRE cheatsheet</a>, <a href="/cheatsheets/opa-rego" class="text-primary underline">OPA / Rego cheatsheet</a>, and <a href="/cheatsheets/api-security" class="text-primary underline">API Security cheatsheet</a> are the operational quick references. Practice with the <a href="/games/zero-trust-network-builder" class="text-primary underline">Zero Trust Network Builder</a>.</p>
+          <p>For implementation depth, take the free <a href="/courses/mastering-spiffe-spire" class="text-primary underline">Mastering SPIFFE &amp; SPIRE course</a>. Reference the glossary on key primitives: <a href="/glossary/spiffe" class="text-primary underline">SPIFFE</a>, <a href="/glossary/spire" class="text-primary underline">SPIRE</a>, <a href="/glossary/svid" class="text-primary underline">SVID</a>, <a href="/glossary/mtls" class="text-primary underline">mTLS</a>, <a href="/glossary/workload-identity" class="text-primary underline">workload identity</a>, <a href="/glossary/zero-trust" class="text-primary underline">Zero Trust</a>, <a href="/glossary/opa" class="text-primary underline">OPA</a>, and <a href="/glossary/service-mesh" class="text-primary underline">service mesh</a>. The <a href="/cheatsheets/spiffe-spire" class="text-primary underline">SPIFFE/SPIRE cheatsheet</a>, <a href="/cheatsheets/opa-rego" class="text-primary underline">OPA / Rego cheatsheet</a>, and <a href="/cheatsheets/api-security" class="text-primary underline">API Security cheatsheet</a> are the operational quick references. Practice with the <a href="/games/zero-trust-network-builder" class="text-primary underline">Zero Trust Network Builder</a>.</p>
         `,
         labs: [
           { title: 'Lab 8.1 — mTLS Between Two Services with SPIFFE', objective: 'Deploy two services on Kubernetes; bootstrap mTLS using SPIRE-issued SVIDs.', repoPath: 'module-8/lab-spiffe-mtls', steps: ['Install SPIRE on kind cluster', 'Register workloads with SPIRE selectors', 'Implement mTLS server using go-spiffe', 'Verify peer identity on every connection'], duration: '120 minutes', difficulty: 'Intermediate' },
@@ -4489,6 +4641,36 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           { term: 'SPIFFE', definition: 'CNCF spec defining a universal workload identity format (SPIFFE ID + SVID).' },
           { term: 'SPIRE', definition: 'CNCF reference implementation of SPIFFE; issues SVIDs after attesting workloads.' },
           { term: 'OPA', definition: 'Open Policy Agent; CNCF policy engine for declarative authorization in Rego.' },
+        ],
+        productionNotes: [
+          'Issue SVIDs valid for 1 hour or less; rotate automatically. Long-lived credentials are accumulated risk.',
+          'Default-deny at the policy layer; explicit allow rules; everything else rejected.',
+          'Treat SPIRE Server as tier-0: HA, KMS-backed encryption at rest, tested restoration runbook.',
+          'Log every authz decision with the principal&apos;s SPIFFE ID. That log is your audit trail.',
+        ],
+        commonMistakes: [
+          'Long-lived (24h+) certificates as a &ldquo;safety margin&rdquo;. The opposite is true &mdash; longer = larger blast radius if leaked.',
+          'OPA policies returning HTTP 500 on deny instead of 403. Triage gets confused; production stays on fire.',
+          'Substring matching on SPIFFE IDs (<code>strings.Contains(id, &quot;orders&quot;)</code>) instead of structured comparison. Trivial to bypass.',
+          'Static trust-bundle copies for federation. Become stale at the next CA rotation.',
+        ],
+        operationalStory: 'A platform team rolled out service-to-service mTLS using a corporate CA, certificates valid for 1 year, mounted as Kubernetes Secrets. A leaked etcd backup six months later contained every cert + private key. Rotation across 200 services took 3 weeks of coordinated change windows. The team migrated to SPIFFE/SPIRE with 1-hour SVIDs; the next leak (a compromised CI runner) had a 1-hour exposure window instead of months.',
+        securityRisks: [
+          'Long-lived shared secrets are accumulating risk. Every leak compounds.',
+          'OPA policies are code &mdash; they need code review, CI, version control. Untested Rego is worse than no policy.',
+          'SPIFFE federation across mutually-untrusted clusters requires careful trust-bundle handling. Static copies leak credentials slowly.',
+          'Workload identity provider becomes the most-attacked component. Treat its operational hardening like the database tier.',
+        ],
+        designTradeoffs: [
+          { option: 'Service-mesh-managed mTLS (Istio, Linkerd)', pros: ['Zero application changes', 'Automatic rotation', 'Policy via mesh CRDs'], cons: ['Sidecar latency', 'Mesh operational complexity'] },
+          { option: 'SPIFFE/SPIRE direct integration', pros: ['Works for non-mesh workloads', 'Cross-cluster federation', 'Richer authz options'], cons: ['Application code changes', 'Operate SPIRE'] },
+          { option: 'Long-lived secrets + manual rotation', pros: ['No new infra'], cons: ['Accumulating risk', 'Manual rotation always lags', 'Wide blast radius on leak'] },
+        ],
+        realWorldUseCases: [
+          'Bloomberg, Pinterest, Anthem, and Yahoo all run SPIRE in production for service identity at scale.',
+          'Netflix uses an internal SPIFFE-style identity system across thousands of services.',
+          'Most service meshes (Istio, Linkerd) implement SPIFFE-style identity internally even when not labelled as such.',
+          'Open Policy Agent powers Kubernetes admission control for thousands of organisations via Kyverno or Gatekeeper.',
         ],
       },
       {
@@ -4608,6 +4790,31 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           { term: 'SLO', definition: 'Service Level Objective; a measurable commitment about latency, availability, etc.' },
           { term: 'Error budget', definition: '100% minus SLO; the failure allowance you can spend on risk.' },
         ],
+        whyThisMatters: 'Observability is the difference between debuggable and undebuggable systems. A distributed system you cannot trace is a distributed system you cannot operate at scale. Engineers who build observability in from the start have meaningfully shorter MTTR; engineers who bolt it on after the first incident spend years catching up. SLOs and error budgets convert observability into engineering discipline that aligns product velocity with reliability.',
+        productionNotes: [
+          'Use OpenTelemetry; one SDK, many backends. Vendor-specific SDKs are a future migration cost.',
+          'Sample tail-based, not head-based, for error visibility. Or use head-based at modest rate plus force-sample on errors.',
+          'Define SLOs that map to user experience, not system health. p99 latency on the checkout flow matters; p99 on the health-check endpoint does not.',
+          'Tag every log with trace_id and user_id. Without correlation, logs at scale are unsearchable.',
+        ],
+        commonMistakes: [
+          'Tracing the easy services first. The services without tracing become invisible &mdash; usually the legacy ones causing the incidents.',
+          'Alert on anything that wiggles. Alert fatigue is a category of incident on its own.',
+          'Track averages instead of percentiles. Means hide tail behaviour; p99 is the truth.',
+          'Burn through error budget without slowing down. The whole point is to slow shipping when the budget is exhausted.',
+        ],
+        operationalStory: 'A team operated a 12-service architecture for two years without distributed tracing. Every incident took hours of cross-team Slack to root-cause: &ldquo;Did A call B? Did B call C? Where did the latency happen?&rdquo;. After OpenTelemetry rollout, MTTR dropped from 90 minutes to 12 minutes. The next major incident was triaged in 8 minutes because the engineer could see exactly which downstream service contributed the latency. The investment was 2 weeks of platform work; the payback was permanent.',
+        designTradeoffs: [
+          { option: 'OpenTelemetry + vendor backends', pros: ['Vendor-neutral', 'Active CNCF project', 'Wide language support'], cons: ['Newer than Jaeger/Zipkin native SDKs', 'Some maturity gaps'] },
+          { option: 'Vendor SDK (Datadog, New Relic)', pros: ['Tightest integration with their UI', 'Quickest to ship'], cons: ['Lock-in', 'Per-language coverage varies'] },
+          { option: 'Push (agent sends) vs pull (Prometheus scrapes) metrics', pros: ['Push handles short-lived workloads', 'Pull works well for stable services'], cons: ['Push needs aggregation; pull needs service discovery'] },
+        ],
+        realWorldUseCases: [
+          'Netflix runs distributed tracing across thousands of services with sampled tail-based collection.',
+          'Google&apos;s Dapper paper (2010) is the foundation of modern distributed tracing.',
+          'Cloudflare uses Honeycomb (event-driven observability) for high-cardinality investigation.',
+          'Uber built Jaeger (now CNCF) to handle their tracing volume; donated it to the community.',
+        ],
       },
       {
         number: 10,
@@ -4703,7 +4910,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
             <li><strong>You enable Istio mesh-wide STRICT mTLS on day one of rollout. What happens?</strong> (Answer: external load balancer health probes fail; non-meshed services can no longer talk to meshed services; outage. Phase: PERMISSIVE first, observe, promote namespace by namespace.)</li>
           </ol>
 
-          <p>For Kubernetes hardening, the <a href="/cheatsheets/kubernetes-security" class="text-primary underline">Kubernetes Security cheatsheet</a> is the operational reference. For service-mesh patterns the <a href="/cheatsheets/service-mesh" class="text-primary underline">Service Mesh cheatsheet</a> covers Istio/Linkerd/Cilium patterns. The <a href="/cheatsheets/kubernetes" class="text-primary underline">Kubernetes cheatsheet</a> is the day-to-day reference for kubectl operational patterns. Practice with the <a href="/games/kubernetes-security-simulator" class="text-primary underline">Kubernetes Security Simulator</a>.</p>
+          <p>For Kubernetes hardening, the <a href="/cheatsheets/kubernetes-security" class="text-primary underline">Kubernetes Security cheatsheet</a> is the operational reference. For service-mesh patterns the <a href="/cheatsheets/service-mesh" class="text-primary underline">Service Mesh cheatsheet</a> covers Istio/Linkerd/Cilium patterns &mdash; see the <a href="/glossary/service-mesh" class="text-primary underline">service mesh</a> glossary entry for the conceptual definition. The <a href="/cheatsheets/kubernetes" class="text-primary underline">Kubernetes cheatsheet</a> is the day-to-day reference for kubectl operational patterns. Practice with the <a href="/games/kubernetes-security-simulator" class="text-primary underline">Kubernetes Security Simulator</a>.</p>
         `,
         labs: [
           { title: 'Lab 10.1 — Kind Cluster from Scratch', objective: 'Stand up a multi-node kind cluster, deploy a 3-tier app, expose via Ingress.', repoPath: 'module-10/lab-kind-cluster', steps: ['Create kind cluster with 3 worker nodes', 'Install nginx-ingress', 'Deploy frontend / API / DB', 'Verify external access via Ingress'], duration: '90 minutes', difficulty: 'Beginner' },
@@ -4723,6 +4930,32 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           { term: 'StatefulSet', definition: 'Workload controller for pods that need stable identity and storage.' },
           { term: 'PodDisruptionBudget', definition: 'Cap on simultaneous voluntary disruptions to a workload; prevents accidental full-replica eviction.' },
           { term: 'Karpenter', definition: 'Modern Kubernetes node autoscaler on AWS; replaces Cluster Autoscaler with faster, more flexible provisioning.' },
+        ],
+        whyThisMatters: 'Kubernetes is now the default substrate for modern infrastructure; understanding its components is part of distributed-systems literacy. Engineers who can read a cluster architecture, reason about Service / Ingress / Gateway API, pick the right service mesh, and operate StatefulSets correctly are the engineers who get trusted with platform-engineering roles. The ones who treat Kubernetes as &ldquo;just docker but bigger&rdquo; eventually pay for it during the first multi-AZ incident.',
+        productionNotes: [
+          'Always run multi-AZ. Use topologySpreadConstraints to enforce it; do not rely on luck.',
+          'PodDisruptionBudgets are mandatory for production workloads. Without them, autoscalers will happily evict every replica.',
+          'etcd: 5 nodes across 3 AZs, KMS-backed encryption at rest, tested backup/restore.',
+          'Resource requests at p95 of actual usage; do not let dev defaults of &ldquo;500m CPU&rdquo; ship to prod.',
+        ],
+        commonMistakes: [
+          'Running stateful workloads as Deployments. Use StatefulSet so PVCs follow the pod identity.',
+          'PodSecurity admission set to &ldquo;privileged&rdquo; in production namespaces. Use restricted with audited exceptions.',
+          'Ingress per service in a flat namespace. Use Gateway API with role-separated Gateway/Route for new infra.',
+          'Setting CPU limits = requests. CPU CFS throttling kicks in even when other cores are free; latency suffers.',
+        ],
+        operationalStory: 'A team migrated to Kubernetes and immediately deployed their stateful Postgres as a Deployment with a single replica, no PVC, &ldquo;just to get something running&rdquo;. Three weeks later a node was reaped during cluster upgrade; the pod was rescheduled; Postgres started fresh on a new node with empty disk. They lost a week of customer data. The runbook never changed: stateful workloads use StatefulSet from day one, with PVCs, with backups verified weekly.',
+        designTradeoffs: [
+          { option: 'Service mesh: Istio', pros: ['Most feature-rich', 'Strong community', 'Rich traffic management'], cons: ['Heavy operationally', 'Steeper learning curve'] },
+          { option: 'Service mesh: Linkerd', pros: ['Simpler', 'Faster (Rust)', 'Zero-config mTLS'], cons: ['Fewer advanced features'] },
+          { option: 'Service mesh: Cilium (eBPF)', pros: ['Sidecar-free', 'Integrated with CNI', 'Lower latency tax'], cons: ['Newer; ecosystem still maturing'] },
+          { option: 'No mesh; just K8s primitives', pros: ['Less operational complexity', 'Lower latency'], cons: ['No automatic mTLS', 'Resilience patterns in app code'] },
+        ],
+        realWorldUseCases: [
+          'Spotify runs over 1500 microservices on Kubernetes with a custom service mesh (Backstage / Apollo).',
+          'Pinterest migrated their entire fleet to Kubernetes over 3 years; the migration was as much a culture shift as a technology one.',
+          'Reddit runs everything on Kubernetes after a multi-year migration from EC2.',
+          'Google&apos;s GKE Autopilot is essentially Kubernetes with the operational complexity hidden &mdash; for teams that want the API but not the infrastructure overhead.',
         ],
       },
       {
@@ -4835,6 +5068,34 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           { term: 'Split brain', definition: 'A network partition causes two halves of a system to operate independently with divergent state.' },
           { term: 'Hot partition', definition: 'A shard receiving disproportionately high traffic, overloading one node.' },
           { term: 'Post-mortem', definition: 'Blameless review of an incident that produces tracked action items.' },
+        ],
+        whyThisMatters: 'Real production engineers are recognised by the incidents they have absorbed and the runbooks they own. The patterns in this module &mdash; retry storms, stampedes, split brain, hot partitions, queue overload, DNS outages, cascading failure &mdash; are the same outage taxonomy across every company at every scale. Engineers who internalise them respond in minutes; engineers who do not spend hours reconstructing what should have been recognised in the first thirty seconds.',
+        productionNotes: [
+          'Build a per-failure-mode runbook library. Each runbook has detection signals, immediate-action checklist, recovery steps, and post-incident actions.',
+          'Test runbooks in staging and chaos drills. Untested runbooks slow incident response, not speed it up.',
+          'Capture every incident as a learning artefact even if there was &ldquo;no real impact&rdquo;. Near-misses are the cheapest training data.',
+        ],
+        commonMistakes: [
+          'Skipping post-incident reviews on small incidents. The next bigger incident usually has the same root cause.',
+          'Action items without owners or deadlines. The post-mortem becomes theatre.',
+          'Treating retries as a fix instead of a load multiplier. Retries are a tool; budgets are the discipline.',
+          'Single-cause root-cause analysis. Real incidents have multiple contributing factors; the post-mortem should surface all of them.',
+        ],
+        operationalStory: 'A retail platform&apos;s peak-Sunday traffic caused a Redis hot-partition incident on the cart-service. p99 spiked; users hit refresh; refresh multiplied load; circuit breakers in the gateway tripped; the gateway returned 503 for everything. The on-call engineer recognised the pattern within 90 seconds (cart latency in dashboard + Redis per-partition QPS imbalance), salted the cart-key (cart:user_id:0..9), and the system recovered. The runbook had been written 6 months earlier from a similar incident at a different company. The lesson: lessons travel; runbooks are the medium.',
+        securityRisks: [
+          'Cascading failures often expose security gaps too &mdash; rate-limit bypasses, circuit-breaker fail-open behaviour, fallback paths that skip authz.',
+          'Incident response is when an attacker is most likely to slip in &mdash; on-call engineers are distracted; emergency commits skip review.',
+          'Post-mortems should include a security review: did this incident reveal a hardening gap? Add the hardening as an action item.',
+        ],
+        designTradeoffs: [
+          { option: 'Manual incident response', pros: ['Engineer judgment in the loop', 'Catches novel failures'], cons: ['Slow', 'Error-prone under pressure'] },
+          { option: 'Automated runbooks (PagerDuty, Rundeck)', pros: ['Consistent execution', 'Fast'], cons: ['Only handles known patterns', 'Bad automation can amplify incidents'] },
+          { option: 'Hybrid (auto-mitigate, human-confirm)', pros: ['Speed + judgment', 'Best of both'], cons: ['Tooling investment'] },
+        ],
+        thinkLikeAnEngineer: [
+          'After every incident, ask: what would have prevented this entirely? Often the fix is upstream of the immediate cause.',
+          'Build a catalogue of failure modes. New incidents either match one (resolve fast) or are novel (capture and add to catalogue).',
+          'When designing a system, walk through the failure-mode catalogue mentally. Which of these can hit my system? What is my defence?',
         ],
       },
       {
@@ -4962,6 +5223,37 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           { term: 'Active-Active', definition: 'Multiple regions accept reads and writes simultaneously.' },
           { term: 'Active-Passive', definition: 'One region is primary; others are standby replicas activated only on failover.' },
           { term: 'Capacity planning', definition: 'Discipline of forecasting load and provisioning to meet it efficiently.' },
+        ],
+        productionNotes: [
+          'Practice DR drills quarterly. Untested DR is theatre. Measure actual RTO; gap-fill before the real outage.',
+          'Capacity reviews monthly; full re-projection quarterly. Growth surprises do not have to be surprises.',
+          'Tag every cloud resource with cost-centre + service. Cost engineering needs attribution.',
+          'Buy reserved capacity for the steady-state baseline; on-demand for the burst; spot for batch.',
+        ],
+        commonMistakes: [
+          'Designing for &ldquo;active-active multi-region&rdquo; for write-heavy workloads without globally-consistent storage. Split brain on payments is catastrophic.',
+          'Confusing RPO and RTO. RPO is data loss tolerance; RTO is recovery time tolerance. Both need explicit SLOs.',
+          'Right-sizing once and forgetting. Workload behaviour drifts; right-sizing is a quarterly discipline.',
+          'No DR runbook for the dependency graph. Bringing services back in random order risks cascading retries on cold backends.',
+        ],
+        operationalStory: 'A team operated active-active across two regions for &ldquo;HA&rdquo; on their payments platform. A 4-minute partition between regions caused both sides to accept conflicting writes (same user charged twice from two regions). Reconciliation took 3 weeks of manual work. The redesign moved to active-passive with explicit failover and tested RTO &lt; 5 minutes. The engineering lesson: active-active for writes-with-consequence requires globally-consistent storage (Spanner/CockroachDB) or sharded ownership; never &ldquo;the same database in two regions&rdquo; with async replication.',
+        designTradeoffs: [
+          { option: 'Active-Passive multi-region', pros: ['Simple consistency story', 'Bounded cost', 'Tested failover path'], cons: ['Standby capacity is &ldquo;wasted&rdquo;', 'Failover is an operation'] },
+          { option: 'Active-Active sharded', pros: ['Each region serves local traffic', 'Clear ownership boundary'], cons: ['Cross-shard ops are expensive', 'Complex routing'] },
+          { option: 'Active-Active replicated (full data in every region)', pros: ['Read locality everywhere'], cons: ['Conflict resolution required', 'Dangerous for writes-with-consequence without consistent storage'] },
+          { option: 'Globally-consistent (Spanner / CockroachDB)', pros: ['Linearizable globally', 'Writes anywhere'], cons: ['Premium cost', 'Cross-region commit latency'] },
+        ],
+        realWorldUseCases: [
+          'Stripe runs active-passive multi-region for payment processing with sub-minute failover.',
+          'Google Spanner is the canonical example of globally-consistent SQL with TrueTime-bounded uncertainty.',
+          'Netflix runs active-active across AWS regions for the streaming control plane (read-heavy, eventually consistent).',
+          'AWS DynamoDB Global Tables provide multi-region active-active with last-writer-wins; useful for read-heavy global content.',
+        ],
+        careerRelevance: 'The capstone of this course aligns with the senior-to-staff engineering interview at most large companies: design a real production system, identify trade-offs, defend choices. Engineers who can produce a coherent, defensible architecture document and walk through it under questioning are the engineers who get trusted with the architecture role. The capstone exercise is your portfolio piece.',
+        thinkLikeAnEngineer: [
+          'Architecture is the discipline of saying no. Every &ldquo;yes&rdquo; to a feature locks in trade-offs that constrain the next year of decisions.',
+          'For every architectural choice, write down the alternative. If you cannot articulate the alternative, you do not understand your own choice.',
+          'When defending an architecture, frame it as &ldquo;I chose X because the trade-off was Y vs Z; here is which I optimised for and why&rdquo;. That framing is the difference between &ldquo;senior&rdquo; and &ldquo;staff&rdquo;.',
         ],
       },
     ],
