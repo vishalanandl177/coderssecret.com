@@ -3702,6 +3702,31 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           'Run the availability math on your critical path quarterly. If your effective availability is 99.5% and you committed 99.9%, the math points at one or two services as the investment list.',
           'Treat every cross-service call as a contract: timeout, retry policy, error semantics, and observability are all part of the contract. Without them, the network has won.',
         ],
+        securityRisks: [
+          'Every distributed boundary is a new attack surface. Service-to-service calls without authn become trust-by-network-position, the model that Zero Trust replaces.',
+          'Distributed deployments multiply credential management cost. Long-lived shared secrets in env vars across services become impossible to rotate.',
+          'Failure-isolation only works if security is also isolated. A compromised auth service in a 5-service architecture must not give the attacker the keys to all five.',
+        ],
+        beforeAfter: {
+          before: [
+            'Microservices because &ldquo;everyone else does it&rdquo;',
+            'No timeout discipline; retries everywhere with no budget',
+            'No availability math on the critical path',
+            'Distributed system that performs worse than the monolith it replaced',
+          ],
+          after: [
+            'Distribution as a deliberate choice with concrete benefits identified upfront',
+            'Every cross-service call has timeout + retry policy + error semantics documented',
+            'Quarterly availability math review; investment list from the math',
+            'CAP/PACELC-aware design; conscious choice of consistency vs availability per service',
+          ],
+        },
+        productionAlternatives: [
+          { name: 'Modular monolith', description: 'Single deploy unit with strict module boundaries. Best for early-stage products before team scale forces distribution.' },
+          { name: 'Microservices on Kubernetes', description: 'Industry default once 50+ engineers; pays the operational tax for team-autonomy benefits.' },
+          { name: 'Service-Oriented Architecture (SOA)', description: 'Older sibling of microservices; coarser-grained services. Still relevant when integrating heterogeneous legacy systems.' },
+          { name: 'Serverless / FaaS', description: 'Distribution without operating servers; trade-offs around cold-start latency, vendor lock-in, and observability.' },
+        ],
       },
       {
         number: 2,
@@ -3797,6 +3822,12 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           <h2>DNS Resolution Flow on Kubernetes</h2>
           <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="280" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="13" font-weight="bold">KUBERNETES DNS RESOLUTION</text><rect x="40" y="80" width="120" height="50" rx="6" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6"/><text x="100" y="104" text-anchor="middle" fill="#bfdbfe" font-size="10" font-weight="700">Pod resolver</text><text x="100" y="120" text-anchor="middle" fill="#94a3b8" font-size="9">/etc/resolv.conf</text><line x1="160" y1="105" x2="220" y2="105" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#dnsa)"/><rect x="220" y="80" width="160" height="50" rx="6" fill="#fbbf24" fill-opacity="0.2" stroke="#fbbf24"/><text x="300" y="104" text-anchor="middle" fill="#fcd34d" font-size="10" font-weight="700">NodeLocal DNSCache</text><text x="300" y="120" text-anchor="middle" fill="#94a3b8" font-size="9">per-node, cached</text><line x1="380" y1="105" x2="440" y2="105" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#dnsa)"/><rect x="440" y="80" width="120" height="50" rx="6" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/><text x="500" y="104" text-anchor="middle" fill="#86efac" font-size="10" font-weight="700">CoreDNS</text><text x="500" y="120" text-anchor="middle" fill="#94a3b8" font-size="9">cluster service</text><line x1="560" y1="105" x2="620" y2="105" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#dnsa)"/><rect x="620" y="80" width="140" height="50" rx="6" fill="#a855f7" fill-opacity="0.2" stroke="#a855f7"/><text x="690" y="104" text-anchor="middle" fill="#ddd6fe" font-size="10" font-weight="700">External resolver</text><text x="690" y="120" text-anchor="middle" fill="#94a3b8" font-size="9">8.8.8.8 / VPC</text><text x="400" y="180" text-anchor="middle" fill="#cbd5e1" font-size="11" font-weight="700">Most lookups stop at NodeLocal DNSCache (sub-ms)</text><text x="400" y="200" text-anchor="middle" fill="#94a3b8" font-size="10">External lookups can be 50ms+ — and the canonical cause of cluster-wide stalls.</text><text x="400" y="232" text-anchor="middle" fill="#fbbf24" font-size="10">Without NodeLocal DNSCache, every Pod hits CoreDNS for every lookup.</text><defs><marker id="dnsa" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/></marker></defs></svg>
 
+          <h2>Load Balancer Architecture</h2>
+          <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="280" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="13" font-weight="bold">L4 vs L7 LOAD BALANCING</text><rect x="40" y="70" width="200" height="180" rx="10" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/><text x="140" y="92" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="bold">L4 (TCP)</text><text x="140" y="118" text-anchor="middle" fill="#94a3b8" font-size="10">NLB / kube-proxy</text><text x="140" y="148" text-anchor="middle" fill="#bfdbfe" font-size="9">+ Fast (sub-ms)</text><text x="140" y="164" text-anchor="middle" fill="#bfdbfe" font-size="9">+ Connection-aware</text><text x="140" y="180" text-anchor="middle" fill="#bfdbfe" font-size="9">+ Cheap</text><text x="140" y="206" text-anchor="middle" fill="#fca5a5" font-size="9">– No HTTP routing</text><text x="140" y="222" text-anchor="middle" fill="#fca5a5" font-size="9">– No retries / circuit breaker</text><rect x="280" y="70" width="200" height="180" rx="10" fill="#1e293b" stroke="#22c55e" stroke-width="1.5"/><text x="380" y="92" text-anchor="middle" fill="#86efac" font-size="11" font-weight="bold">L7 (HTTP)</text><text x="380" y="118" text-anchor="middle" fill="#94a3b8" font-size="10">Envoy / NGINX / ALB</text><text x="380" y="148" text-anchor="middle" fill="#bbf7d0" font-size="9">+ Header-based routing</text><text x="380" y="164" text-anchor="middle" fill="#bbf7d0" font-size="9">+ Retries, timeouts, breakers</text><text x="380" y="180" text-anchor="middle" fill="#bbf7d0" font-size="9">+ mTLS termination</text><text x="380" y="206" text-anchor="middle" fill="#fca5a5" font-size="9">– 1–5ms added latency</text><text x="380" y="222" text-anchor="middle" fill="#fca5a5" font-size="9">– More to operate</text><rect x="520" y="70" width="240" height="180" rx="10" fill="#1e293b" stroke="#a855f7" stroke-width="1.5"/><text x="640" y="92" text-anchor="middle" fill="#c4b5fd" font-size="11" font-weight="bold">Algorithms</text><text x="540" y="118" fill="#ddd6fe" font-size="9">• round robin — uniform endpoints</text><text x="540" y="138" fill="#ddd6fe" font-size="9">• least-request — variable speed</text><text x="540" y="158" fill="#ddd6fe" font-size="9">• EWMA — latency-weighted</text><text x="540" y="178" fill="#ddd6fe" font-size="9">• ring/consistent hash — sticky</text><text x="540" y="198" fill="#ddd6fe" font-size="9">• random — surprisingly competitive</text><text x="540" y="222" fill="#94a3b8" font-size="9">Envoy default: least-request</text></svg>
+
+          <h2>Retry Storm Propagation</h2>
+          <svg viewBox="0 0 800 240" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="240" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="13" font-weight="bold">RETRY STORM — WITH vs WITHOUT BUDGET</text><text x="200" y="68" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="700">NO BUDGET — amplification</text><rect x="60" y="80" width="50" height="50" rx="4" fill="#1e293b" stroke="#fca5a5"/><text x="85" y="110" text-anchor="middle" fill="#fca5a5" font-size="9">1k</text><line x1="110" y1="105" x2="150" y2="105" stroke="#fca5a5" stroke-width="1.5" marker-end="url(#rsa)"/><rect x="150" y="80" width="50" height="50" rx="4" fill="#1e293b" stroke="#fca5a5"/><text x="175" y="110" text-anchor="middle" fill="#fca5a5" font-size="9">3k</text><line x1="200" y1="105" x2="240" y2="105" stroke="#fca5a5" stroke-width="2" marker-end="url(#rsa)"/><rect x="240" y="80" width="60" height="50" rx="4" fill="#ef4444" fill-opacity="0.4" stroke="#ef4444"/><text x="270" y="110" text-anchor="middle" fill="#fca5a5" font-size="10" font-weight="bold">DB melts</text><text x="200" y="160" text-anchor="middle" fill="#fca5a5" font-size="9">3x amplification on DB</text><text x="600" y="68" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">WITH BUDGET — capped</text><rect x="460" y="80" width="50" height="50" rx="4" fill="#1e293b" stroke="#86efac"/><text x="485" y="110" text-anchor="middle" fill="#86efac" font-size="9">1k</text><line x1="510" y1="105" x2="550" y2="105" stroke="#86efac" stroke-width="1.5" marker-end="url(#rsa)"/><rect x="550" y="80" width="50" height="50" rx="4" fill="#1e293b" stroke="#86efac"/><text x="575" y="110" text-anchor="middle" fill="#86efac" font-size="9">1.1k</text><line x1="600" y1="105" x2="640" y2="105" stroke="#86efac" stroke-width="1.5" marker-end="url(#rsa)"/><rect x="640" y="80" width="60" height="50" rx="4" fill="#22c55e" fill-opacity="0.4" stroke="#22c55e"/><text x="670" y="110" text-anchor="middle" fill="#86efac" font-size="10" font-weight="bold">DB OK</text><text x="600" y="160" text-anchor="middle" fill="#86efac" font-size="9">10% retry budget; recovery possible</text><text x="400" y="216" text-anchor="middle" fill="#cbd5e1" font-size="11">Each layer multiplies retries unless capped. Budget = retries / total RPS &lt; 10%.</text><defs><marker id="rsa" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/></marker></defs></svg>
+
           <h2>Self-Check Quiz</h2>
           <ol>
             <li><strong>Why does HTTP/1.1 lead to many TCP connections per browser tab while HTTP/2 needs only one?</strong> (Answer: HTTP/1.1 has head-of-line blocking on a single connection; clients open multiple connections to parallelise. HTTP/2 multiplexes streams over one connection.)</li>
@@ -3852,6 +3883,32 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           'Before debating gRPC vs REST, ask: who calls this API? If browsers, REST. If your own services, gRPC unless there is a reason against.',
           'Every retry policy is a load multiplier. Calculate the worst-case load on the downstream when every caller hits its retry cap simultaneously.',
           'DNS is in the data path on every request. Treat its latency and error rate as first-class metrics, not infrastructure noise.',
+        ],
+        securityRisks: [
+          'Plaintext HTTP between services exposes payloads to passive network attackers. Default to mTLS for any internal call carrying sensitive data.',
+          'Trusting X-Forwarded-For from untrusted upstream is a rate-limit / IP-allowlist bypass vector.',
+          'Service discovery without authentication lets a compromised pod register fake endpoints and intercept traffic.',
+          'gRPC reflection enabled in production exposes internal API schema to anyone who can hit the endpoint.',
+        ],
+        beforeAfter: {
+          before: [
+            'No timeouts on outbound calls; one slow downstream stalls the entire service',
+            'Naive retry policies that amplify failures during brownouts',
+            'DNS caching tuned by accident; outages from stale entries',
+            'Long-running HTTP/1.1 connections; handshake overhead on every cold call',
+          ],
+          after: [
+            'Per-call timeouts at every layer, shorter than caller&apos;s deadline',
+            'Retries with exponential backoff + jitter + budget; no amplification',
+            'NodeLocal DNSCache + short TTLs + DNS error rate alerted',
+            'gRPC over HTTP/2 with connection pooling; handshake cost amortised',
+          ],
+        },
+        productionAlternatives: [
+          { name: 'gRPC', description: 'Strongly-typed RPC over HTTP/2; standard for service-to-service in modern infra.' },
+          { name: 'Connect / Twirp', description: 'Lighter alternatives to gRPC with simpler tooling; trade ecosystem maturity for ergonomics.' },
+          { name: 'GraphQL Federation', description: 'For client-facing APIs that need composition across many backend services.' },
+          { name: 'NATS / message-based RPC', description: 'When you need request-response without TCP connection overhead; useful for IoT/edge.' },
         ],
       },
       {
@@ -3975,6 +4032,38 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           'Slack uses Kafka to fan out every message event to many internal consumers (search indexing, push notifications, analytics).',
           'Uber processes ride events through Kafka with strict per-rider ordering via partition keying.',
           'Netflix uses Kafka for the event bus underlying their playback telemetry, which feeds recommendations, observability, and billing.',
+        ],
+        securityRisks: [
+          'Topics with PII data and no ACLs let any service in the cluster read sensitive events. Default-deny + per-consumer-group ACLs.',
+          'Producer credentials in env vars can be exfiltrated; rotate via secret managers, not by redeploy.',
+          'Consumer offset tampering can replay or skip messages; secure the offset commit path.',
+          'mTLS between Kafka clients and brokers is mandatory for any production deployment over an untrusted network.',
+        ],
+        thinkLikeAnEngineer: [
+          'Before designing topics, sketch the consumer graph. Each consumer group reads independently &mdash; what happens if one falls behind?',
+          'Choose partition keys around the unit of ordering you actually need (per-user, per-order, per-tenant). The wrong key destroys ordering guarantees you needed.',
+          'Treat the dead-letter queue depth as a SEV indicator. A growing DLQ means production data is silently being skipped.',
+        ],
+        beforeAfter: {
+          before: [
+            'Synchronous RPC between services; one slow service blocks the chain',
+            'Tight coupling: producer changes require consumer changes',
+            'No replay capability; lost messages are lost forever',
+            'Manual exactly-once theatre with brittle distributed transactions',
+          ],
+          after: [
+            'Decoupled in time via durable event log; producers and consumers scale independently',
+            'New consumer groups added without producer changes',
+            'Replay history for backfills, debugging, new use cases',
+            'At-least-once + idempotency at the consumer; pragmatic, robust, simple',
+          ],
+        },
+        productionAlternatives: [
+          { name: 'Apache Kafka', description: 'Industry standard for high-throughput event streaming; partitioned, replayable, durable.' },
+          { name: 'AWS Kinesis', description: 'Managed Kafka-equivalent on AWS; tighter integration with AWS services, less ecosystem flexibility.' },
+          { name: 'Apache Pulsar', description: 'Tiered storage by default, multi-tenancy, geo-replication built in. Strong fit for multi-region from day one.' },
+          { name: 'NATS JetStream', description: 'Lightweight alternative for lower-volume event streaming; simpler to operate.' },
+          { name: 'Redis Streams', description: 'Best fit when you already run Redis and event volume is low; not a replacement for Kafka at scale.' },
         ],
       },
       {
@@ -4118,6 +4207,38 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           'CockroachDB uses per-range Raft groups to provide globally-consistent SQL with horizontal scale.',
           'Discord migrated from MongoDB to Cassandra (then to ScyllaDB) for their messages workload due to Cassandra&apos;s leaderless write throughput.',
         ],
+        securityRisks: [
+          'Multi-tenant sharded systems leak data when the application forgets to scope queries by tenant_id; design tenant scoping into the storage layer, not the app.',
+          'Read replicas with different RBAC than the primary expose data the security team thought was protected.',
+          'Backups of distributed databases multiply the data-leak surface; encrypt at rest with KMS, audit access.',
+          'Cross-region replication over public internet must use TLS; a leaked snapshot in transit is a leaked database.',
+        ],
+        thinkLikeAnEngineer: [
+          'Choose partition keys based on the access pattern, not the storage convenience. Keys that are easy to write but hard to query become technical debt.',
+          'For multi-tenant systems, design for the worst tenant. The 90th-percentile customer is your bottleneck before it&apos;s your average.',
+          'Consistency level is per query, not per database. Force engineers to make the choice deliberately for each operation.',
+        ],
+        beforeAfter: {
+          before: [
+            'Single Postgres primary; vertical scaling until the box maxes out',
+            'Hot keys cause unexplained latency; team scales the cluster, no improvement',
+            'Multi-region by accident; cross-region writes drag p99 beyond the SLO',
+            'Stale reads from replicas confuse users; no consistency model documented',
+          ],
+          after: [
+            'Sharded data layer chosen for the access pattern; horizontal scale as a normal mode',
+            'Per-shard QPS dashboards; hot keys detected before users are affected',
+            'Multi-region with LOCAL_QUORUM (Cassandra) or sharded ownership (CockroachDB)',
+            'Consistency level per query; engineers make the choice with eyes open',
+          ],
+        },
+        productionAlternatives: [
+          { name: 'Sharded Postgres (Citus, Vitess)', description: 'Postgres with horizontal sharding; keep SQL surface, add scale.' },
+          { name: 'Apache Cassandra / ScyllaDB', description: 'Leaderless, hash-partitioned, AP-leaning; best for high write throughput.' },
+          { name: 'CockroachDB / TiDB / YugabyteDB', description: 'Distributed SQL with per-range consensus; SQL surface + horizontal scale.' },
+          { name: 'Spanner / AlloyDB', description: 'Globally-consistent SQL; premium pricing for premium consistency.' },
+          { name: 'DynamoDB', description: 'Managed, hash-partitioned; great if you stay within its access patterns, painful if you fight them.' },
+        ],
       },
       {
         number: 5,
@@ -4252,6 +4373,33 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           'Before you reach for a distributed lock, ask: do I need lock semantics, or do I need leader-elected singleton execution? They are different problems with different primitives.',
           'When you see &ldquo;HA via two replicas&rdquo; in a design doc, ask: what happens during a partition? If the answer is fuzzy, you do not have HA &mdash; you have two SPOFs.',
         ],
+        securityRisks: [
+          'etcd unencrypted at rest exposes every Kubernetes secret in the snapshot. Always enable KMS-backed encryption.',
+          'etcd peer / client TLS is not on by default in some installers; verify before going to production.',
+          'A compromised etcd member can poison cluster state. Audit etcd member additions and rotate certs regularly.',
+          'Distributed locks without fencing tokens silently allow stale lock holders to corrupt resources.',
+        ],
+        beforeAfter: {
+          before: [
+            'Naive Redis SETNX locks; silent corruption under partition',
+            'Single etcd node &ldquo;for simplicity&rdquo;; one disk failure = entire cluster unrecoverable',
+            'No documented runbook for stuck quorum; outages last hours',
+            'ZooKeeper running on shared infrastructure; noisy neighbour starves consensus',
+          ],
+          after: [
+            'Distributed locks via etcd Lease + fencing token; resource rejects stale tokens',
+            '5-node etcd across 3 AZs; tested snapshot restore runbook',
+            'Quorum loss recovery practiced quarterly; outages bounded to minutes',
+            'Dedicated etcd nodes with SSD; fsync latency monitored as first-class metric',
+          ],
+        },
+        productionAlternatives: [
+          { name: 'etcd', description: 'Raft-based KV; substrate of Kubernetes; default for new infra.' },
+          { name: 'ZooKeeper', description: 'ZAB-based; mature, used by HBase / older Kafka / Solr.' },
+          { name: 'Consul', description: 'Raft + service registry + KV + health checks; HashiCorp&apos;s integrated approach.' },
+          { name: 'Apache Bookkeeper', description: 'Used as the backing store for Pulsar; consensus + ledger storage.' },
+          { name: 'Hazelcast / Apache Ignite', description: 'In-memory data grids with consensus-backed coordination; fits when latency &lt; 1ms required.' },
+        ],
       },
       {
         number: 6,
@@ -4336,6 +4484,9 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           <h2>Cache Hierarchy in Practice</h2>
           <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="280" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="13" font-weight="bold">CACHE HIERARCHY</text><rect x="60" y="60" width="680" height="32" rx="6" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/><text x="80" y="80" fill="#86efac" font-size="11" font-weight="bold">Browser</text><text x="720" y="80" text-anchor="end" fill="#94a3b8" font-size="10">~ns · Cache-Control headers</text><rect x="60" y="100" width="680" height="32" rx="6" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6"/><text x="80" y="120" fill="#bfdbfe" font-size="11" font-weight="bold">CDN edge</text><text x="720" y="120" text-anchor="end" fill="#94a3b8" font-size="10">~10ms · Cloudflare/Fastly</text><rect x="60" y="140" width="680" height="32" rx="6" fill="#a855f7" fill-opacity="0.2" stroke="#a855f7"/><text x="80" y="160" fill="#ddd6fe" font-size="11" font-weight="bold">Reverse proxy</text><text x="720" y="160" text-anchor="end" fill="#94a3b8" font-size="10">~5ms · Varnish/NGINX</text><rect x="60" y="180" width="680" height="32" rx="6" fill="#ec4899" fill-opacity="0.2" stroke="#ec4899"/><text x="80" y="200" fill="#fbcfe8" font-size="11" font-weight="bold">In-process</text><text x="720" y="200" text-anchor="end" fill="#94a3b8" font-size="10">~µs · Caffeine/lru_cache</text><rect x="60" y="220" width="680" height="32" rx="6" fill="#fbbf24" fill-opacity="0.2" stroke="#fbbf24"/><text x="80" y="240" fill="#fcd34d" font-size="11" font-weight="bold">Distributed cache</text><text x="720" y="240" text-anchor="end" fill="#94a3b8" font-size="10">~1–3ms · Redis/Memcached</text></svg>
 
+          <h2>Distributed Rate Limiter Architecture</h2>
+          <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="280" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="13" font-weight="bold">DISTRIBUTED RATE LIMITER (Redis Lua atomic)</text><rect x="40" y="80" width="100" height="120" rx="6" fill="#1e293b" stroke="#3b82f6"/><text x="90" y="104" text-anchor="middle" fill="#bfdbfe" font-size="10" font-weight="bold">Gateway 1</text><rect x="40" y="120" width="100" height="20" rx="3" fill="#3b82f6" fill-opacity="0.2"/><text x="90" y="135" text-anchor="middle" fill="#bfdbfe" font-size="9">EVAL Lua</text><rect x="40" y="150" width="100" height="20" rx="3" fill="#3b82f6" fill-opacity="0.2"/><text x="90" y="165" text-anchor="middle" fill="#bfdbfe" font-size="9">EVAL Lua</text><rect x="160" y="80" width="100" height="120" rx="6" fill="#1e293b" stroke="#3b82f6"/><text x="210" y="104" text-anchor="middle" fill="#bfdbfe" font-size="10" font-weight="bold">Gateway 2</text><rect x="160" y="120" width="100" height="20" rx="3" fill="#3b82f6" fill-opacity="0.2"/><text x="210" y="135" text-anchor="middle" fill="#bfdbfe" font-size="9">EVAL Lua</text><rect x="280" y="80" width="100" height="120" rx="6" fill="#1e293b" stroke="#3b82f6"/><text x="330" y="104" text-anchor="middle" fill="#bfdbfe" font-size="10" font-weight="bold">Gateway N</text><rect x="280" y="120" width="100" height="20" rx="3" fill="#3b82f6" fill-opacity="0.2"/><text x="330" y="135" text-anchor="middle" fill="#bfdbfe" font-size="9">EVAL Lua</text><line x1="140" y1="135" x2="440" y2="135" stroke="#94a3b8" stroke-width="1" marker-end="url(#rla)"/><line x1="260" y1="135" x2="440" y2="155" stroke="#94a3b8" stroke-width="1" marker-end="url(#rla)"/><line x1="380" y1="135" x2="440" y2="175" stroke="#94a3b8" stroke-width="1" marker-end="url(#rla)"/><rect x="440" y="100" width="200" height="100" rx="8" fill="#fbbf24" fill-opacity="0.15" stroke="#fbbf24"/><text x="540" y="124" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="bold">Redis Cluster</text><text x="540" y="146" text-anchor="middle" fill="#94a3b8" font-size="9">key &rarr; slot &rarr; node</text><text x="540" y="166" text-anchor="middle" fill="#94a3b8" font-size="9">atomic Lua = no race</text><text x="540" y="186" text-anchor="middle" fill="#94a3b8" font-size="9">~1-2ms p99 / call</text><rect x="660" y="80" width="100" height="120" rx="6" fill="#1e293b" stroke="#22c55e"/><text x="710" y="104" text-anchor="middle" fill="#86efac" font-size="10" font-weight="bold">Origin</text><text x="710" y="142" text-anchor="middle" fill="#94a3b8" font-size="9">protected from</text><text x="710" y="158" text-anchor="middle" fill="#94a3b8" font-size="9">client abuse</text><line x1="640" y1="150" x2="660" y2="150" stroke="#22c55e" stroke-width="1.5" marker-end="url(#rla)"/><text x="400" y="240" text-anchor="middle" fill="#cbd5e1" font-size="10">Per-customer / per-API-key counters in Redis. Atomic Lua prevents race conditions across gateways.</text><text x="400" y="260" text-anchor="middle" fill="#94a3b8" font-size="10">Centralised counter trades ~1ms latency for global enforcement.</text><defs><marker id="rla" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/></marker></defs></svg>
+
           <h2>Self-Check Quiz</h2>
           <ol>
             <li><strong>HPA scales on CPU. Your CPU is at 30%. Your service is throttled. What gives?</strong> (Answer: HPA is scaling on the wrong metric. Real bottleneck is probably connection pool, downstream RPC, or DB. Scale on the metric closest to user latency — RPS or p99 latency.)</li>
@@ -4387,6 +4538,38 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           'Cloudflare absorbs trillions of requests per day at the edge with a layered cache that serves most reads before any origin is involved.',
           'Stripe enforces per-API-key rate limits with token-bucket counters in Redis Lua scripts.',
           'Netflix uses adaptive concurrency limits (open-source library) to dynamically size connection pools based on observed latency.',
+        ],
+        securityRisks: [
+          'Cache poisoning via unkeyed headers (Host, Vary mishandling) lets one attacker affect many users.',
+          'Multi-tenant cache without tenant_id in the key leaks data between customers; a known SOC2 incident class.',
+          'Rate-limit bypass via X-Forwarded-For spoofing when the origin trusts the wrong header.',
+          'CDN-cached responses that should never be cached (auth-bearing, per-user) are a recurring breach pattern (web-cache deception).',
+        ],
+        thinkLikeAnEngineer: [
+          'Identify your bottleneck before scaling. Throwing replicas at a connection-pool problem makes it worse, not better.',
+          'For every cache, define the freshness contract upfront. &ldquo;5 minutes stale is fine&rdquo; vs &ldquo;must reflect the latest write&rdquo; drives the entire invalidation strategy.',
+          'Capacity planning is not a one-time exercise. Workload behaviour drifts; review monthly.',
+        ],
+        beforeAfter: {
+          before: [
+            'Vertical scaling until the box maxes out; no headroom for growth',
+            'In-memory state on every replica; no horizontal scaling possible',
+            'Caches added reactively after the first outage; no invalidation strategy',
+            'HPA on CPU when bottleneck is connection pool; scaling helps until it doesn&apos;t',
+          ],
+          after: [
+            'Stateless services with shared distributed cache + database; linear horizontal scale',
+            'Multi-layer cache hierarchy (CDN, in-process, distributed); each layer absorbs different load',
+            'Cache invalidation via CDC events; cache and database stay coherent',
+            'HPA on the metric closest to user latency; scaling responds to actual demand',
+          ],
+        },
+        productionAlternatives: [
+          { name: 'Kubernetes HPA + Karpenter', description: 'Cloud-native autoscaling stack; the default on AWS.' },
+          { name: 'KEDA event-driven autoscaling', description: 'Scale on Kafka lag, queue depth, custom metrics; can scale to zero.' },
+          { name: 'Cluster Autoscaler', description: 'Pre-Karpenter node autoscaler; still useful on GCP/Azure.' },
+          { name: 'Redis Cluster + Cluster Mode Enabled', description: 'Standard distributed cache; sharded by hash slot.' },
+          { name: 'CDN-first architecture (Cloudflare Workers, Lambda@Edge)', description: 'Move logic to the edge; lowest latency, lowest cost at scale.' },
         ],
       },
       {
@@ -4538,6 +4721,33 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           'Rank your dependencies by criticality once a quarter. Move enriching calls to non-blocking; tighten circuit breakers on critical ones.',
           'Run a chaos drill before every major launch. The bug it finds is almost always something nobody predicted.',
         ],
+        securityRisks: [
+          'Circuit breakers that fail-open during a partial outage may bypass authn / authz checks. Decide failure mode deliberately.',
+          'Chaos engineering in production without explicit access-control review can give attackers a roadmap of failure modes.',
+          'Graceful degradation paths often skip security checks (e.g. cache fallback returns data without re-checking permissions). Audit fallback paths.',
+        ],
+        beforeAfter: {
+          before: [
+            'No timeouts; one slow downstream stalls everything',
+            'Naive retries amplify load during brownouts',
+            'Single thread pool shared across all dependencies; one slow upstream exhausts it',
+            'Failure recovery never tested; first chaos experiment is the real outage',
+          ],
+          after: [
+            'Per-call timeouts shorter than caller&apos;s deadline; deadline propagation across services',
+            'Retry budget caps amplification regardless of layer count',
+            'Bulkheads (separate pools per dependency); failure contained',
+            'Quarterly chaos drills; resilience patterns proven before they&apos;re needed',
+          ],
+        },
+        productionAlternatives: [
+          { name: 'Resilience4j (Java)', description: 'Modern circuit breaker / retry / bulkhead library; Hystrix successor.' },
+          { name: 'Polly (.NET)', description: 'Equivalent for .NET; mature, well-documented.' },
+          { name: 'Service mesh resilience (Envoy/Istio/Linkerd)', description: 'Centralised at the data plane; no app code changes.' },
+          { name: 'Chaos Mesh', description: 'Kubernetes-native chaos platform; CRD-driven experiments.' },
+          { name: 'Gremlin', description: 'Commercial chaos platform; broader cloud + non-K8s coverage.' },
+          { name: 'LitmusChaos', description: 'Open-source chaos for Kubernetes; CNCF incubating.' },
+        ],
       },
       {
         number: 8,
@@ -4671,6 +4881,33 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           'Netflix uses an internal SPIFFE-style identity system across thousands of services.',
           'Most service meshes (Istio, Linkerd) implement SPIFFE-style identity internally even when not labelled as such.',
           'Open Policy Agent powers Kubernetes admission control for thousands of organisations via Kyverno or Gatekeeper.',
+        ],
+        thinkLikeAnEngineer: [
+          'Treat workload identity as your most-attacked component. Operate it with the rigor you give the database tier.',
+          'For every service-to-service call ask: who is calling, with what identity, against what policy, and where is the audit log?',
+          'Authorization rules in version-controlled code (Rego) beats authorization rules in service code; CI catches regressions.',
+        ],
+        careerRelevance: 'Workload identity and Zero Trust are the most leveraged security skills in cloud-native engineering. Engineers fluent in SPIFFE/SPIRE, mTLS, and OPA get pulled into platform-engineering and security-engineering roles. Companies hiring senior platform engineers test these specifically.',
+        beforeAfter: {
+          before: [
+            'Long-lived shared secrets in env vars; rotation is manual and slow',
+            'Trust based on network location (&ldquo;it&apos;s inside the VPC, so it&apos;s safe&rdquo;)',
+            'Authorization rules scattered in service code; impossible to audit',
+            'No federation across clusters; either VPN tunnels or shared global secret manager',
+          ],
+          after: [
+            'Short-lived SVIDs auto-rotated by SPIRE; leak window measured in minutes',
+            'Authentication based on cryptographic identity, not network position',
+            'Centralised authorization as Rego policy in version control + CI',
+            'SPIFFE federation via bundle endpoints; cross-cluster identity flows automatically',
+          ],
+        },
+        productionAlternatives: [
+          { name: 'SPIFFE / SPIRE (vendor-neutral)', description: 'CNCF spec + reference implementation; works for non-mesh workloads, federations, K8s-or-not.' },
+          { name: 'Istio mesh-managed identity', description: 'SPIFFE-style identity hidden inside Istio; simpler if you already run Istio.' },
+          { name: 'Linkerd identity', description: 'Built-in mTLS using Linkerd&apos;s identity service; simplest mesh option.' },
+          { name: 'AWS IAM Roles Anywhere / GCP Workload Identity Federation', description: 'Cloud-native identity for workloads outside Kubernetes; less portable.' },
+          { name: 'Vault PKI engine', description: 'HashiCorp Vault as a CA for short-lived certs; works without SPIFFE conventions.' },
         ],
       },
       {
@@ -4815,6 +5052,37 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           'Cloudflare uses Honeycomb (event-driven observability) for high-cardinality investigation.',
           'Uber built Jaeger (now CNCF) to handle their tracing volume; donated it to the community.',
         ],
+        securityRisks: [
+          'Logs containing tokens, passwords, or PII become a parallel data-exfiltration target. Apply structured-log scrubbing at the collector.',
+          'OpenTelemetry collectors with default settings expose internal trace data via debug endpoints. Lock them down.',
+          'Trace context (W3C Trace Context header) propagates across trust boundaries; sanitise before forwarding to third parties.',
+        ],
+        thinkLikeAnEngineer: [
+          'Build observability before the first incident, not after. Retrofit costs are 10x.',
+          'For every alert, ask: what action does this trigger? If the answer is &ldquo;none&rdquo;, delete the alert.',
+          'SLO error-budget burn-rate alerts beat single-threshold alerts. Burn rate tells you how urgently to respond.',
+        ],
+        beforeAfter: {
+          before: [
+            'Print-statement debugging across distributed services; root-cause takes hours',
+            'Per-service dashboards in different tools; correlation is manual',
+            'Alert fatigue from threshold-based alerts that fire on noise',
+            'No SLOs; everyone has different definitions of &ldquo;working&rdquo;',
+          ],
+          after: [
+            'Distributed traces correlate the full request across services',
+            'Unified Grafana on top of Prometheus + Tempo + Loki; single pane of glass',
+            'SLO + error-budget burn-rate alerts; signal over noise',
+            'Documented SLOs aligned to user experience; product decisions tied to error budget',
+          ],
+        },
+        productionAlternatives: [
+          { name: 'OpenTelemetry + Grafana stack', description: 'Vendor-neutral; OSS; the modern default.' },
+          { name: 'Datadog APM', description: 'Tightly integrated commercial stack; fastest to ship; vendor lock-in.' },
+          { name: 'New Relic / Honeycomb', description: 'Honeycomb is the leader in event-driven, high-cardinality observability.' },
+          { name: 'AWS X-Ray + CloudWatch', description: 'Native AWS choice; deep integration with AWS services.' },
+          { name: 'ELK / EFK stack for logs', description: 'Elasticsearch-based; mature; operationally heavy at scale.' },
+        ],
       },
       {
         number: 10,
@@ -4957,6 +5225,38 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           'Reddit runs everything on Kubernetes after a multi-year migration from EC2.',
           'Google&apos;s GKE Autopilot is essentially Kubernetes with the operational complexity hidden &mdash; for teams that want the API but not the infrastructure overhead.',
         ],
+        securityRisks: [
+          'Default-permissive RBAC and PodSecurity; restricted profile must be explicit per-namespace.',
+          'Service mesh sidecars run as elevated workloads; an unverified mesh component is a cluster-wide attack vector.',
+          'Public LoadBalancer Services bypass NetworkPolicy; verify origin restrictions are enforced at the LB.',
+          'Container image pulls without signature verification accept anything from the registry. Use cosign + admission policy.',
+        ],
+        thinkLikeAnEngineer: [
+          'Read every Kubernetes manifest as a contract with the scheduler. Resource requests, anti-affinity, and PDBs are the operational levers.',
+          'Treat Kubernetes upgrades like deployment changes &mdash; staged across canary clusters before prod.',
+          'For every workload class (web, batch, ML), define which features (HPA, PDB, topology spread) it must use as a baseline.',
+        ],
+        beforeAfter: {
+          before: [
+            'Pets-not-cattle; long-lived nodes that can&apos;t be replaced',
+            'Shell scripts deploying directly to VMs; no declarative state',
+            'No autoscaling; capacity provisioned for peak, idle most of the time',
+            'Stateful workloads as single VMs; failure = data loss',
+          ],
+          after: [
+            'Cattle-not-pets; nodes are interchangeable and routinely cycled',
+            'GitOps with Argo CD or Flux; declarative state, audited changes',
+            'HPA + Karpenter; capacity scales with demand within minutes',
+            'StatefulSets + PVCs + tested backups; node failure = pod reschedule, not data loss',
+          ],
+        },
+        productionAlternatives: [
+          { name: 'Self-managed Kubernetes (kubeadm, RKE2, k0s)', description: 'Full control; full operational responsibility.' },
+          { name: 'EKS / GKE / AKS', description: 'Managed control plane; you operate the workloads.' },
+          { name: 'GKE Autopilot / EKS Auto Mode', description: 'Managed control plane AND nodes; closest to &ldquo;just deploy a Pod&rdquo;.' },
+          { name: 'HashiCorp Nomad', description: 'Lighter alternative; works for non-container workloads.' },
+          { name: 'Cloud-specific PaaS (Cloud Run, App Runner, Container Apps)', description: 'Skip Kubernetes entirely for stateless web workloads.' },
+        ],
       },
       {
         number: 11,
@@ -5040,6 +5340,9 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           <h2>Cache Stampede Visualised</h2>
           <svg viewBox="0 0 800 240" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="240" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="13" font-weight="bold">CACHE STAMPEDE — UNPROTECTED vs PROTECTED</text><circle cx="80" cy="100" r="6" fill="#fca5a5"/><circle cx="80" cy="120" r="6" fill="#fca5a5"/><circle cx="80" cy="140" r="6" fill="#fca5a5"/><circle cx="80" cy="160" r="6" fill="#fca5a5"/><circle cx="80" cy="180" r="6" fill="#fca5a5"/><text x="80" y="210" text-anchor="middle" fill="#fca5a5" font-size="9">N requests</text><line x1="92" y1="120" x2="160" y2="140" stroke="#fca5a5" stroke-width="1" marker-end="url(#csa)"/><line x1="92" y1="140" x2="160" y2="140" stroke="#fca5a5" stroke-width="1" marker-end="url(#csa)"/><line x1="92" y1="160" x2="160" y2="140" stroke="#fca5a5" stroke-width="1" marker-end="url(#csa)"/><rect x="160" y="120" width="60" height="40" rx="3" fill="#1e293b" stroke="#fbbf24"/><text x="190" y="145" text-anchor="middle" fill="#fcd34d" font-size="9">expired</text><line x1="220" y1="140" x2="280" y2="140" stroke="#fca5a5" stroke-width="2" marker-end="url(#csa)"/><text x="250" y="130" text-anchor="middle" fill="#fca5a5" font-size="9">N qps</text><rect x="280" y="120" width="80" height="40" rx="3" fill="#1e293b" stroke="#fca5a5"/><text x="320" y="145" text-anchor="middle" fill="#fca5a5" font-size="10" font-weight="700">DB melts</text><circle cx="480" cy="120" r="6" fill="#86efac"/><circle cx="480" cy="140" r="6" fill="#86efac"/><circle cx="480" cy="160" r="6" fill="#86efac"/><line x1="492" y1="140" x2="560" y2="140" stroke="#86efac" stroke-width="1.5" marker-end="url(#csa)"/><text x="525" y="130" text-anchor="middle" fill="#94a3b8" font-size="8">SETNX lock</text><rect x="560" y="120" width="80" height="40" rx="3" fill="#1e293b" stroke="#86efac"/><text x="600" y="140" text-anchor="middle" fill="#86efac" font-size="9">cache</text><text x="600" y="155" text-anchor="middle" fill="#86efac" font-size="9">+ lock</text><line x1="640" y1="140" x2="700" y2="140" stroke="#86efac" stroke-width="1.5" marker-end="url(#csa)"/><text x="670" y="130" text-anchor="middle" fill="#94a3b8" font-size="8">1 query</text><rect x="700" y="120" width="60" height="40" rx="3" fill="#1e293b" stroke="#86efac"/><text x="730" y="145" text-anchor="middle" fill="#86efac" font-size="10" font-weight="700">DB OK</text><text x="200" y="200" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="700">UNPROTECTED</text><text x="600" y="200" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">PROTECTED (lock + recompute)</text><defs><marker id="csa" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/></marker></defs></svg>
 
+          <h2>Split Brain Architecture</h2>
+          <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="320" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="13" font-weight="bold">SPLIT BRAIN — WHAT REAL CONSENSUS PREVENTS</text><text x="200" y="68" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="700">NAIVE HA — both elect leader</text><circle cx="120" cy="130" r="22" fill="#ef4444" fill-opacity="0.4" stroke="#ef4444"/><text x="120" y="134" text-anchor="middle" fill="#fca5a5" font-size="9" font-weight="700">L1</text><circle cx="180" cy="130" r="22" fill="#1e293b" stroke="#fca5a5"/><text x="180" y="134" text-anchor="middle" fill="#fca5a5" font-size="9">F</text><circle cx="240" cy="130" r="22" fill="#ef4444" fill-opacity="0.4" stroke="#ef4444"/><text x="240" y="134" text-anchor="middle" fill="#fca5a5" font-size="9" font-weight="700">L2</text><line x1="170" y1="130" x2="190" y2="130" stroke="#ef4444" stroke-width="2" stroke-dasharray="3 3"/><text x="180" y="100" text-anchor="middle" fill="#fca5a5" font-size="9">⚡ partition</text><text x="120" y="172" text-anchor="middle" fill="#fca5a5" font-size="9">accepts writes</text><text x="240" y="172" text-anchor="middle" fill="#fca5a5" font-size="9">accepts writes</text><text x="180" y="200" text-anchor="middle" fill="#fca5a5" font-size="10" font-weight="700">divergent state</text><text x="600" y="68" text-anchor="middle" fill="#86efac" font-size="11" font-weight="700">RAFT QUORUM — only majority wins</text><circle cx="500" cy="130" r="22" fill="#22c55e" fill-opacity="0.4" stroke="#22c55e"/><text x="500" y="134" text-anchor="middle" fill="#86efac" font-size="9" font-weight="700">L</text><circle cx="560" cy="130" r="22" fill="#22c55e" fill-opacity="0.4" stroke="#22c55e"/><text x="560" y="134" text-anchor="middle" fill="#86efac" font-size="9">F</text><line x1="580" y1="130" x2="630" y2="130" stroke="#fca5a5" stroke-width="2" stroke-dasharray="3 3"/><text x="605" y="100" text-anchor="middle" fill="#fca5a5" font-size="9">⚡ partition</text><circle cx="650" cy="130" r="22" fill="#94a3b8" fill-opacity="0.2" stroke="#94a3b8"/><text x="650" y="134" text-anchor="middle" fill="#cbd5e1" font-size="9">F</text><circle cx="710" cy="130" r="22" fill="#94a3b8" fill-opacity="0.2" stroke="#94a3b8"/><text x="710" y="134" text-anchor="middle" fill="#cbd5e1" font-size="9">F</text><text x="530" y="172" text-anchor="middle" fill="#86efac" font-size="9">2 of 5 = no quorum</text><text x="680" y="172" text-anchor="middle" fill="#cbd5e1" font-size="9">3 of 5 = quorum ✓</text><text x="530" y="190" text-anchor="middle" fill="#86efac" font-size="9">refuses writes</text><text x="680" y="190" text-anchor="middle" fill="#86efac" font-size="9">elects new leader</text><text x="600" y="216" text-anchor="middle" fill="#86efac" font-size="10" font-weight="700">single source of truth</text><text x="400" y="280" text-anchor="middle" fill="#cbd5e1" font-size="11">Real consensus (Raft, Paxos) prevents split brain by requiring majority quorum.</text><text x="400" y="300" text-anchor="middle" fill="#94a3b8" font-size="10">DIY HA without quorum math = silent corruption under partition.</text></svg>
+
           <h2>Self-Check Quiz</h2>
           <ol>
             <li><strong>A retry storm is happening. You add exponential backoff. Symptoms partially improve. What did you miss?</strong> (Answer: backoff alone helps but does not cap total RPS to the failing service. Need a retry budget too.)</li>
@@ -5096,6 +5399,26 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           'After every incident, ask: what would have prevented this entirely? Often the fix is upstream of the immediate cause.',
           'Build a catalogue of failure modes. New incidents either match one (resolve fast) or are novel (capture and add to catalogue).',
           'When designing a system, walk through the failure-mode catalogue mentally. Which of these can hit my system? What is my defence?',
+        ],
+        beforeAfter: {
+          before: [
+            'Outages debugged from cold; 90 minutes of cross-team Slack',
+            'Same outage class repeats every quarter; no learning loop',
+            'Post-mortems become theatre; action items slip indefinitely',
+            'On-call dreaded; new engineers take months to be effective',
+          ],
+          after: [
+            'Per-failure-mode runbook library; triaged in minutes',
+            'Each incident strengthens the runbook; same class never repeats',
+            'Action items tracked alongside feature work; reviewed in next post-mortem',
+            'On-call is a known load; new engineers shadow then lead within weeks',
+          ],
+        },
+        productionAlternatives: [
+          { name: 'PagerDuty + automated runbooks', description: 'Industry standard incident management; ties detection to action.' },
+          { name: 'Rundeck / Ansible AWX', description: 'Self-hosted runbook automation; tighter integration with infra.' },
+          { name: 'AWS Incident Manager / GCP Cloud Operations', description: 'Cloud-native incident response; tighter integration with cloud telemetry.' },
+          { name: 'FireHydrant / incident.io', description: 'Modern incident-management platforms with built-in post-mortem workflows.' },
         ],
       },
       {
@@ -5186,6 +5509,9 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           <h2>Disaster Recovery Topology</h2>
           <svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="300" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="13" font-weight="bold">DR TOPOLOGY — ACTIVE-PASSIVE WITH BACKUP</text><rect x="40" y="80" width="220" height="180" rx="10" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-width="2"/><text x="150" y="106" text-anchor="middle" fill="#86efac" font-size="11" font-weight="bold">Primary region</text><rect x="60" y="120" width="180" height="32" rx="4" fill="#22c55e" fill-opacity="0.3"/><text x="150" y="140" text-anchor="middle" fill="#bbf7d0" font-size="10" font-weight="700">App tier (active)</text><rect x="60" y="160" width="180" height="32" rx="4" fill="#22c55e" fill-opacity="0.3"/><text x="150" y="180" text-anchor="middle" fill="#bbf7d0" font-size="10" font-weight="700">DB primary</text><rect x="60" y="200" width="180" height="32" rx="4" fill="#22c55e" fill-opacity="0.3"/><text x="150" y="220" text-anchor="middle" fill="#bbf7d0" font-size="10" font-weight="700">Backup snapshot</text><rect x="540" y="80" width="220" height="180" rx="10" fill="#94a3b8" fill-opacity="0.15" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3"/><text x="650" y="106" text-anchor="middle" fill="#cbd5e1" font-size="11" font-weight="bold">Secondary region (passive)</text><rect x="560" y="120" width="180" height="32" rx="4" fill="#94a3b8" fill-opacity="0.2"/><text x="650" y="140" text-anchor="middle" fill="#cbd5e1" font-size="10" font-weight="700">App tier (warm standby)</text><rect x="560" y="160" width="180" height="32" rx="4" fill="#94a3b8" fill-opacity="0.2"/><text x="650" y="180" text-anchor="middle" fill="#cbd5e1" font-size="10" font-weight="700">DB read replica</text><rect x="560" y="200" width="180" height="32" rx="4" fill="#94a3b8" fill-opacity="0.2"/><text x="650" y="220" text-anchor="middle" fill="#cbd5e1" font-size="10" font-weight="700">Restored from snapshot</text><line x1="260" y1="170" x2="540" y2="170" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#dra)"/><text x="400" y="160" text-anchor="middle" fill="#fcd34d" font-size="10">async replication (RPO bound)</text><line x1="260" y1="216" x2="540" y2="216" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#dra)"/><text x="400" y="206" text-anchor="middle" fill="#ddd6fe" font-size="10">snapshot copy (hourly)</text><text x="400" y="280" text-anchor="middle" fill="#cbd5e1" font-size="10">Failover: DNS / global LB redirects to secondary. RTO ≈ minutes. RPO ≈ replication lag.</text><defs><marker id="dra" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/></marker></defs></svg>
 
+          <h2>Global Traffic Routing</h2>
+          <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg"><rect width="800" height="280" fill="#0f172a" rx="12"/><text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="13" font-weight="bold">GLOBAL TRAFFIC ROUTING (latency / geo-based)</text><circle cx="120" cy="100" r="14" fill="#3b82f6" fill-opacity="0.4" stroke="#3b82f6"/><text x="120" y="80" text-anchor="middle" fill="#bfdbfe" font-size="9">user-EU</text><circle cx="120" cy="180" r="14" fill="#22c55e" fill-opacity="0.4" stroke="#22c55e"/><text x="120" y="200" text-anchor="middle" fill="#bbf7d0" font-size="9">user-US</text><circle cx="120" cy="240" r="14" fill="#fbbf24" fill-opacity="0.4" stroke="#fbbf24"/><text x="120" y="260" text-anchor="middle" fill="#fcd34d" font-size="9">user-APAC</text><line x1="134" y1="100" x2="280" y2="120" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#gtra)"/><line x1="134" y1="180" x2="280" y2="140" stroke="#22c55e" stroke-width="1.5" marker-end="url(#gtra)"/><line x1="134" y1="240" x2="280" y2="160" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#gtra)"/><rect x="280" y="100" width="160" height="80" rx="8" fill="#1e293b" stroke="#a855f7" stroke-width="1.5"/><text x="360" y="124" text-anchor="middle" fill="#c4b5fd" font-size="11" font-weight="bold">Global LB</text><text x="360" y="142" text-anchor="middle" fill="#94a3b8" font-size="9">Route 53 / GCLB / Anycast</text><text x="360" y="162" text-anchor="middle" fill="#94a3b8" font-size="9">latency-based routing</text><line x1="440" y1="120" x2="540" y2="80" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#gtra)"/><line x1="440" y1="140" x2="540" y2="140" stroke="#22c55e" stroke-width="1.5" marker-end="url(#gtra)"/><line x1="440" y1="160" x2="540" y2="200" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#gtra)"/><rect x="540" y="60" width="200" height="40" rx="6" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6"/><text x="640" y="84" text-anchor="middle" fill="#bfdbfe" font-size="10" font-weight="700">eu-west-1 region</text><rect x="540" y="120" width="200" height="40" rx="6" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/><text x="640" y="144" text-anchor="middle" fill="#bbf7d0" font-size="10" font-weight="700">us-east-1 region</text><rect x="540" y="180" width="200" height="40" rx="6" fill="#fbbf24" fill-opacity="0.2" stroke="#fbbf24"/><text x="640" y="204" text-anchor="middle" fill="#fcd34d" font-size="10" font-weight="700">ap-southeast-1 region</text><text x="400" y="260" text-anchor="middle" fill="#cbd5e1" font-size="10">Health-check failover routes around dead regions; latency-based routing keeps users on the closest healthy region.</text><defs><marker id="gtra" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#94a3b8"/></marker></defs></svg>
+
           <h2>Self-Check Quiz</h2>
           <ol>
             <li><strong>Your business says &ldquo;RPO=0, RTO=5 minutes&rdquo; for the database. What does this require?</strong> (Answer: synchronous cross-region replication (or globally-consistent storage like Spanner) and automated failover. Both are expensive. Understand the cost before committing.)</li>
@@ -5254,6 +5580,33 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
           'Architecture is the discipline of saying no. Every &ldquo;yes&rdquo; to a feature locks in trade-offs that constrain the next year of decisions.',
           'For every architectural choice, write down the alternative. If you cannot articulate the alternative, you do not understand your own choice.',
           'When defending an architecture, frame it as &ldquo;I chose X because the trade-off was Y vs Z; here is which I optimised for and why&rdquo;. That framing is the difference between &ldquo;senior&rdquo; and &ldquo;staff&rdquo;.',
+        ],
+        securityRisks: [
+          'Multi-region implies cross-region replication; the wire is a new attack surface. Always TLS, ideally mTLS via SPIFFE federation.',
+          'DR backups in cold storage are still customer data; encrypt at rest with KMS, audit access.',
+          'Failover automation that bypasses change control becomes the attacker&apos;s lever (&ldquo;simulate failure to force failover&rdquo;).',
+          'Active-active with shared global IAM means one region&apos;s compromise = global compromise. Region-scoped credentials are safer.',
+        ],
+        beforeAfter: {
+          before: [
+            'DR documented but never tested; first real failover is the test',
+            'Single region; an AZ failure becomes a customer-impacting outage',
+            'Cost grows linearly with users; no architectural levers pulled',
+            'Capstone-level system design treated as senior interview hazing, not real skill',
+          ],
+          after: [
+            'DR drilled quarterly; actual RTO measured and improved',
+            'Multi-region with explicit pattern (active-passive or sharded active-active)',
+            'Cost engineering as ongoing discipline: right-sizing, spot, reservations',
+            'Production architecture documented with defended trade-offs; portfolio-quality artefact',
+          ],
+        },
+        productionAlternatives: [
+          { name: 'Active-Passive multi-region', description: 'Simplest, bounded RTO/RPO; standby capacity costs.' },
+          { name: 'Active-Active sharded', description: 'Each region owns a shard; standard pattern for global SaaS.' },
+          { name: 'Active-Active replicated', description: 'Same data in every region; only safe with globally-consistent storage.' },
+          { name: 'Edge-first (Cloudflare Workers, Lambda@Edge)', description: 'Compute at the edge; lowest latency for global users.' },
+          { name: 'Multi-cloud (avoid vendor lock-in)', description: 'Highest operational cost; pays back if vendor risk is real.' },
         ],
       },
     ],
