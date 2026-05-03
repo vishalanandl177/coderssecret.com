@@ -85,12 +85,15 @@ const categoryNames = {
   'open-source': 'Open Source',
 };
 
+const HOME_TITLE = 'CodersSecret - Cloud Native Security, Kubernetes & Production Engineering';
+const HOME_DESCRIPTION = 'Free cloud native security courses and engineering guides on Kubernetes, SPIFFE/SPIRE, Zero Trust, DevSecOps, API security, labs, and diagrams.';
+
 // Read the built index.html
 const baseHtml = fs.readFileSync(path.join(OUTPUT_DIR, 'index.html'), 'utf-8');
 
 function makeHtml(options) {
-  const { title, description, url, content, jsonLd, image } = options;
-  const fullTitle = `${title} | CodersSecret`;
+  const { title, description, url, content, jsonLd, image, fullTitle: explicitFullTitle } = options;
+  const fullTitle = explicitFullTitle || `${title} | CodersSecret`;
   const canonical = `${SITE_URL}${url}`;
   const ogImage = image ? `${SITE_URL}${image}` : `${SITE_URL}/og-image.svg`;
 
@@ -117,6 +120,8 @@ function makeHtml(options) {
     `  <meta property="og:url" content="${canonical}">\n` +
     `  <meta property="og:type" content="website">\n` +
     `  <meta property="og:image" content="${ogImage}">\n` +
+    `  <meta property="og:image:width" content="1200">\n` +
+    `  <meta property="og:image:height" content="630">\n` +
     `  <meta name="twitter:card" content="summary_large_image">\n` +
     `  <meta name="twitter:title" content="${fullTitle}">\n` +
     `  <meta name="twitter:description" content="${description}">\n` +
@@ -140,6 +145,131 @@ function escapeHtml(str) {
 }
 
 let created = 0;
+
+// Home page (/)
+const topHomePosts = posts.slice(0, 10);
+const homeCategoryLinks = [...categories]
+  .map(cat => `<li><a href="/category/${cat}">${categoryNames[cat] || cat}</a></li>`)
+  .join('\n      ');
+const homeContent = `
+  <main>
+    <h1>CodersSecret - Cloud Native Security and Production Engineering</h1>
+    <p>${HOME_DESCRIPTION}</p>
+    <section>
+      <h2>Free Production Engineering Courses</h2>
+      <p>Learn workload identity, Kubernetes security, Zero Trust, DevSecOps, API security, production RAG, and distributed systems through practical modules, labs, diagrams, and engineering guides.</p>
+      <ul>
+        <li><a href="/courses/mastering-spiffe-spire">Master SPIFFE and SPIRE for Workload Identity</a> - deploy SPIRE, issue SVIDs, federate trust domains, and replace long-lived secrets.</li>
+        <li><a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> - secure Kubernetes, containers, service mesh, policy-as-code, runtime detection, and CI/CD pipelines.</li>
+        <li><a href="/courses/production-rag-systems-engineering">Production RAG Systems Engineering</a> - build reliable retrieval, vector search, AI agent, evaluation, and deployment workflows.</li>
+        <li><a href="/courses/distributed-systems-engineering">Distributed Systems Engineering</a> - learn CAP, consensus, replication, scalability, reliability, Zero Trust, observability, and Kubernetes-native architecture.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Popular Engineering Topics</h2>
+      <ul>
+        <li><a href="/glossary/workload-identity">Workload identity</a>, <a href="/glossary/spiffe">SPIFFE</a>, <a href="/glossary/spire">SPIRE</a>, and <a href="/glossary/mtls">mTLS</a></li>
+        <li><a href="/courses/kubernetes-runtime-security">Kubernetes runtime security</a>, supply-chain signing, OPA policy, Falco, and eBPF detection</li>
+        <li><a href="/games">Interactive security simulators</a> and <a href="/cheatsheets">developer cheatsheets</a></li>
+      </ul>
+    </section>
+    <section>
+      <h2>Latest Engineering Guides</h2>
+      <ul>
+        ${topHomePosts.map(p => `<li><a href="/blog/${p.slug}">${escapeHtml(p.title)}</a> - ${escapeHtml(p.excerpt)}</li>`).join('\n        ')}
+      </ul>
+    </section>
+    <section>
+      <h2>Article Categories</h2>
+      <ul>
+        ${homeCategoryLinks}
+      </ul>
+    </section>
+    <section>
+      <h2>About CodersSecret</h2>
+      <p>CodersSecret is written by Vishal Anand for engineers who build, secure, and operate production systems. Every course and guide is free, ad-free, and focused on real infrastructure trade-offs.</p>
+      <p><a href="/about">Learn more about CodersSecret</a></p>
+    </section>
+  </main>
+`;
+
+const homeJsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    'name': 'CodersSecret',
+    'url': SITE_URL,
+    'logo': `${SITE_URL}/logo.svg`,
+    'description': HOME_DESCRIPTION,
+    'sameAs': [
+      'https://instagram.com/vis_naz',
+      'https://linkedin.com/in/vishal-techlead',
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    'name': 'CodersSecret',
+    'url': SITE_URL,
+    'description': HOME_DESCRIPTION,
+    'potentialAction': {
+      '@type': 'SearchAction',
+      'target': `${SITE_URL}/blog?q={search_term_string}`,
+      'query-input': 'required name=search_term_string',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': [
+      {
+        '@type': 'Question',
+        'name': 'What is cloud native security?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'Cloud native security secures containerized, distributed systems with identity-based controls, defense-in-depth, policy-as-code, runtime detection, and secure service communication.',
+        },
+      },
+      {
+        '@type': 'Question',
+        'name': 'Are the CodersSecret courses free?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'Yes. CodersSecret courses, modules, labs, diagrams, articles, and slide tutorials are free and ad-free.',
+        },
+      },
+      {
+        '@type': 'Question',
+        'name': 'Who writes CodersSecret?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'CodersSecret is written by Vishal Anand, a Senior Product Engineer and Tech Lead focused on backend architecture, DevOps, security, Kubernetes, Python, and system design.',
+        },
+      },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    'name': 'CodersSecret featured guides',
+    'itemListElement': topHomePosts.map((post, i) => ({
+      '@type': 'ListItem',
+      'position': i + 1,
+      'url': `${SITE_URL}/blog/${post.slug}`,
+      'name': post.title,
+    })),
+  },
+];
+
+fs.writeFileSync(path.join(OUTPUT_DIR, 'index.html'), makeHtml({
+  title: 'CodersSecret',
+  fullTitle: HOME_TITLE,
+  description: HOME_DESCRIPTION,
+  url: '/',
+  content: homeContent,
+  jsonLd: homeJsonLd,
+}));
+created++;
 
 // ── Blog list page (/blog) ────────────────────
 const blogListContent = `

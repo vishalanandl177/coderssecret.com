@@ -1051,6 +1051,7 @@ type CategoryInfo = { name: string; slug: string };
 })
 export class HomeComponent implements OnInit {
   private seo = inject(SeoService);
+  private readonly homeDescription = 'Free cloud native security courses and engineering guides on Kubernetes, SPIFFE/SPIRE, Zero Trust, DevSecOps, API security, labs, and diagrams.';
   featuredPost = signal<PostCard | undefined>(undefined);
   popularPosts = signal<PostCard[]>([]);
   latestPosts = signal<PostCard[]>([]);
@@ -1145,21 +1146,14 @@ export class HomeComponent implements OnInit {
   constructor() {
     this.seo.update({
       title: 'CodersSecret',
-      description: 'Learn cloud native security, Kubernetes security, workload identity, SPIFFE/SPIRE, Zero Trust, DevSecOps, API security, and production engineering through practical courses, labs, diagrams, and real-world architecture guides.',
+      description: this.homeDescription,
       url: '/',
+      jsonLd: this.faqSchema(),
     });
-    // Inject FAQPage JSON-LD schema for rich snippets in Google search
-    this.injectFaqSchema();
   }
 
-  private injectFaqSchema() {
-    if (typeof document === 'undefined') return;
-    const existing = document.getElementById('faq-schema');
-    if (existing) existing.remove();
-    const script = document.createElement('script');
-    script.id = 'faq-schema';
-    script.type = 'application/ld+json';
-    script.textContent = JSON.stringify({
+  private faqSchema(): Record<string, unknown> {
+    return {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
       'mainEntity': this.faqs.map(f => ({
@@ -1170,8 +1164,7 @@ export class HomeComponent implements OnInit {
           'text': f.a.replace(/<[^>]+>/g, ''),
         },
       })),
-    });
-    document.head.appendChild(script);
+    };
   }
 
   getCategoryColor(slug: string): string {

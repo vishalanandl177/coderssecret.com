@@ -29,7 +29,7 @@ export class SeoService {
 
   private readonly siteName = 'CodersSecret';
   private readonly siteUrl = 'https://coderssecret.com';
-  private readonly defaultDescription = 'Learn cloud native security, Kubernetes security, workload identity, SPIFFE/SPIRE, Zero Trust, DevSecOps, API security, and production engineering through practical courses, labs, diagrams, and real-world architecture guides.';
+  private readonly defaultDescription = 'Free cloud native security courses and engineering guides on Kubernetes, SPIFFE/SPIRE, Zero Trust, DevSecOps, API security, labs, and diagrams.';
   private readonly defaultImage = `${this.siteUrl}/og-image.svg`;
   private readonly defaultImageWidth = 1200;
   private readonly defaultImageHeight = 630;
