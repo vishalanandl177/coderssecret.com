@@ -260,6 +260,7 @@ interface CourseTheme {
 export class CoursesHubComponent {
   courses = COURSES;
   private seo = inject(SeoService);
+  private readonly coursesDescription = 'Free hands-on courses in cloud native security, distributed systems, SPIFFE/SPIRE, Kubernetes, Zero Trust, and production RAG. No signup.';
 
   totalModules = computed(() =>
     this.courses.reduce((sum, c) => sum + c.modules.length, 0)
@@ -353,13 +354,65 @@ export class CoursesHubComponent {
 
   constructor() {
     this.seo.update({
-      title: 'Free Engineering Courses — CodersSecret',
-      description: 'Free production-engineering courses on Distributed Systems, Cloud Native Security, SPIFFE/SPIRE workload identity, and Production RAG. Architecture-first, hands-on labs, ad-free, no signup.',
+      title: 'Free Production Engineering Courses',
+      description: this.coursesDescription,
       url: '/courses',
       breadcrumbs: [
         { name: 'Home', url: '/' },
         { name: 'Courses', url: '/courses' },
       ],
+      jsonLd: this.courseListSchema(),
     });
+  }
+
+  private courseListSchema(): Record<string, unknown> {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      'name': 'Free Production Engineering Courses',
+      'description': this.coursesDescription,
+      'numberOfItems': this.courses.length,
+      'itemListElement': this.courses.map((course, i) => ({
+        '@type': 'ListItem',
+        'position': i + 1,
+        'url': `https://coderssecret.com/courses/${course.slug}`,
+        'item': {
+          '@type': 'Course',
+          'name': course.title,
+          'description': course.excerpt,
+          'url': `https://coderssecret.com/courses/${course.slug}`,
+          'provider': {
+            '@type': 'Organization',
+            'name': 'CodersSecret',
+            'url': 'https://coderssecret.com',
+          },
+          'creator': {
+            '@type': 'Person',
+            'name': course.instructor.name,
+            'url': 'https://coderssecret.com/about',
+          },
+          'educationalLevel': course.level,
+          'teaches': course.tags,
+          'isAccessibleForFree': true,
+          'inLanguage': 'en',
+          'offers': {
+            '@type': 'Offer',
+            'price': 0,
+            'priceCurrency': 'USD',
+            'category': 'Free',
+            'availability': 'https://schema.org/InStock',
+          },
+          'hasCourseInstance': {
+            '@type': 'CourseInstance',
+            'courseMode': 'online',
+            'courseWorkload': course.totalDuration,
+            'instructor': {
+              '@type': 'Person',
+              'name': course.instructor.name,
+            },
+          },
+        },
+      })),
+    };
   }
 }

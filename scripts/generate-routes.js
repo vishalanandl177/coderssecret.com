@@ -144,6 +144,24 @@ function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+function loadCoursesFromModel(courseContent) {
+  try {
+    const ts = require('typescript');
+    const js = ts.transpileModule(courseContent, {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2020,
+      },
+    }).outputText;
+    const mod = { exports: {} };
+    new Function('exports', 'require', 'module', js)(mod.exports, require, mod);
+    return Array.isArray(mod.exports.COURSES) ? mod.exports.COURSES : [];
+  } catch (err) {
+    console.warn(`Could not load course model for rich course hub prerender: ${err.message}`);
+    return [];
+  }
+}
+
 let created = 0;
 
 // Home page (/)
@@ -561,17 +579,121 @@ const courseModelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'cour
 const courseContent = fs.existsSync(courseModelPath) ? fs.readFileSync(courseModelPath, 'utf-8') : '';
 
 if (courseContent) {
+  const courses = loadCoursesFromModel(courseContent);
+  const coursesHubTitle = 'Free Production Engineering Courses';
+  const coursesHubDescription = 'Free hands-on courses in cloud native security, distributed systems, SPIFFE/SPIRE, Kubernetes, Zero Trust, and production RAG. No signup.';
+
   // Course hub page
   const coursesHubDir = path.join(OUTPUT_DIR, 'courses');
   fs.mkdirSync(coursesHubDir, { recursive: true });
-  fs.writeFileSync(path.join(coursesHubDir, 'index.html'), makeHtml({
-    title: 'Free Engineering Courses — CodersSecret',
-    description: 'Production-focused engineering courses, completely free. Learn zero trust security, SPIFFE/SPIRE, Kubernetes identity, and cloud-native architecture with hands-on labs.',
-    url: '/courses',
-    content: `<h1>Free Engineering Courses</h1>
-      <p>Production-focused courses that transform you from tutorial reader to the engineer who secures, scales, and ships real infrastructure.</p>
+  const coursesHubContent = courses.length > 0
+    ? `<main>
+      <nav aria-label="Breadcrumb"><a href="/">Home</a> / Courses</nav>
+      <h1>Free Production Engineering Courses</h1>
+      <p>${coursesHubDescription}</p>
+      <p>Production-focused, architecture-first courses for engineers who secure, scale, and operate real infrastructure. Learn through modules, hands-on labs, diagrams, and concrete production trade-offs.</p>
       <h2>Available Courses</h2>
-      <ul><li><a href="/courses/mastering-spiffe-spire">Mastering SPIFFE & SPIRE: Zero Trust for Cloud Native Systems</a> — 13 modules, 30+ labs, 100% free</li></ul>`,
+      <ul>
+        ${courses.map(course => `<li>
+          <a href="/courses/${course.slug}">${escapeHtml(course.title)}</a>
+          <p>${escapeHtml(course.excerpt)}</p>
+          <p>${course.modules.length} modules · hands-on labs · ${escapeHtml(course.totalDuration)} · ${escapeHtml(course.level)} · 100% free</p>
+          <p>Topics: ${course.tags.slice(0, 8).map(escapeHtml).join(', ')}</p>
+        </li>`).join('\n        ')}
+      </ul>
+      <h2>Suggested Learning Paths</h2>
+      <ol>
+        <li><a href="/courses/distributed-systems-engineering">Distributed Systems Engineering</a> → <a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> → <a href="/courses/mastering-spiffe-spire">Mastering SPIFFE & SPIRE</a></li>
+        <li><a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> → <a href="/courses/mastering-spiffe-spire">Mastering SPIFFE & SPIRE</a> → <a href="/games/kubernetes-security-simulator">Kubernetes Security Simulator</a></li>
+        <li><a href="/courses/distributed-systems-engineering">Distributed Systems Engineering</a> → <a href="/courses/production-rag-systems-engineering">Production RAG Systems Engineering</a> → <a href="/games/ai-infrastructure-security">AI Infrastructure Security Game</a></li>
+      </ol>
+      <h2>Practice Beyond the Courses</h2>
+      <ul>
+        <li><a href="/games">Interactive security simulators</a> for Kubernetes, Zero Trust, API defense, incident response, supply-chain security, and AI infrastructure.</li>
+        <li><a href="/cheatsheets">Operational cheatsheets</a> for Kubernetes, Docker, Git, SQL, SPIFFE/SPIRE, OPA/Rego, API security, runtime security, service mesh, and DevSecOps.</li>
+        <li><a href="/blog">Engineering articles</a> on distributed systems, rate limiting, caching, scheduling, infrastructure, APIs, and production architecture.</li>
+      </ul>
+    </main>`
+    : `<h1>Free Production Engineering Courses</h1>
+      <p>${coursesHubDescription}</p>
+      <ul><li><a href="/courses/mastering-spiffe-spire">Mastering SPIFFE & SPIRE: Zero Trust for Cloud Native Systems</a></li></ul>`;
+
+  const coursesHubJsonLd = courses.length > 0 ? [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      'itemListElement': [
+        {
+          '@type': 'ListItem',
+          'position': 1,
+          'name': 'Home',
+          'item': SITE_URL,
+        },
+        {
+          '@type': 'ListItem',
+          'position': 2,
+          'name': 'Courses',
+          'item': `${SITE_URL}/courses`,
+        },
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      'name': coursesHubTitle,
+      'description': coursesHubDescription,
+      'numberOfItems': courses.length,
+      'itemListElement': courses.map((course, i) => ({
+        '@type': 'ListItem',
+        'position': i + 1,
+        'url': `${SITE_URL}/courses/${course.slug}`,
+        'item': {
+          '@type': 'Course',
+          'name': course.title,
+          'description': course.excerpt,
+          'url': `${SITE_URL}/courses/${course.slug}`,
+          'provider': {
+            '@type': 'Organization',
+            'name': 'CodersSecret',
+            'url': SITE_URL,
+          },
+          'creator': {
+            '@type': 'Person',
+            'name': course.instructor.name,
+            'url': `${SITE_URL}/about`,
+          },
+          'educationalLevel': course.level,
+          'teaches': course.tags,
+          'isAccessibleForFree': true,
+          'inLanguage': 'en',
+          'offers': {
+            '@type': 'Offer',
+            'price': 0,
+            'priceCurrency': 'USD',
+            'category': 'Free',
+            'availability': 'https://schema.org/InStock',
+          },
+          'hasCourseInstance': {
+            '@type': 'CourseInstance',
+            'courseMode': 'online',
+            'courseWorkload': course.totalDuration,
+            'instructor': {
+              '@type': 'Person',
+              'name': course.instructor.name,
+            },
+          },
+        },
+      })),
+    },
+  ] : undefined;
+
+  fs.writeFileSync(path.join(coursesHubDir, 'index.html'), makeHtml({
+    title: coursesHubTitle,
+    fullTitle: `${coursesHubTitle} | CodersSecret`,
+    description: coursesHubDescription,
+    url: '/courses',
+    content: coursesHubContent,
+    jsonLd: coursesHubJsonLd,
   }));
   created++;
 
