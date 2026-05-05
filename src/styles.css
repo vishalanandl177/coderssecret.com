@@ -145,9 +145,32 @@
     -webkit-line-clamp: 3;
   }
 
-  /* Optimize image rendering */
+  /* Reserve media geometry to keep image-heavy pages visually stable. */
   img {
-    content-visibility: auto;
+    display: block;
+    max-width: 100%;
+    height: auto;
+    vertical-align: middle;
+  }
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+  .giscus-container {
+    min-height: 14rem;
+  }
+
+  @media (pointer: coarse) {
+    button,
+    [role="button"],
+    input[type="button"],
+    input[type="submit"],
+    input[type="reset"] {
+      min-width: 44px;
+      min-height: 44px;
+      touch-action: manipulation;
+    }
   }
 
   /* Copy code button */

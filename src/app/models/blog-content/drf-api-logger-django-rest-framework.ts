@@ -1,7 +1,7 @@
 export const CONTENT = `
       <p>If you've ever found yourself digging through server logs trying to figure out why an API call failed, or wishing you had a dashboard showing your API's health at a glance, <strong>DRF API Logger</strong> is the tool you've been looking for. It's an open-source Django package that automatically logs every API request and response in your Django REST Framework project — with minimal setup and zero performance overhead.</p>
 
-      <p>The latest release (<strong>v1.2.0</strong>, April 2026) adds <strong>per-request API profiling</strong> with SQL query tracking, N+1 detection, and auto-diagnosis hints — making it the most complete API observability tool in the Django ecosystem.</p>
+      <p>The current PyPI release (<strong>v1.1.21</strong>, September 2025) keeps the project active with Python 3.13 classifiers, Apache 2.0 licensing, database logging, signal-based logging, sensitive-data masking, queue controls, and admin analytics.</p>
 
       <!-- DRF Logger Pipeline -->
       <div class="flow-diagram">
@@ -9,7 +9,7 @@ export const CONTENT = `
         <div class="pipeline">
           <div class="pipeline-step" style="background:#3b82f6;--i:0"><span class="pipeline-step-icon">&#x1F4E8;</span>Request<span class="pipeline-step-sub">Client sends API call</span></div>
           <div class="pipeline-arrow">&#x2192;</div>
-          <div class="pipeline-step" style="background:#7c3aed;--i:1"><span class="pipeline-step-icon">&#x1F50D;</span>Middleware<span class="pipeline-step-sub">Captures + profiles</span></div>
+          <div class="pipeline-step" style="background:#7c3aed;--i:1"><span class="pipeline-step-icon">&#x1F50D;</span>Middleware<span class="pipeline-step-sub">Captures + queues</span></div>
           <div class="pipeline-arrow">&#x2192;</div>
           <div class="pipeline-step" style="background:#22c55e;--i:2"><span class="pipeline-step-icon">&#x2699;</span>DRF View<span class="pipeline-step-sub">Processes normally</span></div>
           <div class="pipeline-arrow">&#x2192;</div>
@@ -29,7 +29,7 @@ export const CONTENT = `
               <div class="vs-row"><span class="vs-row-icon">&#x1F4CA;</span>Admin dashboard with charts</div>
               <div class="vs-row"><span class="vs-row-icon">&#x1F50E;</span>Search across request/response</div>
               <div class="vs-row"><span class="vs-row-icon">&#x1F4C5;</span>Filter by date, status, method</div>
-              <div class="vs-row"><span class="vs-row-icon">&#x26A1;</span>Slow API + N+1 query detection</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x26A1;</span>Slow API detection</div>
               <div class="vs-row"><span class="vs-row-icon">&#x1F4E5;</span>CSV export for offline analysis</div>
             </div>
           </div>
@@ -47,20 +47,19 @@ export const CONTENT = `
 
       <h2>What is DRF API Logger?</h2>
       <p>DRF API Logger is a middleware-based logging solution for Django REST Framework. Once installed, it silently captures detailed information about every API call — the URL, HTTP method, request headers, request body, response status code, response body, execution time, and client IP address. All of this happens in the background using a non-blocking queue, so your API response times remain completely unaffected.</p>
-      <p>The project has earned <strong>336+ stars</strong> on GitHub with <strong>25 releases</strong> and is actively maintained under the <strong>Apache 2.0 license</strong>. It supports Python 3.6+, Django 3.2+, and DRF 3.12+.</p>
+      <p>The project has hundreds of GitHub stars and a long release history, and the current PyPI package is published under the <strong>Apache 2.0 license</strong>. It supports modern Python and Django REST Framework projects, including Python 3.13 classifiers in the latest release.</p>
 
-      <h2>What's New in v1.2.0</h2>
-      <p>The latest release brings production-grade API profiling to every Django project:</p>
+      <h2>Current Stable Capabilities</h2>
+      <p>The stable package focuses on practical API observability for Django REST Framework projects:</p>
       <ul>
-        <li><strong>Per-request API Profiling:</strong> Break down latency into middleware time, view/serialization time, and SQL execution time for every request.</li>
-        <li><strong>SQL Query Tracking:</strong> See exactly how many SQL queries each request runs, with individual query timing.</li>
-        <li><strong>N+1 Query Detection:</strong> Automatically flags endpoints running excessive duplicate queries — the most common Django performance killer.</li>
-        <li><strong>Auto-diagnosis Hints:</strong> Get actionable suggestions like "Consider using select_related or prefetch_related" directly in the admin panel.</li>
+        <li><strong>Request and Response Logging:</strong> Capture API path, method, headers, body, status code, response body, execution time, and client IP.</li>
+        <li><strong>Database or Signal Logging:</strong> Store logs in Django models, emit signals to external systems, or use both paths together.</li>
+        <li><strong>Sensitive Data Masking:</strong> Hide passwords, tokens, and other configured keys before logs are persisted.</li>
+        <li><strong>Slow API Detection:</strong> Use the slow-API threshold to filter requests that exceed your latency budget.</li>
       </ul>
 
-      <pre><code># Enable API profiling in settings.py
-DRF_API_LOGGER_ENABLE_PROFILING = True
-DRF_API_LOGGER_PROFILING_SQL_TRACKING = True  # Optional: disable if overhead is a concern</code></pre>
+      <pre><code># Mark APIs slower than 200 ms as slow in the admin filters
+DRF_API_LOGGER_SLOW_API_ABOVE = 200</code></pre>
 
       <h2>Recent Release Highlights</h2>
       <ul>
@@ -93,17 +92,17 @@ DRF_API_LOGGER_PROFILING_SQL_TRACKING = True  # Optional: disable if overhead is
       <p>That's it. Every API call is now being logged automatically.</p>
 
       <h2>Two Ways to Log: Database &amp; Signals</h2>
-      <p><strong>Database Logging</strong> stores every API call in your Django database. It comes with a beautiful admin dashboard featuring charts, analytics, advanced search, filtering, slow API detection, SQL query counts, N+1 identification, and CSV export.</p>
+      <p><strong>Database Logging</strong> stores every API call in your Django database. It comes with an admin dashboard featuring charts, analytics, advanced search, filtering, slow API detection, and CSV export.</p>
       <p>Here's what the built-in analytics dashboard looks like:</p>
       <img src="/images/drf-api-logger/01-admin-dashboard.png" alt="DRF API Logger admin dashboard with API analytics charts" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
-      <p>The log listing view gives you a detailed table of every API call with status codes, methods, execution times, and profiling data:</p>
+      <p>The log listing view gives you a detailed table of every API call with status codes, methods, execution times, and request metadata:</p>
       <img src="/images/drf-api-logger/02-api-logs-list.png" alt="DRF API Logger list view showing API call logs with status codes, methods, and execution times" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
-      <p>Click into any log entry to see the full request, response, and performance profile. Here is a slow SQL query being flagged:</p>
+      <p>Click into any log entry to see the full request, response, and timing details. Here is a slow API request being flagged:</p>
       <img src="/images/drf-api-logger/03-api-log-detail-slow-sql.png" alt="DRF API Logger detail view showing slow SQL query detection with execution time breakdown" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
       <p>Sensitive data like passwords and tokens are automatically masked in the logs:</p>
       <img src="/images/drf-api-logger/04-api-log-detail-login-masked.png" alt="DRF API Logger detail view showing automatic masking of password and token fields" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
-      <p>N+1 query detection automatically identifies endpoints running excessive duplicate queries &mdash; the most common Django performance killer:</p>
-      <img src="/images/drf-api-logger/05-api-log-detail-n-plus-one.png" alt="DRF API Logger detecting N+1 query problem with auto-diagnosis hint" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
+      <p>Detailed request views make it easier to spot repeated slow endpoints, oversized payloads, and error patterns before users report them:</p>
+      <img src="/images/drf-api-logger/05-api-log-detail-n-plus-one.png" alt="DRF API Logger detail view showing API timing and diagnostic information" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
 
       <p><strong>Signal-Based Logging</strong> fires a custom Django signal for every API call, letting you build custom handlers — Elasticsearch, Datadog, Kafka, Slack alerts, flat files, anything.</p>
       <pre><code>from drf_api_logger import API_LOGGER_SIGNAL
@@ -123,10 +122,6 @@ API_LOGGER_SIGNAL.listen += ship_to_elk</code></pre>
       <pre><code># ── Core ──────────────────────────────
 DRF_API_LOGGER_DATABASE = True
 DRF_API_LOGGER_SIGNAL = True
-
-# ── Profiling (v1.2.0+) ─────────────
-DRF_API_LOGGER_ENABLE_PROFILING = True
-DRF_API_LOGGER_PROFILING_SQL_TRACKING = True
 
 # ── Performance Tuning ───────────────
 DRF_LOGGER_QUEUE_MAX_SIZE = 50
@@ -202,6 +197,6 @@ old_logs.delete()</code></pre>
       </ul>
 
       <h2>Why You Should Use It</h2>
-      <p>Whether you're debugging a tricky API issue in development, profiling SQL query counts per request, monitoring production health, exporting logs for compliance audits, or building an audit trail — DRF API Logger has you covered. It's lightweight, non-intrusive, and incredibly easy to set up. The combination of database logging with a built-in admin dashboard, per-request profiling, CSV export, and signal-based extensibility makes it the most complete API logging solution in the Django ecosystem.</p>
+      <p>Whether you're debugging a tricky API issue in development, monitoring production health, exporting logs for compliance audits, or building an audit trail — DRF API Logger has you covered. It's lightweight, non-intrusive, and easy to set up. The combination of database logging, built-in admin analytics, CSV export, and signal-based extensibility makes it a practical API logging option for Django REST Framework teams.</p>
       <p>Check out the project on <a href="https://github.com/vishalanandl177/DRF-API-Logger" target="_blank" rel="noopener noreferrer">GitHub</a> and give it a star if you find it useful!</p>
     `;

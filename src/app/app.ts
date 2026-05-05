@@ -1,7 +1,8 @@
-import { Component, signal, HostListener } from '@angular/core';
+import { Component, signal, HostListener, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './components/header/header';
 import { FooterComponent } from './components/footer/footer';
+import { AnalyticsService } from './services/analytics.service';
 
 @Component({
   selector: 'app-root',
@@ -23,7 +24,7 @@ import { FooterComponent } from './components/footer/footer';
     @if (showBackToTop()) {
       <button (click)="scrollToTop()"
               aria-label="Back to top"
-              class="fixed bottom-6 right-6 z-50 inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95 animate-in fade-in slide-in-from-bottom-4 duration-300">
+              class="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-50 inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95 animate-in fade-in slide-in-from-bottom-4 duration-300">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="m18 15-6-6-6 6"/>
@@ -37,8 +38,13 @@ import { FooterComponent } from './components/footer/footer';
     }
   `,
 })
-export class App {
+export class App implements OnInit {
+  private analytics = inject(AnalyticsService);
   showBackToTop = signal(false);
+
+  ngOnInit() {
+    this.analytics.monitorCoreWebVitals();
+  }
 
   @HostListener('window:scroll')
   onScroll() {

@@ -23,57 +23,9 @@ const OUTPUT_DIR = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'brows
 const modelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'blog-post.model.ts');
 const modelContent = fs.readFileSync(modelPath, 'utf-8');
 
-// Extract post data — handle titles with escaped quotes
-const posts = [];
-const lines = modelContent.split('\n');
-let currentPost = {};
-
-for (let i = 0; i < lines.length; i++) {
-  const line = lines[i].trim();
-
-  const idMatch = line.match(/^id:\s*'(\d+)'/);
-  if (idMatch) {
-    currentPost = { id: idMatch[1] };
-    continue;
-  }
-
-  if (currentPost.id) {
-    const titleMatch = line.match(/^title:\s*'(.+)',?\s*$/);
-    if (titleMatch) {
-      currentPost.title = titleMatch[1].replace(/\\'/g, "'");
-      continue;
-    }
-
-    const slugMatch = line.match(/^slug:\s*'([^']+)'/);
-    if (slugMatch) {
-      currentPost.slug = slugMatch[1];
-      continue;
-    }
-
-    const excerptMatch = line.match(/^excerpt:\s*'(.+)',?\s*$/);
-    if (excerptMatch) {
-      currentPost.excerpt = excerptMatch[1].replace(/\\'/g, "'");
-      continue;
-    }
-
-    const catMatch = line.match(/^category:\s*'([^']+)'/);
-    if (catMatch && !currentPost.category) {
-      currentPost.category = catMatch[1];
-    }
-
-    if (currentPost.id && currentPost.title && currentPost.slug && currentPost.excerpt) {
-      posts.push({ ...currentPost });
-      currentPost = {};
-    }
-  }
-}
-
-// Extract categories
-const categoryRegex = /category:\s*'([^']+)'/g;
-const categories = new Set();
-while ((m = categoryRegex.exec(modelContent)) !== null) {
-  categories.add(m[1]);
-}
+// Load post metadata through TypeScript so dates, authors, and tags stay intact.
+const posts = loadBlogPostsFromModel(modelContent);
+const categories = new Set(posts.map(post => post.category).filter(Boolean));
 
 // Category display names
 const categoryNames = {
@@ -92,12 +44,12 @@ const HOME_DESCRIPTION = 'Free cloud native security courses and engineering gui
 const baseHtml = fs.readFileSync(path.join(OUTPUT_DIR, 'index.html'), 'utf-8');
 
 function makeHtml(options) {
-  const { title, description, url, content, jsonLd, image, fullTitle: explicitFullTitle } = options;
+  const { title, description, url, content, jsonLd, image, fullTitle: explicitFullTitle, ogType = 'website', extraHead = '' } = options;
   const fullTitle = explicitFullTitle || `${title} | CodersSecret`;
   const canonical = `${SITE_URL}${url}`;
   const ogImage = image ? `${SITE_URL}${image}` : `${SITE_URL}/og-image.svg`;
   const safeTitle = escapeHtml(fullTitle);
-  const safeDescription = escapeHtml(description);
+  const safeDescription = escapeHtml(clampText(description, 160));
 
   let html = baseHtml;
 
@@ -120,7 +72,7 @@ function makeHtml(options) {
     `  <meta property="og:title" content="${safeTitle}">\n` +
     `  <meta property="og:description" content="${safeDescription}">\n` +
     `  <meta property="og:url" content="${canonical}">\n` +
-    `  <meta property="og:type" content="website">\n` +
+    `  <meta property="og:type" content="${escapeHtml(ogType)}">\n` +
     `  <meta property="og:image" content="${ogImage}">\n` +
     `  <meta property="og:image:width" content="1200">\n` +
     `  <meta property="og:image:height" content="630">\n` +
@@ -129,6 +81,7 @@ function makeHtml(options) {
     `  <meta name="twitter:description" content="${safeDescription}">\n` +
     `  <meta name="twitter:image" content="${ogImage}">\n` +
     `  <link rel="alternate" hreflang="en" href="${canonical}">\n` +
+    extraHead +
     (jsonLd ? `  <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>\n` : '') +
     '</head>'
   );
@@ -144,6 +97,24 @@ function makeHtml(options) {
 
 function escapeHtml(str) {
   return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function loadBlogPostsFromModel(blogContent) {
+  try {
+    const ts = require('typescript');
+    const js = ts.transpileModule(blogContent, {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2020,
+      },
+    }).outputText;
+    const mod = { exports: {} };
+    new Function('exports', 'require', 'module', js)(mod.exports, require, mod);
+    return Array.isArray(mod.exports.BLOG_POSTS) ? mod.exports.BLOG_POSTS : [];
+  } catch (err) {
+    console.warn(`Could not load blog model for rich blog prerender: ${err.message}`);
+    return [];
+  }
 }
 
 function loadCoursesFromModel(courseContent) {
@@ -186,6 +157,102 @@ function clampText(text, maxLength = 155) {
   const lastBreak = Math.max(clipped.lastIndexOf('.'), clipped.lastIndexOf(','), clipped.lastIndexOf(' '));
   return `${clipped.slice(0, lastBreak > 80 ? lastBreak : clipped.length).trim()}...`;
 }
+
+function wordCountFor(html) {
+  const text = stripHtml(html);
+  return text ? text.split(/\s+/).length : 0;
+}
+
+function isoDurationFromReadTime(readTime) {
+  const minutes = Number(String(readTime ?? '').match(/\d+/)?.[0] ?? 0);
+  return minutes > 0 ? `PT${minutes}M` : undefined;
+}
+
+function blogSeoTitle(post) {
+  return compactSeoTitle(post.title, 55);
+}
+
+function compactSeoTitle(title, maxLength) {
+  const normalized = stripHtml(title);
+  if (normalized.length <= maxLength) return normalized;
+
+  const separators = [': ', ' - ', ' | '];
+  for (const separator of separators) {
+    const parts = normalized.split(separator);
+    if (parts.length < 2) continue;
+
+    let candidate = parts[0];
+    for (let i = 1; i < parts.length; i++) {
+      const next = `${candidate}${separator}${parts[i]}`;
+      if (next.length > maxLength) break;
+      candidate = next;
+    }
+
+    if (candidate.length >= 28) return candidate;
+    const guided = `${candidate} Guide`;
+    return guided.length <= maxLength ? guided : candidate;
+  }
+
+  return trimAtWord(normalized, maxLength);
+}
+
+function trimAtWord(text, maxLength) {
+  const clipped = text.slice(0, maxLength);
+  const lastSpace = clipped.lastIndexOf(' ');
+  return clipped.slice(0, lastSpace > 30 ? lastSpace : clipped.length).trim();
+}
+
+function loadBlogPostContent(slug) {
+  const contentPath = path.join(__dirname, '..', 'src', 'app', 'models', 'blog-content', `${slug}.ts`);
+  if (!fs.existsSync(contentPath)) return '';
+
+  try {
+    const ts = require('typescript');
+    const js = ts.transpileModule(fs.readFileSync(contentPath, 'utf-8'), {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2020,
+      },
+    }).outputText;
+    const mod = { exports: {} };
+    new Function('exports', 'require', 'module', js)(mod.exports, require, mod);
+    return typeof mod.exports.CONTENT === 'string' ? enrichBlogHtml(mod.exports.CONTENT) : '';
+  } catch (err) {
+    console.warn(`Could not load blog content for ${slug}: ${err.message}`);
+    return '';
+  }
+}
+
+function enrichBlogHtml(html) {
+  return String(html ?? '').replace(/<img\b[^>]*>/gi, tag => {
+    const src = tag.match(/\bsrc=["']([^"']+)["']/i)?.[1];
+    const dimensions = knownImageDimensions[src];
+    let next = tag;
+
+    if (dimensions) {
+      next = addHtmlAttribute(next, 'width', dimensions.width);
+      next = addHtmlAttribute(next, 'height', dimensions.height);
+    }
+
+    next = addHtmlAttribute(next, 'loading', 'lazy');
+    next = addHtmlAttribute(next, 'decoding', 'async');
+    return next;
+  });
+}
+
+function addHtmlAttribute(tag, name, value) {
+  if (new RegExp(`\\s${name}=`, 'i').test(tag)) return tag;
+  return tag.replace(/\s*\/?>$/, ending => ` ${name}="${escapeHtml(value)}"${ending}`);
+}
+
+const knownImageDimensions = {
+  '/images/drf-api-logger/01-admin-dashboard.png': { width: 2880, height: 1800 },
+  '/images/drf-api-logger/02-api-logs-list.png': { width: 2880, height: 4478 },
+  '/images/drf-api-logger/03-api-log-detail-slow-sql.png': { width: 2880, height: 3180 },
+  '/images/drf-api-logger/04-api-log-detail-login-masked.png': { width: 2880, height: 3182 },
+  '/images/drf-api-logger/05-api-log-detail-n-plus-one.png': { width: 2880, height: 3316 },
+  '/images/drf-api-logger/06-api-log-detail-echo-masked.png': { width: 2880, height: 2344 },
+};
 
 function totalLabsFor(course) {
   return course.modules.reduce((sum, mod) => sum + mod.labs.length, 0);
@@ -674,18 +741,25 @@ for (const post of posts) {
 
   // Find related posts by category/tags
   const related = posts
-    .filter(p => p.slug !== post.slug && (p.category === post.category))
+    .filter(p => p.slug !== post.slug && (p.category === post.category || (p.tags || []).some(tag => (post.tags || []).includes(tag))))
     .slice(0, 3);
   const tags = post.tags || [];
+  const articleHtml = loadBlogPostContent(post.slug);
+  const articleBody = articleHtml
+    ? `<div class="article-body">${articleHtml}</div>`
+    : `<p>${escapeHtml(post.excerpt)}</p>`;
+  const articleWordCount = wordCountFor(articleHtml || post.excerpt);
+  const authorName = post.author || 'Vishal Anand';
+  const seoTitle = blogSeoTitle(post);
 
   const content = `
     <article>
       <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/blog">Blog</a> / ${escapeHtml(post.title)}</nav>
       <h1>${escapeHtml(post.title)}</h1>
-      <p>By Coder Secret | ${post.date || ''} | Category: ${post.category || ''}</p>
+      <p>By ${escapeHtml(authorName)} | ${post.date || ''} | Category: ${escapeHtml(categoryNames[post.category] || post.category || '')} | ${escapeHtml(post.readTime || '')}</p>
       <p>${escapeHtml(post.excerpt)}</p>
+      ${articleBody}
       ${tags.length > 0 ? '<p>Tags: ' + tags.map(t => `<a href="/blog?tag=${encodeURIComponent(t)}">${escapeHtml(t)}</a>`).join(', ') + '</p>' : ''}
-      <p>Read the full article on <a href="/blog/${post.slug}">CodersSecret</a>.</p>
       ${related.length > 0 ? '<h2>Related Articles</h2><ul>' + related.map(r => `<li><a href="/blog/${r.slug}">${escapeHtml(r.title)}</a></li>`).join('') + '</ul>' : ''}
     </article>
   `;
@@ -698,9 +772,10 @@ for (const post of posts) {
     'description': post.excerpt,
     'url': `${SITE_URL}/blog/${post.slug}`,
     'datePublished': post.date || '',
+    'dateModified': post.date || '',
     'author': {
       '@type': 'Person',
-      'name': 'Vishal Anand',
+      'name': authorName,
       'url': `${SITE_URL}/about`,
     },
     'publisher': {
@@ -714,18 +789,37 @@ for (const post of posts) {
     },
     'keywords': (post.tags || []).join(', '),
     'articleSection': post.category || '',
+    'wordCount': articleWordCount,
   };
+  const timeRequired = isoDurationFromReadTime(post.readTime);
+  if (timeRequired) blogJsonLd.timeRequired = timeRequired;
 
   const bannerUrl = `/images/banners/${post.slug}.svg`;
   blogJsonLd.image = `${SITE_URL}${bannerUrl}`;
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+      { '@type': 'ListItem', 'position': 2, 'name': 'Blog', 'item': `${SITE_URL}/blog` },
+      { '@type': 'ListItem', 'position': 3, 'name': post.title, 'item': `${SITE_URL}/blog/${post.slug}` },
+    ],
+  };
 
   fs.writeFileSync(path.join(dir, 'index.html'), makeHtml({
-    title: post.title,
+    title: seoTitle,
     description: post.excerpt,
     url: `/blog/${post.slug}`,
     content,
-    jsonLd: blogJsonLd,
+    jsonLd: [blogJsonLd, breadcrumbJsonLd],
     image: bannerUrl,
+    ogType: 'article',
+    extraHead: [
+      post.date ? `  <meta property="article:published_time" content="${escapeHtml(post.date)}">\n` : '',
+      post.date ? `  <meta property="article:modified_time" content="${escapeHtml(post.date)}">\n` : '',
+      post.category ? `  <meta property="article:section" content="${escapeHtml(post.category)}">\n` : '',
+      ...tags.map(tag => `  <meta property="article:tag" content="${escapeHtml(tag)}">\n`),
+    ].join(''),
   }));
   created++;
 }

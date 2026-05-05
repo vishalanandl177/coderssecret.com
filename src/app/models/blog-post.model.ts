@@ -1168,9 +1168,9 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     id: '4',
-    title: 'DRF API Logger: Effortless API Logging for Django REST Framework',
+    title: 'DRF API Logger for Django REST Framework',
     slug: 'drf-api-logger-django-rest-framework',
-    excerpt: 'Discover how DRF API Logger makes it dead simple to capture, monitor, and profile every API call in your Django REST Framework application — with per-request latency breakdowns, N+1 query detection, CSV export, GZIP support, and zero impact on response times.',
+    excerpt: 'Learn how to install DRF API Logger in Django REST Framework, capture request and response logs, mask sensitive fields, export CSVs, and monitor API latency.',
     category: 'open-source',
     content: '',
     author: 'Vishal Anand',

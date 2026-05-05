@@ -79,7 +79,7 @@ import { DOCUMENT } from '@angular/common';
                   </button>
                 }
                 <a [routerLink]="'/slides/' + post.slug"
-                   class="inline-flex items-center gap-1.5 rounded-full border border-green-500/40 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 transition-all duration-200 hover:bg-green-500/20 hover:border-green-500/60 cursor-pointer">
+                   class="inline-flex min-h-[44px] touch-manipulation items-center gap-1.5 rounded-full border border-green-500/40 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 transition-all duration-200 hover:bg-green-500/20 hover:border-green-500/60 cursor-pointer">
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
                   Watch as Slides
                 </a>
@@ -186,18 +186,18 @@ import { DOCUMENT } from '@angular/common';
           <div class="flex gap-2">
             <a [href]="'https://twitter.com/intent/tweet?text=' + encodeURIComponent(post.title) + '&url=' + encodeURIComponent('https://coderssecret.com/blog/' + post.slug)"
                target="_blank" rel="noopener noreferrer"
-               class="inline-flex items-center justify-center h-9 w-9 rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-all duration-300 hover:bg-accent hover:text-foreground hover:border-accent"
+               class="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-all duration-300 hover:bg-accent hover:text-foreground hover:border-accent"
                aria-label="Share on X (Twitter)">
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             </a>
             <a [href]="'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent('https://coderssecret.com/blog/' + post.slug)"
                target="_blank" rel="noopener noreferrer"
-               class="inline-flex items-center justify-center h-9 w-9 rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-all duration-300 hover:bg-accent hover:text-foreground hover:border-accent"
+               class="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-all duration-300 hover:bg-accent hover:text-foreground hover:border-accent"
                aria-label="Share on LinkedIn">
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
             </a>
             <button (click)="copyLink()"
-                    class="inline-flex items-center justify-center h-9 w-9 rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-all duration-300 hover:bg-accent hover:text-foreground hover:border-accent"
+                    class="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-all duration-300 hover:bg-accent hover:text-foreground hover:border-accent"
                     [attr.aria-label]="linkCopied() ? 'Link copied!' : 'Copy link'">
               @if (linkCopied()) {
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -221,7 +221,7 @@ import { DOCUMENT } from '@angular/common';
               <p class="text-sm text-muted-foreground">Get private, 1-on-1 help with system design, performance, scaling, or any technical challenge.</p>
             </div>
             <a routerLink="/consultation"
-               class="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-xl hover:-translate-y-0.5 transition-all flex-shrink-0">
+               class="inline-flex min-h-[44px] touch-manipulation items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-xl hover:-translate-y-0.5 transition-all flex-shrink-0">
               Book a Session
             </a>
           </div>
@@ -364,7 +364,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
             this.toc.push({ id: `heading-${tocIndex++}`, text });
           }
           this.seo.update({
-            title: this.post.title,
+            title: this.getSeoTitle(this.post.title),
             description: this.post.excerpt,
             url: `/blog/${this.post.slug}`,
             type: 'article',
@@ -445,6 +445,11 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
       if (images.length > 0) {
         this.imagesProcessed = true;
         images.forEach((img: HTMLImageElement) => {
+          const knownSize = this.getKnownImageSize(img.getAttribute('src') ?? '');
+          if (knownSize && !img.hasAttribute('width') && !img.hasAttribute('height')) {
+            img.setAttribute('width', String(knownSize.width));
+            img.setAttribute('height', String(knownSize.height));
+          }
           img.setAttribute('loading', 'lazy');
           img.setAttribute('decoding', 'async');
         });
@@ -604,5 +609,51 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   getCategoryName(slug: string): string {
     const cat = CATEGORIES.find(c => c.slug === slug);
     return cat?.name ?? slug;
+  }
+
+  private getSeoTitle(title: string): string {
+    return this.compactSeoTitle(title, 55);
+  }
+
+  private compactSeoTitle(title: string, maxLength: number): string {
+    const normalized = title.replace(/\s+/g, ' ').trim();
+    if (normalized.length <= maxLength) return normalized;
+
+    const separators = [': ', ' - ', ' | '];
+    for (const separator of separators) {
+      const parts = normalized.split(separator);
+      if (parts.length < 2) continue;
+
+      let candidate = parts[0];
+      for (let i = 1; i < parts.length; i++) {
+        const next = `${candidate}${separator}${parts[i]}`;
+        if (next.length > maxLength) break;
+        candidate = next;
+      }
+
+      if (candidate.length >= 28) return candidate;
+      const guided = `${candidate} Guide`;
+      return guided.length <= maxLength ? guided : candidate;
+    }
+
+    return this.trimAtWord(normalized, maxLength);
+  }
+
+  private trimAtWord(text: string, maxLength: number): string {
+    const clipped = text.slice(0, maxLength);
+    const lastSpace = clipped.lastIndexOf(' ');
+    return clipped.slice(0, lastSpace > 30 ? lastSpace : clipped.length).trim();
+  }
+
+  private getKnownImageSize(src: string): { width: number; height: number } | undefined {
+    const sizes: Record<string, { width: number; height: number }> = {
+      '/images/drf-api-logger/01-admin-dashboard.png': { width: 2880, height: 1800 },
+      '/images/drf-api-logger/02-api-logs-list.png': { width: 2880, height: 4478 },
+      '/images/drf-api-logger/03-api-log-detail-slow-sql.png': { width: 2880, height: 3180 },
+      '/images/drf-api-logger/04-api-log-detail-login-masked.png': { width: 2880, height: 3182 },
+      '/images/drf-api-logger/05-api-log-detail-n-plus-one.png': { width: 2880, height: 3316 },
+      '/images/drf-api-logger/06-api-log-detail-echo-masked.png': { width: 2880, height: 2344 },
+    };
+    return sizes[src];
   }
 }
