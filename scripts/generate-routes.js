@@ -96,35 +96,37 @@ function makeHtml(options) {
   const fullTitle = explicitFullTitle || `${title} | CodersSecret`;
   const canonical = `${SITE_URL}${url}`;
   const ogImage = image ? `${SITE_URL}${image}` : `${SITE_URL}/og-image.svg`;
+  const safeTitle = escapeHtml(fullTitle);
+  const safeDescription = escapeHtml(description);
 
   let html = baseHtml;
 
   // Replace <title>
   html = html.replace(
     /<title>[^<]*<\/title>/,
-    `<title>${fullTitle}</title>`
+    `<title>${safeTitle}</title>`
   );
 
   // Replace meta description
   html = html.replace(
     /<meta name="description" content="[^"]*">/,
-    `<meta name="description" content="${description}">`
+    `<meta name="description" content="${safeDescription}">`
   );
 
   // Add canonical link before </head>
   html = html.replace(
     '</head>',
     `  <link rel="canonical" href="${canonical}">\n` +
-    `  <meta property="og:title" content="${fullTitle}">\n` +
-    `  <meta property="og:description" content="${description}">\n` +
+    `  <meta property="og:title" content="${safeTitle}">\n` +
+    `  <meta property="og:description" content="${safeDescription}">\n` +
     `  <meta property="og:url" content="${canonical}">\n` +
     `  <meta property="og:type" content="website">\n` +
     `  <meta property="og:image" content="${ogImage}">\n` +
     `  <meta property="og:image:width" content="1200">\n` +
     `  <meta property="og:image:height" content="630">\n` +
     `  <meta name="twitter:card" content="summary_large_image">\n` +
-    `  <meta name="twitter:title" content="${fullTitle}">\n` +
-    `  <meta name="twitter:description" content="${description}">\n` +
+    `  <meta name="twitter:title" content="${safeTitle}">\n` +
+    `  <meta name="twitter:description" content="${safeDescription}">\n` +
     `  <meta name="twitter:image" content="${ogImage}">\n` +
     `  <link rel="alternate" hreflang="en" href="${canonical}">\n` +
     (jsonLd ? `  <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>\n` : '') +
@@ -141,7 +143,7 @@ function makeHtml(options) {
 }
 
 function escapeHtml(str) {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function loadCoursesFromModel(courseContent) {
@@ -160,6 +162,364 @@ function loadCoursesFromModel(courseContent) {
     console.warn(`Could not load course model for rich course hub prerender: ${err.message}`);
     return [];
   }
+}
+
+function stripHtml(html) {
+  return String(html ?? '')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&mdash;/g, '-')
+    .replace(/&ndash;/g, '-')
+    .replace(/&rarr;/g, '->')
+    .replace(/&larr;/g, '<-')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function clampText(text, maxLength = 155) {
+  const normalized = stripHtml(text);
+  if (normalized.length <= maxLength) return normalized;
+  const clipped = normalized.slice(0, maxLength - 1);
+  const lastBreak = Math.max(clipped.lastIndexOf('.'), clipped.lastIndexOf(','), clipped.lastIndexOf(' '));
+  return `${clipped.slice(0, lastBreak > 80 ? lastBreak : clipped.length).trim()}...`;
+}
+
+function totalLabsFor(course) {
+  return course.modules.reduce((sum, mod) => sum + mod.labs.length, 0);
+}
+
+function courseImagePath(course) {
+  return `/images/banners/course-${course.slug}.svg`;
+}
+
+function courseSeoTitle(course) {
+  if (course.slug === 'mastering-spiffe-spire') {
+    return 'Mastering SPIFFE & SPIRE: Zero Trust Course';
+  }
+  return `${course.title} - Free Course`;
+}
+
+function courseSeoDescription(course) {
+  const labCount = totalLabsFor(course);
+  if (course.slug === 'mastering-spiffe-spire') {
+    return `Free ${course.modules.length}-module SPIFFE/SPIRE course: deploy SPIRE on Kubernetes, issue SVIDs, configure mTLS, enforce OPA, federate clusters, and run ${labCount}+ labs.`;
+  }
+  return clampText(`${course.excerpt} ${course.modules.length} modules, ${labCount}+ hands-on labs, free.`);
+}
+
+function moduleSeoTitle(course, mod) {
+  if (course.slug === 'mastering-spiffe-spire') {
+    return `Module ${mod.number}: ${spiffeModuleShortTitle(mod)} | SPIFFE`;
+  }
+  return `Module ${mod.number}: ${mod.title} | ${course.title}`;
+}
+
+function spiffeModuleShortTitle(mod) {
+  const titles = {
+    1: 'Zero Trust Security',
+    2: 'PKI Foundations',
+    3: 'SPIFFE Fundamentals',
+    4: 'SPIRE Architecture',
+    5: 'SPIRE on Kubernetes',
+    6: 'SVIDs & Workload API',
+    7: 'Authorization & OPA',
+    8: 'Service Mesh Integrations',
+    9: 'Advanced SPIRE Architecture',
+    10: 'SPIRE Operations',
+    11: 'SPIFFE/SPIRE Ecosystem',
+    12: 'Zero Trust Platform Capstone',
+    13: 'SPIFFE for AI Infrastructure',
+  };
+  return titles[mod.number] || mod.title;
+}
+
+function moduleSeoDescription(course, mod) {
+  const labLabel = mod.labs.length === 1 ? 'lab' : 'labs';
+  const courseName = course.slug === 'mastering-spiffe-spire' ? 'SPIFFE/SPIRE' : course.title;
+  return clampText(`Module ${mod.number} of the free ${courseName} course: ${mod.subtitle}. ${mod.labs.length} hands-on ${labLabel}.`, 160);
+}
+
+function courseBreadcrumbJsonLd(course, extraCrumbs = []) {
+  const crumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Courses', url: '/courses' },
+    { name: course.title, url: `/courses/${course.slug}` },
+    ...extraCrumbs,
+  ];
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': crumbs.map((crumb, i) => ({
+      '@type': 'ListItem',
+      'position': i + 1,
+      'name': crumb.name,
+      'item': `${SITE_URL}${crumb.url}`,
+    })),
+  };
+}
+
+function courseJsonLd(course) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    'name': course.title,
+    'description': courseSeoDescription(course),
+    'url': `${SITE_URL}/courses/${course.slug}`,
+    'image': `${SITE_URL}${courseImagePath(course)}`,
+    'provider': {
+      '@type': 'Organization',
+      'name': 'CodersSecret',
+      'sameAs': SITE_URL,
+    },
+    'instructor': {
+      '@type': 'Person',
+      'name': course.instructor.name,
+      'url': course.instructor.github,
+    },
+    'offers': {
+      '@type': 'Offer',
+      'price': 0,
+      'priceCurrency': 'USD',
+      'availability': 'https://schema.org/InStock',
+      'category': 'Free',
+    },
+    'hasCourseInstance': {
+      '@type': 'CourseInstance',
+      'courseMode': 'online',
+      'courseWorkload': course.totalDuration,
+      'instructor': {
+        '@type': 'Person',
+        'name': course.instructor.name,
+      },
+    },
+    'educationalLevel': course.level,
+    'teaches': course.tags,
+    'numberOfCredits': course.modules.length,
+    'isAccessibleForFree': true,
+    'inLanguage': 'en',
+    'hasPart': course.modules.map(mod => ({
+      '@type': 'LearningResource',
+      'name': `Module ${mod.number}: ${mod.title}`,
+      'url': `${SITE_URL}/courses/${course.slug}/${mod.slug}`,
+      'description': moduleSeoDescription(course, mod),
+      'position': mod.number,
+      'isAccessibleForFree': true,
+    })),
+  };
+}
+
+function courseModuleItemListJsonLd(course) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    'name': `${course.title} curriculum`,
+    'itemListElement': course.modules.map(mod => ({
+      '@type': 'ListItem',
+      'position': mod.number,
+      'url': `${SITE_URL}/courses/${course.slug}/${mod.slug}`,
+      'name': `Module ${mod.number}: ${mod.title}`,
+    })),
+  };
+}
+
+function moduleJsonLd(course, mod) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'LearningResource',
+    'name': `Module ${mod.number}: ${mod.title}`,
+    'description': moduleSeoDescription(course, mod),
+    'url': `${SITE_URL}/courses/${course.slug}/${mod.slug}`,
+    'learningResourceType': 'Course module',
+    'isAccessibleForFree': true,
+    'inLanguage': 'en',
+    'position': mod.number,
+    'timeRequired': mod.duration,
+    'teaches': mod.objectives,
+    'about': course.tags,
+    'provider': {
+      '@type': 'Organization',
+      'name': 'CodersSecret',
+      'url': SITE_URL,
+    },
+    'creator': {
+      '@type': 'Person',
+      'name': course.instructor.name,
+      'url': course.instructor.github,
+    },
+    'isPartOf': {
+      '@type': 'Course',
+      'name': course.title,
+      'url': `${SITE_URL}/courses/${course.slug}`,
+    },
+  };
+}
+
+function renderList(items) {
+  return items && items.length > 0
+    ? `<ul>${items.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
+    : '';
+}
+
+function renderOptionalList(title, items) {
+  return items && items.length > 0
+    ? `<section><h2>${escapeHtml(title)}</h2>${renderList(items)}</section>`
+    : '';
+}
+
+function renderCourseLandingContent(course) {
+  const labCount = totalLabsFor(course);
+  const curriculum = course.modules.map(mod => `<li>
+    <a href="/courses/${course.slug}/${mod.slug}">Module ${mod.number}: ${escapeHtml(mod.title)}</a>
+    <p>${escapeHtml(mod.subtitle)} ${escapeHtml(mod.duration)}. ${mod.labs.length} hands-on ${mod.labs.length === 1 ? 'lab' : 'labs'}.</p>
+    ${renderList(mod.objectives)}
+  </li>`).join('\n');
+  const faq = course.faqs && course.faqs.length > 0
+    ? `<section><h2>Frequently Asked Questions</h2>${course.faqs.map(item => `<h3>${escapeHtml(item.question)}</h3><p>${escapeHtml(item.answer)}</p>`).join('\n')}</section>`
+    : '';
+
+  return `<main>
+    <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/courses">Courses</a> / ${escapeHtml(course.title)}</nav>
+    <h1>${escapeHtml(course.title)}</h1>
+    <p>${escapeHtml(courseSeoDescription(course))}</p>
+    <section>
+      <h2>What You Will Learn</h2>
+      <p>${escapeHtml(course.description)}</p>
+      <p>${course.modules.length} modules, ${labCount}+ hands-on labs, ${escapeHtml(course.totalDuration)}, ${escapeHtml(course.level)}, 100% free.</p>
+      ${renderList(course.targetAudience)}
+    </section>
+    <section>
+      <h2>Full Curriculum</h2>
+      <ol>${curriculum}</ol>
+    </section>
+    <section>
+      <h2>Course Topics</h2>
+      <p>${course.tags.map(escapeHtml).join(', ')}</p>
+    </section>
+    <section>
+      <h2>Instructor</h2>
+      <h3>${escapeHtml(course.instructor.name)}</h3>
+      <p>${escapeHtml(course.instructor.title)}</p>
+      <p>${escapeHtml(course.instructor.bio)}</p>
+      ${renderList(course.instructor.achievements)}
+    </section>
+    ${faq}
+  </main>`;
+}
+
+function renderLabs(course, mod) {
+  if (!mod.labs || mod.labs.length === 0) return '';
+  return `<section>
+    <h2>Hands-On Labs</h2>
+    <ol>${mod.labs.map(lab => `<li>
+      <h3>${escapeHtml(lab.title)}</h3>
+      <p>${escapeHtml(lab.objective)}</p>
+      <p>${[lab.duration, lab.difficulty].filter(Boolean).map(escapeHtml).join(' - ')}</p>
+      ${renderList(lab.steps)}
+      <p><a href="https://github.com/vishalanandl177/${course.slug}/tree/main/${escapeHtml(lab.repoPath)}">View lab files on GitHub</a></p>
+    </li>`).join('\n')}</ol>
+  </section>`;
+}
+
+function renderTradeoffs(tradeoffs) {
+  if (!tradeoffs || tradeoffs.length === 0) return '';
+  return `<section>
+    <h2>Design Tradeoffs</h2>
+    ${tradeoffs.map(trade => `<h3>${escapeHtml(trade.option)}</h3><h4>Pros</h4>${renderList(trade.pros)}<h4>Cons</h4>${renderList(trade.cons)}`).join('\n')}
+  </section>`;
+}
+
+function renderGlossary(glossary) {
+  if (!glossary || glossary.length === 0) return '';
+  return `<section>
+    <h2>Key Terms</h2>
+    <dl>${glossary.map(item => `<dt>${escapeHtml(item.term)}</dt><dd>${escapeHtml(item.definition)}</dd>`).join('\n')}</dl>
+  </section>`;
+}
+
+function renderModuleContent(course, mod) {
+  const prev = course.modules.find(item => item.number === mod.number - 1);
+  const next = course.modules.find(item => item.number === mod.number + 1);
+  const content = String(mod.content || '').replace(/<h1[\s\S]*?<\/h1>/gi, '');
+  const diagram = mod.svgDiagram
+    ? `<figure>${mod.svgDiagram}<figcaption>Architecture diagram for Module ${mod.number}: ${escapeHtml(mod.title)}.</figcaption></figure>`
+    : '';
+  const navigationLinks = [
+    prev ? `<a href="/courses/${course.slug}/${prev.slug}">Previous module: ${escapeHtml(prev.title)}</a>` : '',
+    `<a href="/courses/${course.slug}">Back to full curriculum</a>`,
+    next ? `<a href="/courses/${course.slug}/${next.slug}">Next module: ${escapeHtml(next.title)}</a>` : '',
+  ].filter(Boolean).join(' | ');
+
+  return `<main>
+    <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/courses">Courses</a> / <a href="/courses/${course.slug}">${escapeHtml(course.title)}</a> / Module ${mod.number}</nav>
+    <article>
+      <h1>Module ${mod.number}: ${escapeHtml(mod.title)}</h1>
+      <p>${escapeHtml(mod.subtitle)}</p>
+      <p>${escapeHtml(mod.duration)}. ${mod.labs.length} hands-on ${mod.labs.length === 1 ? 'lab' : 'labs'}. Free course module.</p>
+      <section><h2>Learning Objectives</h2>${renderList(mod.objectives)}</section>
+      ${mod.whyThisMatters ? `<section><h2>Why This Matters</h2><p>${escapeHtml(mod.whyThisMatters)}</p></section>` : ''}
+      ${diagram}
+      <section><h2>Lesson Content</h2>${content}</section>
+      ${renderOptionalList('Real-World Use Cases', mod.realWorldUseCases)}
+      ${renderOptionalList('Production Notes', mod.productionNotes)}
+      ${renderOptionalList('Common Mistakes', mod.commonMistakes)}
+      ${renderOptionalList('Security Risks to Watch', mod.securityRisks)}
+      ${renderTradeoffs(mod.designTradeoffs)}
+      ${renderOptionalList('Production Alternatives', mod.productionAlternatives?.map(item => `${item.name}: ${item.description}`))}
+      ${renderOptionalList('Think Like a Platform Engineer', mod.thinkLikeAnEngineer)}
+      ${mod.operationalStory ? `<section><h2>Production Story</h2><p>${escapeHtml(mod.operationalStory)}</p></section>` : ''}
+      ${mod.careerRelevance ? `<section><h2>Career Relevance</h2><p>${escapeHtml(mod.careerRelevance)}</p></section>` : ''}
+      ${renderGlossary(mod.glossary)}
+      ${renderLabs(course, mod)}
+      <section><h2>Key Takeaways</h2>${renderList(mod.keyTakeaways)}</section>
+      <nav aria-label="Course module navigation">${navigationLinks}</nav>
+    </article>
+  </main>`;
+}
+
+function renderSeoLandingContent(course, page) {
+  const target = course.modules.find(mod => mod.number === page.ctaModule);
+  const ctaHref = target ? `/courses/${course.slug}/${target.slug}` : `/courses/${course.slug}`;
+  return `<main>
+    <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/courses">Courses</a> / ${escapeHtml(page.title)}</nav>
+    <article>${page.content}</article>
+    <section>
+      <h2>Start Learning for Free</h2>
+      <p>Continue with ${escapeHtml(course.title)}: ${course.modules.length} modules, ${totalLabsFor(course)} hands-on labs, completely free.</p>
+      <p><a href="${ctaHref}">Start Module ${page.ctaModule}</a> | <a href="/courses/${course.slug}">View full curriculum</a></p>
+    </section>
+  </main>`;
+}
+
+function seoLandingJsonLd(course, page) {
+  return [
+    courseBreadcrumbJsonLd(course, [{ name: page.title, url: `/courses/${page.slug}` }]),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'TechArticle',
+      'headline': page.title,
+      'description': page.description,
+      'url': `${SITE_URL}/courses/${page.slug}`,
+      'isPartOf': {
+        '@type': 'Course',
+        'name': course.title,
+        'url': `${SITE_URL}/courses/${course.slug}`,
+      },
+      'author': {
+        '@type': 'Person',
+        'name': course.instructor.name,
+        'url': course.instructor.github,
+      },
+      'publisher': {
+        '@type': 'Organization',
+        'name': 'CodersSecret',
+        'url': SITE_URL,
+      },
+      'inLanguage': 'en',
+    },
+  ];
 }
 
 let created = 0;
@@ -697,83 +1057,65 @@ if (courseContent) {
   }));
   created++;
 
-  // Course landing page (mastering-spiffe-spire)
-  const courseLandingDir = path.join(OUTPUT_DIR, 'courses', 'mastering-spiffe-spire');
-  fs.mkdirSync(courseLandingDir, { recursive: true });
-  fs.writeFileSync(path.join(courseLandingDir, 'index.html'), makeHtml({
-    title: 'Mastering SPIFFE & SPIRE: Zero Trust for Cloud Native Systems — Free Course',
-    description: 'The most comprehensive free course on SPIFFE & SPIRE workload identity. Deploy SPIRE on Kubernetes, configure mTLS with Envoy, enforce OPA policies, federate clusters, and secure AI infrastructure. 13 modules, 30+ hands-on labs, 100% free.',
-    url: '/courses/mastering-spiffe-spire',
-    content: `<h1>Mastering SPIFFE & SPIRE: Zero Trust for Cloud Native Systems</h1>
-      <p>The most comprehensive free course on workload identity, built from real production deployment experience.</p>
-      <h2>Curriculum</h2>
-      <ol>
-        <li><a href="/courses/mastering-spiffe-spire/understanding-zero-trust-security">Understanding Zero Trust Security</a></li>
-        <li><a href="/courses/mastering-spiffe-spire/cryptography-pki-foundations">Cryptography and PKI Foundations</a></li>
-        <li><a href="/courses/mastering-spiffe-spire/spiffe-fundamentals">SPIFFE Fundamentals</a></li>
-        <li><a href="/courses/mastering-spiffe-spire/spire-architecture-components">SPIRE Architecture and Components</a></li>
-        <li><a href="/courses/mastering-spiffe-spire/running-spire-on-kubernetes">Running SPIRE on Kubernetes</a></li>
-        <li><a href="/courses/mastering-spiffe-spire/working-with-svids-workload-api">Working with SVIDs and the Workload API</a></li>
-        <li><a href="/courses/mastering-spiffe-spire/authorization-policy-enforcement">Authorization and Policy Enforcement</a></li>
-        <li><a href="/courses/mastering-spiffe-spire/spire-integrations-service-mesh">SPIRE Integrations and Service Mesh</a></li>
-        <li><a href="/courses/mastering-spiffe-spire/advanced-spire-architectures">Advanced SPIRE Architectures</a></li>
-        <li><a href="/courses/mastering-spiffe-spire/day-two-operations-observability">Day Two Operations and Observability</a></li>
-        <li><a href="/courses/mastering-spiffe-spire/spiffe-spire-ecosystem">The SPIFFE/SPIRE Ecosystem</a></li>
-        <li><a href="/courses/mastering-spiffe-spire/building-zero-trust-platform">Capstone: Building a Zero Trust Platform</a></li>
-        <li><a href="/courses/mastering-spiffe-spire/spiffe-for-ai-infrastructure">Bonus: SPIFFE for AI Infrastructure</a></li>
-      </ol>`,
-  }));
-  created++;
-
-  // Module pages
-  const moduleSlugs = [
-    { slug: 'understanding-zero-trust-security', title: 'Understanding Zero Trust Security', desc: 'Why perimeter security fails and how identity-based security changes everything. Module 1 of Mastering SPIFFE & SPIRE.' },
-    { slug: 'cryptography-pki-foundations', title: 'Cryptography and PKI Foundations', desc: 'The cryptographic building blocks behind SPIFFE: PKI, X.509 certificates, mTLS, and JWT.' },
-    { slug: 'spiffe-fundamentals', title: 'SPIFFE Fundamentals', desc: 'The specification that defines workload identity: trust domains, SPIFFE IDs, SVIDs, and the Workload API.' },
-    { slug: 'spire-architecture-components', title: 'SPIRE Architecture and Components', desc: 'How SPIRE implements SPIFFE: Server, Agent, node attestation, workload attestation, registration entries.' },
-    { slug: 'running-spire-on-kubernetes', title: 'Running SPIRE on Kubernetes', desc: 'Deploy and operate SPIRE in real Kubernetes clusters with auto-rotation and CSI driver integration.' },
-    { slug: 'working-with-svids-workload-api', title: 'Working with SVIDs and the Workload API', desc: 'How applications consume SPIFFE identities — SPIFFE Helper, go-spiffe, mTLS, gRPC.' },
-    { slug: 'authorization-policy-enforcement', title: 'Authorization and Policy Enforcement', desc: 'Identity answers who. Policy answers what they can do. Open Policy Agent (OPA) with SPIFFE.' },
-    { slug: 'spire-integrations-service-mesh', title: 'SPIRE Integrations and Service Mesh', desc: 'Connect SPIRE with Envoy SDS, Istio, OIDC discovery, and the cloud-native ecosystem.' },
-    { slug: 'advanced-spire-architectures', title: 'Advanced SPIRE Architectures', desc: 'Production-grade deployments: high availability, nested SPIRE, federation, multi-cluster.' },
-    { slug: 'day-two-operations-observability', title: 'Day Two Operations and Observability', desc: 'Monitor SPIRE with Prometheus, debug attestation failures, plan certificate rotation.' },
-    { slug: 'spiffe-spire-ecosystem', title: 'The SPIFFE/SPIRE Ecosystem', desc: 'Real-world integrations: HashiCorp Vault, Cilium, CI/CD pipelines, enterprise patterns.' },
-    { slug: 'building-zero-trust-platform', title: 'Capstone: Building a Complete Zero Trust Platform', desc: 'Combine SPIRE, Envoy, OPA, and federation into a production-ready zero trust platform.' },
-    { slug: 'spiffe-for-ai-infrastructure', title: 'Bonus: SPIFFE for AI Infrastructure', desc: 'Secure AI agents, LLM endpoints, vector databases, and MCP servers with workload identity.' },
-  ];
-  moduleSlugs.forEach((mod, i) => {
-    const moduleDir = path.join(OUTPUT_DIR, 'courses', 'mastering-spiffe-spire', mod.slug);
-    fs.mkdirSync(moduleDir, { recursive: true });
-    fs.writeFileSync(path.join(moduleDir, 'index.html'), makeHtml({
-      title: `Module ${i + 1}: ${mod.title} — Mastering SPIFFE & SPIRE`,
-      description: mod.desc,
-      url: `/courses/mastering-spiffe-spire/${mod.slug}`,
-      content: `<h1>Module ${i + 1}: ${mod.title}</h1><p>${mod.desc}</p><p><a href="/courses/mastering-spiffe-spire">← Back to course curriculum</a></p>`,
+  // Mastering SPIFFE & SPIRE course: rich prerendered landing, module, and topic pages.
+  const spiffeCourse = courses.find(course => course.slug === 'mastering-spiffe-spire');
+  if (spiffeCourse) {
+    const courseLandingDir = path.join(OUTPUT_DIR, 'courses', spiffeCourse.slug);
+    fs.mkdirSync(courseLandingDir, { recursive: true });
+    fs.writeFileSync(path.join(courseLandingDir, 'index.html'), makeHtml({
+      title: courseSeoTitle(spiffeCourse),
+      description: courseSeoDescription(spiffeCourse),
+      url: `/courses/${spiffeCourse.slug}`,
+      image: courseImagePath(spiffeCourse),
+      content: renderCourseLandingContent(spiffeCourse),
+      jsonLd: [
+        courseBreadcrumbJsonLd(spiffeCourse),
+        courseJsonLd(spiffeCourse),
+        courseModuleItemListJsonLd(spiffeCourse),
+        ...(spiffeCourse.faqs ? [{
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          'mainEntity': spiffeCourse.faqs.map(faq => ({
+            '@type': 'Question',
+            'name': faq.question,
+            'acceptedAnswer': { '@type': 'Answer', 'text': faq.answer },
+          })),
+        }] : []),
+      ],
     }));
     created++;
-  });
 
-  // SEO landing pages
-  const seoPages = [
-    { slug: 'spiffe-spire', title: 'SPIFFE & SPIRE: The Complete Guide to Workload Identity', desc: 'Everything you need to know about SPIFFE and SPIRE: standards, architecture, deployment, and production patterns.' },
-    { slug: 'what-is-spire', title: 'What Is SPIRE? SPIFFE Runtime Environment Explained', desc: 'SPIRE (SPIFFE Runtime Environment) is the production implementation of the SPIFFE specification — a CNCF graduated project for cryptographic workload identity.' },
-    { slug: 'workload-identity', title: 'Workload Identity: Why Network Location Is Not Identity', desc: 'Workload identity gives services cryptographic certificates instead of relying on IPs, network policies, or shared secrets.' },
-    { slug: 'zero-trust-kubernetes', title: 'Zero Trust for Kubernetes: Moving Beyond Network Policies', desc: 'NetworkPolicies are not zero trust. Learn how SPIFFE/SPIRE delivers true cryptographic identity for every Kubernetes pod.' },
-    { slug: 'spire-kubernetes-tutorial', title: 'SPIRE on Kubernetes: Step-by-Step Tutorial', desc: 'Deploy SPIRE on Kubernetes with hands-on examples covering Server, Agent, Controller Manager, and CSI driver.' },
-    { slug: 'spiffe-mtls-service-mesh', title: 'SPIFFE, mTLS, and Service Mesh: How They Connect', desc: 'Understand how SPIFFE provides identity, mTLS provides encryption, and service meshes orchestrate them.' },
-    { slug: 'machine-identity-management', title: 'Machine Identity Management: SPIFFE vs Vault vs Cloud IAM', desc: 'Compare workload identity approaches for machine identity at scale. SPIFFE vs Vault PKI vs Kubernetes Service Accounts vs Cloud IAM.' },
-  ];
-  seoPages.forEach(seo => {
-    const seoDir = path.join(OUTPUT_DIR, 'courses', seo.slug);
-    fs.mkdirSync(seoDir, { recursive: true });
-    fs.writeFileSync(path.join(seoDir, 'index.html'), makeHtml({
-      title: `${seo.title} — CodersSecret`,
-      description: seo.desc,
-      url: `/courses/${seo.slug}`,
-      content: `<h1>${seo.title}</h1><p>${seo.desc}</p><p>Start the free <a href="/courses/mastering-spiffe-spire">Mastering SPIFFE & SPIRE</a> course to learn this hands-on.</p>`,
-    }));
-    created++;
-  });
+    spiffeCourse.modules.forEach(mod => {
+      const moduleDir = path.join(OUTPUT_DIR, 'courses', spiffeCourse.slug, mod.slug);
+      fs.mkdirSync(moduleDir, { recursive: true });
+      fs.writeFileSync(path.join(moduleDir, 'index.html'), makeHtml({
+        title: moduleSeoTitle(spiffeCourse, mod),
+        description: moduleSeoDescription(spiffeCourse, mod),
+        url: `/courses/${spiffeCourse.slug}/${mod.slug}`,
+        image: courseImagePath(spiffeCourse),
+        content: renderModuleContent(spiffeCourse, mod),
+        jsonLd: [
+          courseBreadcrumbJsonLd(spiffeCourse, [{ name: `Module ${mod.number}: ${mod.title}`, url: `/courses/${spiffeCourse.slug}/${mod.slug}` }]),
+          moduleJsonLd(spiffeCourse, mod),
+        ],
+      }));
+      created++;
+    });
+
+    spiffeCourse.seoPages.forEach(page => {
+      const seoDir = path.join(OUTPUT_DIR, 'courses', page.slug);
+      fs.mkdirSync(seoDir, { recursive: true });
+      fs.writeFileSync(path.join(seoDir, 'index.html'), makeHtml({
+        title: page.title,
+        description: page.description,
+        url: `/courses/${page.slug}`,
+        image: courseImagePath(spiffeCourse),
+        content: renderSeoLandingContent(spiffeCourse, page),
+        jsonLd: seoLandingJsonLd(spiffeCourse, page),
+      }));
+      created++;
+    });
+  }
 
   // ── Cloud Native Security Engineering course ──
   const cnsDir = path.join(OUTPUT_DIR, 'courses', 'cloud-native-security-engineering');

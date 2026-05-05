@@ -247,12 +247,13 @@ export class CourseLandingComponent {
     const urlSlug = this.route.snapshot.url.map(s => s.path).pop() || '';
     const c = COURSES.find(c => c.slug === urlSlug);
     if (c) {
+      const totalLabs = this.getTotalLabsFor(c);
       this.course.set(c);
       this.seo.update({
-        title: c.title + ' — Free Course | CodersSecret',
-        description: c.description,
+        title: this.getSeoTitle(c),
+        description: this.getSeoDescription(c, totalLabs),
         url: '/courses/' + c.slug,
-        image: 'https://coderssecret.com/images/banners/course-mastering-spiffe-spire.svg',
+        image: this.getCourseImage(c),
         imageWidth: 1200,
         imageHeight: 480,
         breadcrumbs: [
@@ -265,7 +266,7 @@ export class CourseLandingComponent {
             '@context': 'https://schema.org',
             '@type': 'Course',
             'name': c.title,
-            'description': c.description,
+            'description': this.getSeoDescription(c, totalLabs),
             'provider': {
               '@type': 'Organization',
               'name': 'CodersSecret',
@@ -322,5 +323,32 @@ export class CourseLandingComponent {
 
   getTotalLabs(): number {
     return this.course()?.modules.reduce((sum, m) => sum + m.labs.length, 0) ?? 0;
+  }
+
+  private getTotalLabsFor(course: Course): number {
+    return course.modules.reduce((sum, m) => sum + m.labs.length, 0);
+  }
+
+  private getSeoTitle(course: Course): string {
+    if (course.slug === 'mastering-spiffe-spire') {
+      return 'Mastering SPIFFE & SPIRE: Zero Trust Course';
+    }
+    return course.title + ' - Free Course';
+  }
+
+  private getSeoDescription(course: Course, totalLabs: number): string {
+    if (course.slug === 'mastering-spiffe-spire') {
+      return `Free ${course.modules.length}-module SPIFFE/SPIRE course: deploy SPIRE on Kubernetes, issue SVIDs, configure mTLS, enforce OPA, federate clusters, and run ${totalLabs}+ labs.`;
+    }
+    return `${course.excerpt} ${course.modules.length} modules, ${totalLabs}+ hands-on labs, free.`;
+  }
+
+  private getCourseImage(course: Course): string {
+    const imageByCourse: Record<string, string> = {
+      'mastering-spiffe-spire': 'https://coderssecret.com/images/banners/course-mastering-spiffe-spire.svg',
+      'cloud-native-security-engineering': 'https://coderssecret.com/images/banners/course-cloud-native-security-engineering.svg',
+      'production-rag-systems-engineering': 'https://coderssecret.com/images/banners/course-production-rag-systems-engineering.svg',
+    };
+    return imageByCourse[course.slug] ?? 'https://coderssecret.com/og-image.svg';
   }
 }

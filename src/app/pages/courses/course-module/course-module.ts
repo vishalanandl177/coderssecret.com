@@ -379,15 +379,97 @@ export class CourseModuleComponent {
       if (!c) return;
       const m = c.modules.find(m => m.slug === moduleSlug);
       if (m) {
+        const moduleUrl = `/courses/${c.slug}/${m.slug}`;
+        const moduleDescription = this.getModuleSeoDescription(c, m);
         this.mod.set(m);
         this.seo.update({
-          title: `Module ${m.number}: ${m.title} — ${c.title} | CodersSecret`,
-          description: m.subtitle + '. ' + m.objectives.join('. '),
+          title: this.getModuleSeoTitle(c, m),
+          description: moduleDescription,
+          url: moduleUrl,
+          image: this.getCourseImage(c),
+          imageWidth: 1200,
+          imageHeight: 480,
+          breadcrumbs: [
+            { name: 'Home', url: '/' },
+            { name: 'Courses', url: '/courses' },
+            { name: c.title, url: `/courses/${c.slug}` },
+            { name: `Module ${m.number}: ${m.title}`, url: moduleUrl },
+          ],
+          jsonLd: {
+            '@context': 'https://schema.org',
+            '@type': 'LearningResource',
+            'name': `Module ${m.number}: ${m.title}`,
+            'description': moduleDescription,
+            'url': `https://coderssecret.com${moduleUrl}`,
+            'learningResourceType': 'Course module',
+            'isAccessibleForFree': true,
+            'inLanguage': 'en',
+            'position': m.number,
+            'timeRequired': m.duration,
+            'teaches': m.objectives,
+            'about': c.tags,
+            'provider': {
+              '@type': 'Organization',
+              'name': 'CodersSecret',
+              'url': 'https://coderssecret.com',
+            },
+            'creator': {
+              '@type': 'Person',
+              'name': c.instructor.name,
+              'url': c.instructor.github,
+            },
+            'isPartOf': {
+              '@type': 'Course',
+              'name': c.title,
+              'url': `https://coderssecret.com/courses/${c.slug}`,
+            },
+          },
         });
         if (typeof window !== 'undefined') window.scrollTo(0, 0);
       } else {
         router.navigate(['/courses/' + c.slug]);
       }
     });
+  }
+
+  private getModuleSeoTitle(course: Course, module: CourseModule): string {
+    if (course.slug === 'mastering-spiffe-spire') {
+      return `Module ${module.number}: ${this.getSpiffeModuleShortTitle(module)} | SPIFFE`;
+    }
+    return `Module ${module.number}: ${module.title} | ${course.title}`;
+  }
+
+  private getSpiffeModuleShortTitle(module: CourseModule): string {
+    const titles: Record<number, string> = {
+      1: 'Zero Trust Security',
+      2: 'PKI Foundations',
+      3: 'SPIFFE Fundamentals',
+      4: 'SPIRE Architecture',
+      5: 'SPIRE on Kubernetes',
+      6: 'SVIDs & Workload API',
+      7: 'Authorization & OPA',
+      8: 'Service Mesh Integrations',
+      9: 'Advanced SPIRE Architecture',
+      10: 'SPIRE Operations',
+      11: 'SPIFFE/SPIRE Ecosystem',
+      12: 'Zero Trust Platform Capstone',
+      13: 'SPIFFE for AI Infrastructure',
+    };
+    return titles[module.number] ?? module.title;
+  }
+
+  private getModuleSeoDescription(course: Course, module: CourseModule): string {
+    const labLabel = module.labs.length === 1 ? 'lab' : 'labs';
+    const courseName = course.slug === 'mastering-spiffe-spire' ? 'SPIFFE/SPIRE' : course.title;
+    return `Module ${module.number} of the free ${courseName} course: ${module.subtitle}. ${module.labs.length} hands-on ${labLabel}.`;
+  }
+
+  private getCourseImage(course: Course): string {
+    const imageByCourse: Record<string, string> = {
+      'mastering-spiffe-spire': 'https://coderssecret.com/images/banners/course-mastering-spiffe-spire.svg',
+      'cloud-native-security-engineering': 'https://coderssecret.com/images/banners/course-cloud-native-security-engineering.svg',
+      'production-rag-systems-engineering': 'https://coderssecret.com/images/banners/course-production-rag-systems-engineering.svg',
+    };
+    return imageByCourse[course.slug] ?? 'https://coderssecret.com/og-image.svg';
   }
 }

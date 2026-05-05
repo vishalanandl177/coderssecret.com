@@ -73,7 +73,7 @@ export const COURSES: Course[] = [
     title: 'Mastering SPIFFE & SPIRE: Zero Trust for Cloud Native Systems',
     slug: 'mastering-spiffe-spire',
     subtitle: 'Learn modern cloud-native identity security and become the engineer who secures production Kubernetes clusters — for free.',
-    excerpt: 'Go from "what is workload identity?" to deploying production-grade SPIRE on Kubernetes with mTLS, OPA policy enforcement, and multi-cluster federation. 13 modules, 60+ labs, completely free.',
+    excerpt: 'Go from "what is workload identity?" to deploying production-grade SPIRE on Kubernetes with mTLS, OPA policy enforcement, and multi-cluster federation. 13 modules, 30+ labs, completely free.',
     description: 'Replace secret sprawl with workload identity. The most comprehensive free course on SPIFFE and SPIRE — the CNCF standard for machine identity in cloud-native systems. Learn zero trust architecture, PKI fundamentals, Kubernetes workload identity, service mesh integration, and production operations through 30+ hands-on labs and real-world architecture patterns. Go from shared secrets and manual certificates to automatic, cryptographic workload identity.',
     instructor: {
       name: 'Vishal Anand',
@@ -131,7 +131,7 @@ export const COURSES: Course[] = [
 
           <h2>Start Learning for Free</h2>
 
-          <p>Our <strong>Mastering SPIFFE &amp; SPIRE</strong> course covers everything from zero trust fundamentals to production operations across 13 modules and 60+ hands-on labs. No paywall, no signup wall &mdash; just practical education for engineers who secure real infrastructure.</p>
+          <p>Our <strong>Mastering SPIFFE &amp; SPIRE</strong> course covers everything from zero trust fundamentals to production operations across 13 modules and 30+ hands-on labs. No paywall, no signup wall &mdash; just practical education for engineers who secure real infrastructure.</p>
         `,
       },
       {
