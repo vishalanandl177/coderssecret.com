@@ -1,4 +1,4 @@
-import { Component, inject, DestroyRef, AfterViewChecked, OnDestroy, ElementRef, signal, HostListener } from '@angular/core';
+import { Component, inject, DestroyRef, AfterViewChecked, OnDestroy, ElementRef, signal, HostListener, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BLOG_POSTS, CATEGORIES, BlogPost } from '../../models/blog-post.model';
@@ -135,28 +135,43 @@ import { DOCUMENT } from '@angular/common';
       <div class="container max-w-6xl mx-auto px-6">
         <div class="flex gap-10">
 
-          <!-- Article content (left) -->
-          <article class="flex-1 min-w-0 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-            <div class="max-w-3xl mx-auto py-12 md:py-16">
-              <div class="prose prose-neutral max-w-none
-                          [&>p]:text-foreground [&>p]:leading-[1.8] [&>p]:mb-6 [&>p]:text-[15px]
-                          [&>h2]:text-2xl [&>h2]:font-extrabold [&>h2]:tracking-tight [&>h2]:mt-14 [&>h2]:mb-5 [&>h2]:text-foreground
-                          [&>ul]:text-foreground [&>ul]:mb-6 [&>ul]:ml-6 [&>ul]:list-disc [&>ul>li]:mb-2.5 [&>ul>li]:leading-[1.7] [&>ul>li]:text-[15px]
-                          [&>ol]:text-foreground [&>ol]:mb-6 [&>ol]:ml-6 [&>ol]:list-decimal [&>ol>li]:mb-2.5
-                          [&>pre]:bg-muted [&>pre]:rounded-xl [&>pre]:p-5 [&>pre]:mb-6 [&>pre]:overflow-x-auto [&>pre]:text-sm [&>pre]:border [&>pre]:border-border/40
-                          [&>code]:bg-muted [&>code]:px-1.5 [&>code]:py-0.5 [&>code]:rounded-md [&>code]:text-sm [&>code]:font-mono
-                          [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded-md [&_code]:text-sm [&_code]:font-mono
-                          [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:text-primary/80
-                          [&>pre_code]:bg-transparent [&>pre_code]:p-0
-                          [&>img]:rounded-xl [&>img]:border [&>img]:border-border/40 [&>img]:my-8 [&>img]:w-full [&>img]:shadow-md"
-                   [innerHTML]="post.content">
+          @if (post.content) {
+            <!-- Article content (left) -->
+            <article class="flex-1 min-w-0">
+              <div class="max-w-3xl mx-auto py-12 md:py-16">
+                <div class="prose prose-neutral max-w-none
+                            [&>p]:text-foreground [&>p]:leading-[1.8] [&>p]:mb-6 [&>p]:text-[15px]
+                            [&>h2]:text-2xl [&>h2]:font-extrabold [&>h2]:tracking-tight [&>h2]:mt-14 [&>h2]:mb-5 [&>h2]:text-foreground
+                            [&>ul]:text-foreground [&>ul]:mb-6 [&>ul]:ml-6 [&>ul]:list-disc [&>ul>li]:mb-2.5 [&>ul>li]:leading-[1.7] [&>ul>li]:text-[15px]
+                            [&>ol]:text-foreground [&>ol]:mb-6 [&>ol]:ml-6 [&>ol]:list-decimal [&>ol>li]:mb-2.5
+                            [&>pre]:bg-muted [&>pre]:rounded-xl [&>pre]:p-5 [&>pre]:mb-6 [&>pre]:overflow-x-auto [&>pre]:text-sm [&>pre]:border [&>pre]:border-border/40
+                            [&>code]:bg-muted [&>code]:px-1.5 [&>code]:py-0.5 [&>code]:rounded-md [&>code]:text-sm [&>code]:font-mono
+                            [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded-md [&_code]:text-sm [&_code]:font-mono
+                            [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:text-primary/80
+                            [&>pre_code]:bg-transparent [&>pre_code]:p-0
+                            [&>img]:rounded-xl [&>img]:border [&>img]:border-border/40 [&>img]:my-8 [&>img]:w-full [&>img]:shadow-md"
+                     [innerHTML]="post.content">
+                </div>
               </div>
-            </div>
-          </article>
+            </article>
+          } @else {
+            <article class="flex-1 min-w-0" aria-busy="true" aria-label="Loading article">
+              <div class="max-w-3xl mx-auto py-12 md:py-16">
+                <div class="space-y-5">
+                  <div class="h-4 w-full rounded bg-muted/70 animate-pulse"></div>
+                  <div class="h-4 w-11/12 rounded bg-muted/70 animate-pulse"></div>
+                  <div class="h-4 w-10/12 rounded bg-muted/70 animate-pulse"></div>
+                  <div class="h-48 rounded-xl border border-border/40 bg-muted/40 animate-pulse"></div>
+                  <div class="h-4 w-full rounded bg-muted/70 animate-pulse"></div>
+                  <div class="h-4 w-9/12 rounded bg-muted/70 animate-pulse"></div>
+                </div>
+              </div>
+            </article>
+          }
 
           <!-- Right-side TOC (desktop only, sticky) -->
-          @if (toc.length > 2) {
-            <nav class="hidden xl:block w-64 flex-shrink-0 animate-in fade-in duration-500 delay-300"
+          @if (post.content && toc.length > 2) {
+            <nav class="hidden xl:block w-64 flex-shrink-0"
                  aria-label="On this page">
               <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto py-12">
                 <h3 class="text-xs font-bold text-foreground uppercase tracking-wider mb-4 px-1">On this page</h3>
@@ -176,6 +191,7 @@ import { DOCUMENT } from '@angular/common';
         </div>
       </div>
 
+      @if (post.content) {
       <!-- Share + related -->
       <div class="container max-w-4xl mx-auto px-6 pb-20">
         <div class="h-[1px] bg-gradient-to-r from-transparent via-border to-transparent mb-12"></div>
@@ -286,6 +302,7 @@ import { DOCUMENT } from '@angular/common';
           </div>
         }
       </div>
+      }
     } @else {
       <!-- 404 state -->
       <div class="py-32 text-center animate-in fade-in duration-500">
@@ -314,6 +331,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   private el = inject(ElementRef);
   private doc = inject(DOCUMENT);
   private analytics = inject(AnalyticsService);
+  private cdr = inject(ChangeDetectorRef);
   private copyButtonsAdded = false;
   private imagesProcessed = false;
   private giscusAdded = false;
@@ -334,32 +352,37 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(async params => {
         const slug = params.get('slug');
-        this.post = BLOG_POSTS.find(p => p.slug === slug);
-        if (this.post) {
+        const basePost = BLOG_POSTS.find(p => p.slug === slug);
+        this.copyButtonsAdded = false;
+        this.imagesProcessed = false;
+        this.giscusAdded = false;
+        this.scrollMilestones.clear();
+        this.stopSpeech();
+        this.toc = [];
+
+        if (basePost && slug) {
+          this.post = { ...basePost, content: '' };
+          const cat = CATEGORIES.find(c => c.slug === basePost.category);
+          this.categoryName = cat?.name ?? '';
+          this.categoryColor = this.getCategoryColor(basePost.category);
+          this.relatedPosts = BLOG_POSTS
+            .filter(p => p.id !== basePost.id && (p.category === basePost.category || p.tags.some(t => basePost.tags.includes(t))))
+            .slice(0, 2);
+          let content = '';
           // Dynamically load content for this specific post
           try {
             const contentModule = await import(`../../models/blog-content/${slug}.ts`);
-            this.post = { ...this.post, content: contentModule.CONTENT };
+            content = contentModule.CONTENT;
           } catch {
-            // Content not found — post.content stays empty
+            content = `<p>${basePost.excerpt}</p>`;
           }
-          const cat = CATEGORIES.find(c => c.slug === this.post!.category);
-          this.categoryName = cat?.name ?? '';
-          this.categoryColor = this.getCategoryColor(this.post.category);
-          this.relatedPosts = BLOG_POSTS
-            .filter(p => p.id !== this.post!.id && (p.category === this.post!.category || p.tags.some(t => this.post!.tags.includes(t))))
-            .slice(0, 2);
-          this.copyButtonsAdded = false;
-          this.imagesProcessed = false;
-          this.giscusAdded = false;
-          this.scrollMilestones.clear();
-          this.stopSpeech();
+          if (this.post?.slug !== slug) return;
+          this.post = { ...basePost, content };
           // Generate TOC from h2 tags in content
           const h2Regex = /<h2>(.*?)<\/h2>/g;
-          this.toc = [];
           let tocMatch;
           let tocIndex = 0;
-          while ((tocMatch = h2Regex.exec(this.post.content)) !== null) {
+          while ((tocMatch = h2Regex.exec(content)) !== null) {
             const text = tocMatch[1].replace(/<[^>]+>/g, '');
             this.toc.push({ id: `heading-${tocIndex++}`, text });
           }
@@ -382,10 +405,14 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
               { name: this.post.title, url: `/blog/${this.post.slug}` },
             ],
           });
+          // Dynamic imports can settle outside the current render pass, so refresh before a scroll/event wakes the view.
+          this.cdr.detectChanges();
         } else {
+          this.post = undefined;
           this.relatedPosts = [];
           this.categoryName = '';
           this.categoryColor = '#6b7280';
+          this.cdr.detectChanges();
         }
       });
   }
