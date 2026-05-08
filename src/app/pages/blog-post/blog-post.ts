@@ -404,6 +404,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
               ...(this.categoryName ? [{ name: this.categoryName, url: `/category/${this.post.category}` }] : []),
               { name: this.post.title, url: `/blog/${this.post.slug}` },
             ],
+            jsonLd: this.getBlogFaqSchema(this.post.slug),
           });
           // Dynamic imports can settle outside the current render pass, so refresh before a scroll/event wakes the view.
           this.cdr.detectChanges();
@@ -636,6 +637,60 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   getCategoryName(slug: string): string {
     const cat = CATEGORIES.find(c => c.slug === slug);
     return cat?.name ?? slug;
+  }
+
+  private getBlogFaqSchema(slug: string): Record<string, unknown> | undefined {
+    if (slug !== 'claude-tokens-hidden-costs-optimization-guide') {
+      return undefined;
+    }
+
+    const faqs = [
+      {
+        question: 'Are Claude thinking tokens billed?',
+        answer: 'Yes. Anthropic documents that thinking tokens are billed as output tokens, even when thinking is summarized or omitted from the visible response.',
+      },
+      {
+        question: 'Does prompt caching reduce context size?',
+        answer: 'No. Prompt caching reduces price and latency for repeated prompt prefixes, but cached tokens still count toward the context window.',
+      },
+      {
+        question: 'Why does Claude Code use more tokens than a simple API call?',
+        answer: 'Claude Code can include project instructions, conversation history, tool results, file reads, command output, skills, and MCP or tool context. A short user message can sit on top of a much larger coding session context.',
+      },
+      {
+        question: 'Do MCP servers always load every full schema?',
+        answer: 'Current Claude Code guidance says MCP tool definitions are deferred by default, but tool names, selected tools, tool calls, and tool results can still affect context. Disable unused servers and measure with /context.',
+      },
+      {
+        question: 'Does 1M context always mean premium long-context pricing?',
+        answer: 'No. Claude Opus 4.7, Opus 4.6, and Sonnet 4.6 include the full 1M-token context window at standard pricing. A huge request is still expensive because it contains more tokens, but it does not add a separate long-context premium for those models.',
+      },
+      {
+        question: 'Is the Claude Code /usage dollar amount my final bill?',
+        answer: 'Not necessarily. Claude Code reports useful session token and estimated cost information, but the dollar figure is computed locally and may differ from actual billing. For API billing, use the Claude Console.',
+      },
+      {
+        question: 'Can data residency, fast mode, or server tools change the price?',
+        answer: 'Yes. US-only inference can add a 1.1x token multiplier for supported models, Opus 4.6 fast mode is priced at 6x standard token rates, and server-side tools can add usage-based charges beyond normal token cost.',
+      },
+      {
+        question: 'What is the fastest way to cut Claude token cost?',
+        answer: 'Use Sonnet for default coding work, cache repeated API prefixes, compact long Claude Code sessions, trim CLAUDE.md, disable unused MCP servers, monitor tool usage, and avoid dumping full files or full logs into context.',
+      },
+    ];
+
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      'mainEntity': faqs.map(faq => ({
+        '@type': 'Question',
+        'name': faq.question,
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': faq.answer,
+        },
+      })),
+    };
   }
 
   private getSeoTitle(title: string): string {

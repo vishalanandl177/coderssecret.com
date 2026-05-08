@@ -172,6 +172,134 @@ function blogSeoTitle(post) {
   return compactSeoTitle(post.title, 55);
 }
 
+function blogFaqJsonLd(slug) {
+  if (slug !== 'claude-tokens-hidden-costs-optimization-guide') {
+    return undefined;
+  }
+
+  const faqs = [
+    {
+      question: 'Are Claude thinking tokens billed?',
+      answer: 'Yes. Anthropic documents that thinking tokens are billed as output tokens, even when thinking is summarized or omitted from the visible response.',
+    },
+    {
+      question: 'Does prompt caching reduce context size?',
+      answer: 'No. Prompt caching reduces price and latency for repeated prompt prefixes, but cached tokens still count toward the context window.',
+    },
+    {
+      question: 'Why does Claude Code use more tokens than a simple API call?',
+      answer: 'Claude Code can include project instructions, conversation history, tool results, file reads, command output, skills, and MCP or tool context. A short user message can sit on top of a much larger coding session context.',
+    },
+    {
+      question: 'Do MCP servers always load every full schema?',
+      answer: 'Current Claude Code guidance says MCP tool definitions are deferred by default, but tool names, selected tools, tool calls, and tool results can still affect context. Disable unused servers and measure with /context.',
+    },
+    {
+      question: 'Does 1M context always mean premium long-context pricing?',
+      answer: 'No. Claude Opus 4.7, Opus 4.6, and Sonnet 4.6 include the full 1M-token context window at standard pricing. A huge request is still expensive because it contains more tokens, but it does not add a separate long-context premium for those models.',
+    },
+    {
+      question: 'Is the Claude Code /usage dollar amount my final bill?',
+      answer: 'Not necessarily. Claude Code reports useful session token and estimated cost information, but the dollar figure is computed locally and may differ from actual billing. For API billing, use the Claude Console.',
+    },
+    {
+      question: 'Can data residency, fast mode, or server tools change the price?',
+      answer: 'Yes. US-only inference can add a 1.1x token multiplier for supported models, Opus 4.6 fast mode is priced at 6x standard token rates, and server-side tools can add usage-based charges beyond normal token cost.',
+    },
+    {
+      question: 'What is the fastest way to cut Claude token cost?',
+      answer: 'Use Sonnet for default coding work, cache repeated API prefixes, compact long Claude Code sessions, trim CLAUDE.md, disable unused MCP servers, monitor tool usage, and avoid dumping full files or full logs into context.',
+    },
+  ];
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': faqs.map(faq => ({
+      '@type': 'Question',
+      'name': faq.question,
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': faq.answer,
+      },
+    })),
+  };
+}
+
+function claudeTokenSlidesPrerender(post) {
+  if (post.slug !== 'claude-tokens-hidden-costs-optimization-guide') {
+    return undefined;
+  }
+
+  const slides = [
+    'Claude API vs Claude Code vs claude.ai',
+    'The token cost formula',
+    'Current Claude API pricing snapshot',
+    'Opus 4.7 tokenizer changes',
+    'Claude Code project context',
+    'CLAUDE.md and skills strategy',
+    'MCP deferred tool definitions',
+    'Conversation history growth',
+    'Thinking tokens billed as output',
+    'Prompt caching break-even',
+    'API usage object',
+    'Claude Code slash commands',
+    'Cost-control playbook',
+  ];
+
+  const title = 'Claude Token Costs Explained - Interactive Slides';
+  const description = 'Watch a narrated slide walkthrough of Claude token costs, Opus 4.7 pricing, prompt caching, Claude Code context, MCP overhead, and thinking tokens.';
+  const url = '/slides/claude-tokens-hidden-costs-optimization-guide';
+  const content = `<main>
+    <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/blog">Blog</a> / <a href="/blog/${post.slug}">${escapeHtml(post.title)}</a> / Slides</nav>
+    <h1>${escapeHtml(title)}</h1>
+    <p>${escapeHtml(description)}</p>
+    <p>This slide deck turns the article into a guided walkthrough with narration, concise visuals, code examples, and a cost-control checklist.</p>
+    <img src="/images/blog/claude-token-cost-stack.svg" alt="Claude token cost stack diagram" width="1200" height="630" loading="lazy" decoding="async">
+    <section>
+      <h2>Slide Outline</h2>
+      <ol>${slides.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ol>
+    </section>
+    <p><a href="/blog/${post.slug}">Read the full article</a></p>
+  </main>`;
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'LearningResource',
+      'name': title,
+      'description': description,
+      'url': `${SITE_URL}${url}`,
+      'image': `${SITE_URL}/images/blog/claude-token-cost-stack.svg`,
+      'isAccessibleForFree': true,
+      'inLanguage': 'en',
+      'learningResourceType': 'Slide deck',
+      'about': ['Claude API', 'Claude Code', 'Prompt Caching', 'MCP', 'Token Costs'],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      'itemListElement': [
+        { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+        { '@type': 'ListItem', 'position': 2, 'name': 'Blog', 'item': `${SITE_URL}/blog` },
+        { '@type': 'ListItem', 'position': 3, 'name': post.title, 'item': `${SITE_URL}/blog/${post.slug}` },
+        { '@type': 'ListItem', 'position': 4, 'name': 'Slides', 'item': `${SITE_URL}${url}` },
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      'name': 'Claude Token Costs slide outline',
+      'itemListElement': slides.map((item, index) => ({
+        '@type': 'ListItem',
+        'position': index + 1,
+        'name': item,
+      })),
+    },
+  ];
+
+  return { title, description, url, content, jsonLd, image: '/images/blog/claude-token-cost-stack.svg' };
+}
+
 function compactSeoTitle(title, maxLength) {
   const normalized = stripHtml(title);
   if (normalized.length <= maxLength) return normalized;
@@ -796,6 +924,7 @@ for (const post of posts) {
 
   const bannerUrl = `/images/banners/${post.slug}.svg`;
   blogJsonLd.image = `${SITE_URL}${bannerUrl}`;
+  const faqJsonLd = blogFaqJsonLd(post.slug);
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -811,7 +940,7 @@ for (const post of posts) {
     description: post.excerpt,
     url: `/blog/${post.slug}`,
     content,
-    jsonLd: [blogJsonLd, breadcrumbJsonLd],
+    jsonLd: faqJsonLd ? [blogJsonLd, breadcrumbJsonLd, faqJsonLd] : [blogJsonLd, breadcrumbJsonLd],
     image: bannerUrl,
     ogType: 'article',
     extraHead: [
@@ -1296,6 +1425,12 @@ if (courseContent) {
 for (const post of posts) {
   const slideDir = path.join(OUTPUT_DIR, 'slides', post.slug);
   fs.mkdirSync(slideDir, { recursive: true });
+  const customSlidePage = claudeTokenSlidesPrerender(post);
+  if (customSlidePage) {
+    fs.writeFileSync(path.join(slideDir, 'index.html'), makeHtml(customSlidePage));
+    created++;
+    continue;
+  }
   fs.writeFileSync(path.join(slideDir, 'index.html'), makeHtml({
     title: `${escapeHtml(post.title)} — Watch as Slides | CodersSecret`,
     description: `Watch "${escapeHtml(post.title)}" as narrated slides with voice narration. 20x lighter than video, zero ads, fully free.`,

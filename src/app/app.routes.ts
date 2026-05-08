@@ -22,6 +22,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/slides/python-c-extensions-slides').then(m => m.PythonCExtSlidesComponent),
   },
   {
+    path: 'slides/claude-tokens-hidden-costs-optimization-guide',
+    loadComponent: () => import('./pages/slides/claude-token-costs-slides').then(m => m.ClaudeTokenCostsSlidesComponent),
+  },
+  {
     path: 'slides/:slug',
     loadComponent: () => import('./pages/slides/auto-slides').then(m => m.AutoSlidesComponent),
   },
