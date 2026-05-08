@@ -1,0 +1,7 @@
+CodersSecret is a practical software engineering channel for developers who want to build real systems, not just follow tutorials.
+
+I cover Angular, Python, DevOps, cloud-native engineering, system design, performance, security, and production-ready development patterns with clear explanations and hands-on examples.
+
+Expect deep dives, debugging walkthroughs, architecture breakdowns, coding lessons, and engineering notes from real-world software work.
+
+Website: https://coderssecret.com

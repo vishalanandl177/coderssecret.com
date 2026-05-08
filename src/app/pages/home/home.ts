@@ -982,6 +982,39 @@ type CategoryInfo = { name: string; slug: string };
       </div>
     </section>
 
+    <!-- YouTube Channel CTA -->
+    <section class="py-12 animate-in fade-in duration-700">
+      <div class="container max-w-5xl mx-auto px-6">
+        <div class="relative overflow-hidden rounded-2xl border border-red-500/20 bg-card/70 p-8 md:p-10">
+          <div class="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-red-500/10 via-primary/5 to-transparent"></div>
+          <div class="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div class="flex items-start gap-4">
+              <div class="inline-flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-red-500 text-white shadow-lg shadow-red-500/20">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4L15.8 12l-6.2 3.6Z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-red-500">Now on YouTube</p>
+                <h2 class="mt-2 text-2xl md:text-3xl font-extrabold tracking-tight">Watch CodersSecret Tutorials</h2>
+                <p class="mt-3 max-w-2xl text-sm md:text-base leading-relaxed text-muted-foreground">
+                  Visual walkthroughs for the same backend, security, Kubernetes, and production engineering topics covered here.
+                </p>
+              </div>
+            </div>
+            <a href="https://www.youtube.com/@CodersSecret" target="_blank" rel="noopener noreferrer"
+               class="inline-flex min-h-[44px] touch-manipulation items-center justify-center gap-2 rounded-full bg-red-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-red-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-red-600 hover:shadow-xl active:scale-[0.97]">
+              Visit Channel
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- FAQ Section -->
     <section class="py-16 animate-in fade-in duration-700">
       <div class="container max-w-3xl mx-auto px-6">

@@ -136,6 +136,8 @@ export class SeoService {
         'sameAs': [
           'https://instagram.com/vis_naz',
           'https://linkedin.com/in/vishal-techlead',
+          'https://www.youtube.com/@CodersSecret',
+          'https://github.com/vishalanandl177/coderssecret.com',
         ],
       });
       // WebSite schema with search action
