@@ -35,6 +35,20 @@ export const CATEGORIES = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    id: '88',
+    title: 'Are DAGs Dying? The Rise of Declarative Data Pipelines',
+    slug: 'are-dags-dying-declarative-data-pipelines',
+    excerpt: 'DAGs are not dying, but task-first orchestration is changing. Learn declarative data pipelines, asset graphs, data contracts, freshness policies, and when Airflow still fits.',
+    category: 'devops',
+    featured: false,
+    content: '',
+    author: 'Vishal Anand',
+    date: '2026-05-09',
+    readTime: '16 min read',
+    tags: ['Data Engineering', 'DAGs', 'Data Pipelines', 'Airflow', 'Dagster', 'dbt', 'Data Contracts', 'Orchestration'],
+    coverImage: '',
+  },
+  {
     id: '87',
     title: 'Distributed Systems Algorithms: Consensus, Replication, and Coordination at Production Scale',
     slug: 'distributed-systems-algorithms-production-guide',

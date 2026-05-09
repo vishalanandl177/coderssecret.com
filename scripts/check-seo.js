@@ -293,7 +293,7 @@ function checkPageComponents() {
       const imgMatches = content.match(/<img\s[^>]*>/g);
       if (imgMatches) {
         for (const img of imgMatches) {
-          if (!/alt=/.test(img)) {
+          if (!/(^|\s)(alt|\[alt\]|\[attr\.alt\])\s*=/.test(img)) {
             errors.push(`${relative}: <img> tag missing alt attribute`);
           }
         }

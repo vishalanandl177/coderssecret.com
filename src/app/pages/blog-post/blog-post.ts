@@ -640,6 +640,44 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   }
 
   private getBlogFaqSchema(slug: string): Record<string, unknown> | undefined {
+    if (slug === 'are-dags-dying-declarative-data-pipelines') {
+      const faqs = [
+        {
+          question: 'Are DAGs becoming obsolete?',
+          answer: 'No. Dependency graphs remain fundamental. What is changing is that more graphs are derived from assets, SQL refs, contracts, and metadata instead of being manually written as task chains.',
+        },
+        {
+          question: 'What is a declarative data pipeline?',
+          answer: 'A declarative data pipeline describes desired data assets, dependencies, schemas, freshness expectations, checks, and ownership. The execution engine decides what work must run to keep those assets correct and fresh.',
+        },
+        {
+          question: 'Is Airflow still useful?',
+          answer: 'Yes. Airflow remains useful for procedural workflows, broad integrations, and mature scheduling. Teams can still add dbt models, lineage, data contracts, asset naming, and freshness checks.',
+        },
+        {
+          question: 'What is an asset graph?',
+          answer: 'An asset graph maps durable data objects such as tables, metrics, files, dashboards, or ML features and the dependencies between them.',
+        },
+        {
+          question: 'Should beginners learn Airflow, dbt, or Dagster first?',
+          answer: 'Beginners should learn the concepts first: DAGs, idempotency, retries, partitions, SQL models, tests, and lineage. Then choose tools based on the role and platform.',
+        },
+      ];
+
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        'mainEntity': faqs.map(faq => ({
+          '@type': 'Question',
+          'name': faq.question,
+          'acceptedAnswer': {
+            '@type': 'Answer',
+            'text': faq.answer,
+          },
+        })),
+      };
+    }
+
     if (slug !== 'claude-tokens-hidden-costs-optimization-guide') {
       return undefined;
     }
