@@ -1,6 +1,7 @@
 import { Component, signal, viewChild } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { SearchComponent } from '../search/search';
+import { EXTERNAL_LINKS } from '../../shared/external-links';
 
 @Component({
   selector: 'app-header',
@@ -35,6 +36,10 @@ import { SearchComponent } from '../search/search';
             <a routerLink="/blog" routerLinkActive="text-foreground bg-accent"
                class="whitespace-nowrap rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
               Blog
+            </a>
+            <a [href]="links.spotifyPodcast" target="_blank" rel="noopener noreferrer"
+               class="whitespace-nowrap rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
+              Podcast
             </a>
             <a routerLink="/courses" routerLinkActive="text-foreground bg-accent"
                class="relative whitespace-nowrap rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
@@ -172,6 +177,11 @@ import { SearchComponent } from '../search/search';
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>
               Blog
             </a>
+            <a [href]="links.spotifyPodcast" target="_blank" rel="noopener noreferrer" (click)="mobileMenuOpen.set(false)"
+               class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.75C6.34 1.75 1.75 6.34 1.75 12S6.34 22.25 12 22.25 22.25 17.66 22.25 12 17.66 1.75 12 1.75Zm4.7 14.78a.73.73 0 0 1-1 .24c-2.74-1.67-6.18-2.05-10.24-1.12a.73.73 0 1 1-.33-1.42c4.44-1.02 8.25-.58 11.33 1.3.35.21.46.66.24 1Zm1.33-2.96a.9.9 0 0 1-1.24.3c-3.13-1.93-7.9-2.49-11.6-1.36a.9.9 0 1 1-.52-1.73c4.22-1.28 9.48-.66 13.06 1.54.43.27.57.83.3 1.25Zm.11-3.08c-3.76-2.23-9.95-2.44-13.54-1.35a1.08 1.08 0 1 1-.63-2.07c4.12-1.25 10.95-1 15.27 1.56a1.08 1.08 0 0 1-1.1 1.86Z"/></svg>
+              Podcast
+            </a>
             <a routerLink="/courses" (click)="mobileMenuOpen.set(false)" routerLinkActive="bg-accent text-foreground"
                class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
@@ -233,6 +243,7 @@ import { SearchComponent } from '../search/search';
   `,
 })
 export class HeaderComponent {
+  links = EXTERNAL_LINKS;
   mobileMenuOpen = signal(false);
   categoriesOpen = signal(false);
   isDark = signal(typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));

@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SeoService } from '../../services/seo.service';
 import { BLOG_POSTS, CATEGORIES } from '../../models/blog-post.model';
+import { EXTERNAL_LINKS } from '../../shared/external-links';
 
 @Component({
   selector: 'app-about',
@@ -33,9 +34,10 @@ import { BLOG_POSTS, CATEGORIES } from '../../models/blog-post.model';
               <h2 class="mt-0 mb-1">Vishal Anand</h2>
               <p class="mt-0 mb-2 text-muted-foreground text-sm">Senior Product Engineer & Tech Lead</p>
               <div class="flex gap-3 text-sm">
-                <a href="https://linkedin.com/in/vishal-techlead" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-                <a href="https://instagram.com/vis_naz" target="_blank" rel="noopener noreferrer">Instagram</a>
-                <a href="https://www.youtube.com/@CodersSecret" target="_blank" rel="noopener noreferrer">YouTube</a>
+                <a [href]="links.linkedin" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a [href]="links.instagram" target="_blank" rel="noopener noreferrer">Instagram</a>
+                <a [href]="links.youtube" target="_blank" rel="noopener noreferrer">YouTube</a>
+                <a [href]="links.spotifyPodcast" target="_blank" rel="noopener noreferrer">Spotify</a>
                 <a href="https://github.com/vishalanandl177" target="_blank" rel="noopener noreferrer">GitHub</a>
               </div>
             </div>
@@ -109,11 +111,14 @@ import { BLOG_POSTS, CATEGORIES } from '../../models/blog-post.model';
           <h2>Why I Teach</h2>
           <p>I've spent years building production systems at scale and contributing to open source. I've seen the gap between "tutorial knowledge" and "production knowledge" — and I want to close it. Free courses, free labs on GitHub, no paywalls, no upsells. The goal: <strong>turn tutorial readers into the engineers who secure, scale, and ship real infrastructure</strong>.</p>
 
+          <h2>Podcast</h2>
+          <p>The <a [href]="links.spotifyPodcast" target="_blank" rel="noopener noreferrer">CodersSecret Podcast on Spotify</a> turns the same production engineering topics into audio-first explainers for screen-free learning. Recent episodes cover Claude token costs, OAuth, and the Delta Lake vs Iceberg table format war.</p>
+
           <h2>Open Source</h2>
           <p>This entire blog is open source. The code, content, and infrastructure are all visible on <a href="https://github.com/vishalanandl177/coderssecret.com" target="_blank" rel="noopener noreferrer">GitHub</a>. Pull requests, issues, and suggestions are welcome.</p>
 
           <h2>Contact</h2>
-          <p>Have a question, suggestion, or collaboration idea? Reach out via <a href="https://linkedin.com/in/vishal-techlead" target="_blank" rel="noopener noreferrer">LinkedIn</a>, <a href="https://instagram.com/vis_naz" target="_blank" rel="noopener noreferrer">Instagram</a>, or <a href="https://www.youtube.com/@CodersSecret" target="_blank" rel="noopener noreferrer">YouTube</a>. For technical discussions, use the <a href="https://github.com/vishalanandl177/coderssecret.com/discussions" target="_blank" rel="noopener noreferrer">GitHub Discussions</a> on the repo.</p>
+          <p>Have a question, suggestion, or collaboration idea? Reach out via <a [href]="links.linkedin" target="_blank" rel="noopener noreferrer">LinkedIn</a>, <a [href]="links.instagram" target="_blank" rel="noopener noreferrer">Instagram</a>, <a [href]="links.youtube" target="_blank" rel="noopener noreferrer">YouTube</a>, or <a [href]="links.spotifyPodcast" target="_blank" rel="noopener noreferrer">Spotify</a>. For technical discussions, use the <a href="https://github.com/vishalanandl177/coderssecret.com/discussions" target="_blank" rel="noopener noreferrer">GitHub Discussions</a> on the repo.</p>
 
         </div>
       </div>
@@ -122,6 +127,7 @@ import { BLOG_POSTS, CATEGORIES } from '../../models/blog-post.model';
 })
 export class AboutComponent {
   private seo = inject(SeoService);
+  links = EXTERNAL_LINKS;
   totalPosts = BLOG_POSTS.length;
   totalCategories = CATEGORIES.filter(c => c.slug).length;
   totalTags = new Set(BLOG_POSTS.flatMap(p => p.tags)).size;

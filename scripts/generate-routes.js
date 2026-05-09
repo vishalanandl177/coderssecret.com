@@ -17,6 +17,9 @@ const fs = require('fs');
 const path = require('path');
 
 const SITE_URL = 'https://coderssecret.com';
+const YOUTUBE_URL = 'https://www.youtube.com/@CodersSecret';
+const SPOTIFY_PODCAST_URL = 'https://open.spotify.com/show/033dhxk8tNClX2r4XduVyb';
+const GITHUB_REPO_URL = 'https://github.com/vishalanandl177/coderssecret.com';
 const OUTPUT_DIR = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'browser');
 
 // Read the blog post model
@@ -753,6 +756,15 @@ const homeContent = `
       </ul>
     </section>
     <section>
+      <h2>Watch and Listen</h2>
+      <p>CodersSecret is also on YouTube and Spotify, with visual tutorials and audio-first engineering explainers based on the same production backend, security, Kubernetes, AI, and data engineering topics.</p>
+      <ul>
+        <li><a href="${YOUTUBE_URL}">Watch CodersSecret tutorials on YouTube</a></li>
+        <li><a href="${SPOTIFY_PODCAST_URL}">Listen to the CodersSecret Podcast on Spotify</a></li>
+      </ul>
+      <p>Recent podcast topics include Claude token costs, OAuth authentication mistakes, and Delta Lake vs Iceberg.</p>
+    </section>
+    <section>
       <h2>Article Categories</h2>
       <ul>
         ${homeCategoryLinks}
@@ -777,6 +789,9 @@ const homeJsonLd = [
     'sameAs': [
       'https://instagram.com/vis_naz',
       'https://linkedin.com/in/vishal-techlead',
+      YOUTUBE_URL,
+      SPOTIFY_PODCAST_URL,
+      GITHUB_REPO_URL,
     ],
   },
   {
@@ -789,6 +804,19 @@ const homeJsonLd = [
       '@type': 'SearchAction',
       'target': `${SITE_URL}/blog?q={search_term_string}`,
       'query-input': 'required name=search_term_string',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'PodcastSeries',
+    'name': 'CodersSecret Podcast',
+    'description': 'Audio-first engineering explainers on backend systems, cloud native security, AI, data engineering, and production architecture.',
+    'url': SPOTIFY_PODCAST_URL,
+    'inLanguage': 'en',
+    'publisher': {
+      '@type': 'Organization',
+      'name': 'CodersSecret',
+      'url': SITE_URL,
     },
   },
   {
@@ -1593,6 +1621,7 @@ fs.writeFileSync(path.join(aboutDir, 'index.html'), makeHtml({
   content: `
     <h1>About CodersSecret</h1>
     <p>CodersSecret is written by Vishal Anand — a Senior Product Engineer and Tech Lead with experience building production systems at scale. The blog covers backend architecture, DevOps, security, Kubernetes, Python, and system design with practical, production-grade tutorials.</p>
+    <p>The <a href="${SPOTIFY_PODCAST_URL}">CodersSecret Podcast on Spotify</a> turns the same production engineering topics into audio-first explainers for screen-free learning.</p>
     <p>${posts.length} articles published across ${categories.size} categories.</p>
     <p><a href="/blog">Browse all articles</a></p>
   `,

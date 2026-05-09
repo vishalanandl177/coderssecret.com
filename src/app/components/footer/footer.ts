@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { EXTERNAL_LINKS } from '../../shared/external-links';
 
 @Component({
   selector: 'app-footer',
@@ -62,7 +63,8 @@ import { RouterLink } from '@angular/router';
               <li><a routerLink="/courses/mastering-spiffe-spire" class="text-muted-foreground transition-colors hover:text-foreground">SPIFFE & SPIRE Course</a></li>
               <li><a routerLink="/courses/cloud-native-security-engineering" class="text-muted-foreground transition-colors hover:text-foreground">Cloud Native Security</a></li>
               <li><a routerLink="/courses/production-rag-systems-engineering" class="text-muted-foreground transition-colors hover:text-foreground">Production RAG Engineering</a></li>
-              <li><a href="https://www.youtube.com/@CodersSecret" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">YouTube Tutorials</a></li>
+              <li><a [href]="links.youtube" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">YouTube Tutorials</a></li>
+              <li><a [href]="links.spotifyPodcast" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">Spotify Podcast</a></li>
               <li><a routerLink="/cheatsheets" class="text-muted-foreground transition-colors hover:text-foreground">Cheat Sheets</a></li>
               <li><a routerLink="/games" class="text-muted-foreground transition-colors hover:text-foreground">Coding Games</a></li>
             </ul>
@@ -73,11 +75,12 @@ import { RouterLink } from '@angular/router';
             <h3 class="text-sm font-semibold text-foreground mb-3">Connect</h3>
             <ul class="space-y-2 text-sm">
               <li><a routerLink="/consultation" class="text-muted-foreground transition-colors hover:text-foreground">1-on-1 Consultation</a></li>
-              <li><a href="https://instagram.com/vis_naz" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">Instagram</a></li>
-              <li><a href="https://linkedin.com/in/vishal-techlead" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">LinkedIn</a></li>
-              <li><a href="https://www.youtube.com/@CodersSecret" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">YouTube</a></li>
-              <li><a href="https://github.com/vishalanandl177/coderssecret.com" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">GitHub</a></li>
-              <li><a href="https://buymeacoffee.com/riptechlead" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-yellow-600 dark:text-yellow-500 font-semibold transition-colors hover:text-yellow-700 dark:hover:text-yellow-400">
+              <li><a [href]="links.instagram" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">Instagram</a></li>
+              <li><a [href]="links.linkedin" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">LinkedIn</a></li>
+              <li><a [href]="links.youtube" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">YouTube</a></li>
+              <li><a [href]="links.spotifyPodcast" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">Spotify</a></li>
+              <li><a [href]="links.githubRepo" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">GitHub</a></li>
+              <li><a [href]="links.buyMeACoffee" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-yellow-600 dark:text-yellow-500 font-semibold transition-colors hover:text-yellow-700 dark:hover:text-yellow-400">
                 &#x2615; Buy me a coffee
               </a></li>
             </ul>
@@ -94,7 +97,7 @@ import { RouterLink } from '@angular/router';
                 This blog is 100% free and ad-free. If you find it useful, a coffee goes a long way in keeping it that way.
               </p>
             </div>
-            <a href="https://buymeacoffee.com/riptechlead" target="_blank" rel="noopener noreferrer"
+            <a [href]="links.buyMeACoffee" target="_blank" rel="noopener noreferrer"
                class="inline-flex items-center gap-2 rounded-full bg-yellow-500 hover:bg-yellow-600 text-yellow-950 font-bold px-5 py-2.5 text-sm shadow-lg shadow-yellow-500/25 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.97] flex-shrink-0">
               &#x2615; Buy me a coffee
             </a>
@@ -111,4 +114,5 @@ import { RouterLink } from '@angular/router';
 })
 export class FooterComponent {
   currentYear = new Date().getFullYear();
+  links = EXTERNAL_LINKS;
 }

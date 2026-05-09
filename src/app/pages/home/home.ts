@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SeoService } from '../../services/seo.service';
+import { EXTERNAL_LINKS } from '../../shared/external-links';
 
 type PostCard = { id: string; title: string; slug: string; excerpt: string; category: string; date: string; readTime: string; tags: string[]; author: string; featured?: boolean; popularRank?: number; coverImage: string };
 type CategoryInfo = { name: string; slug: string };
@@ -982,34 +983,72 @@ type CategoryInfo = { name: string; slug: string };
       </div>
     </section>
 
-    <!-- YouTube Channel CTA -->
+    <!-- Video and Podcast CTA -->
     <section class="py-12 animate-in fade-in duration-700">
-      <div class="container max-w-5xl mx-auto px-6">
-        <div class="relative overflow-hidden rounded-2xl border border-red-500/20 bg-card/70 p-8 md:p-10">
-          <div class="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-red-500/10 via-primary/5 to-transparent"></div>
-          <div class="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div class="flex items-start gap-4">
-              <div class="inline-flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-red-500 text-white shadow-lg shadow-red-500/20">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4L15.8 12l-6.2 3.6Z"/>
+      <div class="container max-w-6xl mx-auto px-6">
+        <div class="grid gap-5 md:grid-cols-2">
+          <div class="relative overflow-hidden rounded-2xl border border-red-500/20 bg-card/70 p-7 md:p-8">
+            <div class="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-red-500/10 via-primary/5 to-transparent"></div>
+            <div class="relative flex h-full flex-col gap-6">
+              <div class="flex items-start gap-4">
+                <div class="inline-flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-red-500 text-white shadow-lg shadow-red-500/20">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4L15.8 12l-6.2 3.6Z"/>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-wider text-red-500">Now on YouTube</p>
+                  <h2 class="mt-2 text-2xl md:text-3xl font-extrabold tracking-tight">Watch CodersSecret Tutorials</h2>
+                  <p class="mt-3 text-sm md:text-base leading-relaxed text-muted-foreground">
+                    Visual walkthroughs for backend, security, Kubernetes, and production engineering topics.
+                  </p>
+                </div>
+              </div>
+              <a [href]="links.youtube" target="_blank" rel="noopener noreferrer"
+                 class="inline-flex min-h-[44px] touch-manipulation items-center justify-center gap-2 rounded-full bg-red-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-red-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-red-600 hover:shadow-xl active:scale-[0.97] md:w-fit">
+                Visit Channel
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
                 </svg>
-              </div>
-              <div>
-                <p class="text-xs font-bold uppercase tracking-wider text-red-500">Now on YouTube</p>
-                <h2 class="mt-2 text-2xl md:text-3xl font-extrabold tracking-tight">Watch CodersSecret Tutorials</h2>
-                <p class="mt-3 max-w-2xl text-sm md:text-base leading-relaxed text-muted-foreground">
-                  Visual walkthroughs for the same backend, security, Kubernetes, and production engineering topics covered here.
-                </p>
-              </div>
+              </a>
             </div>
-            <a href="https://www.youtube.com/@CodersSecret" target="_blank" rel="noopener noreferrer"
-               class="inline-flex min-h-[44px] touch-manipulation items-center justify-center gap-2 rounded-full bg-red-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-red-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-red-600 hover:shadow-xl active:scale-[0.97]">
-              Visit Channel
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
-              </svg>
-            </a>
+          </div>
+
+          <div class="relative overflow-hidden rounded-2xl border border-green-500/25 bg-card/70 p-7 md:p-8">
+            <div class="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-green-500/10 via-emerald-500/5 to-transparent"></div>
+            <div class="relative flex h-full flex-col gap-6">
+              <div class="flex items-start gap-4">
+                <div class="inline-flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-green-500 text-white shadow-lg shadow-green-500/20">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M12 1.75C6.34 1.75 1.75 6.34 1.75 12S6.34 22.25 12 22.25 22.25 17.66 22.25 12 17.66 1.75 12 1.75Zm4.7 14.78a.73.73 0 0 1-1 .24c-2.74-1.67-6.18-2.05-10.24-1.12a.73.73 0 1 1-.33-1.42c4.44-1.02 8.25-.58 11.33 1.3.35.21.46.66.24 1Zm1.33-2.96a.9.9 0 0 1-1.24.3c-3.13-1.93-7.9-2.49-11.6-1.36a.9.9 0 1 1-.52-1.73c4.22-1.28 9.48-.66 13.06 1.54.43.27.57.83.3 1.25Zm.11-3.08c-3.76-2.23-9.95-2.44-13.54-1.35a1.08 1.08 0 1 1-.63-2.07c4.12-1.25 10.95-1 15.27 1.56a1.08 1.08 0 0 1-1.1 1.86Z"/>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-wider text-green-500">Listen on Spotify</p>
+                  <h2 class="mt-2 text-2xl md:text-3xl font-extrabold tracking-tight">CodersSecret Podcast</h2>
+                  <p class="mt-3 text-sm md:text-base leading-relaxed text-muted-foreground">
+                    Audio-first engineering explainers for commutes, walks, and screen-free learning.
+                  </p>
+                </div>
+              </div>
+              <div class="rounded-xl border border-border/60 bg-background/50 p-4">
+                <p class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Recent topics</p>
+                <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
+                  <li>Why Your Claude Bill Is Bigger Than Your Prompt</li>
+                  <li>Delta Lake vs Iceberg: The Table Format War</li>
+                  <li>OAuth Is Not Authentication</li>
+                </ul>
+              </div>
+              <a [href]="links.spotifyPodcast" target="_blank" rel="noopener noreferrer"
+                 class="inline-flex min-h-[44px] touch-manipulation items-center justify-center gap-2 rounded-full bg-green-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-green-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-green-600 hover:shadow-xl active:scale-[0.97] md:w-fit">
+                Listen on Spotify
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
+                </svg>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -1085,6 +1124,7 @@ type CategoryInfo = { name: string; slug: string };
 export class HomeComponent implements OnInit {
   private seo = inject(SeoService);
   private readonly homeDescription = 'Free cloud native security courses and engineering guides on Kubernetes, SPIFFE/SPIRE, Zero Trust, DevSecOps, API security, labs, and diagrams.';
+  links = EXTERNAL_LINKS;
   featuredPost = signal<PostCard | undefined>(undefined);
   popularPosts = signal<PostCard[]>([]);
   latestPosts = signal<PostCard[]>([]);
@@ -1181,7 +1221,7 @@ export class HomeComponent implements OnInit {
       title: 'CodersSecret',
       description: this.homeDescription,
       url: '/',
-      jsonLd: this.faqSchema(),
+      jsonLd: [this.faqSchema(), this.podcastSchema()],
     });
   }
 
@@ -1197,6 +1237,22 @@ export class HomeComponent implements OnInit {
           'text': f.a.replace(/<[^>]+>/g, ''),
         },
       })),
+    };
+  }
+
+  private podcastSchema(): Record<string, unknown> {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'PodcastSeries',
+      'name': 'CodersSecret Podcast',
+      'description': 'Audio-first engineering explainers on backend systems, cloud native security, AI, data engineering, and production architecture.',
+      'url': this.links.spotifyPodcast,
+      'inLanguage': 'en',
+      'publisher': {
+        '@type': 'Organization',
+        'name': 'CodersSecret',
+        'url': 'https://coderssecret.com',
+      },
     };
   }
 

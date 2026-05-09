@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { DOCUMENT } from '@angular/common';
+import { EXTERNAL_LINKS } from '../shared/external-links';
 
 interface SeoConfig {
   title: string;
@@ -134,10 +135,11 @@ export class SeoService {
         'logo': `${this.siteUrl}/logo.svg`,
         'description': this.defaultDescription,
         'sameAs': [
-          'https://instagram.com/vis_naz',
-          'https://linkedin.com/in/vishal-techlead',
-          'https://www.youtube.com/@CodersSecret',
-          'https://github.com/vishalanandl177/coderssecret.com',
+          EXTERNAL_LINKS.instagram,
+          EXTERNAL_LINKS.linkedin,
+          EXTERNAL_LINKS.youtube,
+          EXTERNAL_LINKS.spotifyPodcast,
+          EXTERNAL_LINKS.githubRepo,
         ],
       });
       // WebSite schema with search action
