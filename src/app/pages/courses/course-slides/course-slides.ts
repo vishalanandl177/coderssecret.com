@@ -35,6 +35,12 @@ export class CourseSlidesComponent {
     const mod = course.modules.find(m => m.slug === moduleSlug);
     if (!mod) { router.navigate(['/courses/' + course.slug]); return; }
 
+    const usesInlineLabs = course.labDelivery === 'inline';
+    const labTitle = usesInlineLabs ? 'Inline Exercises' : 'Hands-On Labs';
+    const labNarration = usesInlineLabs
+      ? `This module includes ${mod.labs.length} inline exercises: ${mod.labs.map(l => l.title).join(', ')}.`
+      : `This module includes ${mod.labs.length} hands-on labs: ${mod.labs.map(l => l.title).join(', ')}.`;
+
     this.deckTitle.set(`Module ${mod.number}: ${mod.title}`);
     this.backUrl.set(`/courses/${course.slug}/${mod.slug}`);
 
@@ -178,7 +184,7 @@ export class CourseSlidesComponent {
       generatedSlides.push({
         type: 'grid',
         eyebrow: 'Think Deeper',
-        title: 'Think Like a Platform Engineer',
+        title: 'Think Like an Engineer',
         items: mod.thinkLikeAnEngineer.map(q => ({ title: q, desc: '' })),
         narration: `Architecture thinking questions: ${mod.thinkLikeAnEngineer.join('. ')}.`,
       });
@@ -200,9 +206,9 @@ export class CourseSlidesComponent {
       generatedSlides.push({
         type: 'grid',
         eyebrow: 'Hands-On',
-        title: 'Hands-On Labs',
+        title: labTitle,
         items: mod.labs.map(lab => ({ title: lab.title, desc: lab.objective })),
-        narration: `This module includes ${mod.labs.length} hands-on labs: ${mod.labs.map(l => l.title).join(', ')}.`,
+        narration: labNarration,
       });
     }
 

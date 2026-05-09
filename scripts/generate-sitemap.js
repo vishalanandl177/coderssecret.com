@@ -817,6 +817,51 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
   </url>
 `;
 
+function loadCoursesFromModel() {
+  const courseModelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'course.model.ts');
+  if (!fs.existsSync(courseModelPath)) return [];
+
+  try {
+    const ts = require('typescript');
+    const js = ts.transpileModule(fs.readFileSync(courseModelPath, 'utf-8'), {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2020,
+      },
+    }).outputText;
+    const mod = { exports: {} };
+    new Function('exports', 'require', 'module', js)(mod.exports, require, mod);
+    return Array.isArray(mod.exports.COURSES) ? mod.exports.COURSES : [];
+  } catch (err) {
+    console.warn(`Could not load course model for sitemap: ${err.message}`);
+    return [];
+  }
+}
+
+const sitemapUrls = new Set([...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map(item => item[1]));
+function appendUrl(urlPath, priority = '0.8') {
+  const loc = `${SITE_URL}${urlPath}`;
+  if (sitemapUrls.has(loc)) return;
+  sitemapUrls.add(loc);
+  xml += `  <url>
+    <loc>${loc}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>${priority}</priority>
+  </url>
+`;
+}
+
+for (const course of loadCoursesFromModel()) {
+  appendUrl(`/courses/${course.slug}`, '0.9');
+  for (const mod of course.modules || []) {
+    appendUrl(`/courses/${course.slug}/${mod.slug}`, '0.8');
+  }
+  for (const page of course.seoPages || []) {
+    appendUrl(`/courses/${page.slug}`, '0.8');
+  }
+}
+
 // Category pages
 for (const cat of categories) {
   xml += `  <url>

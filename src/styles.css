@@ -1340,6 +1340,24 @@
   color: hsl(var(--foreground) / 0.85);
 }
 
+.course-content details {
+  margin: 1.25rem 0;
+  border: 1px solid hsl(var(--border) / 0.6);
+  border-radius: 0.5rem;
+  background-color: hsl(var(--card) / 0.75);
+  padding: 0.85rem 1rem;
+}
+
+.course-content summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+
+.course-content details[open] summary {
+  margin-bottom: 0.75rem;
+}
+
 .course-content hr {
   border: none;
   border-top: 1px solid hsl(var(--border) / 0.6);

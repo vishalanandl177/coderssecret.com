@@ -30,14 +30,14 @@ export class SeoService {
 
   private readonly siteName = 'CodersSecret';
   private readonly siteUrl = 'https://coderssecret.com';
-  private readonly defaultDescription = 'Free cloud native security courses and engineering guides on Kubernetes, SPIFFE/SPIRE, Zero Trust, DevSecOps, API security, labs, and diagrams.';
+  private readonly defaultDescription = 'Free engineering courses and guides on Kubernetes, SPIFFE/SPIRE, Zero Trust, production RAG, analytics engineering, DevSecOps, labs, and diagrams.';
   private readonly defaultImage = `${this.siteUrl}/og-image.svg`;
   private readonly defaultImageWidth = 1200;
   private readonly defaultImageHeight = 630;
 
   update(config: SeoConfig) {
     const fullTitle = config.title === this.siteName
-      ? `${this.siteName} — Cloud Native Security, Kubernetes & Production Engineering`
+      ? `${this.siteName} — Security, AI, Data & Production Engineering`
       : `${config.title} | ${this.siteName}`;
     const description = config.description || this.defaultDescription;
     const url = config.url ? `${this.siteUrl}${config.url}` : this.siteUrl;

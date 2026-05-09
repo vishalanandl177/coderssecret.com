@@ -63,6 +63,7 @@ import { EXTERNAL_LINKS } from '../../shared/external-links';
               <li><a routerLink="/courses/mastering-spiffe-spire" class="text-muted-foreground transition-colors hover:text-foreground">SPIFFE & SPIRE Course</a></li>
               <li><a routerLink="/courses/cloud-native-security-engineering" class="text-muted-foreground transition-colors hover:text-foreground">Cloud Native Security</a></li>
               <li><a routerLink="/courses/production-rag-systems-engineering" class="text-muted-foreground transition-colors hover:text-foreground">Production RAG Engineering</a></li>
+              <li><a routerLink="/courses/production-analytics-engineering-dbt" class="text-muted-foreground transition-colors hover:text-foreground">Analytics Engineering</a></li>
               <li><a [href]="links.youtube" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">YouTube Tutorials</a></li>
               <li><a [href]="links.spotifyPodcast" target="_blank" rel="noopener noreferrer" class="text-muted-foreground transition-colors hover:text-foreground">Spotify Podcast</a></li>
               <li><a routerLink="/cheatsheets" class="text-muted-foreground transition-colors hover:text-foreground">Cheat Sheets</a></li>

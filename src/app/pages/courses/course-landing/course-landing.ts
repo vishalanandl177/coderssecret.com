@@ -39,11 +39,17 @@ import { SeoService } from '../../../services/seo.service';
             Start Module 1 — Free
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </a>
-          <a [href]="'https://github.com/vishalanandl177/' + c.slug" target="_blank" rel="noopener noreferrer"
-             class="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-8 py-4 text-base font-semibold text-foreground hover:bg-accent transition-all duration-300">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-            Course Labs on GitHub
-          </a>
+          @if (c.labDelivery === 'inline') {
+            <span class="inline-flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-8 py-4 text-base font-semibold text-green-500">
+              Inline labs included
+            </span>
+          } @else {
+            <a [href]="'https://github.com/vishalanandl177/' + c.slug" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-8 py-4 text-base font-semibold text-foreground hover:bg-accent transition-all duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+              Course Labs on GitHub
+            </a>
+          }
         </div>
       </div>
     </section>
@@ -53,30 +59,12 @@ import { SeoService } from '../../../services/seo.service';
       <div class="container max-w-6xl mx-auto px-6">
         <h2 class="text-2xl md:text-3xl font-bold text-center mb-10">By the End of This Course, You Will Build</h2>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div class="flex items-start gap-3 p-4 rounded-xl border border-green-500/20 bg-green-500/5">
-            <span class="text-green-500 text-lg mt-0.5 shrink-0">&#10003;</span>
-            <span class="text-sm">A production-style <strong class="text-foreground">Zero Trust Kubernetes platform</strong></span>
-          </div>
-          <div class="flex items-start gap-3 p-4 rounded-xl border border-green-500/20 bg-green-500/5">
-            <span class="text-green-500 text-lg mt-0.5 shrink-0">&#10003;</span>
-            <span class="text-sm"><strong class="text-foreground">Secure workload identities</strong> with automatic rotation</span>
-          </div>
-          <div class="flex items-start gap-3 p-4 rounded-xl border border-green-500/20 bg-green-500/5">
-            <span class="text-green-500 text-lg mt-0.5 shrink-0">&#10003;</span>
-            <span class="text-sm"><strong class="text-foreground">mTLS-encrypted services</strong> via Envoy SDS</span>
-          </div>
-          <div class="flex items-start gap-3 p-4 rounded-xl border border-green-500/20 bg-green-500/5">
-            <span class="text-green-500 text-lg mt-0.5 shrink-0">&#10003;</span>
-            <span class="text-sm"><strong class="text-foreground">OPA-powered authorization</strong> policies</span>
-          </div>
-          <div class="flex items-start gap-3 p-4 rounded-xl border border-green-500/20 bg-green-500/5">
-            <span class="text-green-500 text-lg mt-0.5 shrink-0">&#10003;</span>
-            <span class="text-sm"><strong class="text-foreground">Federated trust domains</strong> across clusters</span>
-          </div>
-          <div class="flex items-start gap-3 p-4 rounded-xl border border-green-500/20 bg-green-500/5">
-            <span class="text-green-500 text-lg mt-0.5 shrink-0">&#10003;</span>
-            <span class="text-sm"><strong class="text-foreground">Production monitoring</strong> with Prometheus dashboards</span>
-          </div>
+          @for (outcome of courseOutcomes(c); track outcome) {
+            <div class="flex items-start gap-3 p-4 rounded-xl border border-green-500/20 bg-green-500/5">
+              <span class="text-green-500 text-lg mt-0.5 shrink-0">&#10003;</span>
+              <span class="text-sm">{{ outcome }}</span>
+            </div>
+          }
         </div>
       </div>
     </section>
@@ -84,20 +72,20 @@ import { SeoService } from '../../../services/seo.service';
     <!-- Transformation Section -->
     <section class="bg-accent/30 border-y border-border/40 py-16">
       <div class="container max-w-6xl mx-auto px-6">
-        <h2 class="text-2xl md:text-3xl font-bold text-center mb-4">This Course Is Not About Technology</h2>
-        <p class="text-center text-muted-foreground max-w-2xl mx-auto mb-10">It is about becoming the engineer who secures production Kubernetes clusters with cryptographic workload identity — a skill that makes you invaluable in the AI/cloud-native era.</p>
+        <h2 class="text-2xl md:text-3xl font-bold text-center mb-4">{{ c.slug === 'mastering-spiffe-spire' ? 'This Course Is Not About Technology' : 'This Course Is About Production Trust' }}</h2>
+        <p class="text-center text-muted-foreground max-w-2xl mx-auto mb-10">{{ c.slug === 'mastering-spiffe-spire' ? 'It is about becoming the engineer who secures production Kubernetes clusters with cryptographic workload identity.' : 'It is about learning the engineering habits that make systems, data, and decisions reliable enough for production use.' }}</p>
         <div class="grid md:grid-cols-3 gap-6">
           <div class="p-6 rounded-xl bg-card border border-border/60">
             <div class="text-3xl mb-3">Before</div>
-            <p class="text-muted-foreground text-sm">Shared secrets in env vars. Long-lived API keys. NetworkPolicies and hope. No idea how services actually authenticate.</p>
+            <p class="text-muted-foreground text-sm">{{ c.slug === 'mastering-spiffe-spire' ? 'Shared secrets in env vars. Long-lived API keys. NetworkPolicies and hope. No idea how services actually authenticate.' : 'Ad hoc scripts, copied SQL, unclear ownership, no tests, and dashboards that disagree when the business needs one answer.' }}</p>
           </div>
           <div class="p-6 rounded-xl bg-card border border-green-500/40 shadow-lg shadow-green-500/5">
             <div class="text-3xl mb-3">After</div>
-            <p class="text-sm text-foreground">You deploy SPIRE on Kubernetes, configure mTLS between services, enforce OPA policies, and federate across clusters. You are the zero trust engineer.</p>
+            <p class="text-sm text-foreground">{{ c.slug === 'mastering-spiffe-spire' ? 'You deploy SPIRE on Kubernetes, configure mTLS between services, enforce OPA policies, and federate across clusters. You are the zero trust engineer.' : 'You can explain the architecture, tests, tradeoffs, ownership, and downstream impact of every model or metric you build.' }}</p>
           </div>
           <div class="p-6 rounded-xl bg-card border border-border/60">
             <div class="text-3xl mb-3">Career Impact</div>
-            <p class="text-muted-foreground text-sm">Platform engineering, security engineering, and DevOps roles increasingly require zero trust skills. This course positions you ahead of the curve.</p>
+            <p class="text-muted-foreground text-sm">{{ c.slug === 'mastering-spiffe-spire' ? 'Platform engineering, security engineering, and DevOps roles increasingly require zero trust skills. This course positions you ahead of the curve.' : 'Freshers who can reason about production quality, lineage, metrics, and user trust are far more useful than developers who only write isolated queries.' }}</p>
           </div>
         </div>
       </div>
@@ -120,7 +108,7 @@ import { SeoService } from '../../../services/seo.service';
     <section id="curriculum" class="bg-accent/20 border-y border-border/40 py-16">
       <div class="container max-w-6xl mx-auto px-6">
         <h2 class="text-2xl md:text-3xl font-bold mb-2">Full Curriculum</h2>
-        <p class="text-muted-foreground mb-8">{{ c.modules.length }} modules, {{ getTotalLabs() }} hands-on labs, {{ c.totalDuration }} of production-focused content</p>
+        <p class="text-muted-foreground mb-8">{{ c.modules.length }} modules, {{ labCountLabel(c) }}, {{ c.totalDuration }} of production-focused content</p>
 
         <div class="space-y-3">
           @for (mod of c.modules; track mod.number) {
@@ -325,6 +313,22 @@ export class CourseLandingComponent {
     return this.course()?.modules.reduce((sum, m) => sum + m.labs.length, 0) ?? 0;
   }
 
+  labCountLabel(course: Course): string {
+    const totalLabs = this.getTotalLabsFor(course);
+    return course.labDelivery === 'inline' ? `${totalLabs} inline exercises` : `${totalLabs}+ hands-on labs`;
+  }
+
+  courseOutcomes(course: Course): string[] {
+    return course.outcomes ?? [
+      'A production-style Zero Trust Kubernetes platform',
+      'Secure workload identities with automatic rotation',
+      'mTLS-encrypted services via Envoy SDS',
+      'OPA-powered authorization policies',
+      'Federated trust domains across clusters',
+      'Production monitoring with Prometheus dashboards',
+    ];
+  }
+
   private getTotalLabsFor(course: Course): number {
     return course.modules.reduce((sum, m) => sum + m.labs.length, 0);
   }
@@ -340,7 +344,8 @@ export class CourseLandingComponent {
     if (course.slug === 'mastering-spiffe-spire') {
       return `Free ${course.modules.length}-module SPIFFE/SPIRE course: deploy SPIRE on Kubernetes, issue SVIDs, configure mTLS, enforce OPA, federate clusters, and run ${totalLabs}+ labs.`;
     }
-    return `${course.excerpt} ${course.modules.length} modules, ${totalLabs}+ hands-on labs, free.`;
+    const labLabel = course.labDelivery === 'inline' ? `${totalLabs} inline exercises` : `${totalLabs}+ hands-on labs`;
+    return `${course.excerpt} ${course.modules.length} modules, ${labLabel}, free.`;
   }
 
   private getCourseImage(course: Course): string {
@@ -348,6 +353,7 @@ export class CourseLandingComponent {
       'mastering-spiffe-spire': 'https://coderssecret.com/images/banners/course-mastering-spiffe-spire.svg',
       'cloud-native-security-engineering': 'https://coderssecret.com/images/banners/course-cloud-native-security-engineering.svg',
       'production-rag-systems-engineering': 'https://coderssecret.com/images/banners/course-production-rag-systems-engineering.svg',
+      'production-analytics-engineering-dbt': 'https://coderssecret.com/images/banners/course-production-analytics-engineering-dbt.svg',
     };
     return imageByCourse[course.slug] ?? 'https://coderssecret.com/og-image.svg';
   }

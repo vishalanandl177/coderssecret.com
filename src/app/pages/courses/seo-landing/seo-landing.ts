@@ -22,7 +22,7 @@ import { SeoService } from '../../../services/seo.service';
 
       <div class="mt-12 rounded-xl border border-primary/30 bg-primary/5 p-8 text-center">
         <h2 class="text-2xl font-bold mb-3">Ready to Learn?</h2>
-        <p class="text-muted-foreground mb-6">Start with our free {{ courseTitle() }} course &mdash; {{ courseModuleCount() }} modules, {{ totalLabs() }} hands-on labs, completely free.</p>
+        <p class="text-muted-foreground mb-6">Start with our free {{ courseTitle() }} course &mdash; {{ courseModuleCount() }} modules, {{ labCountLabel() }}, completely free.</p>
         <div class="flex flex-wrap justify-center gap-3">
           <a [routerLink]="ctaModuleUrl()"
              class="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
@@ -49,6 +49,11 @@ export class SeoLandingComponent {
   courseSlug = computed(() => this.course()?.slug ?? 'mastering-spiffe-spire');
   courseModuleCount = computed(() => this.course()?.modules.length ?? 13);
   totalLabs = computed(() => this.course()?.modules.reduce((sum, m) => sum + m.labs.length, 0) ?? 30);
+  labCountLabel = computed(() => {
+    const c = this.course();
+    const count = this.totalLabs();
+    return c?.labDelivery === 'inline' ? `${count} inline exercises` : `${count} hands-on labs`;
+  });
   ctaModuleUrl = computed(() => {
     const c = this.course();
     const p = this.page();

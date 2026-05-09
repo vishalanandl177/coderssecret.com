@@ -170,28 +170,28 @@ type CategoryInfo = { name: string; slug: string };
     </section>
 
     <!-- ========================================================== -->
-    <!-- SECTION 2: Production Courses on Kubernetes, Zero Trust & Workload Identity -->
+    <!-- SECTION 2: Production Courses on Security, AI and Data Engineering -->
     <!-- ========================================================== -->
     <section class="py-16 md:py-24 bg-gradient-to-br from-teal-500/5 via-cyan-500/5 to-blue-500/5 border-y border-border/40" aria-labelledby="production-courses-heading">
       <div class="container max-w-6xl mx-auto px-6">
         <div class="text-center max-w-3xl mx-auto mb-12">
           <span class="inline-block rounded-full bg-green-500/10 border border-green-500/30 px-4 py-1 text-xs font-bold text-green-500 uppercase tracking-wider mb-4">100% Free &middot; Open Curriculum</span>
           <h2 id="production-courses-heading" class="text-3xl md:text-5xl font-extrabold tracking-tight leading-[1.1] mb-5">
-            Production Courses on <span class="bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">Kubernetes</span>, <span class="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Zero Trust</span> &amp; <span class="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">Workload Identity</span>
+            Production Courses for <span class="bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">Security</span>, <span class="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">AI</span> &amp; <span class="bg-gradient-to-r from-blue-500 to-emerald-500 bg-clip-text text-transparent">Data Engineering</span>
           </h2>
           <p class="text-base md:text-lg text-muted-foreground leading-relaxed">
-            Three complete, free curriculums focused on the security primitives modern infrastructure actually depends on. Each course is built around real production deployments, not toy clusters &mdash; with annotated YAML, working code, and the same diagnostic workflow you would use on a real on-call rotation.
+            Five complete, free curriculums covering 73 modules and 145+ labs or inline exercises. Each course is built around production thinking: annotated configs, practical diagrams, guided labs, and the diagnostic workflow engineers use when systems fail.
           </p>
         </div>
 
-        <!-- 3 Course cards (H3) -->
-        <div class="grid md:grid-cols-3 gap-5 mb-10">
+        <!-- 4 featured course cards (H3) -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
           <!-- Course 1: SPIFFE/SPIRE -->
           <article class="rounded-2xl border border-teal-500/30 bg-card p-7 hover:border-teal-500/60 hover:shadow-xl hover:-translate-y-1 transition-all">
             <div class="flex flex-wrap gap-1.5 mb-3">
               <span class="rounded-full bg-green-500/10 border border-green-500/30 px-2 py-0.5 text-[10px] font-bold text-green-500 uppercase tracking-wider">Free</span>
               <span class="rounded-full bg-teal-500/10 border border-teal-500/30 px-2 py-0.5 text-[10px] font-semibold text-teal-500">13 Modules</span>
-              <span class="rounded-full bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 text-[10px] font-semibold text-cyan-500">60+ Labs</span>
+              <span class="rounded-full bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 text-[10px] font-semibold text-cyan-500">30 Labs</span>
             </div>
             <h3 class="text-lg md:text-xl font-bold mb-2 tracking-tight">Master SPIFFE &amp; SPIRE for Workload Identity</h3>
             <p class="text-sm text-muted-foreground leading-relaxed mb-5">Deploy SPIRE servers and agents on Kubernetes, attest workloads cryptographically, issue X.509 and JWT SVIDs, and federate trust across clusters and clouds. The most comprehensive free curriculum on CNCF workload identity.</p>
@@ -205,8 +205,8 @@ type CategoryInfo = { name: string; slug: string };
           <article class="rounded-2xl border border-blue-500/30 bg-card p-7 hover:border-blue-500/60 hover:shadow-xl hover:-translate-y-1 transition-all">
             <div class="flex flex-wrap gap-1.5 mb-3">
               <span class="rounded-full bg-green-500/10 border border-green-500/30 px-2 py-0.5 text-[10px] font-bold text-green-500 uppercase tracking-wider">Free</span>
-              <span class="rounded-full bg-blue-500/10 border border-blue-500/30 px-2 py-0.5 text-[10px] font-semibold text-blue-500">17 Modules</span>
-              <span class="rounded-full bg-purple-500/10 border border-purple-500/30 px-2 py-0.5 text-[10px] font-semibold text-purple-500">Production</span>
+              <span class="rounded-full bg-blue-500/10 border border-blue-500/30 px-2 py-0.5 text-[10px] font-semibold text-blue-500">16 Modules</span>
+              <span class="rounded-full bg-purple-500/10 border border-purple-500/30 px-2 py-0.5 text-[10px] font-semibold text-purple-500">32 Labs</span>
             </div>
             <h3 class="text-lg md:text-xl font-bold mb-2 tracking-tight">Secure Kubernetes Workloads in Production</h3>
             <p class="text-sm text-muted-foreground leading-relaxed mb-5">End-to-end Kubernetes security: PodSecurity standards, RBAC hardening, network policies, runtime detection with Falco, image signing with Sigstore, and the supply chain controls that catch attackers before they reach the kube-apiserver.</p>
@@ -216,24 +216,39 @@ type CategoryInfo = { name: string; slug: string };
             </a>
           </article>
 
-          <!-- Course 3: Zero Trust -->
-          <article class="rounded-2xl border border-purple-500/30 bg-card p-7 hover:border-purple-500/60 hover:shadow-xl hover:-translate-y-1 transition-all">
+          <!-- Course 3: Production RAG -->
+          <article class="rounded-2xl border border-pink-500/30 bg-card p-7 hover:border-pink-500/60 hover:shadow-xl hover:-translate-y-1 transition-all">
             <div class="flex flex-wrap gap-1.5 mb-3">
               <span class="rounded-full bg-green-500/10 border border-green-500/30 px-2 py-0.5 text-[10px] font-bold text-green-500 uppercase tracking-wider">Free</span>
-              <span class="rounded-full bg-purple-500/10 border border-purple-500/30 px-2 py-0.5 text-[10px] font-semibold text-purple-500">Architecture</span>
-              <span class="rounded-full bg-pink-500/10 border border-pink-500/30 px-2 py-0.5 text-[10px] font-semibold text-pink-500">Zero Trust</span>
+              <span class="rounded-full bg-pink-500/10 border border-pink-500/30 px-2 py-0.5 text-[10px] font-semibold text-pink-500">16 Modules</span>
+              <span class="rounded-full bg-purple-500/10 border border-purple-500/30 px-2 py-0.5 text-[10px] font-semibold text-purple-500">31 Labs</span>
             </div>
-            <h3 class="text-lg md:text-xl font-bold mb-2 tracking-tight">Build Zero Trust Cloud Native Systems</h3>
-            <p class="text-sm text-muted-foreground leading-relaxed mb-5">Replace network-perimeter assumptions with identity-first policy. Combine SPIFFE workload identity, mTLS-by-default service meshes, OPA authorization, and continuous verification to design distributed systems that hold up under modern threat models.</p>
-            <a routerLink="/courses/zero-trust-kubernetes" class="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-bold hover:gap-3 transition-all">
-              Read the Zero Trust guide
+            <h3 class="text-lg md:text-xl font-bold mb-2 tracking-tight">Engineer Production RAG Systems</h3>
+            <p class="text-sm text-muted-foreground leading-relaxed mb-5">Move beyond chatbot demos: ingestion, chunking, embeddings, vector databases, hybrid retrieval, reranking, evaluation, observability, security, and deployment for reliable AI products.</p>
+            <a routerLink="/courses/production-rag-systems-engineering" class="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-bold hover:gap-3 transition-all">
+              Start the RAG course
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+          </article>
+
+          <!-- Course 4: Analytics Engineering -->
+          <article class="rounded-2xl border border-emerald-500/30 bg-card p-7 hover:border-emerald-500/60 hover:shadow-xl hover:-translate-y-1 transition-all">
+            <div class="flex flex-wrap gap-1.5 mb-3">
+              <span class="rounded-full bg-green-500/10 border border-green-500/30 px-2 py-0.5 text-[10px] font-bold text-green-500 uppercase tracking-wider">Free</span>
+              <span class="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-semibold text-emerald-500">16 Modules</span>
+              <span class="rounded-full bg-sky-500/10 border border-sky-500/30 px-2 py-0.5 text-[10px] font-semibold text-sky-500">Inline Labs</span>
+            </div>
+            <h3 class="text-lg md:text-xl font-bold mb-2 tracking-tight">Build Trusted Analytics with dbt</h3>
+            <p class="text-sm text-muted-foreground leading-relaxed mb-5">Learn dbt transformations, staging models, marts, tests, freshness, metrics, semantic layers, MetricFlow, lineage, CI/CD, and data incident debugging from a fresher-friendly path.</p>
+            <a routerLink="/courses/production-analytics-engineering-dbt" class="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-bold hover:gap-3 transition-all">
+              Start the analytics course
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </a>
           </article>
         </div>
 
         <!-- 4 H4 supporting concept tiles -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3" aria-label="Workload identity building blocks">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3" aria-label="Production engineering building blocks">
           <a routerLink="/glossary/mtls" class="group rounded-xl border border-border/60 bg-card/60 backdrop-blur-sm p-4 hover:border-teal-500/40 hover:-translate-y-0.5 transition-all">
             <h4 class="text-sm font-bold mb-1 group-hover:text-teal-500 transition-colors">mTLS</h4>
             <p class="text-xs text-muted-foreground leading-snug">Mutual TLS as the universal handshake for service-to-service trust.</p>
@@ -242,13 +257,13 @@ type CategoryInfo = { name: string; slug: string };
             <h4 class="text-sm font-bold mb-1 group-hover:text-teal-500 transition-colors">Service Identity</h4>
             <p class="text-xs text-muted-foreground leading-snug">SPIFFE IDs that uniquely name every workload, regardless of platform.</p>
           </a>
-          <a routerLink="/courses/mastering-spiffe-spire" class="group rounded-xl border border-border/60 bg-card/60 backdrop-blur-sm p-4 hover:border-teal-500/40 hover:-translate-y-0.5 transition-all">
-            <h4 class="text-sm font-bold mb-1 group-hover:text-teal-500 transition-colors">Federation</h4>
-            <p class="text-xs text-muted-foreground leading-snug">Trust bundles that span clusters, clouds &amp; organizational boundaries.</p>
+          <a routerLink="/courses/production-rag-systems-engineering/rag-evaluation-quality-engineering" class="group rounded-xl border border-border/60 bg-card/60 backdrop-blur-sm p-4 hover:border-pink-500/40 hover:-translate-y-0.5 transition-all">
+            <h4 class="text-sm font-bold mb-1 group-hover:text-pink-500 transition-colors">RAG Evaluation</h4>
+            <p class="text-xs text-muted-foreground leading-snug">Retrieval quality, hallucination checks, and regression gates for AI systems.</p>
           </a>
-          <a routerLink="/glossary/opa" class="group rounded-xl border border-border/60 bg-card/60 backdrop-blur-sm p-4 hover:border-teal-500/40 hover:-translate-y-0.5 transition-all">
-            <h4 class="text-sm font-bold mb-1 group-hover:text-teal-500 transition-colors">Policy Enforcement</h4>
-            <p class="text-xs text-muted-foreground leading-snug">OPA / Rego for authorization, admission control &amp; compliance.</p>
+          <a routerLink="/courses/production-analytics-engineering-dbt/semantic-layer-fundamentals" class="group rounded-xl border border-border/60 bg-card/60 backdrop-blur-sm p-4 hover:border-emerald-500/40 hover:-translate-y-0.5 transition-all">
+            <h4 class="text-sm font-bold mb-1 group-hover:text-emerald-500 transition-colors">Semantic Layer</h4>
+            <p class="text-xs text-muted-foreground leading-snug">Governed metrics and business definitions that dashboards can trust.</p>
           </a>
         </div>
 
@@ -1123,7 +1138,7 @@ type CategoryInfo = { name: string; slug: string };
 })
 export class HomeComponent implements OnInit {
   private seo = inject(SeoService);
-  private readonly homeDescription = 'Free cloud native security courses and engineering guides on Kubernetes, SPIFFE/SPIRE, Zero Trust, DevSecOps, API security, labs, and diagrams.';
+  private readonly homeDescription = 'Free engineering courses and guides on Kubernetes, SPIFFE/SPIRE, Zero Trust, production RAG, analytics engineering, DevSecOps, labs, and diagrams.';
   links = EXTERNAL_LINKS;
   featuredPost = signal<PostCard | undefined>(undefined);
   popularPosts = signal<PostCard[]>([]);
@@ -1152,10 +1167,10 @@ export class HomeComponent implements OnInit {
     this.categories.set(CATEGORIES.filter(c => c.slug !== ''));
     this.totalPosts.set(BLOG_POSTS.length);
     this.uniqueTags.set(new Set(BLOG_POSTS.flatMap(p => p.tags)).size);
-    // Course stats: hardcoded to avoid importing 418KB course model for 2 numbers
-    // Update when adding/removing courses: 3 courses, 45 modules, 130+ labs
-    this.totalCourseModules.set(45);
-    this.totalLabs.set(130);
+    // Course stats: hardcoded to avoid importing the large course model for 2 numbers.
+    // Update when adding/removing courses: 5 courses, 73 modules, 145+ labs/exercises.
+    this.totalCourseModules.set(73);
+    this.totalLabs.set(145);
     this.avgReadTime.set(Math.round(
       BLOG_POSTS.reduce((sum, p) => { const m = p.readTime.match(/(\d+)/); return sum + (m ? parseInt(m[1], 10) : 0); }, 0) / Math.max(BLOG_POSTS.length, 1)
     ));

@@ -1,0 +1,68 @@
+<svg width="1200" height="480" viewBox="0 0 1200 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Production Analytics Engineering with dbt course banner</title>
+  <desc id="desc">A warehouse-to-metrics pipeline showing dbt models, semantic layer, metrics, lineage, and dashboards.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#052e2b"/>
+      <stop offset="0.45" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#172554"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#10b981"/>
+      <stop offset="0.5" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#818cf8"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#38bdf8"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="480" fill="url(#bg)"/>
+  <path d="M60 382 C250 312 364 432 548 344 C732 256 838 186 1136 244" stroke="#38bdf8" stroke-opacity="0.22" stroke-width="40" fill="none" filter="url(#soft)"/>
+  <path d="M760 84 L1110 84 L1110 396 L760 396 Z" fill="#020617" fill-opacity="0.5" stroke="#334155"/>
+
+  <text x="80" y="92" fill="#a7f3d0" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="800" letter-spacing="0">FREE COURSE</text>
+  <text x="80" y="148" fill="#ffffff" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="56" font-weight="900" letter-spacing="0">Production Analytics</text>
+  <text x="80" y="210" fill="#ffffff" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="56" font-weight="900" letter-spacing="0">Engineering with dbt</text>
+  <text x="82" y="258" fill="#cbd5e1" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="24" letter-spacing="0">Metrics, Semantic Layers, Lineage, Data Quality</text>
+
+  <rect x="80" y="306" width="136" height="42" rx="21" fill="#10b981" fill-opacity="0.18" stroke="#10b981"/>
+  <text x="148" y="333" text-anchor="middle" fill="#a7f3d0" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="800">BEGINNER</text>
+  <rect x="230" y="306" width="138" height="42" rx="21" fill="#38bdf8" fill-opacity="0.14" stroke="#38bdf8"/>
+  <text x="299" y="333" text-anchor="middle" fill="#bae6fd" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="800">INLINE LABS</text>
+  <rect x="382" y="306" width="126" height="42" rx="21" fill="#818cf8" fill-opacity="0.16" stroke="#818cf8"/>
+  <text x="445" y="333" text-anchor="middle" fill="#c7d2fe" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="800">NO REPO</text>
+
+  <g font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">
+    <rect x="800" y="118" width="106" height="72" rx="12" fill="#064e3b" stroke="#10b981"/>
+    <text x="853" y="148" text-anchor="middle" fill="#d1fae5" font-size="14" font-weight="800">Raw</text>
+    <text x="853" y="169" text-anchor="middle" fill="#a7f3d0" font-size="11">sources</text>
+
+    <rect x="946" y="118" width="106" height="72" rx="12" fill="#082f49" stroke="#38bdf8"/>
+    <text x="999" y="148" text-anchor="middle" fill="#e0f2fe" font-size="14" font-weight="800">dbt</text>
+    <text x="999" y="169" text-anchor="middle" fill="#bae6fd" font-size="11">models</text>
+
+    <line x1="906" y1="154" x2="938" y2="154" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <rect x="800" y="232" width="106" height="72" rx="12" fill="#312e81" stroke="#818cf8"/>
+    <text x="853" y="262" text-anchor="middle" fill="#e0e7ff" font-size="14" font-weight="800">Semantic</text>
+    <text x="853" y="283" text-anchor="middle" fill="#c7d2fe" font-size="11">layer</text>
+
+    <rect x="946" y="232" width="106" height="72" rx="12" fill="#164e63" stroke="#22d3ee"/>
+    <text x="999" y="262" text-anchor="middle" fill="#cffafe" font-size="14" font-weight="800">Metrics</text>
+    <text x="999" y="283" text-anchor="middle" fill="#a5f3fc" font-size="11">APIs</text>
+
+    <line x1="999" y1="190" x2="999" y2="224" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="906" y1="268" x2="938" y2="268" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <rect x="873" y="342" width="106" height="40" rx="20" fill="#020617" stroke="#64748b"/>
+    <text x="926" y="367" text-anchor="middle" fill="#cbd5e1" font-size="13" font-weight="800">Lineage</text>
+    <path d="M853 304 C860 330 888 332 902 342" stroke="#94a3b8" stroke-width="1.5" fill="none"/>
+    <path d="M999 304 C992 330 964 332 950 342" stroke="#94a3b8" stroke-width="1.5" fill="none"/>
+  </g>
+
+  <text x="80" y="420" fill="#94a3b8" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" letter-spacing="0">coderssecret.com</text>
+</svg>

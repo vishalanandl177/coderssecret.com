@@ -40,8 +40,8 @@ const categoryNames = {
   'open-source': 'Open Source',
 };
 
-const HOME_TITLE = 'CodersSecret - Cloud Native Security, Kubernetes & Production Engineering';
-const HOME_DESCRIPTION = 'Free cloud native security courses and engineering guides on Kubernetes, SPIFFE/SPIRE, Zero Trust, DevSecOps, API security, labs, and diagrams.';
+const HOME_TITLE = 'CodersSecret - Security, AI, Data & Production Engineering';
+const HOME_DESCRIPTION = 'Free engineering courses and guides on Kubernetes, SPIFFE/SPIRE, Zero Trust, production RAG, analytics engineering, DevSecOps, labs, and diagrams.';
 
 // Read the built index.html
 const baseHtml = fs.readFileSync(path.join(OUTPUT_DIR, 'index.html'), 'utf-8');
@@ -427,6 +427,19 @@ function totalLabsFor(course) {
   return course.modules.reduce((sum, mod) => sum + mod.labs.length, 0);
 }
 
+function labCountLabelFor(course, includePlus = false) {
+  const count = totalLabsFor(course);
+  if (course.labDelivery === 'inline') return `${count} inline exercises`;
+  return `${count}${includePlus ? '+' : ''} hands-on labs`;
+}
+
+function moduleLabLabelFor(course, mod) {
+  if (course.labDelivery === 'inline') {
+    return `${mod.labs.length} inline ${mod.labs.length === 1 ? 'exercise' : 'exercises'}`;
+  }
+  return `${mod.labs.length} hands-on ${mod.labs.length === 1 ? 'lab' : 'labs'}`;
+}
+
 function courseImagePath(course) {
   return `/images/banners/course-${course.slug}.svg`;
 }
@@ -443,7 +456,7 @@ function courseSeoDescription(course) {
   if (course.slug === 'mastering-spiffe-spire') {
     return `Free ${course.modules.length}-module SPIFFE/SPIRE course: deploy SPIRE on Kubernetes, issue SVIDs, configure mTLS, enforce OPA, federate clusters, and run ${labCount}+ labs.`;
   }
-  return clampText(`${course.excerpt} ${course.modules.length} modules, ${labCount}+ hands-on labs, free.`);
+  return clampText(`${course.excerpt} ${course.modules.length} modules, ${labCountLabelFor(course, true)}, free.`);
 }
 
 function moduleSeoTitle(course, mod) {
@@ -606,10 +619,9 @@ function renderOptionalList(title, items) {
 }
 
 function renderCourseLandingContent(course) {
-  const labCount = totalLabsFor(course);
   const curriculum = course.modules.map(mod => `<li>
     <a href="/courses/${course.slug}/${mod.slug}">Module ${mod.number}: ${escapeHtml(mod.title)}</a>
-    <p>${escapeHtml(mod.subtitle)} ${escapeHtml(mod.duration)}. ${mod.labs.length} hands-on ${mod.labs.length === 1 ? 'lab' : 'labs'}.</p>
+    <p>${escapeHtml(mod.subtitle)} ${escapeHtml(mod.duration)}. ${moduleLabLabelFor(course, mod)}.</p>
     ${renderList(mod.objectives)}
   </li>`).join('\n');
   const faq = course.faqs && course.faqs.length > 0
@@ -623,7 +635,7 @@ function renderCourseLandingContent(course) {
     <section>
       <h2>What You Will Learn</h2>
       <p>${escapeHtml(course.description)}</p>
-      <p>${course.modules.length} modules, ${labCount}+ hands-on labs, ${escapeHtml(course.totalDuration)}, ${escapeHtml(course.level)}, 100% free.</p>
+      <p>${course.modules.length} modules, ${labCountLabelFor(course, true)}, ${escapeHtml(course.totalDuration)}, ${escapeHtml(course.level)}, 100% free.</p>
       ${renderList(course.targetAudience)}
     </section>
     <section>
@@ -647,14 +659,15 @@ function renderCourseLandingContent(course) {
 
 function renderLabs(course, mod) {
   if (!mod.labs || mod.labs.length === 0) return '';
+  const heading = course.labDelivery === 'inline' ? 'Inline Exercises' : 'Hands-On Labs';
   return `<section>
-    <h2>Hands-On Labs</h2>
+    <h2>${heading}</h2>
     <ol>${mod.labs.map(lab => `<li>
       <h3>${escapeHtml(lab.title)}</h3>
       <p>${escapeHtml(lab.objective)}</p>
       <p>${[lab.duration, lab.difficulty].filter(Boolean).map(escapeHtml).join(' - ')}</p>
       ${renderList(lab.steps)}
-      <p><a href="https://github.com/vishalanandl177/${course.slug}/tree/main/${escapeHtml(lab.repoPath)}">View lab files on GitHub</a></p>
+      ${lab.repoPath && course.labDelivery !== 'inline' ? `<p><a href="https://github.com/vishalanandl177/${course.slug}/tree/main/${escapeHtml(lab.repoPath)}">View lab files on GitHub</a></p>` : '<p>Inline lab: complete the exercise directly in the course page.</p>'}
     </li>`).join('\n')}</ol>
   </section>`;
 }
@@ -693,7 +706,7 @@ function renderModuleContent(course, mod) {
     <article>
       <h1>Module ${mod.number}: ${escapeHtml(mod.title)}</h1>
       <p>${escapeHtml(mod.subtitle)}</p>
-      <p>${escapeHtml(mod.duration)}. ${mod.labs.length} hands-on ${mod.labs.length === 1 ? 'lab' : 'labs'}. Free course module.</p>
+      <p>${escapeHtml(mod.duration)}. ${moduleLabLabelFor(course, mod)}. Free course module.</p>
       <section><h2>Learning Objectives</h2>${renderList(mod.objectives)}</section>
       ${mod.whyThisMatters ? `<section><h2>Why This Matters</h2><p>${escapeHtml(mod.whyThisMatters)}</p></section>` : ''}
       ${diagram}
@@ -704,7 +717,7 @@ function renderModuleContent(course, mod) {
       ${renderOptionalList('Security Risks to Watch', mod.securityRisks)}
       ${renderTradeoffs(mod.designTradeoffs)}
       ${renderOptionalList('Production Alternatives', mod.productionAlternatives?.map(item => `${item.name}: ${item.description}`))}
-      ${renderOptionalList('Think Like a Platform Engineer', mod.thinkLikeAnEngineer)}
+      ${renderOptionalList('Think Like an Engineer', mod.thinkLikeAnEngineer)}
       ${mod.operationalStory ? `<section><h2>Production Story</h2><p>${escapeHtml(mod.operationalStory)}</p></section>` : ''}
       ${mod.careerRelevance ? `<section><h2>Career Relevance</h2><p>${escapeHtml(mod.careerRelevance)}</p></section>` : ''}
       ${renderGlossary(mod.glossary)}
@@ -723,7 +736,7 @@ function renderSeoLandingContent(course, page) {
     <article>${page.content}</article>
     <section>
       <h2>Start Learning for Free</h2>
-      <p>Continue with ${escapeHtml(course.title)}: ${course.modules.length} modules, ${totalLabsFor(course)} hands-on labs, completely free.</p>
+      <p>Continue with ${escapeHtml(course.title)}: ${course.modules.length} modules, ${labCountLabelFor(course)}, completely free.</p>
       <p><a href="${ctaHref}">Start Module ${page.ctaModule}</a> | <a href="/courses/${course.slug}">View full curriculum</a></p>
     </section>
   </main>`;
@@ -767,16 +780,17 @@ const homeCategoryLinks = [...categories]
   .join('\n      ');
 const homeContent = `
   <main>
-    <h1>CodersSecret - Cloud Native Security and Production Engineering</h1>
+    <h1>CodersSecret - Security, AI, Data and Production Engineering</h1>
     <p>${HOME_DESCRIPTION}</p>
     <section>
       <h2>Free Production Engineering Courses</h2>
-      <p>Learn workload identity, Kubernetes security, Zero Trust, DevSecOps, API security, production RAG, and distributed systems through practical modules, labs, diagrams, and engineering guides.</p>
+      <p>Learn workload identity, Kubernetes security, Zero Trust, DevSecOps, API security, production RAG, distributed systems, and analytics engineering through practical modules, labs, diagrams, and engineering guides.</p>
       <ul>
         <li><a href="/courses/mastering-spiffe-spire">Master SPIFFE and SPIRE for Workload Identity</a> - deploy SPIRE, issue SVIDs, federate trust domains, and replace long-lived secrets.</li>
         <li><a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> - secure Kubernetes, containers, service mesh, policy-as-code, runtime detection, and CI/CD pipelines.</li>
         <li><a href="/courses/production-rag-systems-engineering">Production RAG Systems Engineering</a> - build reliable retrieval, vector search, AI agent, evaluation, and deployment workflows.</li>
         <li><a href="/courses/distributed-systems-engineering">Distributed Systems Engineering</a> - learn CAP, consensus, replication, scalability, reliability, Zero Trust, observability, and Kubernetes-native architecture.</li>
+        <li><a href="/courses/production-analytics-engineering-dbt">Production Analytics Engineering with dbt</a> - learn transformations, marts, tests, metrics, semantic layers, lineage, and data quality workflows.</li>
       </ul>
     </section>
     <section>
@@ -784,6 +798,7 @@ const homeContent = `
       <ul>
         <li><a href="/glossary/workload-identity">Workload identity</a>, <a href="/glossary/spiffe">SPIFFE</a>, <a href="/glossary/spire">SPIRE</a>, and <a href="/glossary/mtls">mTLS</a></li>
         <li><a href="/courses/kubernetes-runtime-security">Kubernetes runtime security</a>, supply-chain signing, OPA policy, Falco, and eBPF detection</li>
+        <li><a href="/courses/production-analytics-engineering-dbt/semantic-layer-fundamentals">Semantic layers</a>, governed metrics, dbt lineage, and analytics engineering quality gates</li>
         <li><a href="/games">Interactive security simulators</a> and <a href="/cheatsheets">developer cheatsheets</a></li>
       </ul>
     </section>
@@ -1230,7 +1245,7 @@ const courseContent = fs.existsSync(courseModelPath) ? fs.readFileSync(courseMod
 if (courseContent) {
   const courses = loadCoursesFromModel(courseContent);
   const coursesHubTitle = 'Free Production Engineering Courses';
-  const coursesHubDescription = 'Free hands-on courses in cloud native security, distributed systems, SPIFFE/SPIRE, Kubernetes, Zero Trust, and production RAG. No signup.';
+  const coursesHubDescription = 'Free hands-on courses in cloud native security, distributed systems, SPIFFE/SPIRE, Kubernetes, Zero Trust, production RAG, and analytics engineering. No signup.';
 
   // Course hub page
   const coursesHubDir = path.join(OUTPUT_DIR, 'courses');
@@ -1240,13 +1255,13 @@ if (courseContent) {
       <nav aria-label="Breadcrumb"><a href="/">Home</a> / Courses</nav>
       <h1>Free Production Engineering Courses</h1>
       <p>${coursesHubDescription}</p>
-      <p>Production-focused, architecture-first courses for engineers who secure, scale, and operate real infrastructure. Learn through modules, hands-on labs, diagrams, and concrete production trade-offs.</p>
+      <p>Production-focused, architecture-first courses for engineers who secure, scale, and operate real infrastructure. Learn through modules, hands-on labs or inline exercises, diagrams, and concrete production trade-offs.</p>
       <h2>Available Courses</h2>
       <ul>
         ${courses.map(course => `<li>
           <a href="/courses/${course.slug}">${escapeHtml(course.title)}</a>
           <p>${escapeHtml(course.excerpt)}</p>
-          <p>${course.modules.length} modules · hands-on labs · ${escapeHtml(course.totalDuration)} · ${escapeHtml(course.level)} · 100% free</p>
+          <p>${course.modules.length} modules · hands-on labs/exercises · ${escapeHtml(course.totalDuration)} · ${escapeHtml(course.level)} · 100% free</p>
           <p>Topics: ${course.tags.slice(0, 8).map(escapeHtml).join(', ')}</p>
         </li>`).join('\n        ')}
       </ul>
@@ -1255,6 +1270,7 @@ if (courseContent) {
         <li><a href="/courses/distributed-systems-engineering">Distributed Systems Engineering</a> → <a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> → <a href="/courses/mastering-spiffe-spire">Mastering SPIFFE & SPIRE</a></li>
         <li><a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> → <a href="/courses/mastering-spiffe-spire">Mastering SPIFFE & SPIRE</a> → <a href="/games/kubernetes-security-simulator">Kubernetes Security Simulator</a></li>
         <li><a href="/courses/distributed-systems-engineering">Distributed Systems Engineering</a> → <a href="/courses/production-rag-systems-engineering">Production RAG Systems Engineering</a> → <a href="/games/ai-infrastructure-security">AI Infrastructure Security Game</a></li>
+        <li><a href="/courses/production-analytics-engineering-dbt">Production Analytics Engineering</a> → <a href="/blog/are-dags-dying-declarative-data-pipelines">Declarative Data Pipelines</a> → <a href="/blog/delta-lake-iceberg-s3-tables-beginner-guide">Lakehouse Table Formats</a></li>
       </ol>
       <h2>Practice Beyond the Courses</h2>
       <ul>
@@ -1405,6 +1421,73 @@ if (courseContent) {
       created++;
     });
   }
+
+  // Rich prerender for courses that do not have a legacy manual section below.
+  const legacyManualCourseSlugs = new Set([
+    'mastering-spiffe-spire',
+    'cloud-native-security-engineering',
+    'production-rag-systems-engineering',
+    'distributed-systems-engineering',
+  ]);
+  courses
+    .filter(course => !legacyManualCourseSlugs.has(course.slug))
+    .forEach(course => {
+      const courseLandingDir = path.join(OUTPUT_DIR, 'courses', course.slug);
+      fs.mkdirSync(courseLandingDir, { recursive: true });
+      fs.writeFileSync(path.join(courseLandingDir, 'index.html'), makeHtml({
+        title: courseSeoTitle(course),
+        description: courseSeoDescription(course),
+        url: `/courses/${course.slug}`,
+        image: courseImagePath(course),
+        content: renderCourseLandingContent(course),
+        jsonLd: [
+          courseBreadcrumbJsonLd(course),
+          courseJsonLd(course),
+          courseModuleItemListJsonLd(course),
+          ...(course.faqs ? [{
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            'mainEntity': course.faqs.map(faq => ({
+              '@type': 'Question',
+              'name': faq.question,
+              'acceptedAnswer': { '@type': 'Answer', 'text': faq.answer },
+            })),
+          }] : []),
+        ],
+      }));
+      created++;
+
+      course.modules.forEach(mod => {
+        const moduleDir = path.join(OUTPUT_DIR, 'courses', course.slug, mod.slug);
+        fs.mkdirSync(moduleDir, { recursive: true });
+        fs.writeFileSync(path.join(moduleDir, 'index.html'), makeHtml({
+          title: moduleSeoTitle(course, mod),
+          description: moduleSeoDescription(course, mod),
+          url: `/courses/${course.slug}/${mod.slug}`,
+          image: courseImagePath(course),
+          content: renderModuleContent(course, mod),
+          jsonLd: [
+            courseBreadcrumbJsonLd(course, [{ name: `Module ${mod.number}: ${mod.title}`, url: `/courses/${course.slug}/${mod.slug}` }]),
+            moduleJsonLd(course, mod),
+          ],
+        }));
+        created++;
+      });
+
+      course.seoPages.forEach(page => {
+        const seoDir = path.join(OUTPUT_DIR, 'courses', page.slug);
+        fs.mkdirSync(seoDir, { recursive: true });
+        fs.writeFileSync(path.join(seoDir, 'index.html'), makeHtml({
+          title: page.title,
+          description: page.description,
+          url: `/courses/${page.slug}`,
+          image: courseImagePath(course),
+          content: renderSeoLandingContent(course, page),
+          jsonLd: seoLandingJsonLd(course, page),
+        }));
+        created++;
+      });
+    });
 
   // ── Cloud Native Security Engineering course ──
   const cnsDir = path.join(OUTPUT_DIR, 'courses', 'cloud-native-security-engineering');

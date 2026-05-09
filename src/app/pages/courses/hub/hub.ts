@@ -44,7 +44,7 @@ interface CourseTheme {
             <span class="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">Production Engineering</span> Courses
           </h1>
           <p class="text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
-            Production-focused, architecture-first, hands-on. Learn distributed systems engineering, workload identity, Zero Trust, Kubernetes security, and AI infrastructure &mdash; from operational reality, not textbooks.
+            Production-focused, architecture-first, hands-on. Learn distributed systems engineering, workload identity, Zero Trust, Kubernetes security, production RAG, and analytics engineering &mdash; from operational reality, not textbooks.
           </p>
 
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
@@ -58,7 +58,7 @@ interface CourseTheme {
             </div>
             <div class="text-center">
               <div class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">{{ totalLabs() }}+</div>
-              <div class="text-xs text-muted-foreground mt-1">Hands-On Labs</div>
+              <div class="text-xs text-muted-foreground mt-1">Labs + Exercises</div>
             </div>
             <div class="text-center">
               <div class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-pink-500 to-orange-500 bg-clip-text text-transparent">$0</div>
@@ -95,7 +95,7 @@ interface CourseTheme {
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </span>
                 <span class="inline-flex items-center rounded-full border border-border/60 bg-card/80 px-6 py-3 text-sm font-semibold text-foreground">
-                  {{ fc.modules.length }} modules &middot; {{ totalLabsFor(fc) }}+ labs
+                  {{ fc.modules.length }} modules &middot; {{ labCountLabel(fc) }}
                 </span>
               </div>
             </div>
@@ -117,7 +117,7 @@ interface CourseTheme {
     <section class="container max-w-6xl mx-auto px-6 pb-16">
       <div class="mb-8">
         <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-2">All Courses</h2>
-        <p class="text-muted-foreground">Each course is structured around production architectures, hands-on labs, and the operational practices real teams use.</p>
+        <p class="text-muted-foreground">Each course is structured around production architectures, hands-on labs or inline exercises, and the operational practices real teams use.</p>
       </div>
 
       <div class="grid md:grid-cols-2 gap-5">
@@ -153,8 +153,8 @@ interface CourseTheme {
                 <div class="text-[9px] text-muted-foreground uppercase tracking-wider">Modules</div>
               </div>
               <div class="rounded-lg bg-accent/40 p-2.5 text-center">
-                <div class="text-lg font-extrabold text-foreground">{{ totalLabsFor(course) }}+</div>
-                <div class="text-[9px] text-muted-foreground uppercase tracking-wider">Labs</div>
+                <div class="text-lg font-extrabold text-foreground">{{ totalLabsFor(course) }}{{ course.labDelivery === 'inline' ? '' : '+' }}</div>
+                <div class="text-[9px] text-muted-foreground uppercase tracking-wider">{{ course.labDelivery === 'inline' ? 'Exercises' : 'Labs' }}</div>
               </div>
               <div class="rounded-lg bg-accent/40 p-2.5 text-center">
                 <div class="text-lg font-extrabold text-foreground">$0</div>
@@ -189,11 +189,11 @@ interface CourseTheme {
       <div class="container max-w-6xl mx-auto px-6">
         <div class="text-center mb-10 max-w-3xl mx-auto">
           <span class="inline-block rounded-full bg-blue-500/10 border border-blue-500/30 px-4 py-1 text-xs font-bold text-blue-500 uppercase tracking-wider mb-4">Suggested Paths</span>
-          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-3">Three Ways to Use These Courses</h2>
+          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-3">Four Ways to Use These Courses</h2>
           <p class="text-muted-foreground">Pick a path based on your role or where you want to go next.</p>
         </div>
 
-        <div class="grid md:grid-cols-3 gap-5">
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
           <article class="rounded-2xl border border-orange-500/30 bg-card p-6">
             <div class="text-2xl mb-3" aria-hidden="true">🌐</div>
             <h3 class="text-lg font-bold tracking-tight mb-2">Distributed Systems Track</h3>
@@ -224,6 +224,17 @@ interface CourseTheme {
               <li class="flex items-start gap-2.5"><span class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-pink-500/20 text-pink-500 font-bold text-[10px] shrink-0 mt-0.5">1</span><a routerLink="/courses/distributed-systems-engineering" class="hover:text-primary transition-colors">Distributed Systems Engineering</a></li>
               <li class="flex items-start gap-2.5"><span class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-pink-500/20 text-pink-500 font-bold text-[10px] shrink-0 mt-0.5">2</span><a routerLink="/courses/production-rag-systems-engineering" class="hover:text-primary transition-colors">Production RAG Systems Engineering</a></li>
               <li class="flex items-start gap-2.5"><span class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-pink-500/20 text-pink-500 font-bold text-[10px] shrink-0 mt-0.5">3</span><a routerLink="/games/ai-infrastructure-security" class="hover:text-primary transition-colors">AI Infrastructure Security Game</a></li>
+            </ol>
+          </article>
+
+          <article class="rounded-2xl border border-emerald-500/30 bg-card p-6">
+            <div class="text-2xl mb-3 font-mono" aria-hidden="true">SQL</div>
+            <h3 class="text-lg font-bold tracking-tight mb-2">Data Engineering Track</h3>
+            <p class="text-sm text-muted-foreground leading-relaxed mb-4">Start with trustworthy analytics models, then move into production data systems.</p>
+            <ol class="space-y-2 text-sm">
+              <li class="flex items-start gap-2.5"><span class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-emerald-500/20 text-emerald-500 font-bold text-[10px] shrink-0 mt-0.5">1</span><a routerLink="/courses/production-analytics-engineering-dbt" class="hover:text-primary transition-colors">Production Analytics Engineering</a></li>
+              <li class="flex items-start gap-2.5"><span class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-emerald-500/20 text-emerald-500 font-bold text-[10px] shrink-0 mt-0.5">2</span><a routerLink="/blog/delta-lake-iceberg-s3-tables-beginner-guide" class="hover:text-primary transition-colors">Lakehouse Fundamentals</a></li>
+              <li class="flex items-start gap-2.5"><span class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-emerald-500/20 text-emerald-500 font-bold text-[10px] shrink-0 mt-0.5">3</span><a routerLink="/blog/are-dags-dying-declarative-data-pipelines" class="hover:text-primary transition-colors">Pipeline Orchestration</a></li>
             </ol>
           </article>
         </div>
@@ -260,7 +271,7 @@ interface CourseTheme {
 export class CoursesHubComponent {
   courses = COURSES;
   private seo = inject(SeoService);
-  private readonly coursesDescription = 'Free hands-on courses in cloud native security, distributed systems, SPIFFE/SPIRE, Kubernetes, Zero Trust, and production RAG. No signup.';
+  private readonly coursesDescription = 'Free hands-on courses in cloud native security, distributed systems, SPIFFE/SPIRE, Kubernetes, Zero Trust, production RAG, and analytics engineering. No signup.';
 
   totalModules = computed(() =>
     this.courses.reduce((sum, c) => sum + c.modules.length, 0)
@@ -273,14 +284,19 @@ export class CoursesHubComponent {
     )
   );
 
-  /** Featured = the highest-id (newest) course. */
+  /** Featured = newest course listed in the model. */
   featuredCourse = computed<Course | undefined>(() => {
     if (this.courses.length === 0) return undefined;
-    return [...this.courses].sort((a, b) => Number(b.id) - Number(a.id))[0];
+    return this.courses[this.courses.length - 1];
   });
 
   totalLabsFor(course: Course): number {
     return course.modules.reduce((sum, m) => sum + m.labs.length, 0);
+  }
+
+  labCountLabel(course: Course): string {
+    const count = this.totalLabsFor(course);
+    return course.labDelivery === 'inline' ? `${count} inline exercises` : `${count}+ labs`;
   }
 
   /**
@@ -336,6 +352,18 @@ export class CoursesHubComponent {
         resultsBg: 'from-orange-500/10 via-card to-amber-500/10',
         buttonBg: 'bg-orange-500 hover:bg-orange-400 shadow-orange-500/30',
         pillBg: 'bg-orange-500/15 border border-orange-500/30',
+      },
+      'production-analytics-engineering-dbt': {
+        slug: 'production-analytics-engineering-dbt',
+        icon: 'SQL',
+        badge: 'Analytics Engineering',
+        border: 'border-emerald-500/30 hover:border-emerald-500/60',
+        accentText: 'text-emerald-500',
+        accentBg: 'bg-emerald-500/10',
+        gradientText: 'from-emerald-500 via-sky-500 to-blue-500',
+        resultsBg: 'from-emerald-500/10 via-card to-sky-500/10',
+        buttonBg: 'bg-emerald-500 hover:bg-emerald-400 shadow-emerald-500/30',
+        pillBg: 'bg-emerald-500/15 border border-emerald-500/30',
       },
     };
     return themes[slug] ?? {
