@@ -239,6 +239,7 @@ export class BlogListComponent {
 
   getCategoryColor(slug: string): string {
     const colors: Record<string, string> = {
+      ai: '#06b6d4',
       frontend: '#3b82f6', backend: '#22c55e', devops: '#f97316',
       tutorials: '#a855f7', 'open-source': '#ec4899',
     };

@@ -5,6 +5,7 @@ import { BLOG_POSTS, CATEGORIES, BlogPost } from '../../models/blog-post.model';
 import { SeoService } from '../../services/seo.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { DOCUMENT } from '@angular/common';
+import { getActiveTocHeadingId } from '../../shared/blog-toc';
 
 @Component({
   selector: 'app-blog-post',
@@ -179,7 +180,12 @@ import { DOCUMENT } from '@angular/common';
                   @for (item of toc; track item.id) {
                     <li>
                       <button (click)="scrollToHeading(item.id)"
-                         class="block w-full text-left px-4 py-1.5 text-[13px] leading-snug text-muted-foreground transition-colors hover:text-foreground hover:border-l-primary border-l-2 border-transparent -ml-[2px] cursor-pointer">
+                         class="block w-full text-left px-4 py-1.5 text-[13px] leading-snug text-muted-foreground transition-colors hover:text-foreground hover:border-l-primary border-l-2 border-transparent -ml-[2px] cursor-pointer"
+                         [attr.aria-current]="activeTocId() === item.id ? 'location' : null"
+                         [class.font-semibold]="activeTocId() === item.id"
+                         [style.color]="activeTocId() === item.id ? categoryColor : null"
+                         [style.border-left-color]="activeTocId() === item.id ? categoryColor : null"
+                         [style.background-color]="activeTocId() === item.id ? categoryColor + '14' : null">
                         {{ item.text }}
                       </button>
                     </li>
@@ -334,9 +340,11 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private copyButtonsAdded = false;
   private imagesProcessed = false;
+  private headingsProcessed = false;
   private giscusAdded = false;
   private scrollMilestones = new Set<number>();
   readingProgress = signal(0);
+  activeTocId = signal('');
   linkCopied = signal(false);
   isSpeaking = signal(false);
   speechPaused = signal(false);
@@ -355,10 +363,12 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
         const basePost = BLOG_POSTS.find(p => p.slug === slug);
         this.copyButtonsAdded = false;
         this.imagesProcessed = false;
+        this.headingsProcessed = false;
         this.giscusAdded = false;
         this.scrollMilestones.clear();
         this.stopSpeech();
         this.toc = [];
+        this.activeTocId.set('');
 
         if (basePost && slug) {
           this.post = { ...basePost, content: '' };
@@ -386,6 +396,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
             const text = tocMatch[1].replace(/<[^>]+>/g, '');
             this.toc.push({ id: `heading-${tocIndex++}`, text });
           }
+          this.activeTocId.set(this.toc[0]?.id ?? '');
           this.seo.update({
             title: this.getSeoTitle(this.post.title),
             description: this.post.excerpt,
@@ -425,6 +436,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
     const scrollHeight = el.scrollHeight - el.clientHeight;
     const progress = scrollHeight > 0 ? Math.min((scrollTop / scrollHeight) * 100, 100) : 0;
     this.readingProgress.set(progress);
+    this.refreshActiveToc();
     // Track scroll depth milestones
     if (this.post) {
       for (const milestone of [25, 50, 75, 100]) {
@@ -438,6 +450,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
 
   ngOnDestroy() {
     this.readingProgress.set(0);
+    this.activeTocId.set('');
     this.stopSpeech();
   }
 
@@ -483,14 +496,18 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
         });
       }
     }
-    if (this.post && !this.copyButtonsAdded) {
-      const preBlocks = this.el.nativeElement.querySelectorAll('pre');
+    if (this.post && !this.headingsProcessed) {
       const h2s = this.el.nativeElement.querySelectorAll('article h2');
       if (h2s.length > 0) {
+        this.headingsProcessed = true;
         h2s.forEach((h2: HTMLElement, i: number) => {
           if (!h2.id) h2.id = `heading-${i}`;
         });
+        this.scheduleActiveTocRefresh();
       }
+    }
+    if (this.post && !this.copyButtonsAdded) {
+      const preBlocks = this.el.nativeElement.querySelectorAll('pre');
       if (preBlocks.length > 0) {
         this.copyButtonsAdded = true;
         preBlocks.forEach((pre: HTMLElement) => {
@@ -610,9 +627,47 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
     return chunks;
   }
 
+  private refreshActiveToc() {
+    if (!this.post || this.toc.length === 0) {
+      if (this.activeTocId()) this.activeTocId.set('');
+      return;
+    }
+
+    const headingElements = Array.from(
+      this.el.nativeElement.querySelectorAll('article h2[id]')
+    ) as HTMLElement[];
+    const activeId = getActiveTocHeadingId(
+      headingElements.map(heading => ({
+        id: heading.id,
+        top: heading.getBoundingClientRect().top,
+      })),
+      this.tocActivationOffset()
+    );
+
+    if (activeId && activeId !== this.activeTocId()) {
+      this.activeTocId.set(activeId);
+    }
+  }
+
+  private scheduleActiveTocRefresh() {
+    const win = this.doc.defaultView;
+    if (win?.requestAnimationFrame) {
+      win.requestAnimationFrame(() => this.refreshActiveToc());
+      return;
+    }
+    queueMicrotask(() => this.refreshActiveToc());
+  }
+
+  private tocActivationOffset(): number {
+    const viewportHeight = this.doc.defaultView?.innerHeight ?? 0;
+    if (viewportHeight <= 0) return 140;
+    return Math.min(180, Math.max(112, viewportHeight * 0.22));
+  }
+
   scrollToHeading(id: string) {
     const el = this.doc.getElementById(id);
     if (el) {
+      this.activeTocId.set(id);
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
@@ -628,6 +683,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
 
   getCategoryColor(slug: string): string {
     const colors: Record<string, string> = {
+      ai: '#06b6d4',
       frontend: '#3b82f6', backend: '#22c55e', devops: '#f97316',
       tutorials: '#a855f7', 'open-source': '#ec4899',
     };
@@ -661,6 +717,44 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
         {
           question: 'Should beginners learn Airflow, dbt, or Dagster first?',
           answer: 'Beginners should learn the concepts first: DAGs, idempotency, retries, partitions, SQL models, tests, and lineage. Then choose tools based on the role and platform.',
+        },
+      ];
+
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        'mainEntity': faqs.map(faq => ({
+          '@type': 'Question',
+          'name': faq.question,
+          'acceptedAnswer': {
+            '@type': 'Answer',
+            'text': faq.answer,
+          },
+        })),
+      };
+    }
+
+    if (slug === 'mcp-security-production-ai-agents-oauth-gateways') {
+      const faqs = [
+        {
+          question: 'Is MCP secure by default?',
+          answer: 'MCP is a protocol, not a complete security platform. Production deployments still need authentication, authorization, token validation, policy enforcement, sandboxing, and audit logging.',
+        },
+        {
+          question: 'Should production MCP deployments use a gateway?',
+          answer: 'A gateway is the cleanest control point when MCP tools can access sensitive data, mutate production systems, call internal APIs, or run local commands.',
+        },
+        {
+          question: 'Why is token passthrough dangerous in MCP?',
+          answer: 'Token passthrough breaks resource boundaries because an MCP server may accept or forward a token that was not issued for it. Production servers should validate token audience and use separate downstream credentials.',
+        },
+        {
+          question: 'How should MCP tool permissions be designed?',
+          answer: 'Design permissions at the tool and action level. Separate discovery, read, write, destructive, network, payment, and admin tools, then require stronger controls for higher-risk actions.',
+        },
+        {
+          question: 'How do you make local MCP servers safer?',
+          answer: 'Show the exact startup command, require explicit consent, restrict filesystem access, deny network by default, expose only required secrets, and run the server with least privilege.',
         },
       ];
 

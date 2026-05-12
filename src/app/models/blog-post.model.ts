@@ -35,6 +35,20 @@ export const CATEGORIES = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    id: '89',
+    title: 'MCP Security in Production: How to Safely Run AI Agents with Tools, OAuth, and Gateways',
+    slug: 'mcp-security-production-ai-agents-oauth-gateways',
+    excerpt: 'Learn how to secure MCP-based AI agents with OAuth, token audience validation, gateway policy, tool permissions, SSRF protection, sandboxing, and audit logs.',
+    category: 'ai',
+    featured: true,
+    content: '',
+    author: 'Vishal Anand',
+    date: '2026-05-12',
+    readTime: '16 min read',
+    tags: ['MCP', 'AI Agents', 'Security', 'OAuth', 'Gateway', 'Zero Trust', 'Tool Calling', 'LLM'],
+    coverImage: '',
+  },
+  {
     id: '88',
     title: 'Are DAGs Dying? The Rise of Declarative Data Pipelines',
     slug: 'are-dags-dying-declarative-data-pipelines',

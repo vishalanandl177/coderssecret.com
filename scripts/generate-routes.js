@@ -214,6 +214,44 @@ function blogFaqJsonLd(slug) {
     };
   }
 
+  if (slug === 'mcp-security-production-ai-agents-oauth-gateways') {
+    const faqs = [
+      {
+        question: 'Is MCP secure by default?',
+        answer: 'MCP is a protocol, not a complete security platform. Production deployments still need authentication, authorization, token validation, policy enforcement, sandboxing, and audit logging.',
+      },
+      {
+        question: 'Should production MCP deployments use a gateway?',
+        answer: 'A gateway is the cleanest control point when MCP tools can access sensitive data, mutate production systems, call internal APIs, or run local commands.',
+      },
+      {
+        question: 'Why is token passthrough dangerous in MCP?',
+        answer: 'Token passthrough breaks resource boundaries because an MCP server may accept or forward a token that was not issued for it. Production servers should validate token audience and use separate downstream credentials.',
+      },
+      {
+        question: 'How should MCP tool permissions be designed?',
+        answer: 'Design permissions at the tool and action level. Separate discovery, read, write, destructive, network, payment, and admin tools, then require stronger controls for higher-risk actions.',
+      },
+      {
+        question: 'How do you make local MCP servers safer?',
+        answer: 'Show the exact startup command, require explicit consent, restrict filesystem access, deny network by default, expose only required secrets, and run the server with least privilege.',
+      },
+    ];
+
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      'mainEntity': faqs.map(faq => ({
+        '@type': 'Question',
+        'name': faq.question,
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': faq.answer,
+        },
+      })),
+    };
+  }
+
   if (slug !== 'claude-tokens-hidden-costs-optimization-guide') {
     return undefined;
   }
