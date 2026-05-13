@@ -1,8 +1,10 @@
 <!doctype html>
 <html lang="en" class="dark">
 <head>
+  <meta charset="utf-8">
   <script>
     (function() {
+      document.documentElement.classList.add('js');
       var theme = localStorage.getItem('theme');
       if (theme === 'light') {
         document.documentElement.classList.remove('dark');
@@ -11,12 +13,22 @@
       }
     })();
   </script>
-  <meta charset="utf-8">
+  <style>
+    .js .seo-prerender-content {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      margin: -1px !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      clip: rect(0 0 0 0) !important;
+      clip-path: inset(50%) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+  </style>
   <title>CodersSecret — Security, AI, Data &amp; Production Engineering</title>
   <base href="/">
-  <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="pragma" content="no-cache">
-  <meta http-equiv="expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Free engineering courses and guides on Kubernetes, SPIFFE/SPIRE, Zero Trust, production RAG, analytics engineering, DevSecOps, labs, and diagrams.">
   <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
@@ -25,18 +37,14 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="format-detection" content="telephone=no">
   <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
-  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="manifest" href="manifest.json">
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-32HFW3BZEY"></script>
+  <!-- Google Analytics loads after first paint in AnalyticsService. -->
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-32HFW3BZEY');
+    window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
   </script>
 </head>
 <body>

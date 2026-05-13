@@ -111,13 +111,29 @@ function wrapPrerenderContent(content) {
   const skipLink = '<a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg">Skip to main content</a>';
 
   if (/^<main\b/i.test(normalized)) {
-    const main = normalized.replace(/^<main\b([^>]*)>/i, (match, attrs) => {
-      return /\sid\s*=/i.test(attrs) ? match : `<main id="main-content"${attrs}>`;
+    const main = normalized.replace(/^<main\b([^>]*)>/i, (_match, attrs) => {
+      return `<main${prerenderMainAttrs(attrs)}>`;
     });
     return `${skipLink}\n${main}`;
   }
 
-  return `${skipLink}\n<main id="main-content">${normalized}</main>`;
+  return `${skipLink}\n<main id="main-content" class="seo-prerender-content">${normalized}</main>`;
+}
+
+function prerenderMainAttrs(attrs) {
+  let nextAttrs = attrs || '';
+
+  if (!/\sid\s*=/i.test(nextAttrs)) {
+    nextAttrs += ' id="main-content"';
+  }
+
+  if (/\sclass\s*=/i.test(nextAttrs)) {
+    return nextAttrs.replace(/\sclass=(["'])(.*?)\1/i, (_match, quote, value) => {
+      return ` class=${quote}${value} seo-prerender-content${quote}`;
+    });
+  }
+
+  return `${nextAttrs} class="seo-prerender-content"`;
 }
 
 function structuredDataForPage({ jsonLd, fullTitle, description, canonical, ogImage }) {
@@ -2030,8 +2046,8 @@ fs.writeFileSync(path.join(homeDir, 'index.html'), `<!doctype html>
 <link rel="canonical" href="https://coderssecret.com/">
 <title>Redirecting to CodersSecret</title>
 </head><body>
-<a href="#main-content">Skip to main content</a>
-<main id="main-content"><p>Redirecting to <a href="/">home page</a>...</p></main>
+<a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg">Skip to main content</a>
+<main id="main-content" class="seo-prerender-content"><p>Redirecting to <a href="/">home page</a>...</p></main>
 </body></html>`);
 created++;
 

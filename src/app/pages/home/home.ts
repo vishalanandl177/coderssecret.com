@@ -803,7 +803,7 @@ type CategoryInfo = { name: string; slug: string };
                class="group inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 backdrop-blur-sm px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-md hover:-translate-y-0.5"
                [style.fontSize.px]="11 + tag.count">
               <span>{{ tag.name }}</span>
-              <span class="text-xs opacity-60 group-hover:opacity-100">{{ tag.count }}</span>
+              <span class="text-xs text-muted-foreground group-hover:text-primary-foreground">{{ tag.count }}</span>
             </a>
           }
         </div>
@@ -1006,7 +1006,7 @@ type CategoryInfo = { name: string; slug: string };
             <div class="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-red-500/10 via-primary/5 to-transparent"></div>
             <div class="relative flex h-full flex-col gap-6">
               <div class="flex items-start gap-4">
-                <div class="inline-flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-red-500 text-white shadow-lg shadow-red-500/20">
+                <div class="inline-flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-red-700 text-white shadow-lg shadow-red-700/20">
                   <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4L15.8 12l-6.2 3.6Z"/>
                   </svg>
@@ -1020,7 +1020,7 @@ type CategoryInfo = { name: string; slug: string };
                 </div>
               </div>
               <a [href]="links.youtube" target="_blank" rel="noopener noreferrer"
-                 class="inline-flex min-h-[44px] touch-manipulation items-center justify-center gap-2 rounded-full bg-red-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-red-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-red-600 hover:shadow-xl active:scale-[0.97] md:w-fit">
+                 class="inline-flex min-h-[44px] touch-manipulation items-center justify-center gap-2 rounded-full bg-red-700 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-red-700/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-red-800 hover:shadow-xl active:scale-[0.97] md:w-fit">
                 Visit Channel
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1034,7 +1034,7 @@ type CategoryInfo = { name: string; slug: string };
             <div class="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-green-500/10 via-emerald-500/5 to-transparent"></div>
             <div class="relative flex h-full flex-col gap-6">
               <div class="flex items-start gap-4">
-                <div class="inline-flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-green-500 text-white shadow-lg shadow-green-500/20">
+                <div class="inline-flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-green-700 text-white shadow-lg shadow-green-700/20">
                   <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M12 1.75C6.34 1.75 1.75 6.34 1.75 12S6.34 22.25 12 22.25 22.25 17.66 22.25 12 17.66 1.75 12 1.75Zm4.7 14.78a.73.73 0 0 1-1 .24c-2.74-1.67-6.18-2.05-10.24-1.12a.73.73 0 1 1-.33-1.42c4.44-1.02 8.25-.58 11.33 1.3.35.21.46.66.24 1Zm1.33-2.96a.9.9 0 0 1-1.24.3c-3.13-1.93-7.9-2.49-11.6-1.36a.9.9 0 1 1-.52-1.73c4.22-1.28 9.48-.66 13.06 1.54.43.27.57.83.3 1.25Zm.11-3.08c-3.76-2.23-9.95-2.44-13.54-1.35a1.08 1.08 0 1 1-.63-2.07c4.12-1.25 10.95-1 15.27 1.56a1.08 1.08 0 0 1-1.1 1.86Z"/>
                   </svg>
@@ -1056,7 +1056,7 @@ type CategoryInfo = { name: string; slug: string };
                 </ul>
               </div>
               <a [href]="links.spotifyPodcast" target="_blank" rel="noopener noreferrer"
-                 class="inline-flex min-h-[44px] touch-manipulation items-center justify-center gap-2 rounded-full bg-green-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-green-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-green-600 hover:shadow-xl active:scale-[0.97] md:w-fit">
+                 class="inline-flex min-h-[44px] touch-manipulation items-center justify-center gap-2 rounded-full bg-green-700 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-green-700/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-green-800 hover:shadow-xl active:scale-[0.97] md:w-fit">
                 Listen on Spotify
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">

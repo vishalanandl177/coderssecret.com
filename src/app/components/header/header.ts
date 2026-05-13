@@ -47,7 +47,7 @@ import { EXTERNAL_LINKS } from '../../shared/external-links';
                ariaCurrentWhenActive="page"
                class="relative whitespace-nowrap rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
               Courses
-              <span class="absolute -top-1 -right-1 inline-flex items-center rounded-full bg-green-500 px-1.5 py-0.5 text-[9px] font-bold leading-none text-white">FREE</span>
+              <span class="absolute -top-1 -right-1 inline-flex items-center rounded-full bg-green-300 px-1.5 py-0.5 text-[9px] font-bold leading-none text-green-950">FREE</span>
             </a>
             <a routerLink="/games" routerLinkActive="text-foreground bg-accent"
                ariaCurrentWhenActive="page"
@@ -206,7 +206,7 @@ import { EXTERNAL_LINKS } from '../../shared/external-links';
                class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
               Courses
-              <span class="ml-auto inline-flex items-center rounded-full bg-green-500 px-2 py-0.5 text-[10px] font-bold leading-none text-white">FREE</span>
+              <span class="ml-auto inline-flex items-center rounded-full bg-green-300 px-2 py-0.5 text-[10px] font-bold leading-none text-green-950">FREE</span>
             </a>
             <a routerLink="/games" (click)="mobileMenuOpen.set(false)" routerLinkActive="bg-accent text-foreground"
                ariaCurrentWhenActive="page"

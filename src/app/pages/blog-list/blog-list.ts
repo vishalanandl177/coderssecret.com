@@ -62,7 +62,7 @@ import { SeoService } from '../../services/seo.service';
                 <span class="h-1.5 w-1.5 rounded-full bg-primary-foreground"></span>
               }
               {{ cat.name }}
-              <span class="text-xs opacity-60">({{ getCount(cat.slug) }})</span>
+              <span class="text-xs text-muted-foreground">({{ getCount(cat.slug) }})</span>
             </button>
           }
         </div>
