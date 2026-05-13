@@ -105,7 +105,7 @@ export class AnalyticsService {
     this.gtagConfigQueued = true;
   }
 
-  private scheduleGtagLoad(delayMs = 2500) {
+  private scheduleGtagLoad(delayMs = 8000) {
     if (
       this.gtagLoaded ||
       this.gtagLoadScheduled ||
@@ -116,22 +116,24 @@ export class AnalyticsService {
     }
 
     this.gtagLoadScheduled = true;
-    const load = () => this.loadGtagScript();
+    const load = () => {
+      const requestIdleCallback = (window as AnalyticsWindow & {
+        requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
+      }).requestIdleCallback;
+
+      if (requestIdleCallback) {
+        requestIdleCallback(() => this.loadGtagScript(), { timeout: 2000 });
+      } else {
+        this.loadGtagScript();
+      }
+    };
 
     if (delayMs <= 0) {
       globalThis.setTimeout(load, 0);
       return;
     }
 
-    const requestIdleCallback = (window as AnalyticsWindow & {
-      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
-    }).requestIdleCallback;
-
-    if (requestIdleCallback) {
-      requestIdleCallback(load, { timeout: delayMs });
-    } else {
-      globalThis.setTimeout(load, delayMs);
-    }
+    globalThis.setTimeout(load, delayMs);
   }
 
   private loadGtagScript() {

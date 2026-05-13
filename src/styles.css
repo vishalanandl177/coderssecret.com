@@ -85,6 +85,11 @@
     animation-fill-mode: both;
   }
 
+  .transition-all,
+  .transition-colors {
+    transition-property: transform, opacity !important;
+  }
+
   /* Animated blob - GPU accelerated */
   @keyframes blob {
     0% { transform: translate3d(0, 0, 0) scale(1); }

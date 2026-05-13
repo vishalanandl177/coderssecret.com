@@ -14,7 +14,7 @@ import { AnalyticsService } from './services/analytics.service';
     </a>
     <div class="flex min-h-screen flex-col">
       <app-header />
-      <main id="main-content" class="flex-1">
+      <main id="main-content" class="flex-1 min-h-screen">
         <router-outlet />
       </main>
       <app-footer />
