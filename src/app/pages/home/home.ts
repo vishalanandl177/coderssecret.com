@@ -187,60 +187,60 @@ type CategoryInfo = { name: string; slug: string };
         <!-- 4 featured course cards (H3) -->
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
           <!-- Course 1: SPIFFE/SPIRE -->
-          <article class="rounded-2xl border border-teal-500/30 bg-card p-7 hover:border-teal-500/60 hover:shadow-xl hover:-translate-y-1 transition-all">
+          <article class="flex h-full flex-col rounded-2xl border border-teal-500/30 bg-card p-7 hover:border-teal-500/60 hover:shadow-xl hover:-translate-y-1 transition-all">
             <div class="flex flex-wrap gap-1.5 mb-3">
               <span class="rounded-full bg-green-500/10 border border-green-500/30 px-2 py-0.5 text-[10px] font-bold text-green-500 uppercase tracking-wider">Free</span>
               <span class="rounded-full bg-teal-500/10 border border-teal-500/30 px-2 py-0.5 text-[10px] font-semibold text-teal-500">13 Modules</span>
               <span class="rounded-full bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 text-[10px] font-semibold text-cyan-500">30 Labs</span>
             </div>
             <h3 class="text-lg md:text-xl font-bold mb-2 tracking-tight">Master SPIFFE &amp; SPIRE for Workload Identity</h3>
-            <p class="text-sm text-muted-foreground leading-relaxed mb-5">Deploy SPIRE servers and agents on Kubernetes, attest workloads cryptographically, issue X.509 and JWT SVIDs, and federate trust across clusters and clouds. The most comprehensive free curriculum on CNCF workload identity.</p>
-            <a routerLink="/courses/mastering-spiffe-spire" class="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-bold hover:gap-3 transition-all">
+            <p class="mb-6 text-sm text-muted-foreground leading-relaxed">Deploy SPIRE servers and agents on Kubernetes, attest workloads cryptographically, issue X.509 and JWT SVIDs, and federate trust across clusters and clouds. The most comprehensive free curriculum on CNCF workload identity.</p>
+            <a routerLink="/courses/mastering-spiffe-spire" class="mt-auto inline-flex min-h-14 w-full items-center justify-between gap-3 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-bold transition-all hover:shadow-md">
               Start the SPIFFE/SPIRE course
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </a>
           </article>
 
           <!-- Course 2: Kubernetes Security -->
-          <article class="rounded-2xl border border-blue-500/30 bg-card p-7 hover:border-blue-500/60 hover:shadow-xl hover:-translate-y-1 transition-all">
+          <article class="flex h-full flex-col rounded-2xl border border-blue-500/30 bg-card p-7 hover:border-blue-500/60 hover:shadow-xl hover:-translate-y-1 transition-all">
             <div class="flex flex-wrap gap-1.5 mb-3">
               <span class="rounded-full bg-green-500/10 border border-green-500/30 px-2 py-0.5 text-[10px] font-bold text-green-500 uppercase tracking-wider">Free</span>
               <span class="rounded-full bg-blue-500/10 border border-blue-500/30 px-2 py-0.5 text-[10px] font-semibold text-blue-500">16 Modules</span>
               <span class="rounded-full bg-purple-500/10 border border-purple-500/30 px-2 py-0.5 text-[10px] font-semibold text-purple-500">32 Labs</span>
             </div>
             <h3 class="text-lg md:text-xl font-bold mb-2 tracking-tight">Secure Kubernetes Workloads in Production</h3>
-            <p class="text-sm text-muted-foreground leading-relaxed mb-5">End-to-end Kubernetes security: PodSecurity standards, RBAC hardening, network policies, runtime detection with Falco, image signing with Sigstore, and the supply chain controls that catch attackers before they reach the kube-apiserver.</p>
-            <a routerLink="/courses/cloud-native-security-engineering" class="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-bold hover:gap-3 transition-all">
+            <p class="mb-6 text-sm text-muted-foreground leading-relaxed">End-to-end Kubernetes security: PodSecurity standards, RBAC hardening, network policies, runtime detection with Falco, image signing with Sigstore, and the supply chain controls that catch attackers before they reach the kube-apiserver.</p>
+            <a routerLink="/courses/cloud-native-security-engineering" class="mt-auto inline-flex min-h-14 w-full items-center justify-between gap-3 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-bold transition-all hover:shadow-md">
               Open the Kubernetes track
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </a>
           </article>
 
           <!-- Course 3: Production RAG -->
-          <article class="rounded-2xl border border-pink-500/30 bg-card p-7 hover:border-pink-500/60 hover:shadow-xl hover:-translate-y-1 transition-all">
+          <article class="flex h-full flex-col rounded-2xl border border-pink-500/30 bg-card p-7 hover:border-pink-500/60 hover:shadow-xl hover:-translate-y-1 transition-all">
             <div class="flex flex-wrap gap-1.5 mb-3">
               <span class="rounded-full bg-green-500/10 border border-green-500/30 px-2 py-0.5 text-[10px] font-bold text-green-500 uppercase tracking-wider">Free</span>
               <span class="rounded-full bg-pink-500/10 border border-pink-500/30 px-2 py-0.5 text-[10px] font-semibold text-pink-500">16 Modules</span>
               <span class="rounded-full bg-purple-500/10 border border-purple-500/30 px-2 py-0.5 text-[10px] font-semibold text-purple-500">31 Labs</span>
             </div>
             <h3 class="text-lg md:text-xl font-bold mb-2 tracking-tight">Engineer Production RAG Systems</h3>
-            <p class="text-sm text-muted-foreground leading-relaxed mb-5">Move beyond chatbot demos: ingestion, chunking, embeddings, vector databases, hybrid retrieval, reranking, evaluation, observability, security, and deployment for reliable AI products.</p>
-            <a routerLink="/courses/production-rag-systems-engineering" class="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-bold hover:gap-3 transition-all">
+            <p class="mb-6 text-sm text-muted-foreground leading-relaxed">Move beyond chatbot demos: ingestion, chunking, embeddings, vector databases, hybrid retrieval, reranking, evaluation, observability, security, and deployment for reliable AI products.</p>
+            <a routerLink="/courses/production-rag-systems-engineering" class="mt-auto inline-flex min-h-14 w-full items-center justify-between gap-3 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-bold transition-all hover:shadow-md">
               Start the RAG course
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </a>
           </article>
 
           <!-- Course 4: Analytics Engineering -->
-          <article class="rounded-2xl border border-emerald-500/30 bg-card p-7 hover:border-emerald-500/60 hover:shadow-xl hover:-translate-y-1 transition-all">
+          <article class="flex h-full flex-col rounded-2xl border border-emerald-500/30 bg-card p-7 hover:border-emerald-500/60 hover:shadow-xl hover:-translate-y-1 transition-all">
             <div class="flex flex-wrap gap-1.5 mb-3">
               <span class="rounded-full bg-green-500/10 border border-green-500/30 px-2 py-0.5 text-[10px] font-bold text-green-500 uppercase tracking-wider">Free</span>
               <span class="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-semibold text-emerald-500">16 Modules</span>
               <span class="rounded-full bg-sky-500/10 border border-sky-500/30 px-2 py-0.5 text-[10px] font-semibold text-sky-500">Inline Labs</span>
             </div>
             <h3 class="text-lg md:text-xl font-bold mb-2 tracking-tight">Build Trusted Analytics with dbt</h3>
-            <p class="text-sm text-muted-foreground leading-relaxed mb-5">Learn dbt transformations, staging models, marts, tests, freshness, metrics, semantic layers, MetricFlow, lineage, CI/CD, and data incident debugging from a fresher-friendly path.</p>
-            <a routerLink="/courses/production-analytics-engineering-dbt" class="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-bold hover:gap-3 transition-all">
+            <p class="mb-6 text-sm text-muted-foreground leading-relaxed">Learn dbt transformations, staging models, marts, tests, freshness, metrics, semantic layers, MetricFlow, lineage, CI/CD, and data incident debugging from a fresher-friendly path.</p>
+            <a routerLink="/courses/production-analytics-engineering-dbt" class="mt-auto inline-flex min-h-14 w-full items-center justify-between gap-3 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-bold transition-all hover:shadow-md">
               Start the analytics course
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </a>

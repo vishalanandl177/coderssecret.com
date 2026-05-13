@@ -94,15 +94,15 @@ DRF_API_LOGGER_SLOW_API_ABOVE = 200</code></pre>
       <h2>Two Ways to Log: Database &amp; Signals</h2>
       <p><strong>Database Logging</strong> stores every API call in your Django database. It comes with an admin dashboard featuring charts, analytics, advanced search, filtering, slow API detection, and CSV export.</p>
       <p>Here's what the built-in analytics dashboard looks like:</p>
-      <img src="/images/drf-api-logger/01-admin-dashboard.png" alt="DRF API Logger admin dashboard with API analytics charts" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
+      <img src="/images/drf-api-logger/01-admin-dashboard.png" alt="DRF API Logger admin dashboard with API analytics charts" width="2880" height="1800" loading="lazy" decoding="async" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
       <p>The log listing view gives you a detailed table of every API call with status codes, methods, execution times, and request metadata:</p>
-      <img src="/images/drf-api-logger/02-api-logs-list.png" alt="DRF API Logger list view showing API call logs with status codes, methods, and execution times" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
+      <img src="/images/drf-api-logger/02-api-logs-list.png" alt="DRF API Logger list view showing API call logs with status codes, methods, and execution times" width="2880" height="4478" loading="lazy" decoding="async" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
       <p>Click into any log entry to see the full request, response, and timing details. Here is a slow API request being flagged:</p>
-      <img src="/images/drf-api-logger/03-api-log-detail-slow-sql.png" alt="DRF API Logger detail view showing slow SQL query detection with execution time breakdown" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
+      <img src="/images/drf-api-logger/03-api-log-detail-slow-sql.png" alt="DRF API Logger detail view showing slow SQL query detection with execution time breakdown" width="2880" height="3180" loading="lazy" decoding="async" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
       <p>Sensitive data like passwords and tokens are automatically masked in the logs:</p>
-      <img src="/images/drf-api-logger/04-api-log-detail-login-masked.png" alt="DRF API Logger detail view showing automatic masking of password and token fields" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
+      <img src="/images/drf-api-logger/04-api-log-detail-login-masked.png" alt="DRF API Logger detail view showing automatic masking of password and token fields" width="2880" height="3182" loading="lazy" decoding="async" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
       <p>Detailed request views make it easier to spot repeated slow endpoints, oversized payloads, and error patterns before users report them:</p>
-      <img src="/images/drf-api-logger/05-api-log-detail-n-plus-one.png" alt="DRF API Logger detail view showing API timing and diagnostic information" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
+      <img src="/images/drf-api-logger/05-api-log-detail-n-plus-one.png" alt="DRF API Logger detail view showing API timing and diagnostic information" width="2880" height="3316" loading="lazy" decoding="async" style="width:100%;border-radius:0.5rem;border:1px solid var(--border);margin:1rem 0;" />
 
       <p><strong>Signal-Based Logging</strong> fires a custom Django signal for every API call, letting you build custom handlers — Elasticsearch, Datadog, Kafka, Slack alerts, flat files, anything.</p>
       <pre><code>from drf_api_logger import API_LOGGER_SIGNAL

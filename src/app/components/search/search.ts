@@ -10,8 +10,13 @@ type SearchablePost = { id: string; title: string; slug: string; excerpt: string
     @if (isOpen()) {
       <div class="fixed inset-0 z-[100] bg-background/80 backdrop-blur-sm" (click)="close()"></div>
       <div class="fixed inset-x-0 top-0 z-[101] flex justify-center pt-[15vh]">
-        <div class="w-full max-w-lg mx-4 rounded-lg border border-border bg-card shadow-2xl overflow-hidden"
+        <div id="site-search-dialog"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="site-search-title"
+             class="w-full max-w-lg mx-4 rounded-lg border border-border bg-card shadow-2xl overflow-hidden"
              (click)="$event.stopPropagation()">
+          <h2 id="site-search-title" class="sr-only">Search CodersSecret</h2>
           <div class="flex items-center border-b border-border px-4">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -20,6 +25,10 @@ type SearchablePost = { id: string; title: string; slug: string; excerpt: string
             </svg>
             <input #searchInput
                    type="text"
+                   aria-label="Search blog posts"
+                   autocomplete="off"
+                   autocapitalize="off"
+                   spellcheck="false"
                    placeholder="Search blog posts..."
                    class="flex-1 bg-transparent px-3 py-4 text-sm text-foreground placeholder:text-muted-foreground outline-none"
                    [value]="query()"
@@ -45,6 +54,7 @@ type SearchablePost = { id: string; title: string; slug: string; excerpt: string
             } @else {
               @for (post of results(); track post.id; let i = $index) {
                 <button (click)="navigateTo(post)"
+                        type="button"
                         class="w-full text-left rounded-md px-3 py-3 text-sm transition-colors hover:bg-accent"
                         [class.bg-accent]="i === selectedIndex()">
                   <div class="font-medium text-foreground">{{ post.title }}</div>

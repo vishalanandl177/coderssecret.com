@@ -3,7 +3,7 @@ export const CONTENT = `
 
       <p>This guide separates <strong>Claude API</strong>, <strong>Claude Code</strong>, and <strong>claude.ai</strong> so you can estimate cost correctly instead of blaming one mysterious "hidden prompt" for everything.</p>
 
-      <img src="/images/blog/claude-token-cost-stack.svg" alt="Diagram showing Claude token cost layers across input context, tools, thinking tokens, and output tokens" loading="lazy" decoding="async" />
+      <img src="/images/blog/claude-token-cost-stack.svg" alt="Diagram showing Claude token cost layers across input context, tools, thinking tokens, and output tokens" width="1200" height="630" loading="lazy" decoding="async" />
 
       <h2>Quick Takeaways</h2>
 

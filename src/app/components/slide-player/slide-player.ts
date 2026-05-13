@@ -33,7 +33,10 @@ export interface SlideData {
             <span class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
             <span class="text-xs font-mono text-green-500 hidden sm:inline">NARRATING</span>
           }
-          <button (click)="showScript.set(!showScript())"
+          <button type="button"
+                  (click)="showScript.set(!showScript())"
+                  [attr.aria-controls]="showScript() ? 'slide-script-panel' : null"
+                  [attr.aria-expanded]="showScript()"
                   [class.text-primary]="showScript()"
                   [class.border-primary]="showScript()"
                   class="hidden md:inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
@@ -50,7 +53,8 @@ export interface SlideData {
       <!-- Clickable progress bar (tap any slide to jump) -->
       <div class="h-2 bg-muted flex-shrink-0 flex gap-[1px] px-0.5" role="progressbar" [attr.aria-valuenow]="idx() + 1" [attr.aria-valuemax]="slides().length">
         @for (_ of slides(); track $index) {
-          <button (click)="jumpTo($index)"
+          <button type="button"
+                  (click)="jumpTo($index)"
                   [attr.aria-label]="'Go to slide ' + ($index + 1)"
                   class="flex-1 h-full rounded-sm transition-all hover:opacity-80 cursor-pointer"
                   [class.bg-gradient-to-r]="$index <= idx()"
@@ -62,7 +66,7 @@ export interface SlideData {
 
       <!-- Narrator script panel (desktop only, when toggled on) -->
       @if (showScript()) {
-        <div class="hidden md:block border-b border-border/60 bg-primary/5 backdrop-blur flex-shrink-0">
+        <div id="slide-script-panel" class="hidden md:block border-b border-border/60 bg-primary/5 backdrop-blur flex-shrink-0">
           <div class="max-w-5xl mx-auto px-6 py-3 flex gap-3 items-start">
             <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-primary font-bold flex-shrink-0 mt-0.5">NARRATOR</span>
             <p class="text-sm text-foreground/90 leading-relaxed">{{ currentSlide().narration }}</p>
@@ -239,7 +243,7 @@ export interface SlideData {
                   <p class="text-base text-muted-foreground mb-6">{{ currentSlide().caption }}</p>
                 }
                 <div class="rounded-xl border border-border/60 overflow-hidden bg-white">
-                  <img [src]="currentSlide().src" [alt]="currentSlide().title" class="w-full" loading="lazy" />
+                  <img [src]="currentSlide().src" [alt]="currentSlide().title" class="w-full" loading="lazy" decoding="async" />
                 </div>
               </div>
             }
@@ -268,14 +272,14 @@ export interface SlideData {
       <!-- Controls bar -->
       <footer class="flex flex-wrap items-center justify-center gap-2 md:gap-3 px-4 py-3 md:py-0 md:h-16 border-t border-border/60 bg-card/80 backdrop-blur flex-shrink-0">
         <!-- Prev -->
-        <button (click)="prev()" [disabled]="idx() === 0"
+        <button type="button" (click)="prev()" [disabled]="idx() === 0"
                 aria-label="Previous slide"
                 class="inline-flex items-center justify-center w-10 h-10 rounded-full border border-border/60 text-foreground hover:bg-accent transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         </button>
 
         <!-- Play / Pause -->
-        <button (click)="togglePlay()"
+        <button type="button" (click)="togglePlay()"
                 [attr.aria-label]="speaking() ? 'Pause narration' : 'Play narration'"
                 class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg shadow-primary/25 hover:shadow-xl hover:-translate-y-0.5 transition-all">
           @if (speaking()) {
@@ -286,14 +290,14 @@ export interface SlideData {
         </button>
 
         <!-- Stop -->
-        <button (click)="stopAll()"
+        <button type="button" (click)="stopAll()"
                 aria-label="Stop narration"
                 class="inline-flex items-center justify-center w-10 h-10 rounded-full border border-border/60 text-foreground hover:bg-accent transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
         </button>
 
         <!-- Next -->
-        <button (click)="next()" [disabled]="idx() === slides().length - 1"
+        <button type="button" (click)="next()" [disabled]="idx() === slides().length - 1"
                 aria-label="Next slide"
                 class="inline-flex items-center justify-center w-10 h-10 rounded-full border border-border/60 text-foreground hover:bg-accent transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
@@ -302,7 +306,8 @@ export interface SlideData {
         <div class="w-px h-6 bg-border/60 mx-1"></div>
 
         <!-- Auto-advance -->
-        <button (click)="toggleAutoAdvance()"
+        <button type="button" (click)="toggleAutoAdvance()"
+                [attr.aria-pressed]="autoAdvance()"
                 class="inline-flex items-center gap-1.5 rounded-full border px-3 h-10 text-xs font-mono transition-colors"
                 [class]="autoAdvance() ? 'border-primary bg-primary/10 text-primary' : 'border-border/60 text-muted-foreground hover:bg-accent'">
           {{ autoAdvance() ? 'AUTO: ON' : 'AUTO: OFF' }}

@@ -53,6 +53,14 @@ function makeHtml(options) {
   const ogImage = image ? `${SITE_URL}${image}` : `${SITE_URL}/og-image.svg`;
   const safeTitle = escapeHtml(fullTitle);
   const safeDescription = escapeHtml(clampText(description, 160));
+  const prerenderedContent = wrapPrerenderContent(content);
+  const structuredData = structuredDataForPage({
+    jsonLd,
+    fullTitle,
+    description: clampText(description, 160),
+    canonical,
+    ogImage,
+  });
 
   let html = baseHtml;
 
@@ -85,17 +93,59 @@ function makeHtml(options) {
     `  <meta name="twitter:image" content="${ogImage}">\n` +
     `  <link rel="alternate" hreflang="en" href="${canonical}">\n` +
     extraHead +
-    (jsonLd ? `  <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>\n` : '') +
+    `  <script type="application/ld+json">${JSON.stringify(structuredData)}</script>\n` +
     '</head>'
   );
 
   // Inject real content inside <app-root> so Google can read it
   html = html.replace(
     '<app-root></app-root>',
-    `<app-root>${content}</app-root>`
+    `<app-root>${prerenderedContent}</app-root>`
   );
 
   return html;
+}
+
+function wrapPrerenderContent(content) {
+  const normalized = String(content ?? '').trim();
+  const skipLink = '<a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg">Skip to main content</a>';
+
+  if (/^<main\b/i.test(normalized)) {
+    const main = normalized.replace(/^<main\b([^>]*)>/i, (match, attrs) => {
+      return /\sid\s*=/i.test(attrs) ? match : `<main id="main-content"${attrs}>`;
+    });
+    return `${skipLink}\n${main}`;
+  }
+
+  return `${skipLink}\n<main id="main-content">${normalized}</main>`;
+}
+
+function structuredDataForPage({ jsonLd, fullTitle, description, canonical, ogImage }) {
+  const pageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    'name': fullTitle,
+    'description': description,
+    'url': canonical,
+    'inLanguage': 'en',
+    'isPartOf': {
+      '@type': 'WebSite',
+      'name': 'CodersSecret',
+      'url': SITE_URL,
+    },
+    'primaryImageOfPage': {
+      '@type': 'ImageObject',
+      'url': ogImage,
+    },
+  };
+
+  if (!jsonLd) {
+    return pageSchema;
+  }
+
+  const items = Array.isArray(jsonLd) ? jsonLd : [jsonLd];
+  const hasPageSchema = items.some(item => item && ['WebPage', 'CollectionPage'].includes(item['@type']));
+  return hasPageSchema ? items : [pageSchema, ...items];
 }
 
 function escapeHtml(str) {
@@ -453,6 +503,8 @@ function addHtmlAttribute(tag, name, value) {
 }
 
 const knownImageDimensions = {
+  '/images/blog/claude-token-cost-stack.svg': { width: 1200, height: 630 },
+  '/images/blog/mcp-security-gateway-architecture.svg': { width: 1200, height: 630 },
   '/images/drf-api-logger/01-admin-dashboard.png': { width: 2880, height: 1800 },
   '/images/drf-api-logger/02-api-logs-list.png': { width: 2880, height: 4478 },
   '/images/drf-api-logger/03-api-log-detail-slow-sql.png': { width: 2880, height: 3180 },
@@ -482,11 +534,28 @@ function courseImagePath(course) {
   return `/images/banners/course-${course.slug}.svg`;
 }
 
+function courseShortName(course) {
+  return {
+    'mastering-spiffe-spire': 'SPIFFE',
+    'cloud-native-security-engineering': 'Cloud Security',
+    'production-rag-systems-engineering': 'RAG Systems',
+    'distributed-systems-engineering': 'Distributed Sys',
+    'production-analytics-engineering-dbt': 'Analytics dbt',
+  }[course.slug] || compactSeoTitle(course.title, 24);
+}
+
+function courseSeoCourseTitle(course) {
+  return {
+    'mastering-spiffe-spire': 'SPIFFE & SPIRE Zero Trust Course',
+    'cloud-native-security-engineering': 'Cloud Native Security Free Course',
+    'production-rag-systems-engineering': 'Production RAG Engineering Course',
+    'distributed-systems-engineering': 'Distributed Systems Engineering Course',
+    'production-analytics-engineering-dbt': 'Analytics Engineering with dbt Course',
+  }[course.slug] || compactSeoTitle(`${course.title} Free Course`, 52);
+}
+
 function courseSeoTitle(course) {
-  if (course.slug === 'mastering-spiffe-spire') {
-    return 'Mastering SPIFFE & SPIRE: Zero Trust Course';
-  }
-  return `${course.title} - Free Course`;
+  return courseSeoCourseTitle(course);
 }
 
 function courseSeoDescription(course) {
@@ -498,10 +567,8 @@ function courseSeoDescription(course) {
 }
 
 function moduleSeoTitle(course, mod) {
-  if (course.slug === 'mastering-spiffe-spire') {
-    return `Module ${mod.number}: ${spiffeModuleShortTitle(mod)} | SPIFFE`;
-  }
-  return `Module ${mod.number}: ${mod.title} | ${course.title}`;
+  const title = course.slug === 'mastering-spiffe-spire' ? spiffeModuleShortTitle(mod) : mod.title;
+  return `M${mod.number}: ${compactSeoTitle(title, 26)} | ${courseShortName(course)}`;
 }
 
 function spiffeModuleShortTitle(mod) {
@@ -525,8 +592,11 @@ function spiffeModuleShortTitle(mod) {
 
 function moduleSeoDescription(course, mod) {
   const labLabel = mod.labs.length === 1 ? 'lab' : 'labs';
-  const courseName = course.slug === 'mastering-spiffe-spire' ? 'SPIFFE/SPIRE' : course.title;
-  return clampText(`Module ${mod.number} of the free ${courseName} course: ${mod.subtitle}. ${mod.labs.length} hands-on ${labLabel}.`, 160);
+  const objectives = (mod.objectives || []).slice(0, 2).join('; ');
+  const practice = mod.labs.length > 0
+    ? `${mod.labs.length} hands-on ${labLabel}`
+    : 'guided production practice';
+  return clampText(`Free ${courseShortName(course)} module ${mod.number}: ${mod.subtitle}. ${objectives ? `Learn ${objectives}. ` : ''}Includes ${practice}.`, 165);
 }
 
 function courseBreadcrumbJsonLd(course, extraCrumbs = []) {
@@ -772,6 +842,15 @@ function renderSeoLandingContent(course, page) {
   return `<main>
     <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/courses">Courses</a> / ${escapeHtml(page.title)}</nav>
     <article>${page.content}</article>
+    <section>
+      <h2>How to Use This Topic</h2>
+      <p>This page is a focused entry point into the larger course. Use it to understand the vocabulary, the production problem, and the first practical module to open next.</p>
+      <ul>
+        <li>Read the overview to map the concept to real engineering work.</li>
+        <li>Follow the linked module for exercises, diagrams, and implementation details.</li>
+        <li>Return to the full curriculum when you need adjacent topics and a complete learning path.</li>
+      </ul>
+    </section>
     <section>
       <h2>Start Learning for Free</h2>
       <p>Continue with ${escapeHtml(course.title)}: ${course.modules.length} modules, ${labCountLabelFor(course)}, completely free.</p>
@@ -1085,8 +1164,8 @@ for (const cat of categories) {
     frontend: 'Tutorials and deep dives into Angular, React, TypeScript, CSS, and modern frontend development.',
     backend: 'Practical guides on Python, Django, APIs, authentication, and backend architecture patterns.',
     devops: 'Learn Kubernetes, Docker, CI/CD, cron jobs, and infrastructure automation for production systems.',
-    tutorials: 'Step-by-step workshops and hands-on tutorials for developers at every level.',
-    'open-source': 'Discover and contribute to open-source projects, tools, and libraries.',
+    tutorials: 'Step-by-step workshops and hands-on tutorials for developers learning production engineering, APIs, Python, infrastructure, security, and system design through practical examples.',
+    'open-source': 'Open-source guides, project walkthroughs, contribution advice, library deep dives, and practical notes for building and maintaining developer tools in public.',
   }[cat] || `Browse articles about ${catName} on CodersSecret.`;
 
   const content = `
@@ -1230,19 +1309,115 @@ const games = [
   },
 ];
 
+function gameSeoTitle(game) {
+  return compactSeoTitle(game.title.replace(/\s+—\s+(Interactive Lab|SPIFFE\/SPIRE Workload Identity Lab)$/i, ''), 52);
+}
+
+function gameDescription(game) {
+  const desc = stripHtml(game.description);
+  if (desc.length >= 80) {
+    return desc;
+  }
+
+  return `${desc} Free CodersSecret practice lab with scenario-based prompts, production context, and links to related engineering material.`;
+}
+
+function renderGameContent(game, allGames) {
+  const description = gameDescription(game);
+  const related = allGames
+    .filter(item => item.slug && item.slug !== game.slug)
+    .slice(0, 6);
+
+  if (!game.slug) {
+    return `<main>
+      <nav aria-label="Breadcrumb"><a href="/">Home</a> / Games</nav>
+      <h1>${escapeHtml(game.heading)}</h1>
+      <p>${escapeHtml(description)}</p>
+      <p>These browser-based tools are lightweight practice surfaces for production engineering judgment: identify risk, choose safer defaults, debug symptoms, and reason about tradeoffs.</p>
+      <section>
+        <h2>Available Games and Labs</h2>
+        <ul>${allGames.filter(item => item.slug).map(item => `<li><a href="/games/${item.slug}">${escapeHtml(item.heading)}</a> - ${escapeHtml(gameDescription(item))}</li>`).join('')}</ul>
+      </section>
+    </main>`;
+  }
+
+  return `<main>
+    <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/games">Games</a> / ${escapeHtml(game.heading)}</nav>
+    <article>
+      <h1>${escapeHtml(game.heading)}</h1>
+      <p>${escapeHtml(description)}</p>
+      <p>${escapeHtml(game.content)}</p>
+      <section>
+        <h2>What You Practice</h2>
+        <ul>
+          <li>Recognizing production failure modes before they become incidents.</li>
+          <li>Connecting security, reliability, and operational choices to real engineering outcomes.</li>
+          <li>Building intuition through short interactive scenarios instead of passive reading only.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Related Practice</h2>
+        <ul>${related.map(item => `<li><a href="/games/${item.slug}">${escapeHtml(item.heading)}</a></li>`).join('')}</ul>
+      </section>
+      <p><a href="/courses">Continue with free courses</a> or <a href="/blog">read production engineering articles</a>.</p>
+    </article>
+  </main>`;
+}
+
+function gameJsonLd(game, allGames) {
+  const url = game.slug ? `/games/${game.slug}` : '/games';
+  const breadcrumb = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+      { '@type': 'ListItem', 'position': 2, 'name': 'Games', 'item': `${SITE_URL}/games` },
+      ...(game.slug ? [{ '@type': 'ListItem', 'position': 3, 'name': game.heading, 'item': `${SITE_URL}${url}` }] : []),
+    ],
+  };
+
+  if (!game.slug) {
+    return [
+      breadcrumb,
+      {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        'name': game.heading,
+        'description': gameDescription(game),
+        'itemListElement': allGames.filter(item => item.slug).map((item, index) => ({
+          '@type': 'ListItem',
+          'position': index + 1,
+          'url': `${SITE_URL}/games/${item.slug}`,
+          'name': item.heading,
+        })),
+      },
+    ];
+  }
+
+  return [
+    breadcrumb,
+    {
+      '@context': 'https://schema.org',
+      '@type': 'LearningResource',
+      'name': game.heading,
+      'description': gameDescription(game),
+      'url': `${SITE_URL}${url}`,
+      'learningResourceType': 'Interactive practice',
+      'isAccessibleForFree': true,
+      'inLanguage': 'en',
+    },
+  ];
+}
+
 for (const game of games) {
   const gameDir = game.slug ? path.join(OUTPUT_DIR, 'games', game.slug) : path.join(OUTPUT_DIR, 'games');
   fs.mkdirSync(gameDir, { recursive: true });
   fs.writeFileSync(path.join(gameDir, 'index.html'), makeHtml({
-    title: game.title,
-    description: game.description,
+    title: gameSeoTitle(game),
+    description: gameDescription(game),
     url: game.slug ? `/games/${game.slug}` : '/games',
-    content: `
-      <nav><a href="/">Home</a> / <a href="/games">Games</a>${game.slug ? ` / ${game.heading}` : ''}</nav>
-      <h1>${game.heading}</h1>
-      <p>${game.content}</p>
-      ${!game.slug ? '<ul>' + games.filter(g => g.slug).map(g => `<li><a href="/games/${g.slug}">${g.heading}</a></li>`).join('') + '</ul>' : '<p><a href="/games">← Back to all games</a></p>'}
-    `,
+    content: renderGameContent(game, games),
+    jsonLd: gameJsonLd(game, games),
   }));
   created++;
 }
@@ -1264,14 +1439,129 @@ const cheatsheets = [
   { slug: 'service-mesh', name: 'Service Mesh Cheatsheet (Istio / Envoy)', desc: 'Production reference for Istio and Envoy: mesh-wide mTLS, AuthorizationPolicy patterns, RequestAuthentication for JWTs, traffic management, and istioctl/Envoy diagnostics.' },
   { slug: 'devsecops', name: 'DevSecOps & Supply Chain Cheatsheet', desc: 'Production reference for software supply chain security: cosign keyless signing, SBOM generation with syft, SLSA provenance levels, Kyverno admission policy, and hardened GitHub Actions patterns.' },
 ];
+
+function cheatsheetDescription(cs) {
+  const desc = stripHtml(cs.desc);
+  if (desc.length >= 80) {
+    return desc;
+  }
+
+  return `${desc} Production reference with commands, diagnostics, safety checks, and links to deeper CodersSecret learning paths.`;
+}
+
+function renderCheatsheetContent(cs, allCheatsheets) {
+  const description = cheatsheetDescription(cs);
+  const related = allCheatsheets
+    .filter(item => item.slug && item.slug !== cs.slug)
+    .slice(0, 6);
+
+  if (!cs.slug) {
+    return `<main>
+      <nav aria-label="Breadcrumb"><a href="/">Home</a> / Cheatsheets</nav>
+      <h1>${escapeHtml(cs.name)}</h1>
+      <p>${escapeHtml(description)}</p>
+      <p>Use these pages as quick operational references while debugging clusters, hardening APIs, reviewing infrastructure, or preparing for production incidents.</p>
+      <section>
+        <h2>Available Reference Sheets</h2>
+        <ul>${allCheatsheets.filter(item => item.slug).map(item => `<li><a href="/cheatsheets/${item.slug}">${escapeHtml(item.name)}</a> - ${escapeHtml(cheatsheetDescription(item))}</li>`).join('')}</ul>
+      </section>
+      <section>
+        <h2>How to Use These References</h2>
+        <p>Each cheatsheet is intentionally concise: commands first, then the production context that explains when a command is safe, risky, or incomplete. Pair them with the long-form guides and free courses when you need deeper architecture tradeoffs.</p>
+      </section>
+    </main>`;
+  }
+
+  return `<main>
+    <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/cheatsheets">Cheatsheets</a> / ${escapeHtml(cs.name)}</nav>
+    <article>
+      <h1>${escapeHtml(cs.name)}</h1>
+      <p>${escapeHtml(description)}</p>
+      <section>
+        <h2>What This Reference Covers</h2>
+        <ul>
+          <li>High-signal commands and checks for day-to-day production work.</li>
+          <li>Security and reliability notes that explain what can go wrong when a command is used casually.</li>
+          <li>Debugging vocabulary for incidents, code reviews, platform audits, and interview preparation.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Recommended Next Steps</h2>
+        <p>Start with the commands that match your current task, then follow the related CodersSecret material for deeper context on architecture, risk, and operational tradeoffs.</p>
+        <p><a href="/blog">Read production engineering articles</a> or continue with <a href="/courses">free courses</a>.</p>
+      </section>
+      <section>
+        <h2>Related Cheatsheets</h2>
+        <ul>${related.map(item => `<li><a href="/cheatsheets/${item.slug}">${escapeHtml(item.name)}</a></li>`).join('')}</ul>
+      </section>
+      <p><a href="/cheatsheets">All Cheat Sheets</a></p>
+    </article>
+  </main>`;
+}
+
+function cheatsheetJsonLd(cs, allCheatsheets) {
+  const url = cs.slug ? `/cheatsheets/${cs.slug}` : '/cheatsheets';
+  const breadcrumb = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+      { '@type': 'ListItem', 'position': 2, 'name': 'Cheatsheets', 'item': `${SITE_URL}/cheatsheets` },
+      ...(cs.slug ? [{ '@type': 'ListItem', 'position': 3, 'name': cs.name, 'item': `${SITE_URL}${url}` }] : []),
+    ],
+  };
+
+  if (!cs.slug) {
+    return [
+      breadcrumb,
+      {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        'name': cs.name,
+        'description': cheatsheetDescription(cs),
+        'itemListElement': allCheatsheets.filter(item => item.slug).map((item, index) => ({
+          '@type': 'ListItem',
+          'position': index + 1,
+          'url': `${SITE_URL}/cheatsheets/${item.slug}`,
+          'name': item.name,
+        })),
+      },
+    ];
+  }
+
+  return [
+    breadcrumb,
+    {
+      '@context': 'https://schema.org',
+      '@type': 'TechArticle',
+      'headline': cs.name,
+      'description': cheatsheetDescription(cs),
+      'url': `${SITE_URL}${url}`,
+      'author': {
+        '@type': 'Person',
+        'name': 'Vishal Anand',
+        'url': `${SITE_URL}/about`,
+      },
+      'publisher': {
+        '@type': 'Organization',
+        'name': 'CodersSecret',
+        'url': SITE_URL,
+      },
+      'isAccessibleForFree': true,
+      'inLanguage': 'en',
+    },
+  ];
+}
+
 for (const cs of cheatsheets) {
   const csDir = cs.slug ? path.join(OUTPUT_DIR, 'cheatsheets', cs.slug) : path.join(OUTPUT_DIR, 'cheatsheets');
   fs.mkdirSync(csDir, { recursive: true });
   fs.writeFileSync(path.join(csDir, 'index.html'), makeHtml({
     title: cs.name,
-    description: cs.desc,
+    description: cheatsheetDescription(cs),
     url: cs.slug ? `/cheatsheets/${cs.slug}` : '/cheatsheets',
-    content: `<h1>${cs.name}</h1><p>${cs.desc}</p>${!cs.slug ? '<ul>' + cheatsheets.filter(c => c.slug).map(c => `<li><a href="/cheatsheets/${c.slug}">${c.name}</a></li>`).join('') + '</ul>' : '<p><a href="/cheatsheets">← All Cheat Sheets</a></p>'}`,
+    content: renderCheatsheetContent(cs, cheatsheets),
+    jsonLd: cheatsheetJsonLd(cs, cheatsheets),
   }));
   created++;
 }
@@ -1279,9 +1569,11 @@ for (const cs of cheatsheets) {
 // ── Courses pages (/courses, /courses/<course>, /courses/<course>/<module>, SEO pages) ──
 const courseModelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'course.model.ts');
 const courseContent = fs.existsSync(courseModelPath) ? fs.readFileSync(courseModelPath, 'utf-8') : '';
+let generatedCourseModelSlugs = new Set();
 
 if (courseContent) {
   const courses = loadCoursesFromModel(courseContent);
+  generatedCourseModelSlugs = new Set(courses.map(course => course.slug));
   const coursesHubTitle = 'Free Production Engineering Courses';
   const coursesHubDescription = 'Free hands-on courses in cloud native security, distributed systems, SPIFFE/SPIRE, Kubernetes, Zero Trust, production RAG, and analytics engineering. No signup.';
 
@@ -1449,7 +1741,7 @@ if (courseContent) {
       const seoDir = path.join(OUTPUT_DIR, 'courses', page.slug);
       fs.mkdirSync(seoDir, { recursive: true });
       fs.writeFileSync(path.join(seoDir, 'index.html'), makeHtml({
-        title: page.title,
+        title: compactSeoTitle(page.title, 52),
         description: page.description,
         url: `/courses/${page.slug}`,
         image: courseImagePath(spiffeCourse),
@@ -1463,9 +1755,6 @@ if (courseContent) {
   // Rich prerender for courses that do not have a legacy manual section below.
   const legacyManualCourseSlugs = new Set([
     'mastering-spiffe-spire',
-    'cloud-native-security-engineering',
-    'production-rag-systems-engineering',
-    'distributed-systems-engineering',
   ]);
   courses
     .filter(course => !legacyManualCourseSlugs.has(course.slug))
@@ -1516,7 +1805,7 @@ if (courseContent) {
         const seoDir = path.join(OUTPUT_DIR, 'courses', page.slug);
         fs.mkdirSync(seoDir, { recursive: true });
         fs.writeFileSync(path.join(seoDir, 'index.html'), makeHtml({
-          title: page.title,
+          title: compactSeoTitle(page.title, 52),
           description: page.description,
           url: `/courses/${page.slug}`,
           image: courseImagePath(course),
@@ -1528,6 +1817,7 @@ if (courseContent) {
     });
 
   // ── Cloud Native Security Engineering course ──
+  if (!generatedCourseModelSlugs.has('cloud-native-security-engineering')) {
   const cnsDir = path.join(OUTPUT_DIR, 'courses', 'cloud-native-security-engineering');
   fs.mkdirSync(cnsDir, { recursive: true });
   fs.writeFileSync(path.join(cnsDir, 'index.html'), makeHtml({
@@ -1606,6 +1896,7 @@ if (courseContent) {
     }));
     created++;
   });
+  }
 }
 
 // ── Slides pages (/slides/{slug}) — pre-render for every blog post ──
@@ -1618,16 +1909,118 @@ for (const post of posts) {
     created++;
     continue;
   }
+  const slideTitle = `${compactSeoTitle(post.title, 42)} Slides`;
+  const slideTopic = compactSeoTitle(post.title, 45);
+  const slideDescription = `Watch narrated slides for ${slideTopic}. Review the core ideas with lightweight visuals, then read the full article for code and diagrams.`;
   fs.writeFileSync(path.join(slideDir, 'index.html'), makeHtml({
-    title: `${escapeHtml(post.title)} — Watch as Slides | CodersSecret`,
-    description: `Watch "${escapeHtml(post.title)}" as narrated slides with voice narration. 20x lighter than video, zero ads, fully free.`,
+    title: slideTitle,
+    description: slideDescription,
     url: `/slides/${post.slug}`,
-    content: `<h1>${escapeHtml(post.title)} — Slides</h1><p>Watch this tutorial as narrated slides with voice narration.</p><p><a href="/blog/${post.slug}">Read the full article</a></p>`,
+    content: `<main>
+      <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/blog/${post.slug}">Article</a> / Slides</nav>
+      <h1>${escapeHtml(post.title)} Slides</h1>
+      <p>${escapeHtml(slideDescription)}</p>
+      <section>
+        <h2>What You Will Learn</h2>
+        <p>This slide version summarizes the same production engineering topic for quick review. Use it when you want a visual walkthrough before reading the deeper article.</p>
+        <ul>
+          <li>Main concepts from the article in a presentation-friendly format.</li>
+          <li>Short explanations designed for review, sharing, and audio-first learning.</li>
+          <li>Direct path back to the complete tutorial, code examples, and references.</li>
+        </ul>
+      </section>
+      <p><a href="/blog/${post.slug}">Read the full article</a></p>
+    </main>`,
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+          { '@type': 'ListItem', 'position': 2, 'name': 'Article', 'item': `${SITE_URL}/blog/${post.slug}` },
+          { '@type': 'ListItem', 'position': 3, 'name': 'Slides', 'item': `${SITE_URL}/slides/${post.slug}` },
+        ],
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'LearningResource',
+        'name': slideTitle,
+        'description': slideDescription,
+        'url': `${SITE_URL}/slides/${post.slug}`,
+        'isAccessibleForFree': true,
+        'learningResourceType': 'Slide deck',
+        'inLanguage': 'en',
+      },
+    ],
   }));
   created++;
 }
 
 // ── /home/ redirect (Google sometimes discovers /home/ instead of /) ──
+const standaloneSlidePages = [
+  {
+    slug: 'drf-api-logger',
+    title: 'DRF API Logger Tutorial Slides',
+    description: 'Watch a narrated slide walkthrough for DRF API Logger, Django REST Framework request logging, middleware flow, configuration, production usage, and debugging patterns.',
+    articleUrl: '/blog/drf-api-logger-django-rest-framework',
+    topic: 'Django REST Framework API logging',
+  },
+  {
+    slug: 'python-c-extensions',
+    title: 'Python C Extensions Tutorial Slides',
+    description: 'Watch a narrated slide walkthrough for Python C extensions, CPython internals, native modules, performance tradeoffs, memory safety, and practical extension patterns.',
+    articleUrl: '/blog/python-c-extensions-workshop',
+    topic: 'Python C extension development',
+  },
+];
+
+for (const slide of standaloneSlidePages) {
+  const slideDir = path.join(OUTPUT_DIR, 'slides', slide.slug);
+  fs.mkdirSync(slideDir, { recursive: true });
+  fs.writeFileSync(path.join(slideDir, 'index.html'), makeHtml({
+    title: slide.title,
+    description: slide.description,
+    url: `/slides/${slide.slug}`,
+    content: `<main>
+      <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="${slide.articleUrl}">Article</a> / Slides</nav>
+      <h1>${escapeHtml(slide.title)}</h1>
+      <p>${escapeHtml(slide.description)}</p>
+      <section>
+        <h2>Slide Learning Path</h2>
+        <p>This standalone slide page gives crawlers and readers a clear summary of the tutorial before the Angular slide player loads. It covers ${escapeHtml(slide.topic)}, key implementation ideas, and where to continue learning.</p>
+        <ul>
+          <li>Start with the visual explanation to understand the architecture.</li>
+          <li>Use the related article for complete code, configuration, and production notes.</li>
+          <li>Return to CodersSecret courses and cheatsheets for deeper engineering context.</li>
+        </ul>
+      </section>
+      <p><a href="${slide.articleUrl}">Read the full article</a></p>
+    </main>`,
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+          { '@type': 'ListItem', 'position': 2, 'name': 'Article', 'item': `${SITE_URL}${slide.articleUrl}` },
+          { '@type': 'ListItem', 'position': 3, 'name': 'Slides', 'item': `${SITE_URL}/slides/${slide.slug}` },
+        ],
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'LearningResource',
+        'name': slide.title,
+        'description': slide.description,
+        'url': `${SITE_URL}/slides/${slide.slug}`,
+        'learningResourceType': 'Slide deck',
+        'isAccessibleForFree': true,
+        'inLanguage': 'en',
+      },
+    ],
+  }));
+  created++;
+}
+
 const homeDir = path.join(OUTPUT_DIR, 'home');
 fs.mkdirSync(homeDir, { recursive: true });
 fs.writeFileSync(path.join(homeDir, 'index.html'), `<!doctype html>
@@ -1636,10 +2029,14 @@ fs.writeFileSync(path.join(homeDir, 'index.html'), `<!doctype html>
 <meta http-equiv="refresh" content="0;url=/">
 <link rel="canonical" href="https://coderssecret.com/">
 <title>Redirecting to CodersSecret</title>
-</head><body><p>Redirecting to <a href="/">home page</a>...</p></body></html>`);
+</head><body>
+<a href="#main-content">Skip to main content</a>
+<main id="main-content"><p>Redirecting to <a href="/">home page</a>...</p></main>
+</body></html>`);
 created++;
 
   // ── Production RAG Systems Engineering course ──
+  if (!generatedCourseModelSlugs.has('production-rag-systems-engineering')) {
   const ragDir = path.join(OUTPUT_DIR, 'courses', 'production-rag-systems-engineering');
   fs.mkdirSync(ragDir, { recursive: true });
   fs.writeFileSync(path.join(ragDir, 'index.html'), makeHtml({
@@ -1700,6 +2097,9 @@ created++;
   });
 
   // ── Distributed Systems Engineering course ──
+  }
+
+  if (!generatedCourseModelSlugs.has('distributed-systems-engineering')) {
   const dseDir = path.join(OUTPUT_DIR, 'courses', 'distributed-systems-engineering');
   fs.mkdirSync(dseDir, { recursive: true });
   fs.writeFileSync(path.join(dseDir, 'index.html'), makeHtml({
@@ -1737,6 +2137,8 @@ created++;
   });
 
 // ── Glossary pages ──
+}
+
 const glossaryTerms = [
   { slug: 'spiffe', term: 'SPIFFE', desc: 'Secure Production Identity Framework For Everyone — CNCF standard for workload identity.' },
   { slug: 'spire', term: 'SPIRE', desc: 'SPIFFE Runtime Environment — production implementation that issues and manages workload identities.' },
@@ -1749,13 +2151,75 @@ const glossaryTerms = [
   { slug: 'service-mesh', term: 'Service Mesh', desc: 'Infrastructure layer of sidecar proxies handling mTLS, load balancing, and observability.' },
   { slug: 'sigstore', term: 'Sigstore', desc: 'Keyless container image signing and verification for supply chain security.' },
 ];
+
+function glossaryDescription(term) {
+  const desc = stripHtml(term.desc);
+  if (desc.length >= 80) {
+    return desc;
+  }
+
+  return `${desc} Practical definition for cloud-native security, platform engineering, and production architecture decisions.`;
+}
+
+function renderGlossaryHubContent(terms) {
+  return `<main>
+    <nav aria-label="Breadcrumb"><a href="/">Home</a> / Glossary</nav>
+    <h1>Cloud Native Security Glossary</h1>
+    <p>Definitions for SPIFFE, SPIRE, Zero Trust, workload identity, mTLS, OPA, Falco, and more cloud-native security terms.</p>
+    <p>Use this glossary when reading CodersSecret courses, security guides, and production architecture articles. Each term links to a concise explanation and related operational context.</p>
+    <ul>${terms.map(t => `<li><a href="/glossary/${t.slug}">${escapeHtml(t.term)}</a>: ${escapeHtml(glossaryDescription(t))}</li>`).join('')}</ul>
+  </main>`;
+}
+
+function renderGlossaryTermContent(t) {
+  return `<main>
+    <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/glossary">Glossary</a> / ${escapeHtml(t.term)}</nav>
+    <article>
+      <h1>What is ${escapeHtml(t.term)}?</h1>
+      <p>${escapeHtml(glossaryDescription(t))}</p>
+      <section>
+        <h2>Why It Matters</h2>
+        <p>${escapeHtml(t.term)} appears in production engineering decisions around security, identity, reliability, and platform operations. Understanding the term helps you read architecture diagrams, debug incidents, and choose safer defaults.</p>
+        <p>When you see ${escapeHtml(t.term)} in a course, article, architecture review, or incident write-up, connect it to the system boundary it protects, the team that owns it, and the failure mode it is meant to reduce.</p>
+      </section>
+      <section>
+        <h2>Where to Learn Next</h2>
+        <p>Continue with <a href="/courses">free CodersSecret courses</a>, <a href="/cheatsheets">operational cheatsheets</a>, or <a href="/blog">deep technical articles</a> for implementation-level examples.</p>
+      </section>
+      <p><a href="/glossary">All glossary terms</a></p>
+    </article>
+  </main>`;
+}
+
+function glossaryJsonLd(t) {
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      'itemListElement': [
+        { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+        { '@type': 'ListItem', 'position': 2, 'name': 'Glossary', 'item': `${SITE_URL}/glossary` },
+        { '@type': 'ListItem', 'position': 3, 'name': t.term, 'item': `${SITE_URL}/glossary/${t.slug}` },
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'DefinedTerm',
+      'name': t.term,
+      'description': glossaryDescription(t),
+      'url': `${SITE_URL}/glossary/${t.slug}`,
+      'inDefinedTermSet': `${SITE_URL}/glossary`,
+    },
+  ];
+}
+
 const glossaryHubDir = path.join(OUTPUT_DIR, 'glossary');
 fs.mkdirSync(glossaryHubDir, { recursive: true });
 fs.writeFileSync(path.join(glossaryHubDir, 'index.html'), makeHtml({
   title: 'Cloud Native Security Glossary — CodersSecret',
   description: 'Definitions for SPIFFE, SPIRE, Zero Trust, workload identity, mTLS, OPA, Falco, and more cloud-native security terms.',
   url: '/glossary',
-  content: '<h1>Cloud Native Security Glossary</h1><ul>' + glossaryTerms.map(t => `<li><a href="/glossary/${t.slug}">${t.term}</a>: ${t.desc}</li>`).join('') + '</ul>',
+  content: renderGlossaryHubContent(glossaryTerms),
 }));
 created++;
 glossaryTerms.forEach(t => {
@@ -1763,9 +2227,10 @@ glossaryTerms.forEach(t => {
   fs.mkdirSync(termDir, { recursive: true });
   fs.writeFileSync(path.join(termDir, 'index.html'), makeHtml({
     title: `What is ${t.term}? — CodersSecret Glossary`,
-    description: t.desc,
+    description: glossaryDescription(t),
     url: `/glossary/${t.slug}`,
-    content: `<h1>What is ${t.term}?</h1><p>${t.desc}</p><p><a href="/glossary">← All glossary terms</a></p>`,
+    content: renderGlossaryTermContent(t),
+    jsonLd: glossaryJsonLd(t),
   }));
   created++;
 });
@@ -1781,6 +2246,8 @@ fs.writeFileSync(path.join(aboutDir, 'index.html'), makeHtml({
     <h1>About CodersSecret</h1>
     <p>CodersSecret is written by Vishal Anand — a Senior Product Engineer and Tech Lead with experience building production systems at scale. The blog covers backend architecture, DevOps, security, Kubernetes, Python, and system design with practical, production-grade tutorials.</p>
     <p>The <a href="${SPOTIFY_PODCAST_URL}">CodersSecret Podcast on Spotify</a> turns the same production engineering topics into audio-first explainers for screen-free learning.</p>
+    <p>The site focuses on systems that engineers actually operate: API gateways, workload identity, distributed systems, RAG infrastructure, analytics engineering, observability, platform security, and production debugging.</p>
+    <p>Every guide aims to connect the concept, the implementation path, the failure mode, and the operational tradeoff so readers can use the material in real projects instead of only memorizing definitions.</p>
     <p>${posts.length} articles published across ${categories.size} categories.</p>
     <p><a href="/blog">Browse all articles</a></p>
   `,
@@ -1795,6 +2262,8 @@ const legalPages = [
     content: `
       <h1>Privacy Policy</h1>
       <p>CodersSecret does not collect personal information. We use Google Analytics for anonymous usage data. We do not sell data to advertisers. Read the full privacy policy on the site.</p>
+      <p>The site is designed for learning without account creation. You can read articles, use cheatsheets, play games, and open free courses without submitting personal information.</p>
+      <p>Analytics data is used to understand which engineering topics are useful, improve navigation, and prioritize future tutorials. It is not used to build advertising profiles.</p>
     `,
   },
   {
@@ -1804,6 +2273,9 @@ const legalPages = [
     content: `
       <h1>Terms of Service</h1>
       <p>By using CodersSecret, you agree to our terms. Content is provided for educational purposes. Code examples are MIT-licensed. Read the full terms on the site.</p>
+      <p>Production engineering examples may need adaptation before use in your own environment. Always review security settings, infrastructure commands, and third-party dependencies before applying them to live systems.</p>
+      <p>You may link to CodersSecret articles, courses, games, and cheatsheets for learning and internal engineering enablement.</p>
+      <p>Do not treat tutorial code as a substitute for security review, compliance review, backup planning, monitoring, or staged rollout practices in production environments.</p>
     `,
   },
   {
@@ -1813,6 +2285,8 @@ const legalPages = [
     content: `
       <h1>Cookie Policy</h1>
       <p>CodersSecret uses minimal cookies for anonymous analytics (Google Analytics) and your theme preference (localStorage). No advertising cookies, no tracking pixels. Read the full cookie policy on the site.</p>
+      <p>Cookies and local storage are used only to keep the site usable and understand aggregate content performance. They are not used for retargeting, personalized advertising, or selling visitor data.</p>
+      <p>You can block analytics cookies in your browser and still access the educational content, course pages, blog posts, games, and cheatsheets.</p>
     `,
   },
 ];
@@ -1833,17 +2307,67 @@ for (const page of legalPages) {
 // GitHub Pages serves this for any path without a pre-rendered index.html.
 // Angular Router then takes over and shows the correct page (SPA routing).
 // This prevents "Redirect error" from Google because the page actually renders.
+const consultationDir = path.join(OUTPUT_DIR, 'consultation');
+fs.mkdirSync(consultationDir, { recursive: true });
+fs.writeFileSync(path.join(consultationDir, 'index.html'), makeHtml({
+  title: 'Technical Consultation for Engineers',
+  description: 'Book focused technical consultation for system design, backend architecture, Kubernetes, API performance, AI infrastructure, security reviews, and production debugging.',
+  url: '/consultation',
+  content: `<main>
+    <nav aria-label="Breadcrumb"><a href="/">Home</a> / Consultation</nav>
+    <h1>Technical Consultation for Engineers</h1>
+    <p>Book focused technical consultation for system design, backend architecture, Kubernetes, API performance, AI infrastructure, security reviews, and production debugging.</p>
+    <section>
+      <h2>Where This Helps</h2>
+      <ul>
+        <li>Reviewing architecture decisions before implementation.</li>
+        <li>Debugging production performance, reliability, or scaling issues.</li>
+        <li>Planning security improvements for APIs, Kubernetes, service-to-service identity, or AI tooling.</li>
+        <li>Turning a confusing technical roadmap into concrete engineering steps.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Related Free Material</h2>
+      <p>Before booking, you can also explore <a href="/courses">free courses</a>, <a href="/blog">technical articles</a>, <a href="/cheatsheets">cheatsheets</a>, and <a href="/games">interactive labs</a>.</p>
+    </section>
+  </main>`,
+  jsonLd: [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      'itemListElement': [
+        { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+        { '@type': 'ListItem', 'position': 2, 'name': 'Consultation', 'item': `${SITE_URL}/consultation` },
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      'name': 'Technical Consultation',
+      'description': 'Focused technical consultation for production engineering, architecture, Kubernetes, backend systems, security, and AI infrastructure.',
+      'provider': {
+        '@type': 'Person',
+        'name': 'Vishal Anand',
+        'url': `${SITE_URL}/about`,
+      },
+      'areaServed': 'Worldwide',
+      'url': `${SITE_URL}/consultation`,
+    },
+  ],
+}));
+created++;
+
 let notFoundHtml = baseHtml;
 // Add noindex so Google ignores the 404 fallback
 notFoundHtml = notFoundHtml.replace('</head>', '  <meta name="robots" content="noindex">\n</head>');
 // Inject fallback content inside app-root for pre-JS rendering
 notFoundHtml = notFoundHtml.replace(
   '<app-root></app-root>',
-  `<app-root>
+  `<app-root>${wrapPrerenderContent(`
     <h1>Page Not Found</h1>
     <p>The page you are looking for does not exist or has been moved.</p>
     <p><a href="/">Go to Home</a> | <a href="/blog">Browse Blog</a></p>
-  </app-root>`
+  `)}</app-root>`
 );
 fs.writeFileSync(path.join(OUTPUT_DIR, '404.html'), notFoundHtml);
 

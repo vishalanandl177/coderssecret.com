@@ -121,9 +121,10 @@ import { getActiveTocHeadingId } from '../../shared/blog-toc';
       <div class="container max-w-4xl mx-auto px-6 mt-6 md:mt-8">
         <img [src]="'/images/banners/' + post.slug + '.svg'"
              [alt]="post.title"
-             width="1200" height="480"
+             width="1200" height="630"
              class="w-full rounded-2xl border border-border/40 shadow-lg animate-in fade-in zoom-in-95 duration-700"
              loading="eager"
+             fetchpriority="high"
              decoding="async" />
       </div>
 
@@ -319,7 +320,7 @@ import { getActiveTocHeadingId } from '../../shared/blog-toc';
               <circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>
             </svg>
           </div>
-          <h1 class="text-3xl font-extrabold mb-3">Post not found</h1>
+          <h2 class="text-3xl font-extrabold mb-3">Post not found</h2>
           <p class="text-muted-foreground text-lg mb-8">The blog post you're looking for doesn't exist or has been moved.</p>
           <a routerLink="/blog"
              class="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.97]">
@@ -487,7 +488,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
         this.imagesProcessed = true;
         images.forEach((img: HTMLImageElement) => {
           const knownSize = this.getKnownImageSize(img.getAttribute('src') ?? '');
-          if (knownSize && !img.hasAttribute('width') && !img.hasAttribute('height')) {
+          if (knownSize && (!img.hasAttribute('width') || !img.hasAttribute('height'))) {
             img.setAttribute('width', String(knownSize.width));
             img.setAttribute('height', String(knownSize.height));
           }
@@ -515,13 +516,17 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
           pre.style.position = 'relative';
           const btn = document.createElement('button');
           btn.className = 'copy-btn';
+          btn.type = 'button';
+          btn.setAttribute('aria-label', 'Copy code');
           btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
           btn.title = 'Copy code';
           btn.addEventListener('click', () => {
             const code = pre.querySelector('code')?.textContent ?? pre.textContent ?? '';
             navigator.clipboard.writeText(code).then(() => {
+              btn.setAttribute('aria-label', 'Code copied');
               btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
               setTimeout(() => {
+                btn.setAttribute('aria-label', 'Copy code');
                 btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
               }, 2000);
             });
@@ -861,6 +866,8 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
 
   private getKnownImageSize(src: string): { width: number; height: number } | undefined {
     const sizes: Record<string, { width: number; height: number }> = {
+      '/images/blog/claude-token-cost-stack.svg': { width: 1200, height: 630 },
+      '/images/blog/mcp-security-gateway-architecture.svg': { width: 1200, height: 630 },
       '/images/drf-api-logger/01-admin-dashboard.png': { width: 2880, height: 1800 },
       '/images/drf-api-logger/02-api-logs-list.png': { width: 2880, height: 4478 },
       '/images/drf-api-logger/03-api-log-detail-slow-sql.png': { width: 2880, height: 3180 },
