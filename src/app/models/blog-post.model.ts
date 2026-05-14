@@ -1198,13 +1198,13 @@ export const BLOG_POSTS: BlogPost[] = [
     id: '4',
     title: 'DRF API Logger for Django REST Framework',
     slug: 'drf-api-logger-django-rest-framework',
-    excerpt: 'Learn how to install DRF API Logger in Django REST Framework, capture request and response logs, mask sensitive fields, export CSVs, and monitor API latency.',
+    excerpt: 'Deep dive into DRF API Logger for Django REST Framework: request and response logging, database and signal modes, sensitive-data masking, API profiling, retention, querying, and production tuning.',
     category: 'open-source',
     content: '',
     author: 'Vishal Anand',
-    date: '2026-04-25',
-    readTime: '8 min read',
-    tags: ['Django', 'Python', 'DRF', 'API Logging', 'Open Source'],
+    date: '2026-05-14',
+    readTime: '24 min read',
+    tags: ['Django', 'Python', 'DRF', 'API Logging', 'Observability'],
     coverImage: '',
   }
 ];
