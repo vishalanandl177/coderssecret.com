@@ -2274,35 +2274,41 @@ const legalPages = [
   {
     slug: 'privacy',
     title: 'Privacy Policy',
-    description: 'CodersSecret Privacy Policy — we collect minimal anonymous analytics data, no personal information, no advertising cookies.',
+    description: 'CodersSecret Privacy Policy: analytics, browser storage, GitHub comments, third-party services, cookies, retention, and user choices.',
     content: `
       <h1>Privacy Policy</h1>
-      <p>CodersSecret does not collect personal information. We use Google Analytics for anonymous usage data. We do not sell data to advertisers. Read the full privacy policy on the site.</p>
-      <p>The site is designed for learning without account creation. You can read articles, use cheatsheets, play games, and open free courses without submitting personal information.</p>
-      <p>Analytics data is used to understand which engineering topics are useful, improve navigation, and prioritize future tutorials. It is not used to build advertising profiles.</p>
+      <p>Last updated: May 20, 2026.</p>
+      <p>CodersSecret is a free technical education website. You can read articles, open courses, use cheatsheets, play games, and watch narrated slides without creating an account.</p>
+      <p>We do not directly collect names, email addresses, phone numbers, payment details, or account passwords. We do not sell personal data and we do not use advertising pixels, remarketing tags, or session replay tools.</p>
+      <p>We use Google Analytics 4 for aggregate traffic, on-site search, scroll-depth, and Core Web Vitals reporting. We use local browser storage for theme and slide-player preferences. Blog comments are optional and use Giscus with GitHub Discussions.</p>
+      <p>External services such as Google, GitHub, YouTube, Spotify, Buy Me a Coffee, LinkedIn, and Instagram have their own privacy practices when you interact with them.</p>
     `,
   },
   {
     slug: 'terms',
     title: 'Terms of Service',
-    description: 'CodersSecret Terms of Service — rules for using the site, content licensing, and user responsibilities.',
+    description: 'CodersSecret Terms of Service: educational content, acceptable use, comments, content reuse, third-party links, warranty, and liability.',
     content: `
       <h1>Terms of Service</h1>
-      <p>By using CodersSecret, you agree to our terms. Content is provided for educational purposes. Code examples are MIT-licensed. Read the full terms on the site.</p>
-      <p>Production engineering examples may need adaptation before use in your own environment. Always review security settings, infrastructure commands, and third-party dependencies before applying them to live systems.</p>
-      <p>You may link to CodersSecret articles, courses, games, and cheatsheets for learning and internal engineering enablement.</p>
-      <p>Do not treat tutorial code as a substitute for security review, compliance review, backup planning, monitoring, or staged rollout practices in production environments.</p>
+      <p>Last updated: May 20, 2026.</p>
+      <p>By using CodersSecret, you agree to these terms. CodersSecret publishes free educational content about software engineering, backend systems, cloud native security, AI infrastructure, analytics engineering, games, cheatsheets, and narrated slides.</p>
+      <p>Content is provided for learning and reference only. Code snippets, diagrams, infrastructure commands, and security examples may need adaptation before use in your own environment. Always review official documentation and perform security, compliance, cost, backup, and rollout checks before applying anything to production.</p>
+      <p>You may link to CodersSecret pages and quote short excerpts with attribution. Do not republish full articles, course modules, diagrams, slide scripts, or generated media without permission.</p>
+      <p>Comments use Giscus and GitHub Discussions. You are responsible for what you post, and comments may be moderated if they are spam, abusive, unsafe, illegal, or off-topic.</p>
+      <p>The site is provided as is and as available. To the fullest extent permitted by law, CodersSecret and its contributors are not liable for damages arising from use of the site or reliance on its content.</p>
     `,
   },
   {
     slug: 'cookies',
     title: 'Cookie Policy',
-    description: 'CodersSecret Cookie Policy — we use minimal cookies for anonymous analytics and theme preference. No advertising, no tracking pixels.',
+    description: 'CodersSecret Cookie Policy: Google Analytics cookies, browser storage, slide preferences, GitHub comments, and cookie controls.',
     content: `
       <h1>Cookie Policy</h1>
-      <p>CodersSecret uses minimal cookies for anonymous analytics (Google Analytics) and your theme preference (localStorage). No advertising cookies, no tracking pixels. Read the full cookie policy on the site.</p>
-      <p>Cookies and local storage are used only to keep the site usable and understand aggregate content performance. They are not used for retargeting, personalized advertising, or selling visitor data.</p>
-      <p>You can block analytics cookies in your browser and still access the educational content, course pages, blog posts, games, and cheatsheets.</p>
+      <p>Last updated: May 20, 2026.</p>
+      <p>CodersSecret uses a small number of cookies and browser storage keys. We do not use advertising cookies, remarketing cookies, session replay tools, or marketing pixels.</p>
+      <p>Browser storage keys include theme, slides.voice, and slides.rate for local display and slide-player preferences. Google Analytics may set _ga and _ga_* cookies for aggregate analytics and session measurement.</p>
+      <p>GitHub or Giscus cookies/storage may apply only when you interact with GitHub-powered comments. External services such as YouTube, Spotify, Buy Me a Coffee, LinkedIn, and Instagram may set their own cookies after you leave CodersSecret.</p>
+      <p>You can block or delete cookies in your browser settings. CodersSecret content remains available if analytics cookies are blocked.</p>
     `,
   },
 ];

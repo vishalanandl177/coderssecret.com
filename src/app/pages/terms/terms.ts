@@ -17,7 +17,7 @@ import { SeoService } from '../../services/seo.service';
         </nav>
 
         <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight leading-[1.1] mb-4">Terms of Service</h1>
-        <p class="text-muted-foreground mb-10">Last updated: April 2026</p>
+        <p class="text-muted-foreground mb-10">Last updated: May 20, 2026</p>
 
         <div class="prose prose-neutral max-w-none
                     [&>h2]:text-2xl [&>h2]:font-extrabold [&>h2]:tracking-tight [&>h2]:mt-10 [&>h2]:mb-4 [&>h2]:text-foreground
@@ -26,63 +26,68 @@ import { SeoService } from '../../services/seo.service';
                     [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4 [&_a:hover]:text-primary/80
                     [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded-md [&_code]:text-sm">
 
-          <p>By accessing <strong>coderssecret.com</strong>, you agree to these terms. Please read them carefully. If you don't agree, please don't use this site.</p>
+          <p>These Terms of Service govern your use of <strong>coderssecret.com</strong>. By using the site, you agree to these terms. If you do not agree, do not use the site.</p>
 
-          <h2>1. About This Site</h2>
-          <p>CodersSecret is a free personal technical blog publishing tutorials, guides, and opinions on software engineering topics. Content is written by the author(s) and reflects personal views, not the views of any employer.</p>
+          <h2>1. What CodersSecret Provides</h2>
+          <p>CodersSecret publishes free educational content about software engineering, backend systems, cloud native security, Kubernetes, SPIFFE/SPIRE, AI infrastructure, analytics engineering, games, cheatsheets, narrated slides, and related topics.</p>
+          <p>The site is provided for learning and reference. It does not provide legal, financial, compliance, security certification, employment, or professional consulting advice.</p>
 
-          <h2>2. Content Is Provided "As Is"</h2>
-          <p>All content on this site is provided <strong>for educational and informational purposes only</strong>.</p>
+          <h2>2. Educational Content Only</h2>
           <ul>
-            <li>We make reasonable efforts to ensure accuracy but <strong>do not guarantee</strong> that content is error-free, complete, or up-to-date.</li>
-            <li>Code examples are for learning. Test before using in production.</li>
-            <li>We are not responsible for damages resulting from use of our content, including but not limited to: data loss, security breaches, lost profits, or service outages.</li>
-            <li>Always verify information against official documentation and apply your own judgment.</li>
+            <li>Articles, courses, examples, diagrams, slides, and games are provided "as is".</li>
+            <li>Code snippets and infrastructure commands may be incomplete, simplified, outdated, or unsuitable for your environment.</li>
+            <li>You are responsible for testing, security review, backups, staged rollout, cost review, and compliance review before using anything in production.</li>
+            <li>Always verify commands and technical claims against official documentation before applying them to real systems.</li>
           </ul>
 
-          <h2>3. Intellectual Property</h2>
+          <h2>3. Intellectual Property And Reuse</h2>
           <ul>
-            <li>Blog post text is &copy; CodersSecret. You may quote short excerpts with attribution and a link back to the original article.</li>
-            <li>Code snippets in blog posts are released under the <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">MIT License</a> &#x2014; feel free to use them in your own projects.</li>
-            <li>Do not republish full articles without written permission.</li>
-            <li>Logos, trademarks, and brand names belong to their respective owners.</li>
+            <li>CodersSecret articles, diagrams, course text, page design, and original explanations are owned by CodersSecret or the author unless stated otherwise.</li>
+            <li>You may link to pages and quote short excerpts with attribution and a link back to the original page.</li>
+            <li>Do not republish full articles, course modules, diagrams, slide scripts, or generated media without permission.</li>
+            <li>Small code snippets in articles may be used in your own projects unless a page says otherwise. Larger examples or third-party code may have their own license.</li>
+            <li>Brand names, product names, logos, and trademarks belong to their respective owners.</li>
           </ul>
 
-          <h2>4. User-Generated Content (Comments)</h2>
-          <p>Comments are powered by <a href="https://giscus.app" target="_blank" rel="noopener noreferrer">Giscus</a> via GitHub Discussions. By commenting:</p>
+          <h2>4. Acceptable Use</h2>
+          <p>You agree not to misuse CodersSecret or related services. You must not:</p>
           <ul>
-            <li>You agree to <a href="https://docs.github.com/en/site-policy/github-terms/github-terms-of-service" target="_blank" rel="noopener noreferrer">GitHub's Terms of Service</a>.</li>
-            <li>You retain ownership of your content but grant us the right to display it on the site.</li>
-            <li>We reserve the right to moderate, edit, hide, or delete comments that are spam, offensive, off-topic, illegal, or violate GitHub's community guidelines.</li>
-            <li>You are solely responsible for the content you post.</li>
+            <li>Attempt to disrupt, overload, scan, exploit, or gain unauthorized access to the site or its infrastructure.</li>
+            <li>Post spam, malware, abusive content, hate speech, illegal content, or personal attacks in comments or discussions.</li>
+            <li>Use automated scraping that ignores robots.txt, access controls, rate limits, or reasonable bandwidth limits.</li>
+            <li>Misrepresent CodersSecret content as your own original work.</li>
+            <li>Use site content to train or populate commercial datasets at scale without permission.</li>
           </ul>
 
-          <h2>5. Prohibited Uses</h2>
-          <p>You may not:</p>
+          <h2>5. Comments And Community Content</h2>
+          <p>Comments are powered by <a href="https://giscus.app" target="_blank" rel="noopener noreferrer">Giscus</a> and GitHub Discussions. If you comment, you also agree to <a href="https://docs.github.com/en/site-policy/github-terms/github-terms-of-service" target="_blank" rel="noopener noreferrer">GitHub's Terms of Service</a>.</p>
           <ul>
-            <li>Use automated tools (bots, scrapers) to systematically download the site without permission.</li>
-            <li>Attempt to gain unauthorized access to the site, its infrastructure, or related services.</li>
-            <li>Post spam, malware links, illegal content, hate speech, or personal attacks in comments.</li>
-            <li>Use our content to train AI models without permission (see the <code>robots.txt</code>).</li>
+            <li>You retain responsibility for what you post.</li>
+            <li>You grant CodersSecret permission to display your comment on the site.</li>
+            <li>We may hide, remove, or moderate comments that are spam, abusive, off-topic, misleading, illegal, or unsafe.</li>
+            <li>Public technical discussion may be indexed by search engines.</li>
           </ul>
 
-          <h2>6. External Links</h2>
-          <p>We link to third-party websites and tools. We are <strong>not responsible</strong> for the content, privacy practices, or availability of external sites. Links don't imply endorsement.</p>
+          <h2>6. Third-Party Links And Platforms</h2>
+          <p>CodersSecret links to GitHub, YouTube, Spotify, Buy Me a Coffee, LinkedIn, Instagram, documentation sites, package registries, and other third-party resources. We do not control those services and are not responsible for their content, availability, terms, privacy practices, payments, or account systems.</p>
 
-          <h2>7. Disclaimer of Warranty</h2>
-          <p>This site is provided "as is" and "as available," <strong>without warranties of any kind</strong>, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement.</p>
+          <h2>7. No Warranty</h2>
+          <p>The site is provided "as is" and "as available" without warranties of any kind, whether express or implied. We do not guarantee that the site will be uninterrupted, error-free, secure, current, or fit for a particular purpose.</p>
 
-          <h2>8. Limitation of Liability</h2>
-          <p>To the fullest extent permitted by law, CodersSecret and its contributors shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the site &#x2014; even if we've been advised of the possibility of such damages.</p>
+          <h2>8. Limitation Of Liability</h2>
+          <p>To the fullest extent permitted by law, CodersSecret and its contributors will not be liable for indirect, incidental, special, consequential, exemplary, or punitive damages, including data loss, security incidents, lost profits, service outages, or infrastructure costs arising from use of the site or reliance on its content.</p>
 
-          <h2>9. Changes to These Terms</h2>
-          <p>We may update these terms from time to time. Continued use of the site after changes constitutes acceptance of the new terms. Check the "Last updated" date at the top.</p>
+          <h2>9. Indemnity</h2>
+          <p>If your misuse of the site, violation of these terms, or violation of another person's rights causes a claim, you agree to defend and hold CodersSecret and its contributors harmless to the extent permitted by law.</p>
 
-          <h2>10. Governing Law</h2>
-          <p>These terms are governed by the laws of India. Any disputes will be resolved in the courts of India.</p>
+          <h2>10. Changes To The Site Or Terms</h2>
+          <p>We may update content, remove pages, change features, or revise these terms. Continued use of the site after an update means you accept the updated terms.</p>
 
-          <h2>11. Contact</h2>
-          <p>Questions about these terms? Reach out via the social links in our footer.</p>
+          <h2>11. Governing Law</h2>
+          <p>These terms are governed by the laws of India. Courts located in India will have jurisdiction unless applicable law requires another forum.</p>
+
+          <h2>12. Contact</h2>
+          <p>Questions about these terms can be sent through the social links in the footer or through the public GitHub repository.</p>
 
           <hr style="margin:3rem 0;border:none;border-top:1px solid var(--border)" />
 
@@ -98,7 +103,7 @@ export class TermsComponent {
   constructor() {
     this.seo.update({
       title: 'Terms of Service',
-      description: 'CodersSecret Terms of Service — rules for using the site, content licensing, and user responsibilities.',
+      description: 'CodersSecret Terms of Service: educational content, acceptable use, comments, content reuse, third-party links, warranty, and liability.',
       url: '/terms',
     });
   }
