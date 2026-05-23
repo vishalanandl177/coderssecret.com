@@ -16,6 +16,7 @@
 const fs = require('fs');
 const path = require('path');
 
+const SITE_NAME = 'CodersSecret';
 const SITE_URL = 'https://coderssecret.com';
 const YOUTUBE_URL = 'https://www.youtube.com/@CodersSecret';
 const SPOTIFY_PODCAST_URL = 'https://open.spotify.com/show/033dhxk8tNClX2r4XduVyb';
@@ -40,7 +41,7 @@ const categoryNames = {
   'open-source': 'Open Source',
 };
 
-const HOME_TITLE = 'CodersSecret - Security, AI, Data & Production Engineering';
+const HOME_TITLE = `${SITE_NAME} - Security, AI, Data & Production Engineering`;
 const HOME_DESCRIPTION = 'Free engineering courses and guides on Kubernetes, SPIFFE/SPIRE, Zero Trust, production RAG, analytics engineering, DevSecOps, labs, and diagrams.';
 
 // Read the built index.html
@@ -48,7 +49,7 @@ const baseHtml = fs.readFileSync(path.join(OUTPUT_DIR, 'index.html'), 'utf-8');
 
 function makeHtml(options) {
   const { title, description, url, content, jsonLd, image, fullTitle: explicitFullTitle, ogType = 'website', extraHead = '' } = options;
-  const fullTitle = explicitFullTitle || `${title} | CodersSecret`;
+  const fullTitle = explicitFullTitle || buildFullTitle(title);
   const canonical = `${SITE_URL}${url}`;
   const ogImage = image ? `${SITE_URL}${image}` : `${SITE_URL}/og-image.svg`;
   const safeTitle = escapeHtml(fullTitle);
@@ -104,6 +105,16 @@ function makeHtml(options) {
   );
 
   return html;
+}
+
+function buildFullTitle(title) {
+  const trimmedTitle = String(title || SITE_NAME).trim();
+
+  if (trimmedTitle.toLowerCase().includes(SITE_NAME.toLowerCase())) {
+    return trimmedTitle;
+  }
+
+  return `${trimmedTitle} | ${SITE_NAME}`;
 }
 
 function wrapPrerenderContent(content) {

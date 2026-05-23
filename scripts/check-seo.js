@@ -353,6 +353,40 @@ function checkDeployWorkflow() {
   }
 }
 
+function collectIndexHtmlFiles(dir, files = []) {
+  if (!fs.existsSync(dir)) return files;
+
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      collectIndexHtmlFiles(fullPath, files);
+    } else if (entry.name === 'index.html') {
+      files.push(fullPath);
+    }
+  }
+
+  return files;
+}
+
+function checkGeneratedTitles() {
+  const distDir = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'browser');
+  if (!fs.existsSync(distDir)) return;
+
+  const htmlFiles = collectIndexHtmlFiles(distDir);
+  for (const filePath of htmlFiles) {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const titleMatch = content.match(/<title>([^<]+)<\/title>/i);
+    if (!titleMatch) continue;
+
+    const title = titleMatch[1].trim();
+    const brandCount = (title.match(/\bCodersSecret\b/g) || []).length;
+    if (brandCount > 1) {
+      const relative = path.relative(distDir, filePath);
+      errors.push(`${relative}: <title> repeats CodersSecret (${title})`);
+    }
+  }
+}
+
 // Run all checks
 console.log('🔍 Running SEO & quality checks...\n');
 
@@ -366,6 +400,7 @@ checkEEATSignals();
 checkContentQuality();
 checkKeywordTargeting();
 checkBlogPostQuality();
+checkGeneratedTitles();
 
 // Report
 if (warnings.length > 0) {

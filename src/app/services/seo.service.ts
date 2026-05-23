@@ -36,9 +36,7 @@ export class SeoService {
   private readonly defaultImageHeight = 630;
 
   update(config: SeoConfig) {
-    const fullTitle = config.title === this.siteName
-      ? `${this.siteName} — Security, AI, Data & Production Engineering`
-      : `${config.title} | ${this.siteName}`;
+    const fullTitle = this.buildTitle(config.title);
     const description = config.description || this.defaultDescription;
     const url = config.url ? `${this.siteUrl}${config.url}` : this.siteUrl;
     const type = config.type || 'website';
@@ -206,6 +204,20 @@ export class SeoService {
     } else {
       this.removeJsonLd();
     }
+  }
+
+  private buildTitle(title: string): string {
+    const trimmedTitle = title.trim();
+
+    if (trimmedTitle === this.siteName) {
+      return `${this.siteName} — Security, AI, Data & Production Engineering`;
+    }
+
+    if (trimmedTitle.toLowerCase().includes(this.siteName.toLowerCase())) {
+      return trimmedTitle;
+    }
+
+    return `${trimmedTitle} | ${this.siteName}`;
   }
 
   private updateCanonical(url: string) {
