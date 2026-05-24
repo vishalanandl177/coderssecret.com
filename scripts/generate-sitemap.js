@@ -54,7 +54,7 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/blog</loc>
+    <loc>${SITE_URL}/blog/</loc>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
@@ -856,6 +856,7 @@ for (const course of loadCoursesFromModel()) {
   appendUrl(`/courses/${course.slug}`, '0.9');
   for (const mod of course.modules || []) {
     appendUrl(`/courses/${course.slug}/${mod.slug}`, '0.8');
+    appendUrl(`/courses/${course.slug}/${mod.slug}/slides`, '0.7');
   }
   for (const page of course.seoPages || []) {
     appendUrl(`/courses/${page.slug}`, '0.8');

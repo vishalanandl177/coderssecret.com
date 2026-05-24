@@ -1,27 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { SeoService } from '../../../services/seo.service';
 import { ScenarioQuizComponent, Scenario, QuizTheme, QuizIntro, QuizResults, QuizCallToActions } from '../_shared/scenario-quiz';
 
 @Component({
   selector: 'app-kubernetes-escape-room',
-  imports: [RouterLink, ScenarioQuizComponent],
+  imports: [ScenarioQuizComponent],
   template: `
-    <section class="py-12 md:py-16 animate-in fade-in duration-500">
-      <div class="container max-w-4xl mx-auto px-6">
-        <nav aria-label="Breadcrumb" class="mb-6">
-          <ol class="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <li><a routerLink="/" class="hover:text-foreground transition-colors">Home</a></li>
-            <li class="text-muted-foreground/50">/</li>
-            <li><a routerLink="/games" class="hover:text-foreground transition-colors">Security Simulators</a></li>
-            <li class="text-muted-foreground/50">/</li>
-            <li class="text-foreground font-medium" aria-current="page">Kubernetes Escape Room</li>
-          </ol>
-        </nav>
-
-        <app-scenario-quiz [scenarios]="scenarios" [theme]="theme" [intro]="intro" [results]="results" [callToActions]="callToActions" />
-      </div>
-    </section>
+    <app-scenario-quiz [scenarios]="scenarios" [theme]="theme" [intro]="intro" [results]="results" [callToActions]="callToActions" />
   `,
 })
 export class KubernetesEscapeRoomComponent {

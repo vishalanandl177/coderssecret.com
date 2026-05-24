@@ -1,151 +1,188 @@
-import { Component, signal, viewChild } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AfterViewInit, Component, DestroyRef, ElementRef, HostListener, inject, signal, viewChild } from '@angular/core';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SearchComponent } from '../search/search';
 import { EXTERNAL_LINKS } from '../../shared/external-links';
+import { BrandMarkComponent } from '../../shared/brand/brand-mark';
+import { Md3ActiveIndicatorDirective } from '../../shared/md3/md3-active-indicator';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, RouterLinkActive, SearchComponent],
+  imports: [RouterLink, RouterLinkActive, SearchComponent, BrandMarkComponent, Md3ActiveIndicatorDirective],
   template: `
-    <header class="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300">
-      <div class="container flex h-16 max-w-7xl items-center justify-between mx-auto px-4 sm:px-6">
-        <a routerLink="/" class="flex shrink-0 items-center gap-2.5 font-bold text-xl tracking-tight transition-opacity duration-200 hover:opacity-80">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" class="h-8 w-8">
-            <defs>
-              <linearGradient id="logo-g" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#7c3aed"/>
-                <stop offset="100%" style="stop-color:#3b82f6"/>
-              </linearGradient>
-            </defs>
-            <rect width="32" height="32" rx="7" fill="url(#logo-g)"/>
-            <g stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
-              <polyline points="11,10 6,16 11,22"/>
-              <polyline points="21,10 26,16 21,22"/>
-              <line x1="18.5" y1="8" x2="13.5" y2="24"/>
-            </g>
+    <aside class="md3-nav-rail hidden lg:flex"
+           [class.md3-nav-rail-searching]="searchLaunching()"
+           aria-label="Primary navigation rail">
+      <button type="button"
+              class="md3-rail-fab"
+              [class.md3-rail-fab-launching]="searchLaunching()"
+              (click)="openSearch()"
+              aria-label="Search CodersSecret">
+        <svg class="md3-rail-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+      </button>
+
+      <nav #railNav aria-label="Primary navigation" class="md3-rail-nav">
+        <span class="md3-rail-active-indicator"
+              [class.md3-rail-active-indicator-visible]="railIndicatorVisible()"
+              [style.transform]="'translate3d(0, ' + railIndicatorTop() + 'px, 0)'"
+              aria-hidden="true"></span>
+        <a routerLink="/" routerLinkActive="md3-rail-link-active" [routerLinkActiveOptions]="{ exact: true }"
+           ariaCurrentWhenActive="page" class="md3-rail-link">
+          <span class="md3-rail-icon"><svg class="md3-rail-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10.5 9-7 9 7"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg></span>
+          <span class="md3-rail-label">Home</span>
+        </a>
+        <a routerLink="/blog" routerLinkActive="md3-rail-link-active"
+           ariaCurrentWhenActive="page" class="md3-rail-link">
+          <span class="md3-rail-icon"><svg class="md3-rail-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg></span>
+          <span class="md3-rail-label">Blog</span>
+        </a>
+        <a [href]="links.spotifyPodcast" target="_blank" rel="noopener noreferrer" class="md3-rail-link">
+          <span class="md3-rail-icon"><svg class="md3-rail-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 18v4"/><path d="M8 22h8"/><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/></svg></span>
+          <span class="md3-rail-label">Podcast</span>
+        </a>
+        <a routerLink="/courses" routerLinkActive="md3-rail-link-active"
+           ariaCurrentWhenActive="page" class="md3-rail-link">
+          <span class="md3-rail-icon"><svg class="md3-rail-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 10-10-5-10 5 10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg></span>
+          <span class="md3-rail-label">Courses</span>
+        </a>
+        <a routerLink="/games" routerLinkActive="md3-rail-link-active"
+           ariaCurrentWhenActive="page" class="md3-rail-link">
+          <span class="md3-rail-icon"><svg class="md3-rail-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12h4"/><path d="M8 10v4"/><path d="M15 13h.01"/><path d="M18 11h.01"/><path d="M17.3 6H6.7A4.7 4.7 0 0 0 2 10.7v2.6A4.7 4.7 0 0 0 6.7 18h10.6a4.7 4.7 0 0 0 4.7-4.7v-2.6A4.7 4.7 0 0 0 17.3 6Z"/></svg></span>
+          <span class="md3-rail-label">Labs</span>
+        </a>
+        <a routerLink="/cheatsheets" routerLinkActive="md3-rail-link-active"
+           ariaCurrentWhenActive="page" class="md3-rail-link">
+          <span class="md3-rail-icon"><svg class="md3-rail-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M8 12h8"/><path d="M8 16h6"/></svg></span>
+          <span class="md3-rail-label">Sheets</span>
+        </a>
+        <a routerLink="/about" routerLinkActive="md3-rail-link-active"
+           ariaCurrentWhenActive="page" class="md3-rail-link">
+          <span class="md3-rail-icon"><svg class="md3-rail-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22a8 8 0 0 1 16 0"/></svg></span>
+          <span class="md3-rail-label">About</span>
+        </a>
+        <a routerLink="/consultation" routerLinkActive="md3-rail-link-active"
+           ariaCurrentWhenActive="page" class="md3-rail-link">
+          <span class="md3-rail-icon"><svg class="md3-rail-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m11 17 2 2a2.8 2.8 0 0 0 4 0l3-3a2.8 2.8 0 0 0 0-4l-2-2"/><path d="m13 7-2-2a2.8 2.8 0 0 0-4 0L4 8a2.8 2.8 0 0 0 0 4l2 2"/><path d="m8 12 8-8"/><path d="m16 12-8 8"/></svg></span>
+          <span class="md3-rail-label">Hire</span>
+        </a>
+      </nav>
+
+      <div class="mt-auto flex flex-col items-center gap-3 pb-4">
+        <button type="button"
+                (click)="toggleTheme()"
+                class="md3-rail-icon-button"
+                [attr.aria-label]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'">
+          <svg class="md3-rail-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            @if (isDark()) {
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2"/><path d="M12 20v2"/>
+              <path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/>
+              <path d="M2 12h2"/><path d="M20 12h2"/>
+              <path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+            } @else {
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+            }
           </svg>
-          <span><span class="text-primary">Coders</span><span class="text-muted-foreground">Secret</span></span>
+        </button>
+      </div>
+    </aside>
+
+    <header class="md3-top-app-bar sticky top-0 z-50 border-b border-border backdrop-blur-xl lg:hidden">
+      <div class="mx-auto flex h-20 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
+        <a routerLink="/"
+           class="md3-brand group inline-flex min-h-[44px] shrink-0 items-center gap-3 rounded-full pr-3 text-base font-extrabold tracking-tight text-foreground md:text-lg">
+          <app-brand-mark />
+          <span><span class="text-primary">Coders</span><span class="text-foreground">Secret</span></span>
         </a>
 
-        <div class="flex items-center gap-1 md:gap-2">
-          <nav aria-label="Primary navigation" class="hidden lg:flex items-center gap-0.5 text-sm font-medium">
-            <a routerLink="/" routerLinkActive="text-foreground bg-accent" [routerLinkActiveOptions]="{ exact: true }"
-               ariaCurrentWhenActive="page"
-               class="whitespace-nowrap rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
-              Home
-            </a>
-            <a routerLink="/blog" routerLinkActive="text-foreground bg-accent"
-               ariaCurrentWhenActive="page"
-               class="whitespace-nowrap rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
-              Blog
-            </a>
-            <a [href]="links.spotifyPodcast" target="_blank" rel="noopener noreferrer"
-               class="whitespace-nowrap rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
-              Podcast
-            </a>
-            <a routerLink="/courses" routerLinkActive="text-foreground bg-accent"
-               ariaCurrentWhenActive="page"
-               class="relative whitespace-nowrap rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
-              Courses
-              <span class="absolute -top-1 -right-1 inline-flex items-center rounded-full bg-green-300 px-1.5 py-0.5 text-[9px] font-bold leading-none text-green-950">FREE</span>
-            </a>
-            <a routerLink="/games" routerLinkActive="text-foreground bg-accent"
-               ariaCurrentWhenActive="page"
-               class="whitespace-nowrap rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
-              Games
-            </a>
-            <a routerLink="/cheatsheets" routerLinkActive="text-foreground bg-accent"
-               ariaCurrentWhenActive="page"
-               class="whitespace-nowrap rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
-              Cheatsheets
-            </a>
-            <a routerLink="/about" routerLinkActive="text-foreground bg-accent"
-               ariaCurrentWhenActive="page"
-               class="whitespace-nowrap rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
-              About
-            </a>
-            <a routerLink="/consultation" routerLinkActive="text-foreground bg-accent"
-               ariaCurrentWhenActive="page"
-               class="whitespace-nowrap rounded-md px-3 py-2 text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
-              Hire Me
-            </a>
+        <div class="hidden min-w-0 flex-1 justify-center xl:flex">
+        <nav aria-label="Primary navigation"
+             appMd3ActiveIndicator=".md3-nav-link-active"
+             class="md3-nav-shell flex h-12 max-w-full items-center gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <a routerLink="/" routerLinkActive="md3-nav-link-active" [routerLinkActiveOptions]="{ exact: true }"
+             ariaCurrentWhenActive="page"
+             class="md3-nav-link">
+            Home
+          </a>
+          <a routerLink="/blog" routerLinkActive="md3-nav-link-active"
+             ariaCurrentWhenActive="page"
+             class="md3-nav-link">
+            Blog
+          </a>
+          <a [href]="links.spotifyPodcast" target="_blank" rel="noopener noreferrer"
+             class="md3-nav-link">
+            Podcast
+          </a>
+          <a routerLink="/courses" routerLinkActive="md3-nav-link-active"
+             ariaCurrentWhenActive="page"
+             class="md3-nav-link gap-2">
+            Courses
+            <span class="md3-nav-badge">FREE</span>
+          </a>
+          <a routerLink="/games" routerLinkActive="md3-nav-link-active"
+             ariaCurrentWhenActive="page"
+             class="md3-nav-link">
+            Games
+          </a>
+          <a routerLink="/cheatsheets" routerLinkActive="md3-nav-link-active"
+             ariaCurrentWhenActive="page"
+             class="md3-nav-link">
+            Cheatsheets
+          </a>
+          <a routerLink="/about" routerLinkActive="md3-nav-link-active"
+             ariaCurrentWhenActive="page"
+             class="md3-nav-link">
+            About
+          </a>
+          <a routerLink="/consultation" routerLinkActive="md3-nav-link-active"
+             ariaCurrentWhenActive="page"
+             class="md3-nav-link md3-nav-link-cta">
+            Hire Me
+          </a>
+        </nav>
+        </div>
 
-            <!-- Categories dropdown -->
-            <div class="relative">
-              <button type="button"
-                      (click)="categoriesOpen.set(!categoriesOpen())"
-                      (blur)="closeCategoriesDelayed()"
-                      aria-haspopup="true"
-                      [attr.aria-controls]="categoriesOpen() ? 'desktop-category-menu' : null"
-                      [attr.aria-expanded]="categoriesOpen()"
-                      class="flex items-center gap-1 whitespace-nowrap rounded-md px-3 py-2 text-sm text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent/50">
-                Categories
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     class="transition-transform duration-200"
-                     [class.rotate-180]="categoriesOpen()">
-                  <path d="m6 9 6 6 6-6"/>
-                </svg>
-              </button>
-              @if (categoriesOpen()) {
-                <div id="desktop-category-menu"
-                     class="absolute right-0 top-full mt-2 w-48 rounded-lg border border-border bg-card p-1.5 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200"
-                     (mousedown)="$event.preventDefault()">
-                  <a routerLink="/category/ai" (click)="categoriesOpen.set(false)"
-                     class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-                    <span class="h-2 w-2 rounded-full bg-cyan-500"></span> AI
-                  </a>
-                  <a routerLink="/category/frontend" (click)="categoriesOpen.set(false)"
-                     class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-                    <span class="h-2 w-2 rounded-full bg-blue-500"></span> Frontend
-                  </a>
-                  <a routerLink="/category/backend" (click)="categoriesOpen.set(false)"
-                     class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-                    <span class="h-2 w-2 rounded-full bg-green-500"></span> Backend
-                  </a>
-                  <a routerLink="/category/devops" (click)="categoriesOpen.set(false)"
-                     class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-                    <span class="h-2 w-2 rounded-full bg-orange-500"></span> DevOps
-                  </a>
-                  <a routerLink="/category/tutorials" (click)="categoriesOpen.set(false)"
-                     class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-                    <span class="h-2 w-2 rounded-full bg-purple-500"></span> Tutorials
-                  </a>
-                  <a routerLink="/category/open-source" (click)="categoriesOpen.set(false)"
-                     class="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-                    <span class="h-2 w-2 rounded-full bg-pink-500"></span> Open Source
-                  </a>
-                </div>
-              }
-            </div>
-          </nav>
-
-          <!-- Search button -->
+        <div class="flex shrink-0 items-center gap-2">
           <button type="button"
                   (click)="openSearch()"
                   aria-label="Open search"
                   aria-haspopup="dialog"
                   [attr.aria-controls]="searchComponent()?.isOpen() ? 'site-search-dialog' : null"
-                  class="inline-flex min-h-[44px] min-w-[44px] touch-manipulation items-center justify-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground transition-all duration-200 hover:bg-accent hover:text-foreground hover:border-accent">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  [class.md3-search-trigger-launching]="searchLaunching()"
+                  class="md3-search-button hidden h-12 min-w-[9rem] items-center gap-2 rounded-full px-4 text-sm font-semibold md:inline-flex">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                 class="md3-icon-glyph">
               <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
             </svg>
-            <span class="hidden sm:inline">Search</span>
-            <kbd class="hidden md:inline-flex items-center rounded border border-border bg-background px-1 py-0.5 text-[10px] font-medium">
-              Ctrl+K
-            </kbd>
+            Search
+            <kbd class="hidden rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-bold text-muted-foreground md:inline-flex">Ctrl K</kbd>
           </button>
 
-          <!-- Theme toggle -->
+          <button type="button"
+                  (click)="openSearch()"
+                  aria-label="Open search"
+                  [class.md3-search-trigger-launching]="searchLaunching()"
+                  class="md3-icon-button inline-flex h-12 w-12 items-center justify-center rounded-full md:hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                 class="md3-icon-glyph">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+          </button>
+
           <button type="button"
                   (click)="toggleTheme()"
-                  class="inline-flex min-h-[44px] min-w-[44px] touch-manipulation items-center justify-center rounded-md p-2 text-muted-foreground transition-all duration-200 hover:bg-accent hover:text-accent-foreground"
+                  class="md3-icon-button inline-flex h-12 w-12 items-center justify-center rounded-full"
                   [attr.aria-label]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                 class="transition-transform duration-300"
-                 [class.rotate-0]="isDark()" [class.-rotate-90]="!isDark()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                 class="md3-icon-glyph">
               @if (isDark()) {
                 <circle cx="12" cy="12" r="4"/>
                 <path d="M12 2v2"/><path d="M12 20v2"/>
@@ -158,120 +195,141 @@ import { EXTERNAL_LINKS } from '../../shared/external-links';
             </svg>
           </button>
 
-          <!-- Mobile menu -->
           <button type="button"
                   (click)="mobileMenuOpen.set(!mobileMenuOpen())"
-                  class="lg:hidden inline-flex min-h-[44px] min-w-[44px] touch-manipulation items-center justify-center rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                  class="md3-icon-button inline-flex h-12 w-12 items-center justify-center rounded-full lg:hidden"
                   [attr.aria-label]="mobileMenuOpen() ? 'Close menu' : 'Open menu'"
                   [attr.aria-controls]="mobileMenuOpen() ? 'mobile-navigation' : null"
                   [attr.aria-expanded]="mobileMenuOpen()">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                 class="transition-transform duration-200"
-                 [class.rotate-90]="mobileMenuOpen()">
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                 class="md3-icon-glyph">
               @if (mobileMenuOpen()) {
                 <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
               } @else {
-                <line x1="4" x2="20" y1="12" y2="12"/>
-                <line x1="4" x2="20" y1="6" y2="6"/>
-                <line x1="4" x2="20" y1="18" y2="18"/>
+                <path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/>
               }
             </svg>
           </button>
         </div>
       </div>
-
-      @if (mobileMenuOpen()) {
-        <div class="lg:hidden border-t border-border bg-background/98 backdrop-blur animate-in slide-in-from-top-2 duration-200">
-          <nav id="mobile-navigation" aria-label="Mobile navigation" class="container max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-0.5 max-h-[calc(100vh-4rem)] overflow-y-auto">
-            <a routerLink="/" (click)="mobileMenuOpen.set(false)" routerLinkActive="bg-accent text-foreground" [routerLinkActiveOptions]="{ exact: true }"
-               ariaCurrentWhenActive="page"
-               class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-              Home
-            </a>
-            <a routerLink="/blog" (click)="mobileMenuOpen.set(false)" routerLinkActive="bg-accent text-foreground"
-               ariaCurrentWhenActive="page"
-               class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>
-              Blog
-            </a>
-            <a [href]="links.spotifyPodcast" target="_blank" rel="noopener noreferrer" (click)="mobileMenuOpen.set(false)"
-               class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.75C6.34 1.75 1.75 6.34 1.75 12S6.34 22.25 12 22.25 22.25 17.66 22.25 12 17.66 1.75 12 1.75Zm4.7 14.78a.73.73 0 0 1-1 .24c-2.74-1.67-6.18-2.05-10.24-1.12a.73.73 0 1 1-.33-1.42c4.44-1.02 8.25-.58 11.33 1.3.35.21.46.66.24 1Zm1.33-2.96a.9.9 0 0 1-1.24.3c-3.13-1.93-7.9-2.49-11.6-1.36a.9.9 0 1 1-.52-1.73c4.22-1.28 9.48-.66 13.06 1.54.43.27.57.83.3 1.25Zm.11-3.08c-3.76-2.23-9.95-2.44-13.54-1.35a1.08 1.08 0 1 1-.63-2.07c4.12-1.25 10.95-1 15.27 1.56a1.08 1.08 0 0 1-1.1 1.86Z"/></svg>
-              Podcast
-            </a>
-            <a routerLink="/courses" (click)="mobileMenuOpen.set(false)" routerLinkActive="bg-accent text-foreground"
-               ariaCurrentWhenActive="page"
-               class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-              Courses
-              <span class="ml-auto inline-flex items-center rounded-full bg-green-300 px-2 py-0.5 text-[10px] font-bold leading-none text-green-950">FREE</span>
-            </a>
-            <a routerLink="/games" (click)="mobileMenuOpen.set(false)" routerLinkActive="bg-accent text-foreground"
-               ariaCurrentWhenActive="page"
-               class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258A4 4 0 0 0 17.32 5z"/></svg>
-              Games
-            </a>
-            <a routerLink="/cheatsheets" (click)="mobileMenuOpen.set(false)" routerLinkActive="bg-accent text-foreground"
-               ariaCurrentWhenActive="page"
-               class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-              Cheatsheets
-            </a>
-            <a routerLink="/about" (click)="mobileMenuOpen.set(false)" routerLinkActive="bg-accent text-foreground"
-               ariaCurrentWhenActive="page"
-               class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-              About
-            </a>
-            <a routerLink="/consultation" (click)="mobileMenuOpen.set(false)" routerLinkActive="bg-accent text-foreground"
-               ariaCurrentWhenActive="page"
-               class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              Hire Me
-            </a>
-            <div class="border-t border-border my-3"></div>
-            <p class="px-4 py-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">Browse Categories</p>
-            <a routerLink="/category/ai" (click)="mobileMenuOpen.set(false)"
-               class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <span class="h-2 w-2 rounded-full bg-cyan-500"></span> AI
-            </a>
-            <a routerLink="/category/frontend" (click)="mobileMenuOpen.set(false)"
-               class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <span class="h-2 w-2 rounded-full bg-blue-500"></span> Frontend
-            </a>
-            <a routerLink="/category/backend" (click)="mobileMenuOpen.set(false)"
-               class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <span class="h-2 w-2 rounded-full bg-green-500"></span> Backend
-            </a>
-            <a routerLink="/category/devops" (click)="mobileMenuOpen.set(false)"
-               class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <span class="h-2 w-2 rounded-full bg-orange-500"></span> DevOps
-            </a>
-            <a routerLink="/category/tutorials" (click)="mobileMenuOpen.set(false)"
-               class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <span class="h-2 w-2 rounded-full bg-purple-500"></span> Tutorials
-            </a>
-            <a routerLink="/category/open-source" (click)="mobileMenuOpen.set(false)"
-               class="flex min-h-[44px] touch-manipulation items-center gap-3 rounded-lg px-4 py-3 text-base text-muted-foreground transition-colors hover:text-foreground hover:bg-accent">
-              <span class="h-2 w-2 rounded-full bg-pink-500"></span> Open Source
-            </a>
-          </nav>
-        </div>
-      }
     </header>
+
+    @if (mobileMenuOpen()) {
+      <div class="md3-drawer-scrim fixed inset-0 z-40 bg-black/35 backdrop-blur-sm lg:hidden" (click)="mobileMenuOpen.set(false)"></div>
+      <aside id="mobile-navigation"
+             role="dialog"
+             aria-modal="true"
+             aria-label="Site navigation"
+             class="md3-nav-drawer fixed inset-y-0 right-0 z-50 flex w-[min(26rem,92vw)] flex-col border-l border-border p-4 lg:hidden">
+        <div class="flex items-center justify-between border-b border-border pb-3">
+          <span class="inline-flex items-center gap-3 text-sm font-extrabold text-foreground">
+            <app-brand-mark />
+            CodersSecret
+          </span>
+          <button type="button"
+                  (click)="mobileMenuOpen.set(false)"
+                  class="md3-icon-button inline-flex h-11 w-11 items-center justify-center rounded-full"
+                  aria-label="Close menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                 class="md3-icon-glyph">
+              <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <nav aria-label="Mobile navigation" class="mt-4 flex flex-1 flex-col gap-1 overflow-y-auto">
+          <a routerLink="/" (click)="mobileMenuOpen.set(false)" routerLinkActive="bg-accent text-accent-foreground" [routerLinkActiveOptions]="{ exact: true }"
+             ariaCurrentWhenActive="page" class="md3-mobile-link">Home</a>
+          <a routerLink="/blog" (click)="mobileMenuOpen.set(false)" routerLinkActive="bg-accent text-accent-foreground"
+             ariaCurrentWhenActive="page" class="md3-mobile-link">Blog</a>
+          <a [href]="links.spotifyPodcast" target="_blank" rel="noopener noreferrer" (click)="mobileMenuOpen.set(false)"
+             class="md3-mobile-link">Podcast</a>
+          <a routerLink="/courses" (click)="mobileMenuOpen.set(false)" routerLinkActive="bg-accent text-accent-foreground"
+             ariaCurrentWhenActive="page" class="md3-mobile-link justify-between">
+            Courses <span class="md3-nav-badge">FREE</span>
+          </a>
+          <a routerLink="/games" (click)="mobileMenuOpen.set(false)" routerLinkActive="bg-accent text-accent-foreground"
+             ariaCurrentWhenActive="page" class="md3-mobile-link">Games</a>
+          <a routerLink="/cheatsheets" (click)="mobileMenuOpen.set(false)" routerLinkActive="bg-accent text-accent-foreground"
+             ariaCurrentWhenActive="page" class="md3-mobile-link">Cheatsheets</a>
+          <a routerLink="/about" (click)="mobileMenuOpen.set(false)" routerLinkActive="bg-accent text-accent-foreground"
+             ariaCurrentWhenActive="page" class="md3-mobile-link">About</a>
+          <a routerLink="/consultation" (click)="mobileMenuOpen.set(false)" routerLinkActive="bg-primary text-primary-foreground"
+             ariaCurrentWhenActive="page" class="mt-2 flex min-h-[48px] items-center justify-center rounded-full bg-[color:var(--md-sys-color-primary-container)] px-4 text-base font-bold text-primary hover:bg-primary hover:text-primary-foreground">Hire Me</a>
+
+          <div class="my-3 border-t border-border"></div>
+          <p class="px-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Categories</p>
+          @for (cat of categories; track cat.slug) {
+            <a [routerLink]="['/category', cat.slug]" (click)="mobileMenuOpen.set(false)"
+               class="md3-mobile-link gap-3">
+              <span class="h-2.5 w-2.5 rounded-full" [style.background]="cat.color"></span>
+              {{ cat.name }}
+            </a>
+          }
+        </nav>
+      </aside>
+    }
 
     <app-search />
   `,
 })
-export class HeaderComponent {
+export class HeaderComponent implements AfterViewInit {
   links = EXTERNAL_LINKS;
   mobileMenuOpen = signal(false);
-  categoriesOpen = signal(false);
   isDark = signal(typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
+  searchLaunching = signal(false);
+  railIndicatorTop = signal(0);
+  railIndicatorVisible = signal(false);
   searchComponent = viewChild(SearchComponent);
+  railNav = viewChild<ElementRef<HTMLElement>>('railNav');
+  categories = [
+    { name: 'AI', slug: 'ai', color: 'var(--md-sys-color-secondary)' },
+    { name: 'Frontend', slug: 'frontend', color: 'var(--md-sys-color-primary)' },
+    { name: 'Backend', slug: 'backend', color: 'var(--md-sys-color-secondary)' },
+    { name: 'DevOps', slug: 'devops', color: 'var(--md-sys-color-tertiary)' },
+    { name: 'Tutorials', slug: 'tutorials', color: 'var(--md-sys-color-primary-container)' },
+    { name: 'Open Source', slug: 'open-source', color: 'var(--md-sys-color-tertiary-container)' },
+  ];
+
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly canUseDom = typeof window !== 'undefined';
+  private railRefreshFrame: number | undefined;
+  private searchLaunchTimer: number | undefined;
+
+  constructor() {
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => this.scheduleRailIndicatorRefresh());
+
+    this.destroyRef.onDestroy(() => {
+      if (this.canUseDom && this.railRefreshFrame !== undefined) {
+        window.cancelAnimationFrame(this.railRefreshFrame);
+      }
+      if (this.canUseDom && this.searchLaunchTimer !== undefined) {
+        window.clearTimeout(this.searchLaunchTimer);
+      }
+    });
+  }
+
+  ngAfterViewInit() {
+    this.scheduleRailIndicatorRefresh();
+  }
+
+  @HostListener('document:keydown.escape')
+  closeOpenMenus() {
+    this.mobileMenuOpen.set(false);
+  }
+
+  @HostListener('window:resize')
+  onViewportResize() {
+    this.scheduleRailIndicatorRefresh();
+  }
 
   toggleTheme() {
     document.documentElement.classList.add('theme-transition');
@@ -283,10 +341,52 @@ export class HeaderComponent {
   }
 
   openSearch() {
+    this.mobileMenuOpen.set(false);
+    this.runSearchLaunchMotion();
     this.searchComponent()?.open();
   }
 
-  closeCategoriesDelayed() {
-    setTimeout(() => this.categoriesOpen.set(false), 150);
+  private runSearchLaunchMotion() {
+    this.searchLaunching.set(true);
+    if (!this.canUseDom) return;
+    if (this.searchLaunchTimer !== undefined) {
+      window.clearTimeout(this.searchLaunchTimer);
+    }
+    this.searchLaunchTimer = window.setTimeout(() => {
+      this.searchLaunching.set(false);
+      this.searchLaunchTimer = undefined;
+    }, 430);
+  }
+
+  private scheduleRailIndicatorRefresh() {
+    if (!this.canUseDom) return;
+    if (this.railRefreshFrame !== undefined) {
+      window.cancelAnimationFrame(this.railRefreshFrame);
+    }
+    this.railRefreshFrame = window.requestAnimationFrame(() => {
+      this.railRefreshFrame = undefined;
+      this.refreshRailIndicator();
+    });
+  }
+
+  private refreshRailIndicator() {
+    const nav = this.railNav()?.nativeElement;
+    if (!nav) return;
+
+    const activeLink = nav.querySelector<HTMLElement>('.md3-rail-link-active');
+    if (!activeLink) {
+      this.railIndicatorVisible.set(false);
+      return;
+    }
+
+    const navRect = nav.getBoundingClientRect();
+    const activeRect = activeLink.getBoundingClientRect();
+    if (activeRect.height === 0 || navRect.height === 0) {
+      this.railIndicatorVisible.set(false);
+      return;
+    }
+
+    this.railIndicatorTop.set(activeRect.top - navRect.top);
+    this.railIndicatorVisible.set(true);
   }
 }

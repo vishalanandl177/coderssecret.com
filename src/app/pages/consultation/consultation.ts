@@ -1,179 +1,197 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SeoService } from '../../services/seo.service';
+import { Md3HeroComponent } from '../../shared/md3/md3-hero';
+import { Md3LinkPanelComponent } from '../../shared/md3/md3-link-panel';
+import { Md3ResourceCardComponent } from '../../shared/md3/md3-resource-card';
+import { Md3Hero, Md3LinkPanel, Md3ResourceCard } from '../../shared/md3/md3.types';
+
+interface ExpertiseArea {
+  title: string;
+  description: string;
+  icon: string;
+}
+
+interface EngagementType {
+  title: string;
+  description: string;
+}
+
+interface FaqItem {
+  question: string;
+  answer: string;
+}
 
 @Component({
   selector: 'app-consultation',
-  imports: [RouterLink],
+  imports: [RouterLink, Md3HeroComponent, Md3ResourceCardComponent, Md3LinkPanelComponent],
   template: `
-    <section class="py-16 md:py-24 animate-in fade-in duration-500">
-      <div class="container max-w-4xl mx-auto px-6">
+    <main class="md3-learning-page">
+      <app-md3-hero [hero]="hero" />
 
-        <!-- Breadcrumb -->
-        <nav aria-label="Breadcrumb" class="mb-8">
-          <ol class="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <li><a routerLink="/" class="hover:text-foreground transition-colors">Home</a></li>
-            <li class="text-muted-foreground/50">/</li>
-            <li class="text-foreground font-medium">Consultation</li>
-          </ol>
-        </nav>
-
-        <!-- Hero -->
-        <div class="text-center mb-16">
-          <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
+      <section class="md3-learning-section">
+        <div class="md3-learning-container">
+          <div class="md3-learning-section-heading centered">
+            <span class="md3-learning-eyebrow">Expertise</span>
+            <h2>Problems I can help untangle</h2>
+            <p>These are the areas where CodersSecret already has deep public learning material and where consulting work can move quickly.</p>
           </div>
-          <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight leading-[1.1] mb-4">
-            Need Expert Help?
-          </h1>
-          <p class="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-            Stuck on a system design problem, performance bottleneck, or scaling decision?
-            Get private, 1-on-1 guidance from a Senior Product Engineer with hands-on production experience.
-          </p>
-        </div>
 
-        <!-- How it works -->
-        <div class="mb-16">
-          <h2 class="text-2xl font-extrabold tracking-tight text-center mb-8">How It Works</h2>
-          <div class="grid md:grid-cols-3 gap-6">
-            <div class="rounded-2xl border border-border/60 bg-card p-6 text-center hover:border-primary/40 transition-all hover:-translate-y-1">
-              <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary font-mono font-bold text-lg mb-4">01</div>
-              <h3 class="font-bold mb-2">Describe Your Challenge</h3>
-              <p class="text-sm text-muted-foreground leading-relaxed">Fill out a short private form with your technical problem, context, and what you have tried so far.</p>
-            </div>
-            <div class="rounded-2xl border border-border/60 bg-card p-6 text-center hover:border-primary/40 transition-all hover:-translate-y-1">
-              <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary font-mono font-bold text-lg mb-4">02</div>
-              <h3 class="font-bold mb-2">I Review & Respond</h3>
-              <p class="text-sm text-muted-foreground leading-relaxed">I read your submission privately and reply via email with initial thoughts, questions, or a session invite.</p>
-            </div>
-            <div class="rounded-2xl border border-border/60 bg-card p-6 text-center hover:border-primary/40 transition-all hover:-translate-y-1">
-              <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary font-mono font-bold text-lg mb-4">03</div>
-              <h3 class="font-bold mb-2">Private 1-on-1 Session</h3>
-              <p class="text-sm text-muted-foreground leading-relaxed">We hop on a private call to solve your problem together. Everything discussed stays between us.</p>
-            </div>
+          <div class="md3-learning-grid-3">
+            @for (card of expertiseCards; track card.title) {
+              <app-md3-resource-card [card]="card" />
+            }
           </div>
         </div>
+      </section>
 
-        <!-- Expertise areas -->
-        <div class="mb-16">
-          <h2 class="text-2xl font-extrabold tracking-tight text-center mb-8">What I Can Help With</h2>
-          <div class="grid sm:grid-cols-2 gap-4">
-            <div class="flex gap-4 items-start rounded-xl border border-border/60 bg-card p-5 hover:border-primary/40 transition-colors">
-              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500/10 text-blue-500 flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-              </span>
-              <div>
-                <h3 class="font-semibold mb-1">System Design & Architecture</h3>
-                <p class="text-sm text-muted-foreground">Microservices vs monolith, database selection, API design, multi-tenant architecture, event-driven systems.</p>
-              </div>
-            </div>
-            <div class="flex gap-4 items-start rounded-xl border border-border/60 bg-card p-5 hover:border-primary/40 transition-colors">
-              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-orange-500/10 text-orange-500 flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-              </span>
-              <div>
-                <h3 class="font-semibold mb-1">Performance Optimization</h3>
-                <p class="text-sm text-muted-foreground">Database query tuning, caching strategies, Python/Django performance, API latency reduction, profiling.</p>
-              </div>
-            </div>
-            <div class="flex gap-4 items-start rounded-xl border border-border/60 bg-card p-5 hover:border-primary/40 transition-colors">
-              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-green-500/10 text-green-500 flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-              </span>
-              <div>
-                <h3 class="font-semibold mb-1">Scaling & Infrastructure</h3>
-                <p class="text-sm text-muted-foreground">Kubernetes, Docker, CI/CD pipelines, auto-scaling, load balancing, cloud cost optimization.</p>
-              </div>
-            </div>
-            <div class="flex gap-4 items-start rounded-xl border border-border/60 bg-card p-5 hover:border-primary/40 transition-colors">
-              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-red-500/10 text-red-500 flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              </span>
-              <div>
-                <h3 class="font-semibold mb-1">Security & Authentication</h3>
-                <p class="text-sm text-muted-foreground">mTLS, OAuth/OIDC, API security, SPIFFE/SPIRE, encryption, compliance (SOC2, HIPAA, GDPR).</p>
-              </div>
-            </div>
-            <div class="flex gap-4 items-start rounded-xl border border-border/60 bg-card p-5 hover:border-primary/40 transition-colors">
-              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-purple-500/10 text-purple-500 flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-              </span>
-              <div>
-                <h3 class="font-semibold mb-1">AI Integration</h3>
-                <p class="text-sm text-muted-foreground">Claude API, LLM integration, RAG pipelines, MCP servers, AI-powered features in production apps.</p>
-              </div>
-            </div>
-            <div class="flex gap-4 items-start rounded-xl border border-border/60 bg-card p-5 hover:border-primary/40 transition-colors">
-              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-cyan-500/10 text-cyan-500 flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-              </span>
-              <div>
-                <h3 class="font-semibold mb-1">Code Review & Best Practices</h3>
-                <p class="text-sm text-muted-foreground">Django/DRF, Python patterns, API design review, database schema review, tech debt reduction.</p>
-              </div>
-            </div>
+      <section class="md3-learning-tonal-section">
+        <div class="md3-learning-container">
+          <div class="md3-learning-section-heading">
+            <span class="md3-learning-eyebrow">Engagement types</span>
+            <h2>Focused help, not generic advice</h2>
+            <p>Sessions are shaped around the system you are actually building or operating.</p>
+          </div>
+
+          <div class="md3-learning-grid-3">
+            @for (card of engagementCards; track card.title) {
+              <app-md3-resource-card [card]="card" />
+            }
           </div>
         </div>
+      </section>
 
-        <!-- CTA -->
-        <div class="rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/5 via-card to-primary/5 p-8 md:p-12 text-center mb-16">
-          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-3">Ready to Get Started?</h2>
-          <p class="text-muted-foreground mb-8 max-w-xl mx-auto">
-            Fill out the form below to describe your challenge. I will review it privately and get back to you within 24-48 hours.
-          </p>
-          <a href="https://forms.gle/C37TKC9b1zdPH2nL8" target="_blank" rel="noopener noreferrer"
-             class="group inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-4 text-base font-bold text-white shadow-xl shadow-purple-500/25 hover:shadow-2xl hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-            Submit Your Challenge
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                 class="transition-transform group-hover:translate-x-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-          </a>
-          <p class="text-xs text-muted-foreground mt-4">100% private. Your information is never shared publicly.</p>
+      <section class="md3-learning-section">
+        <div class="md3-learning-container">
+          <app-md3-link-panel [panel]="proofPanel" />
         </div>
+      </section>
 
-        <!-- FAQ -->
-        <div>
-          <h2 class="text-2xl font-extrabold tracking-tight text-center mb-8">Frequently Asked Questions</h2>
-          <div class="space-y-4 max-w-2xl mx-auto">
-            <div class="rounded-xl border border-border/60 bg-card p-5">
-              <h3 class="font-semibold mb-2">Is my question kept private?</h3>
-              <p class="text-sm text-muted-foreground leading-relaxed">Yes. Your form submission goes directly to my email. The problem description, code, architecture details, and our conversation are never shared publicly.</p>
+      <section class="md3-learning-tonal-section">
+        <div class="md3-learning-container">
+          <div class="md3-learning-panel text-center">
+            <span class="md3-learning-eyebrow">Start here</span>
+            <h2>Send the problem, architecture, or decision you are stuck on</h2>
+            <p class="mx-auto max-w-2xl">
+              Share the context, constraints, stack, and what you have already tried. I will review it privately and respond with next steps or a session invite.
+            </p>
+            <div class="md3-learning-actions justify-center">
+              <a [href]="consultationFormUrl" target="_blank" rel="noopener noreferrer" class="md3-button-filled md3-button-large">Submit your challenge</a>
+              <a routerLink="/blog" class="md3-button-outlined md3-button-large">Browse public guides first</a>
             </div>
-            <div class="rounded-xl border border-border/60 bg-card p-5">
-              <h3 class="font-semibold mb-2">How quickly will you respond?</h3>
-              <p class="text-sm text-muted-foreground leading-relaxed">I review submissions daily and typically respond within 24-48 hours with initial thoughts and next steps.</p>
-            </div>
-            <div class="rounded-xl border border-border/60 bg-card p-5">
-              <h3 class="font-semibold mb-2">What does a session look like?</h3>
-              <p class="text-sm text-muted-foreground leading-relaxed">After reviewing your challenge, we hop on a private video call (Google Meet or Zoom). I come prepared with research on your problem. We work through the solution together &mdash; whiteboarding, code review, architecture diagrams, whatever helps.</p>
-            </div>
-            <div class="rounded-xl border border-border/60 bg-card p-5">
-              <h3 class="font-semibold mb-2">Can you help with my specific stack?</h3>
-              <p class="text-sm text-muted-foreground leading-relaxed">My strongest areas are Python/Django, Kubernetes, PostgreSQL, cloud architecture (AWS/GCP), and AI integration. For other stacks, I can still help with architecture and system design &mdash; the principles are universal.</p>
-            </div>
-            <div class="rounded-xl border border-border/60 bg-card p-5">
-              <h3 class="font-semibold mb-2">Do you sign NDAs?</h3>
-              <p class="text-sm text-muted-foreground leading-relaxed">Yes. If your company requires an NDA before discussing proprietary architecture, I am happy to sign one.</p>
-            </div>
+            <p class="text-sm text-muted-foreground">Your information is private. NDAs are fine when company context requires one.</p>
           </div>
         </div>
+      </section>
 
-      </div>
-    </section>
+      <section class="md3-learning-section">
+        <div class="md3-learning-container-narrow">
+          <div class="md3-learning-section-heading centered">
+            <span class="md3-learning-eyebrow">FAQ</span>
+            <h2>Common questions</h2>
+          </div>
+          <div class="md3-learning-grid">
+            @for (item of faqItems; track item.question) {
+              <article class="md3-learning-card">
+                <h3>{{ item.question }}</h3>
+                <p>{{ item.answer }}</p>
+              </article>
+            }
+          </div>
+        </div>
+      </section>
+    </main>
   `,
 })
 export class ConsultationComponent {
   private seo = inject(SeoService);
+  readonly consultationFormUrl = 'https://forms.gle/C37TKC9b1zdPH2nL8';
+
+  get hero(): Md3Hero {
+    return {
+      breadcrumbs: [
+        { label: 'Home', href: '/' },
+        { label: 'Consultation' },
+      ],
+      eyebrow: 'Production engineering consulting',
+      title: 'Architecture, Security, and Production Engineering Consulting',
+      lede: 'Practical help for teams working through cloud-native security, SPIFFE/SPIRE, Kubernetes hardening, AI infrastructure, RAG, data engineering, and production readiness.',
+      actions: [
+        { label: 'Submit your challenge', href: this.consultationFormUrl, variant: 'filled', external: true },
+        { label: 'Why CodersSecret', href: '/about', variant: 'tonal' },
+      ],
+      selectedChip: 'Architecture review',
+      chips: ['Architecture review', 'Security design', 'Production readiness', 'Team enablement'],
+      panel: {
+        title: 'How it works',
+        meta: 'Private by default',
+        ariaLabel: 'Engagement summary',
+        mapLabels: ['ASK', 'MAP', 'FIX', 'SHIP'],
+        stats: [
+          { value: '24-48h', label: 'Typical response' },
+          { value: '1:1', label: 'Focused session' },
+        ],
+      },
+    };
+  }
+
+  expertiseAreas: ExpertiseArea[] = [
+    { title: 'Cloud-native security', icon: 'SEC', description: 'Threat modeling, service boundaries, admission controls, runtime detection, and guardrails for Kubernetes-based platforms.' },
+    { title: 'SPIFFE/SPIRE and Zero Trust', icon: 'ID', description: 'Workload identity, mTLS, trust-domain federation, policy enforcement, and migration away from shared secrets.' },
+    { title: 'Kubernetes hardening', icon: 'K8S', description: 'RBAC, PodSecurity, NetworkPolicy, image provenance, incident drills, and operating models for production clusters.' },
+    { title: 'AI infrastructure and RAG', icon: 'AI', description: 'Production RAG architecture, evaluation, agent/tool permissions, MCP security, and inference reliability.' },
+    { title: 'Data and analytics engineering', icon: 'SQL', description: 'dbt modeling, data contracts, semantic layers, lineage, metric trust, and warehouse architecture.' },
+    { title: 'Team enablement', icon: 'TEAM', description: 'Architecture reviews, production readiness checklists, debugging workflows, and internal engineering training.' },
+  ];
+
+  get expertiseCards(): Md3ResourceCard[] {
+    return this.expertiseAreas.map(area => ({
+      title: area.title,
+      description: area.description,
+      icon: area.icon,
+      badge: 'Expertise',
+    }));
+  }
+
+  engagementTypes: EngagementType[] = [
+    { title: 'Architecture review', description: 'Walk through diagrams, trust boundaries, service contracts, data flows, and failure paths before the system scales.' },
+    { title: 'Security design session', description: 'Review identity, authorization, secrets, deployment gates, runtime signals, and response paths against realistic attack scenarios.' },
+    { title: 'Production readiness review', description: 'Turn a launch, migration, or incident-prone system into a checklist of concrete engineering decisions and ownership gaps.' },
+  ];
+
+  get engagementCards(): Md3ResourceCard[] {
+    return this.engagementTypes.map((engagement, index) => ({
+      title: engagement.title,
+      description: engagement.description,
+      icon: `0${index + 1}`,
+      badge: 'Private',
+    }));
+  }
+
+  proofPanel: Md3LinkPanel = {
+    eyebrow: 'Relevant proof',
+    title: 'Public material before a private session',
+    body: 'CodersSecret already contains courses, labs, and reference sheets around the same production engineering topics. That gives us a shared vocabulary before we work through your specific architecture or incident.',
+    links: [
+      { label: 'Cloud native security course', href: '/courses/cloud-native-security-engineering' },
+      { label: 'Production RAG systems', href: '/courses/production-rag-systems-engineering' },
+      { label: 'Interactive labs', href: '/games' },
+      { label: 'Reference sheets', href: '/cheatsheets' },
+    ],
+  };
+
+  faqItems: FaqItem[] = [
+    { question: 'Is my question kept private?', answer: 'Yes. Form submissions and session details are handled privately and are never used as public content without explicit permission.' },
+    { question: 'How quickly will you respond?', answer: 'I usually review submissions within 24-48 hours and reply with initial thoughts, questions, or a session invite.' },
+    { question: 'What does a session look like?', answer: 'We work through the real system together: architecture, code, deployment flow, diagrams, runbooks, or the decision that needs a second technical opinion.' },
+    { question: 'Can you help with my specific stack?', answer: 'My strongest areas are Python/Django, Kubernetes, PostgreSQL, AWS/GCP-style cloud architecture, and AI infrastructure. For other stacks, the architecture and security principles still transfer.' },
+    { question: 'Do you sign NDAs?', answer: 'Yes. If your company requires an NDA before discussing proprietary architecture or implementation details, that is fine.' },
+  ];
 
   constructor() {
     this.seo.update({
-      title: '1-on-1 Technical Consultation — System Design, Performance, Scaling',
-      description: 'Get private, expert help with system design, performance optimization, scaling architecture, security, and AI integration from a Senior Product Engineer. Submit your challenge and get a response within 48 hours.',
+      title: 'Consulting | Architecture, Security, and Production Engineering',
+      description: 'Consulting for cloud-native security, SPIFFE/SPIRE, Zero Trust, Kubernetes hardening, AI infrastructure, RAG, data engineering, and team enablement.',
       url: '/consultation',
       breadcrumbs: [
         { name: 'Home', url: '/' },

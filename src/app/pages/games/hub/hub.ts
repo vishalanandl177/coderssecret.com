@@ -1,7 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { SeoService } from '../../../services/seo.service';
+import { Md3HeroComponent } from '../../../shared/md3/md3-hero';
+import { Md3LinkPanelComponent } from '../../../shared/md3/md3-link-panel';
+import { Md3ResourceCardComponent } from '../../../shared/md3/md3-resource-card';
+import { Md3Hero, Md3LinkPanel, Md3ResourceCard } from '../../../shared/md3/md3.types';
 
 interface SimulatorConcept {
   label: string;
@@ -11,369 +13,212 @@ interface Simulator {
   slug: string;
   name: string;
   shortName: string;
-  icon: string;
   category: 'security' | 'foundations';
   status: 'available' | 'coming-soon';
   description: string;
   concepts: SimulatorConcept[];
   difficulty: 'Easy' | 'Medium' | 'Hard';
   time: string;
-  color: string;
   href: string | null;
-  external?: boolean;
 }
 
 @Component({
   selector: 'app-games-hub',
-  imports: [RouterLink, NgTemplateOutlet],
+  imports: [Md3HeroComponent, Md3ResourceCardComponent, Md3LinkPanelComponent],
   template: `
-    <section class="py-12 md:py-16 animate-in fade-in duration-500">
-      <div class="container max-w-6xl mx-auto px-6">
-        <nav aria-label="Breadcrumb" class="mb-6">
-          <ol class="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <li><a routerLink="/" class="hover:text-foreground transition-colors">Home</a></li>
-            <li class="text-muted-foreground/50">/</li>
-            <li class="text-foreground font-medium" aria-current="page">Security Simulators</li>
-          </ol>
-        </nav>
+    <main class="md3-learning-page">
+      <app-md3-hero [hero]="hero" />
 
-        <header class="text-center max-w-3xl mx-auto mb-12">
-          <span class="inline-block rounded-full bg-orange-500/10 border border-orange-500/30 px-4 py-1 text-xs font-bold text-orange-500 uppercase tracking-wider mb-4">Learn by Playing</span>
-          <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-[1.1] mb-5">
-            Cloud Native Security <span class="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 bg-clip-text text-transparent">Simulators &amp; Labs</span>
-          </h1>
-          <p class="text-base md:text-lg text-muted-foreground leading-relaxed">
-            Interactive Kubernetes security challenges, Zero Trust simulations, and infrastructure-engineering exercises. Built for engineers who want to <strong class="text-foreground">learn cloud-native security by doing</strong> — with real manifests, real attack patterns, and real production stakes.
-          </p>
-        </header>
-
-        <!-- Section: Cloud Native Security Simulators -->
-        <div class="mb-14">
-          <div class="flex items-end justify-between mb-6">
-            <div>
-              <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Cloud Native Security Simulators</h2>
-              <p class="mt-1 text-sm text-muted-foreground">Hands-on labs covering Kubernetes security, Zero Trust, workload identity, runtime defense, and supply chain.</p>
-            </div>
+      <section class="md3-learning-section">
+        <div class="md3-learning-container">
+          <div class="md3-learning-section-heading">
+            <span class="md3-learning-eyebrow">Security practice</span>
+            <h2>Cloud native security simulators</h2>
+            <p>Use these labs when you want to test the decisions behind RBAC, mTLS, runtime defense, supply-chain gates, threat modeling, and AI agent infrastructure.</p>
           </div>
 
-          <div class="grid md:grid-cols-2 gap-5">
-            @for (game of securitySimulators; track game.slug) {
-              <ng-container *ngTemplateOutlet="simCard; context: { $implicit: game }"></ng-container>
+          <div class="md3-learning-grid-3">
+            @for (card of securityCards; track card.title) {
+              <app-md3-resource-card [card]="card" />
             }
           </div>
         </div>
+      </section>
 
-        <!-- Section: Foundations & Engineering Drills -->
-        <div class="mb-14">
-          <div class="flex items-end justify-between mb-6">
-            <div>
-              <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Foundations &amp; Engineering Drills</h2>
-              <p class="mt-1 text-sm text-muted-foreground">Sharpen the engineering fundamentals that good infrastructure security depends on — reading code, debugging Linux, troubleshooting production.</p>
-            </div>
+      <section class="md3-learning-tonal-section">
+        <div class="md3-learning-container">
+          <div class="md3-learning-section-heading">
+            <span class="md3-learning-eyebrow">Foundations</span>
+            <h2>Engineering drills for production reflexes</h2>
+            <p>Short practice loops for code review, Linux, incident debugging, language behavior, and career planning. These are lighter than the security labs, but still practical.</p>
           </div>
 
-          <div class="grid md:grid-cols-2 gap-5">
-            @for (game of foundationsGames; track game.slug) {
-              <ng-container *ngTemplateOutlet="simCard; context: { $implicit: game }"></ng-container>
+          <div class="md3-learning-grid-3">
+            @for (card of foundationCards; track card.title) {
+              <app-md3-resource-card [card]="card" />
             }
           </div>
         </div>
+      </section>
 
-        <!-- Why play -->
-        <div class="rounded-2xl border border-border/60 bg-gradient-to-br from-orange-500/5 via-card to-amber-500/5 p-8 md:p-10">
-          <div class="grid md:grid-cols-2 gap-8 items-center">
-            <div>
-              <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-3">Why interactive labs — not just docs</h2>
-              <p class="text-sm md:text-base text-muted-foreground leading-relaxed mb-4">
-                Most cloud-native security knowledge lives in the muscle memory of engineers who&apos;ve seen it go wrong. The simulators recreate the exact decision points — the YAML you have to review, the alert you have to triage, the policy you have to write — without needing a real cluster, a real incident, or a real attacker.
-              </p>
-              <p class="text-sm md:text-base text-muted-foreground leading-relaxed">
-                Combined with the free <a routerLink="/courses/cloud-native-security-engineering" class="text-primary underline">Cloud Native Security Engineering</a> course and the <a routerLink="/courses/mastering-spiffe-spire" class="text-primary underline">Mastering SPIFFE &amp; SPIRE</a> curriculum, you get the full ecosystem: courses for depth, tutorials for focused implementation, diagrams for visual understanding, labs for hands-on practice, and games for interactive learning.
-              </p>
-            </div>
-            <div class="grid grid-cols-2 gap-3 text-sm">
-              <div class="rounded-xl border border-border/40 bg-card p-4">
-                <div class="text-2xl mb-1" aria-hidden="true">📚</div>
-                <strong class="block text-foreground">Courses</strong>
-                <span class="text-xs text-muted-foreground">Deep, structured learning</span>
-              </div>
-              <div class="rounded-xl border border-border/40 bg-card p-4">
-                <div class="text-2xl mb-1" aria-hidden="true">🛠️</div>
-                <strong class="block text-foreground">Tutorials</strong>
-                <span class="text-xs text-muted-foreground">Focused implementation</span>
-              </div>
-              <div class="rounded-xl border border-border/40 bg-card p-4">
-                <div class="text-2xl mb-1" aria-hidden="true">🗺️</div>
-                <strong class="block text-foreground">Diagrams</strong>
-                <span class="text-xs text-muted-foreground">Visual architecture</span>
-              </div>
-              <div class="rounded-xl border border-border/40 bg-card p-4">
-                <div class="text-2xl mb-1" aria-hidden="true">🎮</div>
-                <strong class="block text-foreground">Games &amp; Labs</strong>
-                <span class="text-xs text-muted-foreground">Interactive practice</span>
-              </div>
-            </div>
-          </div>
+      <section class="md3-learning-section">
+        <div class="md3-learning-container">
+          <app-md3-link-panel [panel]="linkPanel" />
         </div>
-      </div>
-    </section>
-
-    <!-- Reusable simulator card template -->
-    <ng-template #simCard let-game>
-      @if (game.href && game.status === 'available') {
-        <a [routerLink]="game.href"
-           class="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-7 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 hover:border-primary/30">
-          <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-               [style.background-image]="'linear-gradient(to right, transparent, ' + game.color + ', transparent)'"></div>
-          <ng-container *ngTemplateOutlet="cardBody; context: { $implicit: game }"></ng-container>
-        </a>
-      } @else {
-        <div class="group relative overflow-hidden rounded-2xl border border-dashed border-border/50 bg-card/40 p-7 cursor-not-allowed">
-          <ng-container *ngTemplateOutlet="cardBody; context: { $implicit: game }"></ng-container>
-        </div>
-      }
-    </ng-template>
-
-    <ng-template #cardBody let-game>
-      <div class="flex items-start gap-5">
-        <div class="flex items-center justify-center h-14 w-14 rounded-2xl text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
-             [style.background-color]="game.color + '15'"
-             [style.color]="game.color">
-          {{ game.icon }}
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 mb-1.5">
-            @if (game.status === 'coming-soon') {
-              <span class="inline-flex items-center rounded-full bg-muted text-muted-foreground px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">Coming Soon</span>
-            } @else {
-              <span class="inline-flex items-center rounded-full bg-green-500/15 text-green-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">Available</span>
-            }
-            <span class="text-[10px] text-muted-foreground font-mono">{{ game.time }} · {{ game.difficulty }}</span>
-          </div>
-          <h3 class="text-lg font-extrabold tracking-tight mb-2 transition-colors duration-300"
-              [class.group-hover:text-primary]="game.status === 'available'">
-            {{ game.name }}
-          </h3>
-          <p class="text-sm text-muted-foreground leading-relaxed mb-3">
-            {{ game.description }}
-          </p>
-          <div class="flex flex-wrap gap-1.5">
-            @for (concept of game.concepts; track concept.label) {
-              <span class="inline-flex items-center rounded-full border border-border/40 bg-muted/50 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                {{ concept.label }}
-              </span>
-            }
-          </div>
-        </div>
-        @if (game.status === 'available') {
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-               class="text-muted-foreground flex-shrink-0 transition-all duration-300 group-hover:translate-x-1 group-hover:text-primary" aria-hidden="true">
-            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-          </svg>
-        }
-      </div>
-    </ng-template>
+      </section>
+    </main>
   `,
 })
 export class GamesHubComponent {
   private seo = inject(SeoService);
+
+  get hero(): Md3Hero {
+    return {
+      breadcrumbs: [
+        { label: 'Home', href: '/' },
+        { label: 'Interactive labs' },
+      ],
+      eyebrow: 'Interactive engineering labs',
+      title: 'Practice production decisions before they are incidents',
+      lede: 'Scenario-based labs for Kubernetes, Zero Trust, API security, incident response, supply chain, AI infrastructure, Linux, and production debugging. Each lab turns a real engineering failure mode into a focused decision exercise.',
+      actions: [
+        { label: 'Start a lab', href: '/games/kubernetes-security-simulator', variant: 'filled' },
+        { label: 'Learn the system first', href: '/courses/cloud-native-security-engineering', variant: 'tonal' },
+      ],
+      selectedChip: 'Kubernetes',
+      chips: ['Kubernetes', 'Zero Trust', 'API Security', 'Incident Response', 'Supply Chain', 'AI Infrastructure', 'Linux'],
+      panel: {
+        title: 'Lab cockpit',
+        meta: `${this.availableLabs.length} available`,
+        ariaLabel: 'Lab coverage summary',
+        mapLabels: ['LAB', 'SIGNAL', 'FIX', 'REF'],
+        stats: [
+          { value: `${this.securitySimulators.length}`, label: 'Security scenarios' },
+          { value: `${this.foundationsGames.length}`, label: 'Foundation drills' },
+        ],
+      },
+    };
+  }
 
   securitySimulators: Simulator[] = [
     {
       slug: 'kubernetes-security-simulator',
       name: 'Kubernetes Security Simulator',
       shortName: 'K8s Security Simulator',
-      icon: '🛡️',
       category: 'security',
       status: 'available',
-      description: 'Secure a production Kubernetes cluster across 6 real-world scenarios. Spot RBAC misconfigurations, missing network policies, privileged pods, leaked secrets, and supply-chain risks.',
-      concepts: [
-        { label: 'RBAC' },
-        { label: 'Namespaces' },
-        { label: 'Network Policy' },
-        { label: 'PodSecurity' },
-        { label: 'Secrets' },
-        { label: 'Image Security' },
-      ],
+      description: 'Secure a production Kubernetes cluster across real scenarios: RBAC, NetworkPolicy, PodSecurity, secrets, image provenance, and audit decisions.',
+      concepts: [{ label: 'RBAC' }, { label: 'NetworkPolicy' }, { label: 'PodSecurity' }, { label: 'Secrets' }, { label: 'Sigstore' }],
       difficulty: 'Hard',
       time: '~10 min',
-      color: '#f97316',
       href: '/games/kubernetes-security-simulator',
     },
     {
       slug: 'zero-trust-network-builder',
       name: 'Zero Trust Network Builder',
       shortName: 'Zero Trust Builder',
-      icon: '🔐',
       category: 'security',
       status: 'available',
-      description: 'Design secure service-to-service communication using SPIFFE workload identity and mTLS. Configure SPIRE attestation, federate trust domains, and rotate SVIDs across 6 production scenarios.',
-      concepts: [
-        { label: 'SPIFFE' },
-        { label: 'SPIRE' },
-        { label: 'mTLS' },
-        { label: 'Identity Propagation' },
-        { label: 'Federation' },
-      ],
+      description: 'Design service-to-service communication using SPIFFE workload identity, mTLS, attestation, federation, and short-lived SVIDs.',
+      concepts: [{ label: 'SPIFFE' }, { label: 'SPIRE' }, { label: 'mTLS' }, { label: 'Federation' }],
       difficulty: 'Hard',
       time: '~12 min',
-      color: '#06b6d4',
       href: '/games/zero-trust-network-builder',
     },
     {
       slug: 'api-attack-defense',
       name: 'API Attack & Defense',
       shortName: 'API Attack & Defense',
-      icon: '🎯',
       category: 'security',
       status: 'available',
-      description: 'Spot the vulnerable endpoint before the attacker does. Six scenarios covering JWT algorithm confusion, OAuth redirect bypasses, mass assignment, rate-limit spoofing, CORS misconfiguration, and webhook timing attacks.',
-      concepts: [
-        { label: 'JWT' },
-        { label: 'OAuth' },
-        { label: 'API Gateways' },
-        { label: 'Auth Flaws' },
-        { label: 'OWASP API Top 10' },
-      ],
+      description: 'Spot vulnerable endpoints before attackers do: JWT confusion, OAuth redirect bypasses, mass assignment, CORS, rate-limit spoofing, and webhook timing.',
+      concepts: [{ label: 'JWT' }, { label: 'OAuth' }, { label: 'Gateways' }, { label: 'OWASP API' }],
       difficulty: 'Hard',
       time: '~12 min',
-      color: '#ef4444',
       href: '/games/api-attack-defense',
     },
     {
       slug: 'incident-response-simulator',
       name: 'Incident Response Simulator',
       shortName: 'Incident Response',
-      icon: '🚨',
       category: 'security',
       status: 'available',
-      description: 'You are on call. Triage Falco alerts, contain lateral movement via stolen SA tokens, identify crypto-miner indicators, catch container drift, read suspicious audit logs, and detect fileless attacks via eBPF — all in the first 60 seconds of an incident.',
-      concepts: [
-        { label: 'Falco' },
-        { label: 'Runtime Security' },
-        { label: 'Threat Detection' },
-        { label: 'eBPF' },
-        { label: 'Lateral Movement' },
-      ],
+      description: 'Triage Falco alerts, stolen service-account tokens, crypto-miner indicators, container drift, suspicious audit logs, and eBPF detections.',
+      concepts: [{ label: 'Falco' }, { label: 'Runtime' }, { label: 'eBPF' }, { label: 'Forensics' }],
       difficulty: 'Hard',
       time: '~15 min',
-      color: '#dc2626',
       href: '/games/incident-response-simulator',
     },
     {
       slug: 'supply-chain-defense',
       name: 'Supply Chain Defense Simulator',
       shortName: 'Supply Chain Defense',
-      icon: '🔗',
       category: 'security',
       status: 'available',
-      description: 'Spot Sigstore identity gaps, SBOM blind spots, SLSA L2 vs L3 confusion, dependency confusion attacks, GitHub Actions secret leaks, and admission policy scope gaps across 6 production CI/CD scenarios.',
-      concepts: [
-        { label: 'Sigstore' },
-        { label: 'SBOM' },
-        { label: 'SLSA' },
-        { label: 'Provenance' },
-        { label: 'Secure CI/CD' },
-      ],
+      description: 'Review signing, SBOM, SLSA, dependency confusion, GitHub Actions scope, and admission policy gaps before artifacts reach production.',
+      concepts: [{ label: 'Sigstore' }, { label: 'SBOM' }, { label: 'SLSA' }, { label: 'CI/CD' }],
       difficulty: 'Medium',
       time: '~12 min',
-      color: '#22c55e',
       href: '/games/supply-chain-defense',
     },
     {
       slug: 'service-mesh-routing',
       name: 'Service Mesh Routing Game',
       shortName: 'Service Mesh Routing',
-      icon: '🌐',
       category: 'security',
       status: 'available',
-      description: 'Spot mTLS rollout flaws, AuthorizationPolicy semantics, JWT validation gaps, traffic-shift ordering bugs, retry-storm patterns, and Envoy diagnostic flows across 6 Istio/Envoy production scenarios.',
-      concepts: [
-        { label: 'Istio' },
-        { label: 'Envoy' },
-        { label: 'mTLS' },
-        { label: 'Traffic Policy' },
-        { label: 'Authz Policies' },
-      ],
+      description: 'Debug mTLS rollout flaws, AuthorizationPolicy scope, JWT validation, traffic shifting, retry storms, and Envoy diagnostics.',
+      concepts: [{ label: 'Istio' }, { label: 'Envoy' }, { label: 'mTLS' }, { label: 'AuthZ' }],
       difficulty: 'Medium',
       time: '~12 min',
-      color: '#8b5cf6',
       href: '/games/service-mesh-routing',
     },
     {
       slug: 'threat-modeling-challenge',
       name: 'Threat Modeling Challenge',
       shortName: 'Threat Modeling',
-      icon: '🧠',
       category: 'security',
       status: 'available',
-      description: 'Classify threats with STRIDE, identify trust boundaries, classify PII under GDPR, build attack trees prioritising CI/CD over RCE, prioritise by impact-times-likelihood, and rank mitigations across 6 production scenarios.',
-      concepts: [
-        { label: 'STRIDE' },
-        { label: 'Attack Surface' },
-        { label: 'Mitigations' },
-        { label: 'Data Flow' },
-      ],
+      description: 'Classify STRIDE threats, trust boundaries, attack trees, data sensitivity, mitigations, and risk priority across production systems.',
+      concepts: [{ label: 'STRIDE' }, { label: 'Boundaries' }, { label: 'Mitigation' }, { label: 'Risk' }],
       difficulty: 'Hard',
       time: '~15 min',
-      color: '#a855f7',
       href: '/games/threat-modeling-challenge',
     },
     {
       slug: 'secure-architecture-builder',
       name: 'Secure Architecture Builder',
       shortName: 'Architecture Builder',
-      icon: '🏗️',
       category: 'security',
       status: 'available',
-      description: 'Design VPC layouts, place WAFs at edge and origin, replace SSH bastions with SSM + IAM auth, pick the right secret store, authenticate CDN-to-origin, and design multi-region resilience across 6 production scenarios.',
-      concepts: [
-        { label: 'Architecture' },
-        { label: 'Zero Trust' },
-        { label: 'Defense in Depth' },
-        { label: 'Cloud Native' },
-      ],
+      description: 'Choose VPC boundaries, WAF placement, secret stores, CDN origin controls, IAM access, and multi-region resilience patterns.',
+      concepts: [{ label: 'Architecture' }, { label: 'IAM' }, { label: 'Secrets' }, { label: 'Resilience' }],
       difficulty: 'Hard',
       time: '~20 min',
-      color: '#3b82f6',
       href: '/games/secure-architecture-builder',
     },
     {
       slug: 'kubernetes-escape-room',
       name: 'Kubernetes Escape Room',
       shortName: 'K8s Escape Room',
-      icon: '🔓',
       category: 'security',
       status: 'available',
-      description: 'Walk through real Kubernetes compromise chains — SA token recon, docker.sock escape, hostPID, etcd snapshot leaks, pods/exec → cluster-admin, container-runtime CVEs — and identify the defensive control that breaks each step.',
-      concepts: [
-        { label: 'Privilege Escalation' },
-        { label: 'Container Escape' },
-        { label: 'Secrets Leak' },
-        { label: 'Defensive Controls' },
-      ],
+      description: 'Walk through compromise chains and pick the control that breaks each step: token recon, host access, exec abuse, and secret exposure.',
+      concepts: [{ label: 'Escalation' }, { label: 'Escape' }, { label: 'Secrets' }, { label: 'Controls' }],
       difficulty: 'Hard',
       time: '~20 min',
-      color: '#ec4899',
       href: '/games/kubernetes-escape-room',
     },
     {
       slug: 'ai-infrastructure-security',
       name: 'AI Infrastructure Security Game',
       shortName: 'AI Infra Security',
-      icon: '🤖',
       category: 'security',
       status: 'available',
-      description: 'Identify indirect prompt injection, model extraction attacks, multi-tenant vector DB leaks, agent tool over-scoping, inference cost abuse, and MCP server identity gaps across 6 production AI infrastructure scenarios.',
-      concepts: [
-        { label: 'AI Agents' },
-        { label: 'Machine Identity' },
-        { label: 'Inference Security' },
-        { label: 'Prompt Injection' },
-      ],
+      description: 'Identify prompt injection, model extraction, vector database leakage, agent tool scope, cost abuse, and MCP server identity gaps.',
+      concepts: [{ label: 'Agents' }, { label: 'MCP' }, { label: 'RAG' }, { label: 'Tool Scope' }],
       difficulty: 'Hard',
       time: '~15 min',
-      color: '#14b8a6',
       href: '/games/ai-infrastructure-security',
     },
   ];
@@ -383,118 +228,151 @@ export class GamesHubComponent {
       slug: 'devops-scenario',
       name: 'DevOps Incident Scenarios',
       shortName: 'DevOps Scenarios',
-      icon: '⚠️',
       category: 'foundations',
       status: 'available',
-      description: 'Production incident drills. Your pod is crashing, your latency just spiked, your secret rotated mid-deploy — diagnose and fix it, then learn what happened.',
-      concepts: [
-        { label: 'Kubernetes' },
-        { label: 'Troubleshooting' },
-        { label: 'On-Call' },
-      ],
+      description: 'Diagnose crashing pods, latency spikes, broken rollouts, and secret rotation failures through realistic on-call prompts.',
+      concepts: [{ label: 'Kubernetes' }, { label: 'On-call' }, { label: 'Debugging' }],
       difficulty: 'Hard',
       time: '~10 min',
-      color: '#f97316',
       href: '/games/devops-scenario',
     },
     {
       slug: 'linux-challenge',
       name: 'Linux Command Challenge',
       shortName: 'Linux Challenge',
-      icon: '🐧',
       category: 'foundations',
       status: 'available',
-      description: 'Type the right command for each task. Find files, process logs, manage permissions — the Linux fluency that every infra-security incident eventually requires.',
-      concepts: [
-        { label: 'Linux' },
-        { label: 'Bash' },
-        { label: 'CLI' },
-      ],
+      description: 'Use the right command to find files, inspect processes, read logs, test networking, and manage permissions.',
+      concepts: [{ label: 'Linux' }, { label: 'Bash' }, { label: 'CLI' }],
       difficulty: 'Medium',
       time: '~5 min',
-      color: '#a855f7',
       href: '/games/linux-challenge',
     },
     {
       slug: 'spot-the-bug',
       name: 'Spot the Bug',
       shortName: 'Spot the Bug',
-      icon: '🐛',
       category: 'foundations',
       status: 'available',
-      description: 'Subtle code-review bugs — off-by-one errors, race conditions, broken auth checks. Train the eye that finds the bug your teammate missed in PR review.',
-      concepts: [
-        { label: 'Code Review' },
-        { label: 'Auth Bugs' },
-        { label: 'Concurrency' },
-      ],
+      description: 'Train code-review judgment on subtle auth checks, off-by-one errors, race conditions, and broken assumptions.',
+      concepts: [{ label: 'Code Review' }, { label: 'Auth' }, { label: 'Concurrency' }],
       difficulty: 'Hard',
       time: '~8 min',
-      color: '#ef4444',
       href: '/games/spot-the-bug',
     },
     {
       slug: 'guess-output',
       name: 'Guess the Output',
       shortName: 'Guess the Output',
-      icon: '🎯',
       category: 'foundations',
       status: 'available',
-      description: 'Predict what these tricky Python and JavaScript snippets actually print. Catch the language quirks that turn into production bugs.',
-      concepts: [
-        { label: 'Python' },
-        { label: 'JavaScript' },
-        { label: 'Language Quirks' },
-      ],
+      description: 'Predict what tricky Python and JavaScript snippets print, then learn the language behavior behind the surprise.',
+      concepts: [{ label: 'Python' }, { label: 'JavaScript' }, { label: 'Runtime' }],
       difficulty: 'Medium',
       time: '~5 min',
-      color: '#3b82f6',
       href: '/games/guess-output',
     },
     {
       slug: 'typing-test',
       name: 'Code Typing Speed',
       shortName: 'Code Typing Speed',
-      icon: '⚡',
       category: 'foundations',
       status: 'available',
-      description: 'Test your typing speed on real open-source code snippets. Sometimes the fastest fix is the one you can type first.',
-      concepts: [
-        { label: 'Typing' },
-        { label: 'Speed' },
-      ],
+      description: 'Practice typing real code snippets with a clean speed test built for developers.',
+      concepts: [{ label: 'Typing' }, { label: 'Speed' }],
       difficulty: 'Easy',
       time: '~2 min',
-      color: '#06b6d4',
       href: '/games/typing-test',
     },
     {
       slug: 'salary-calculator',
       name: 'Tech Salary Calculator',
       shortName: 'Salary Calculator',
-      icon: '💰',
       category: 'foundations',
       status: 'available',
-      description: 'Estimate compensation for cloud-native security, platform, and backend roles by experience and location. Aggregated from public industry data.',
-      concepts: [
-        { label: 'Compensation' },
-        { label: 'Career' },
-      ],
+      description: 'Estimate compensation for backend, platform, cloud-native security, and AI infrastructure roles by level and location.',
+      concepts: [{ label: 'Career' }, { label: 'Compensation' }],
       difficulty: 'Easy',
       time: '~1 min',
-      color: '#22c55e',
       href: '/games/salary-calculator',
     },
   ];
 
+  get availableLabs(): Simulator[] {
+    return [...this.securitySimulators, ...this.foundationsGames].filter(game => game.status === 'available');
+  }
+
+  get securityCards(): Md3ResourceCard[] {
+    return this.securitySimulators.map(game => this.labCard(game, 'Practice the scenario', true));
+  }
+
+  get foundationCards(): Md3ResourceCard[] {
+    return this.foundationsGames.map(game => this.labCard(game, 'Open drill', false));
+  }
+
+  linkPanel: Md3LinkPanel = {
+    eyebrow: 'How to use the labs',
+    title: 'Learn, decide, then keep the checklist close',
+    body: 'The labs are designed to pair with the free courses and reference sheets. Read the concept, practice the failure mode, then keep the command sheet nearby when you ship.',
+    links: [
+      { label: 'Cloud native security course', href: '/courses/cloud-native-security-engineering' },
+      { label: 'Kubernetes security sheet', href: '/cheatsheets/kubernetes-security' },
+      { label: 'Glossary terms', href: '/glossary' },
+    ],
+  };
+
+  private labCard(game: Simulator, actionLabel: string, selectedBadge: boolean): Md3ResourceCard {
+    return {
+      title: game.name,
+      description: game.description,
+      href: game.href,
+      icon: this.labIcon(game.slug),
+      badge: selectedBadge ? game.difficulty : game.time,
+      selectedBadge,
+      kicker: `${selectedBadge ? game.time : game.difficulty} | ${this.scenarioType(game.slug)}`,
+      chips: game.concepts.slice(0, selectedBadge ? 4 : undefined).map(concept => concept.label),
+      actionLabel,
+      ariaLabel: `Open ${game.name}`,
+    };
+  }
+
+  labIcon(slug: string): string {
+    const labels: Record<string, string> = {
+      'kubernetes-security-simulator': 'K8S',
+      'zero-trust-network-builder': 'ID',
+      'api-attack-defense': 'API',
+      'incident-response-simulator': 'IR',
+      'supply-chain-defense': 'SLSA',
+      'service-mesh-routing': 'MESH',
+      'threat-modeling-challenge': 'TM',
+      'secure-architecture-builder': 'ARCH',
+      'kubernetes-escape-room': 'ESC',
+      'ai-infrastructure-security': 'AI',
+      'devops-scenario': 'OPS',
+      'linux-challenge': 'LIN',
+      'spot-the-bug': 'BUG',
+      'guess-output': 'OUT',
+      'typing-test': 'TYPE',
+      'salary-calculator': 'PAY',
+    };
+    return labels[slug] ?? 'LAB';
+  }
+
+  scenarioType(slug: string): string {
+    if (slug.includes('simulator')) return 'Incident-style lab';
+    if (slug.includes('builder')) return 'Design exercise';
+    if (slug.includes('challenge')) return 'Decision drill';
+    return 'Interactive drill';
+  }
+
   constructor() {
     this.seo.update({
-      title: 'Cloud Native Security Simulators',
-      description: 'Interactive Kubernetes security labs, Zero Trust simulations, threat-modeling challenges, and infrastructure-engineering drills. Learn cloud-native security by playing — free and ad-free.',
+      title: 'Games | Interactive Engineering Labs',
+      description: 'Interactive Kubernetes security labs, Zero Trust simulations, threat-modeling challenges, API security games, and infrastructure engineering drills. Free and ad-free.',
       url: '/games',
       breadcrumbs: [
         { name: 'Home', url: '/' },
-        { name: 'Security Simulators', url: '/games' },
+        { name: 'Interactive Engineering Labs', url: '/games' },
       ],
     });
   }

@@ -1,27 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { SeoService } from '../../../services/seo.service';
 import { CheatsheetPageComponent, CheatsheetHeader, CommandGroup, MisconfigPair, RelatedLink } from '../_shared/cheatsheet-page';
 
 @Component({
   selector: 'app-cheatsheet-opa-rego',
-  imports: [RouterLink, CheatsheetPageComponent],
+  imports: [CheatsheetPageComponent],
   template: `
-    <section class="py-12 md:py-16 animate-in fade-in duration-500">
-      <div class="container max-w-5xl mx-auto px-6">
-        <nav aria-label="Breadcrumb" class="mb-6">
-          <ol class="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <li><a routerLink="/" class="hover:text-foreground transition-colors">Home</a></li>
-            <li class="text-muted-foreground/50">/</li>
-            <li><a routerLink="/cheatsheets" class="hover:text-foreground transition-colors">Reference</a></li>
-            <li class="text-muted-foreground/50">/</li>
-            <li class="text-foreground font-medium" aria-current="page">OPA & Rego</li>
-          </ol>
-        </nav>
-
-        <app-cheatsheet-page [header]="header" [groups]="groups" [misconfigPairs]="misconfigs" [relatedLinks]="related" />
-      </div>
-    </section>
+    <app-cheatsheet-page [header]="header" [groups]="groups" [misconfigPairs]="misconfigs" [relatedLinks]="related" />
   `,
 })
 export class OpaRegoCheatsheetComponent {
@@ -29,9 +14,9 @@ export class OpaRegoCheatsheetComponent {
 
   header: CheatsheetHeader = {
     icon: '⚖️',
-    iconColor: '#a855f7',
+    iconColor: 'var(--md-sys-color-primary)',
     badge: 'Production Reference',
-    badgeClass: 'bg-purple-500/10 border-purple-500/30 text-purple-500',
+    badgeClass: 'md3-chip-selected',
     title: 'OPA & Rego Cheatsheet',
     intro: 'Operational reference for Open Policy Agent (OPA) and the Rego policy language. Rego syntax, Kubernetes admission patterns with Gatekeeper, OPA bundle workflow, and the testing flow that catches policy regressions before they reach production.',
   };

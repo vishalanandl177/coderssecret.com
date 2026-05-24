@@ -60,7 +60,15 @@ import { SeoService } from '../../services/seo.service';
       </nav>
 
       <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Cloud Native Security Glossary</h1>
-      <p class="text-lg text-muted-foreground mb-10">Quick-reference definitions for cloud-native security, workload identity, Kubernetes security, and Zero Trust terms.</p>
+      <p class="text-lg text-muted-foreground mb-6">Quick-reference definitions for cloud-native security, workload identity, Kubernetes security, and Zero Trust terms.</p>
+
+      <div class="mb-10 flex flex-wrap gap-2" aria-label="Glossary topic areas">
+        <span class="md3-chip-selected">Workload identity</span>
+        <span class="md3-chip">Zero Trust</span>
+        <span class="md3-chip">Kubernetes</span>
+        <span class="md3-chip">Service mesh</span>
+        <span class="md3-chip">Supply chain</span>
+      </div>
 
       <div class="grid md:grid-cols-2 gap-4">
         @for (item of allEntries; track item.slug) {

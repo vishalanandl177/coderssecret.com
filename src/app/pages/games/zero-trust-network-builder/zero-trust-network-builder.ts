@@ -1,216 +1,17 @@
-import { Component, inject, signal, computed } from '@angular/core';
-import { NgClass } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Component, inject } from '@angular/core';
 import { SeoService } from '../../../services/seo.service';
-
-interface Choice {
-  label: string;
-  correct: boolean;
-  feedback: string;
-}
-
-interface Scenario {
-  id: string;
-  topic: 'SPIFFE ID' | 'Attestation' | 'mTLS' | 'Authorization' | 'Federation' | 'Rotation';
-  title: string;
-  briefing: string;
-  yaml: string;
-  question: string;
-  choices: Choice[];
-  explanation: string;
-  learnMore: { label: string; href: string };
-}
+import { ScenarioQuizComponent, Scenario, QuizTheme, QuizIntro, QuizResults, QuizCallToActions } from '../_shared/scenario-quiz';
 
 @Component({
   selector: 'app-zero-trust-network-builder',
-  imports: [RouterLink, NgClass],
+  imports: [ScenarioQuizComponent],
   template: `
-    <section class="py-12 md:py-16 animate-in fade-in duration-500">
-      <div class="container max-w-4xl mx-auto px-6">
-        <nav aria-label="Breadcrumb" class="mb-6">
-          <ol class="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <li><a routerLink="/" class="hover:text-foreground transition-colors">Home</a></li>
-            <li class="text-muted-foreground/50">/</li>
-            <li><a routerLink="/games" class="hover:text-foreground transition-colors">Security Simulators</a></li>
-            <li class="text-muted-foreground/50">/</li>
-            <li class="text-foreground font-medium" aria-current="page">Zero Trust Network Builder</li>
-          </ol>
-        </nav>
-
-        <header class="text-center mb-10">
-          <span class="inline-block rounded-full bg-cyan-500/10 border border-cyan-500/30 px-4 py-1 text-xs font-bold text-cyan-500 uppercase tracking-wider mb-4">Workload Identity Lab</span>
-          <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-[1.1] mb-4">
-            Zero Trust <span class="bg-gradient-to-r from-cyan-500 via-blue-500 to-violet-500 bg-clip-text text-transparent">Network Builder</span>
-          </h1>
-          <p class="text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-            Design secure service-to-service communication with SPIFFE workload identity, mTLS, and trust federation. Each scenario drops you into a real architectural decision — the kind your team has to make before any pod issues its first SVID.
-          </p>
-        </header>
-
-        @if (!gameStarted()) {
-          <div class="rounded-2xl border border-border/60 bg-card p-6 md:p-10 mb-6">
-            <h2 class="text-xl md:text-2xl font-bold mb-4">How the Simulator Works</h2>
-            <ul class="space-y-3 text-sm md:text-base text-muted-foreground mb-6">
-              <li class="flex items-start gap-3">
-                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-cyan-500/15 text-cyan-500 font-bold text-xs flex-shrink-0 mt-0.5">1</span>
-                <span>Each scenario shows a real SPIFFE/SPIRE configuration, mTLS handshake flow, or federation setup with a hidden design or security flaw.</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-cyan-500/15 text-cyan-500 font-bold text-xs flex-shrink-0 mt-0.5">2</span>
-                <span>Identify the issue from four plausible options — the wrong answers explain why they look tempting but aren't the issue.</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-cyan-500/15 text-cyan-500 font-bold text-xs flex-shrink-0 mt-0.5">3</span>
-                <span>Read the production explanation, follow the link to the relevant SPIFFE/SPIRE module, and move to the next scenario.</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-cyan-500/15 text-cyan-500 font-bold text-xs flex-shrink-0 mt-0.5">4</span>
-                <span>Score yourself across all six rounds — covering SPIFFE ID design, workload attestation, mTLS bootstrap, authorization, federation, and SVID rotation.</span>
-              </li>
-            </ul>
-
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-              <div class="rounded-lg bg-accent/40 p-3 text-center">
-                <div class="text-2xl font-extrabold">{{ scenarios.length }}</div>
-                <div class="text-[10px] text-muted-foreground uppercase tracking-wider">Scenarios</div>
-              </div>
-              <div class="rounded-lg bg-accent/40 p-3 text-center">
-                <div class="text-2xl font-extrabold">~12</div>
-                <div class="text-[10px] text-muted-foreground uppercase tracking-wider">Minutes</div>
-              </div>
-              <div class="rounded-lg bg-accent/40 p-3 text-center col-span-2 md:col-span-1">
-                <div class="text-2xl font-extrabold">Hard</div>
-                <div class="text-[10px] text-muted-foreground uppercase tracking-wider">Difficulty</div>
-              </div>
-            </div>
-
-            <button (click)="startGame()" class="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-cyan-500 hover:bg-cyan-400 text-white font-bold px-7 py-3.5 text-sm shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:-translate-y-0.5 transition-all">
-              Start Simulation
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-            </button>
-          </div>
-
-          <div class="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-6 md:p-8">
-            <h2 class="text-lg md:text-xl font-bold mb-3">What You'll Practice</h2>
-            <p class="text-sm text-muted-foreground leading-relaxed mb-5">
-              The simulator covers the design decisions that determine whether a Zero Trust deployment actually achieves Zero Trust. Each scenario maps to a real production pattern (or anti-pattern) seen in SPIFFE/SPIRE rollouts at scale.
-            </p>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-              <div class="rounded-lg border border-border/40 bg-card p-3"><strong class="text-foreground">SPIFFE ID Design</strong><p class="text-muted-foreground mt-0.5">Trust domains &amp; namespacing</p></div>
-              <div class="rounded-lg border border-border/40 bg-card p-3"><strong class="text-foreground">Attestation</strong><p class="text-muted-foreground mt-0.5">Selectors that bind identity to workload</p></div>
-              <div class="rounded-lg border border-border/40 bg-card p-3"><strong class="text-foreground">mTLS Bootstrap</strong><p class="text-muted-foreground mt-0.5">First connection without shared secrets</p></div>
-              <div class="rounded-lg border border-border/40 bg-card p-3"><strong class="text-foreground">Authorization</strong><p class="text-muted-foreground mt-0.5">SPIFFE-based access policy</p></div>
-              <div class="rounded-lg border border-border/40 bg-card p-3"><strong class="text-foreground">Federation</strong><p class="text-muted-foreground mt-0.5">Cross-cluster trust bundles</p></div>
-              <div class="rounded-lg border border-border/40 bg-card p-3"><strong class="text-foreground">Rotation</strong><p class="text-muted-foreground mt-0.5">Short-lived SVIDs in production</p></div>
-            </div>
-            <p class="mt-5 text-xs text-muted-foreground">
-              Want to go deeper after the simulation? Take the free
-              <a routerLink="/courses/mastering-spiffe-spire" class="text-primary underline">Mastering SPIFFE &amp; SPIRE</a> course or read the
-              <a routerLink="/courses/zero-trust-kubernetes" class="text-primary underline">Zero Trust for Kubernetes</a> guide.
-            </p>
-          </div>
-        }
-
-        @if (gameStarted() && !gameEnded()) {
-          <div class="rounded-2xl border border-border/60 bg-card p-6 md:p-8 mb-6">
-            <div class="flex items-center justify-between text-sm mb-4">
-              <span class="text-muted-foreground">Scenario {{ currentIndex() + 1 }} of {{ scenarios.length }}</span>
-              <span>Score: <strong class="text-foreground">{{ score() }} / {{ currentIndex() + (answered() ? 1 : 0) }}</strong></span>
-            </div>
-            <div class="h-2 bg-muted rounded-full overflow-hidden mb-6">
-              <div class="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-violet-500 transition-all duration-500"
-                   [style.width.%]="((currentIndex() + (answered() ? 1 : 0)) / scenarios.length) * 100"></div>
-            </div>
-
-            <div class="flex flex-wrap items-center gap-2 mb-4">
-              <span class="inline-flex items-center rounded-full bg-cyan-500/15 text-cyan-500 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-                {{ currentScenario().topic }}
-              </span>
-              <h2 class="text-lg md:text-xl font-bold tracking-tight">{{ currentScenario().title }}</h2>
-            </div>
-            <p class="text-sm text-muted-foreground mb-4 leading-relaxed">{{ currentScenario().briefing }}</p>
-
-            <pre class="bg-muted rounded-lg p-4 overflow-x-auto text-xs md:text-sm font-mono mb-6 leading-relaxed"><code>{{ currentScenario().yaml }}</code></pre>
-
-            <p class="font-semibold mb-3">{{ currentScenario().question }}</p>
-
-            <div class="space-y-2">
-              @for (choice of currentScenario().choices; track $index; let i = $index) {
-                <button
-                  (click)="select(i)"
-                  [disabled]="answered()"
-                  class="w-full text-left rounded-xl border-2 p-4 text-sm md:text-base transition-all duration-200"
-                  [ngClass]="getChoiceClasses(i, choice.correct)">
-                  <div class="flex items-start gap-3">
-                    <span class="inline-flex items-center justify-center h-7 w-7 rounded-full text-xs font-bold flex-shrink-0 mt-0.5"
-                          [ngClass]="getBadgeClasses(i, choice.correct)">
-                      {{ ['A','B','C','D'][i] }}
-                    </span>
-                    <div class="flex-1">
-                      <div class="font-medium">{{ choice.label }}</div>
-                      @if (answered() && (choice.correct || selectedIndex() === i)) {
-                        <p class="mt-2 text-xs text-muted-foreground leading-relaxed">{{ choice.feedback }}</p>
-                      }
-                    </div>
-                  </div>
-                </button>
-              }
-            </div>
-
-            @if (answered()) {
-              <div class="mt-6 rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-5">
-                <h3 class="text-sm font-bold mb-2 text-cyan-500 uppercase tracking-wider">What actually happens in production</h3>
-                <p class="text-sm text-foreground/90 leading-relaxed mb-3">{{ currentScenario().explanation }}</p>
-                <a [routerLink]="currentScenario().learnMore.href" class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:gap-2.5 transition-all">
-                  {{ currentScenario().learnMore.label }}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                </a>
-              </div>
-
-              <button (click)="next()" class="mt-5 w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-foreground text-background font-bold px-6 py-3 text-sm hover:gap-3 transition-all">
-                {{ currentIndex() + 1 < scenarios.length ? 'Next scenario' : 'See your results' }}
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-              </button>
-            }
-          </div>
-        }
-
-        @if (gameEnded()) {
-          <div class="rounded-2xl border border-border/60 bg-gradient-to-br from-cyan-500/10 via-card to-blue-500/10 p-8 md:p-12 text-center">
-            <div class="text-6xl mb-4" aria-hidden="true">{{ resultEmoji() }}</div>
-            <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-3">{{ resultHeadline() }}</h2>
-            <p class="text-lg text-muted-foreground mb-2">You scored</p>
-            <div class="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-500 via-blue-500 to-violet-500 bg-clip-text text-transparent mb-3">
-              {{ score() }} / {{ scenarios.length }}
-            </div>
-            <p class="text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed mb-8">
-              {{ resultMessage() }}
-            </p>
-            <div class="flex flex-wrap justify-center gap-3">
-              <button (click)="restart()" class="inline-flex items-center gap-2 rounded-full bg-cyan-500 hover:bg-cyan-400 text-white font-bold px-6 py-3 text-sm shadow-lg shadow-cyan-500/30 hover:-translate-y-0.5 transition-all">
-                Play again
-              </button>
-              <a routerLink="/courses/mastering-spiffe-spire" class="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-6 py-3 text-sm font-semibold text-foreground hover:bg-accent transition-all">
-                Take the SPIFFE/SPIRE course
-              </a>
-              <a routerLink="/games" class="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-6 py-3 text-sm font-semibold text-foreground hover:bg-accent transition-all">
-                Try another simulator
-              </a>
-            </div>
-          </div>
-        }
-      </div>
-    </section>
+    <app-scenario-quiz [scenarios]="scenarios" [theme]="theme" [intro]="intro" [results]="results" [callToActions]="callToActions" />
   `,
 })
 export class ZeroTrustNetworkBuilderComponent {
   private seo = inject(SeoService);
 
-  gameStarted = signal(false);
-  currentIndex = signal(0);
-  selectedIndex = signal<number | null>(null);
-  answered = signal(false);
-  score = signal(0);
 
   scenarios: Scenario[] = [
     {
@@ -461,92 +262,59 @@ func main() {
     },
   ];
 
-  currentScenario = computed<Scenario>(() => this.scenarios[this.currentIndex()]);
-  gameEnded = computed<boolean>(() => this.gameStarted() && this.currentIndex() >= this.scenarios.length);
+  theme: QuizTheme = {
+    badgePill: 'bg-cyan-500/10 border-cyan-500/30 text-cyan-500',
+    accentText: 'text-cyan-500',
+    titleGradient: 'from-cyan-500 via-blue-500 to-violet-500',
+    numberCircle: 'bg-cyan-500/15 text-cyan-500',
+    startButton: 'bg-cyan-500 hover:bg-cyan-400 shadow-cyan-500/30',
+    topicPill: 'bg-cyan-500/15 text-cyan-500',
+    callout: 'border-cyan-500/30 bg-cyan-500/5',
+    calloutTitle: 'text-cyan-500',
+    resultsBg: 'from-cyan-500/10 via-card to-violet-500/10',
+  };
 
-  resultEmoji = computed<string>(() => {
-    const pct = this.score() / this.scenarios.length;
-    if (pct === 1) return '\u{1F947}';
-    if (pct >= 0.8) return '\u{1F510}';
-    if (pct >= 0.5) return '\u{1F4DA}';
-    return '\u{1F50D}';
-  });
+  intro: QuizIntro = {
+    badge: 'Workload Identity Lab',
+    titlePlain: 'Zero Trust Network',
+    titleGradient: 'Builder',
+    description: 'Design secure service-to-service communication with SPIFFE workload identity, mTLS, and trust federation. Each scenario drops you into a real architectural decision before any workload issues its first SVID.',
+    steps: [
+      'Each scenario shows a real SPIFFE/SPIRE configuration, mTLS handshake flow, or federation setup with a hidden design or security flaw.',
+      'Identify the issue from four plausible options; the wrong answers explain why they look tempting but are not the root cause.',
+      'Read the production explanation, follow the linked SPIFFE/SPIRE module, and move to the next scenario.',
+      'Score yourself across six rounds covering SPIFFE ID design, workload attestation, mTLS bootstrap, authorization, federation, and SVID rotation.',
+    ],
+    practiceTitle: `What You'll Practice`,
+    practiceDescription: 'The simulator covers the design decisions that determine whether a Zero Trust deployment actually achieves Zero Trust. Each scenario maps to a real production pattern or anti-pattern seen in SPIFFE/SPIRE rollouts at scale.',
+    practiceConcepts: [
+      { name: 'SPIFFE ID Design', description: 'Trust domains, workload names, and stable identity paths' },
+      { name: 'Attestation', description: 'Selectors that bind identity to a real workload' },
+      { name: 'mTLS Bootstrap', description: 'First connection without shared secrets' },
+      { name: 'Authorization', description: 'SPIFFE-based access policy and least privilege' },
+      { name: 'Federation', description: 'Cross-cluster trust bundles and boundaries' },
+      { name: 'Rotation', description: 'Short-lived SVIDs and live certificate refresh' },
+    ],
+    deeperLine: 'Want to go deeper after the simulation? Open the ',
+    deeperLinks: [
+      { label: 'Mastering SPIFFE & SPIRE course', href: '/courses/mastering-spiffe-spire' },
+      { label: 'SPIFFE & SPIRE cheatsheet', href: '/cheatsheets/spiffe-spire' },
+    ],
+    timeMinutes: 12,
+    difficulty: 'Hard',
+  };
 
-  resultHeadline = computed<string>(() => {
-    const pct = this.score() / this.scenarios.length;
-    if (pct === 1) return 'Trust domain hardened. Flawless run.';
-    if (pct >= 0.8) return 'You design Zero Trust like an operator.';
-    if (pct >= 0.5) return 'Solid foundation — refine the rough edges.';
-    return 'Time to dig into the SPIFFE/SPIRE fundamentals.';
-  });
+  results: QuizResults = {
+    perfect: { headline: 'Trust domain hardened. Flawless run.', emoji: '1', message: 'You spotted every Zero Trust design flaw in this run. The Mastering SPIFFE & SPIRE course goes deeper into multi-cluster architecture, registration-entry patterns, and AI-infrastructure identity.' },
+    great: { headline: 'You design Zero Trust like an operator.', emoji: '2', message: 'You read SPIRE configurations like a platform engineer. Brush up on the few you missed in the relevant modules, then deploy a federated trust domain in the labs.' },
+    good: { headline: 'Solid foundation. Refine the rough edges.', emoji: '3', message: 'You know the vocabulary. The structured curriculum walks through each scenario with labs that deploy SPIRE on a real cluster.' },
+    weak: { headline: 'Time to dig into SPIFFE/SPIRE fundamentals.', emoji: '4', message: 'Most of these scenarios are covered in the first modules of the Mastering SPIFFE & SPIRE course. Start there, then reproduce the misconfigurations in the labs.' },
+  };
 
-  resultMessage = computed<string>(() => {
-    const pct = this.score() / this.scenarios.length;
-    if (pct === 1) {
-      return 'You spotted every Zero Trust design flaw in this run. The free Mastering SPIFFE & SPIRE course goes deeper into multi-cluster architecture, registration entry patterns at scale, and AI-infrastructure identity.';
-    }
-    if (pct >= 0.8) {
-      return 'You read SPIRE configurations like a platform engineer. Brush up on the few you missed in the relevant modules, then deploy a federated trust domain in the labs.';
-    }
-    if (pct >= 0.5) {
-      return 'You know the vocabulary. The structured curriculum walks through each of these scenarios with the labs to actually deploy SPIRE on a real cluster.';
-    }
-    return 'Most of these scenarios are covered in the first five modules of the Mastering SPIFFE & SPIRE course. Start there — the labs let you reproduce every misconfiguration on a real cluster.';
-  });
-
-  startGame() {
-    this.gameStarted.set(true);
-    this.currentIndex.set(0);
-    this.score.set(0);
-    this.answered.set(false);
-    this.selectedIndex.set(null);
-  }
-
-  select(i: number) {
-    if (this.answered()) return;
-    this.selectedIndex.set(i);
-    this.answered.set(true);
-    if (this.currentScenario().choices[i].correct) {
-      this.score.update(s => s + 1);
-    }
-  }
-
-  next() {
-    this.answered.set(false);
-    this.selectedIndex.set(null);
-    this.currentIndex.update(i => i + 1);
-  }
-
-  restart() {
-    this.startGame();
-  }
-
-  getChoiceClasses(index: number, isCorrect: boolean): Record<string, boolean> {
-    const isAnswered = this.answered();
-    const isSelected = this.selectedIndex() === index;
-    return {
-      'border-border': !isAnswered || (isAnswered && !isSelected && !isCorrect),
-      'hover:border-primary': !isAnswered,
-      'hover:bg-accent': !isAnswered,
-      'border-green-500': isAnswered && isCorrect,
-      'bg-green-500/10': isAnswered && isCorrect,
-      'border-red-500': isAnswered && isSelected && !isCorrect,
-      'bg-red-500/10': isAnswered && isSelected && !isCorrect,
-      'opacity-60': isAnswered && !isSelected && !isCorrect,
-    };
-  }
-
-  getBadgeClasses(index: number, isCorrect: boolean): Record<string, boolean> {
-    const isAnswered = this.answered();
-    const isSelected = this.selectedIndex() === index;
-    return {
-      'bg-muted': !isAnswered || (isAnswered && !isSelected && !isCorrect),
-      'bg-green-500': isAnswered && isCorrect,
-      'bg-red-500': isAnswered && isSelected && !isCorrect,
-      'text-white': isAnswered && (isCorrect || (isSelected && !isCorrect)),
-    };
-  }
-
+  callToActions: QuizCallToActions = {
+    primary: { label: 'Take the SPIFFE/SPIRE course', href: '/courses/mastering-spiffe-spire' },
+    secondary: { label: 'Open SPIFFE/SPIRE sheet', href: '/cheatsheets/spiffe-spire' },
+  };
   constructor() {
     this.seo.update({
       title: 'Zero Trust Network Builder',

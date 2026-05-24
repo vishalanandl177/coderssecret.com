@@ -1,6 +1,9 @@
 import { Component, Input, signal, computed } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Md3BreadcrumbComponent } from '../../../shared/md3/md3-breadcrumb';
+import { Md3MiniMapComponent } from '../../../shared/md3/md3-mini-map';
+import { Md3BreadcrumbItem } from '../../../shared/md3/md3.types';
 
 export interface Choice {
   label: string;
@@ -26,16 +29,15 @@ export interface PracticeConcept {
 }
 
 export interface QuizTheme {
-  // Tailwind class strings (must be literal so Tailwind can detect them at build time)
-  badgePill: string;          // e.g. 'bg-orange-500/10 border-orange-500/30 text-orange-500'
-  accentText: string;         // e.g. 'text-orange-500'
-  titleGradient: string;      // e.g. 'from-orange-500 via-amber-500 to-yellow-500'
-  numberCircle: string;       // e.g. 'bg-orange-500/15 text-orange-500'
-  startButton: string;        // e.g. 'bg-orange-500 hover:bg-orange-400 shadow-orange-500/30'
-  topicPill: string;          // e.g. 'bg-orange-500/15 text-orange-500'
-  callout: string;            // e.g. 'border-orange-500/30 bg-orange-500/5'
-  calloutTitle: string;       // e.g. 'text-orange-500'
-  resultsBg: string;          // e.g. 'from-orange-500/10 via-card to-amber-500/10'
+  badgePill: string;
+  accentText: string;
+  titleGradient: string;
+  numberCircle: string;
+  startButton: string;
+  topicPill: string;
+  callout: string;
+  calloutTitle: string;
+  resultsBg: string;
 }
 
 export interface QuizIntro {
@@ -67,159 +69,167 @@ export interface QuizCallToActions {
 
 @Component({
   selector: 'app-scenario-quiz',
-  imports: [RouterLink, NgClass],
+  imports: [RouterLink, NgClass, Md3BreadcrumbComponent, Md3MiniMapComponent],
   template: `
-    <header class="text-center mb-10">
-      <span class="inline-block rounded-full border px-4 py-1 text-xs font-bold uppercase tracking-wider mb-4" [ngClass]="theme.badgePill">{{ intro.badge }}</span>
-      <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-[1.1] mb-4">
-        {{ intro.titlePlain }} <span class="bg-gradient-to-r bg-clip-text text-transparent" [ngClass]="theme.titleGradient">{{ intro.titleGradient }}</span>
-      </h1>
-      <p class="text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-        {{ intro.description }}
-      </p>
-    </header>
+    <section class="md3-learning-page py-12 md:py-16">
+      <div class="md3-learning-container">
+        <app-md3-breadcrumb [items]="breadcrumbItems" />
 
-    @if (!gameStarted()) {
-      <div class="rounded-2xl border border-border/60 bg-card p-6 md:p-10 mb-6">
-        <h2 class="text-xl md:text-2xl font-bold mb-4">How the Simulator Works</h2>
-        <ul class="space-y-3 text-sm md:text-base text-muted-foreground mb-6">
-          @for (step of intro.steps; track $index; let i = $index) {
-            <li class="flex items-start gap-3">
-              <span class="inline-flex items-center justify-center h-6 w-6 rounded-full font-bold text-xs flex-shrink-0 mt-0.5" [ngClass]="theme.numberCircle">{{ i + 1 }}</span>
-              <span>{{ step }}</span>
-            </li>
-          }
-        </ul>
-
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-          <div class="rounded-lg bg-accent/40 p-3 text-center">
-            <div class="text-2xl font-extrabold">{{ scenarios.length }}</div>
-            <div class="text-[10px] text-muted-foreground uppercase tracking-wider">Scenarios</div>
-          </div>
-          <div class="rounded-lg bg-accent/40 p-3 text-center">
-            <div class="text-2xl font-extrabold">~{{ intro.timeMinutes }}</div>
-            <div class="text-[10px] text-muted-foreground uppercase tracking-wider">Minutes</div>
-          </div>
-          <div class="rounded-lg bg-accent/40 p-3 text-center col-span-2 md:col-span-1">
-            <div class="text-2xl font-extrabold">{{ intro.difficulty }}</div>
-            <div class="text-[10px] text-muted-foreground uppercase tracking-wider">Difficulty</div>
-          </div>
-        </div>
-
-        <button (click)="startGame()" class="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-full text-white font-bold px-7 py-3.5 text-sm shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all" [ngClass]="theme.startButton">
-          Start Simulation
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </button>
-      </div>
-
-      <div class="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-6 md:p-8">
-        <h2 class="text-lg md:text-xl font-bold mb-3">{{ intro.practiceTitle }}</h2>
-        <p class="text-sm text-muted-foreground leading-relaxed mb-5">{{ intro.practiceDescription }}</p>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-          @for (concept of intro.practiceConcepts; track concept.name) {
-            <div class="rounded-lg border border-border/40 bg-card p-3">
-              <strong class="text-foreground">{{ concept.name }}</strong>
-              <p class="text-muted-foreground mt-0.5">{{ concept.description }}</p>
-            </div>
-          }
-        </div>
-        <p class="mt-5 text-xs text-muted-foreground">
-          {{ intro.deeperLine }}
-          @for (link of intro.deeperLinks; track link.href; let i = $index; let last = $last) {
-            <a [routerLink]="link.href" class="text-primary underline">{{ link.label }}</a>{{ last ? '.' : (i === intro.deeperLinks.length - 2 ? ' or ' : ', ') }}
-          }
-        </p>
-      </div>
-    }
-
-    @if (gameStarted() && !gameEnded()) {
-      <div class="rounded-2xl border border-border/60 bg-card p-6 md:p-8 mb-6">
-        <div class="flex items-center justify-between text-sm mb-4">
-          <span class="text-muted-foreground">Scenario {{ currentIndex() + 1 }} of {{ scenarios.length }}</span>
-          <span>Score: <strong class="text-foreground">{{ score() }} / {{ currentIndex() + (answered() ? 1 : 0) }}</strong></span>
-        </div>
-        <div class="h-2 bg-muted rounded-full overflow-hidden mb-6">
-          <div class="h-full bg-gradient-to-r transition-all duration-500" [ngClass]="theme.titleGradient"
-               [style.width.%]="((currentIndex() + (answered() ? 1 : 0)) / scenarios.length) * 100"></div>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2 mb-4">
-          <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider" [ngClass]="theme.topicPill">
-            {{ currentScenario().topic }}
-          </span>
-          <h2 class="text-lg md:text-xl font-bold tracking-tight">{{ currentScenario().title }}</h2>
-        </div>
-        <p class="text-sm text-muted-foreground mb-4 leading-relaxed">{{ currentScenario().briefing }}</p>
-
-        <pre class="bg-muted rounded-lg p-4 overflow-x-auto text-xs md:text-sm font-mono mb-6 leading-relaxed"><code>{{ currentScenario().yaml }}</code></pre>
-
-        <p class="font-semibold mb-3">{{ currentScenario().question }}</p>
-
-        <div class="space-y-2">
-          @for (choice of currentScenario().choices; track $index; let i = $index) {
-            <button
-              (click)="select(i)"
-              [disabled]="answered()"
-              class="w-full text-left rounded-xl border-2 p-4 text-sm md:text-base transition-all duration-200"
-              [ngClass]="getChoiceClasses(i, choice.correct)">
-              <div class="flex items-start gap-3">
-                <span class="inline-flex items-center justify-center h-7 w-7 rounded-full text-xs font-bold flex-shrink-0 mt-0.5"
-                      [ngClass]="getBadgeClasses(i, choice.correct)">
-                  {{ ['A','B','C','D'][i] }}
-                </span>
-                <div class="flex-1">
-                  <div class="font-medium">{{ choice.label }}</div>
-                  @if (answered() && (choice.correct || selectedIndex() === i)) {
-                    <p class="mt-2 text-xs text-muted-foreground leading-relaxed">{{ choice.feedback }}</p>
-                  }
+        <article class="md3-lab-shell">
+          <header class="md3-learning-hero md3-reference-hero">
+            <div class="md3-learning-hero-grid">
+              <div class="md3-learning-hero-copy">
+                <span class="md3-learning-eyebrow">{{ intro.badge }}</span>
+                <h1>{{ intro.titlePlain }} {{ intro.titleGradient }}</h1>
+                <p class="md3-learning-lede">{{ intro.description }}</p>
+                <div class="md3-learning-chip-row" aria-label="Lab metadata">
+                  <span class="md3-chip-selected">{{ scenarios.length }} scenarios</span>
+                  <span class="md3-chip">~{{ intro.timeMinutes }} minutes</span>
+                  <span class="md3-chip">{{ intro.difficulty }}</span>
                 </div>
               </div>
-            </button>
-          }
-        </div>
 
-        @if (answered()) {
-          <div class="mt-6 rounded-xl border p-5" [ngClass]="theme.callout">
-            <h3 class="text-sm font-bold mb-2 uppercase tracking-wider" [ngClass]="theme.calloutTitle">What actually happens in production</h3>
-            <p class="text-sm text-foreground/90 leading-relaxed mb-3">{{ currentScenario().explanation }}</p>
-            <a [routerLink]="currentScenario().learnMore.href" class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:gap-2.5 transition-all">
-              {{ currentScenario().learnMore.label }}
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-            </a>
+              <aside class="md3-learning-panel" aria-label="Lab flow">
+                <div class="md3-learning-panel-top">
+                  <strong>Practice loop</strong>
+                  <span>{{ gameStarted() ? currentIndex() + 1 : 0 }} / {{ scenarios.length }}</span>
+                </div>
+                <div class="md3-learning-stat-grid">
+                  <div class="md3-learning-stat-tile">
+                    <strong>{{ scenarios.length }}</strong>
+                    <span>Scenarios</span>
+                  </div>
+                  <div class="md3-learning-stat-tile">
+                    <strong>{{ score() }}</strong>
+                    <span>Current score</span>
+                  </div>
+                </div>
+                <app-md3-mini-map [labels]="mapLabels" />
+              </aside>
+            </div>
+          </header>
+
+      @if (!gameStarted()) {
+        <section class="md3-learning-grid-2" aria-labelledby="lab-start-heading">
+          <div class="md3-learning-card interactive">
+            <div class="md3-learning-card-top">
+              <span class="md3-learning-icon">RUN</span>
+              <span class="md3-chip-selected">{{ intro.difficulty }}</span>
+            </div>
+            <h2 id="lab-start-heading">How the simulator works</h2>
+            <ul class="md3-learning-bullet-list">
+              @for (step of intro.steps; track $index) {
+                <li>{{ step }}</li>
+              }
+            </ul>
+            <button (click)="startGame()" class="md3-button-filled md3-button-large">
+              Start simulation
+            </button>
           </div>
 
-          <button (click)="next()" class="mt-5 w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-foreground text-background font-bold px-6 py-3 text-sm hover:gap-3 transition-all">
-            {{ currentIndex() + 1 < scenarios.length ? 'Next scenario' : 'See your results' }}
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-          </button>
-        }
-      </div>
-    }
+          <aside class="md3-learning-card" aria-labelledby="practice-heading">
+            <div class="md3-learning-card-top">
+              <span class="md3-learning-icon">SKILL</span>
+              <span class="md3-chip">Practice</span>
+            </div>
+            <h2 id="practice-heading">{{ intro.practiceTitle }}</h2>
+            <p>{{ intro.practiceDescription }}</p>
+            <div class="md3-learning-grid-2">
+              @for (concept of intro.practiceConcepts; track concept.name) {
+                <div class="md3-learning-callout">
+                  <strong>{{ concept.name }}</strong>
+                  <p>{{ concept.description }}</p>
+                </div>
+              }
+            </div>
+            <p>
+              {{ intro.deeperLine }}
+              @for (link of intro.deeperLinks; track link.href; let i = $index; let last = $last) {
+                <a [routerLink]="link.href" class="md3-course-inline-link">{{ link.label }}</a>{{ last ? '.' : (i === intro.deeperLinks.length - 2 ? ' or ' : ', ') }}
+              }
+            </p>
+          </aside>
+        </section>
+      }
 
-    @if (gameEnded()) {
-      <div class="rounded-2xl border border-border/60 bg-gradient-to-br p-8 md:p-12 text-center" [ngClass]="theme.resultsBg">
-        <div class="text-6xl mb-4" aria-hidden="true">{{ resultBucket().emoji }}</div>
-        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-3">{{ resultBucket().headline }}</h2>
-        <p class="text-lg text-muted-foreground mb-2">You scored</p>
-        <div class="text-5xl md:text-6xl font-extrabold bg-gradient-to-r bg-clip-text text-transparent mb-3" [ngClass]="theme.titleGradient">
-          {{ score() }} / {{ scenarios.length }}
-        </div>
-        <p class="text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed mb-8">
-          {{ resultBucket().message }}
-        </p>
-        <div class="flex flex-wrap justify-center gap-3">
-          <button (click)="restart()" class="inline-flex items-center gap-2 rounded-full text-white font-bold px-6 py-3 text-sm shadow-lg hover:-translate-y-0.5 transition-all" [ngClass]="theme.startButton">
-            Play again
-          </button>
-          <a [routerLink]="callToActions.primary.href" class="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-6 py-3 text-sm font-semibold text-foreground hover:bg-accent transition-all">
-            {{ callToActions.primary.label }}
-          </a>
-          <a routerLink="/games" class="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-6 py-3 text-sm font-semibold text-foreground hover:bg-accent transition-all">
-            Try another simulator
-          </a>
-        </div>
+      @if (gameStarted() && !gameEnded()) {
+        <section class="md3-learning-card interactive" aria-labelledby="scenario-heading">
+          <div class="md3-learning-card-top">
+            <span class="md3-chip-selected">Scenario {{ currentIndex() + 1 }} of {{ scenarios.length }}</span>
+            <span class="md3-chip">Score {{ score() }} / {{ currentIndex() + (answered() ? 1 : 0) }}</span>
+          </div>
+
+          <div class="md3-lab-progress" aria-hidden="true">
+            <span [style.width.%]="((currentIndex() + (answered() ? 1 : 0)) / scenarios.length) * 100"></span>
+          </div>
+
+          <div class="md3-learning-card-top">
+            <span class="md3-learning-icon">{{ currentScenario().topic.slice(0, 4).toUpperCase() }}</span>
+            <div>
+              <p class="md3-course-card-kicker">{{ currentScenario().topic }}</p>
+              <h2 id="scenario-heading">{{ currentScenario().title }}</h2>
+            </div>
+          </div>
+
+          <p>{{ currentScenario().briefing }}</p>
+          <pre class="md3-learning-code"><code>{{ currentScenario().yaml }}</code></pre>
+
+          <div>
+            <h3 class="mb-3 text-lg font-bold">{{ currentScenario().question }}</h3>
+            <div class="space-y-3">
+              @for (choice of currentScenario().choices; track $index; let i = $index) {
+                <button
+                  (click)="select(i)"
+                  [disabled]="answered()"
+                  class="md3-lab-choice"
+                  [ngClass]="getChoiceClasses(i, choice.correct)">
+                  <span class="flex items-start gap-3">
+                    <span class="md3-learning-number">{{ ['A','B','C','D'][i] }}</span>
+                    <span>
+                      <span class="block font-semibold">{{ choice.label }}</span>
+                      @if (answered() && (choice.correct || selectedIndex() === i)) {
+                        <span class="mt-2 block text-sm leading-relaxed text-muted-foreground">{{ choice.feedback }}</span>
+                      }
+                    </span>
+                  </span>
+                </button>
+              }
+            </div>
+          </div>
+
+          @if (answered()) {
+            <aside class="md3-learning-callout tertiary">
+              <h3>What happens in production</h3>
+              <p>{{ currentScenario().explanation }}</p>
+              <a [routerLink]="currentScenario().learnMore.href" class="md3-course-inline-link">{{ currentScenario().learnMore.label }}</a>
+            </aside>
+
+            <button (click)="next()" class="md3-button-tonal md3-button-large">
+              {{ currentIndex() + 1 < scenarios.length ? 'Next scenario' : 'See your results' }}
+            </button>
+          }
+        </section>
+      }
+
+      @if (gameEnded()) {
+        <section class="md3-learning-panel text-center" aria-labelledby="results-heading">
+          <div class="md3-learning-avatar mx-auto" aria-hidden="true">{{ score() }}</div>
+          <span class="md3-learning-eyebrow">Final score</span>
+          <h2 id="results-heading" class="mt-3">{{ resultBucket().headline }}</h2>
+          <p class="mx-auto max-w-2xl">{{ resultBucket().message }}</p>
+          <div class="md3-learning-actions justify-center">
+            <button (click)="restart()" class="md3-button-filled md3-button-large">Play again</button>
+            <a [routerLink]="callToActions.primary.href" class="md3-button-tonal md3-button-large">{{ callToActions.primary.label }}</a>
+            @if (callToActions.secondary) {
+              <a [routerLink]="callToActions.secondary.href" class="md3-button-outlined md3-button-large">{{ callToActions.secondary.label }}</a>
+            }
+            <a routerLink="/games" class="md3-button-outlined md3-button-large">Try another lab</a>
+          </div>
+        </section>
+      }
+        </article>
       </div>
-    }
+    </section>
   `,
 })
 export class ScenarioQuizComponent {
@@ -228,6 +238,11 @@ export class ScenarioQuizComponent {
   @Input({ required: true }) intro!: QuizIntro;
   @Input({ required: true }) results!: QuizResults;
   @Input({ required: true }) callToActions!: QuizCallToActions;
+  @Input() breadcrumbs: Md3BreadcrumbItem[] = [
+    { label: 'Home', href: '/' },
+    { label: 'Interactive labs', href: '/games' },
+  ];
+  readonly mapLabels = ['READ', 'PICK', 'FIX', 'REVIEW'];
 
   gameStarted = signal(false);
   currentIndex = signal(0);
@@ -237,6 +252,11 @@ export class ScenarioQuizComponent {
 
   currentScenario = computed<Scenario>(() => this.scenarios[this.currentIndex()]);
   gameEnded = computed<boolean>(() => this.gameStarted() && this.currentIndex() >= this.scenarios.length);
+
+  get breadcrumbItems(): Md3BreadcrumbItem[] {
+    if (this.breadcrumbs.length > 2) return this.breadcrumbs;
+    return [...this.breadcrumbs, { label: `${this.intro.titlePlain} ${this.intro.titleGradient}`.trim() }];
+  }
 
   resultBucket = computed(() => {
     const pct = this.score() / this.scenarios.length;
@@ -277,25 +297,9 @@ export class ScenarioQuizComponent {
     const isAnswered = this.answered();
     const isSelected = this.selectedIndex() === index;
     return {
-      'border-border': !isAnswered || (isAnswered && !isSelected && !isCorrect),
-      'hover:border-primary': !isAnswered,
-      'hover:bg-accent': !isAnswered,
-      'border-green-500': isAnswered && isCorrect,
-      'bg-green-500/10': isAnswered && isCorrect,
-      'border-red-500': isAnswered && isSelected && !isCorrect,
-      'bg-red-500/10': isAnswered && isSelected && !isCorrect,
+      correct: isAnswered && isCorrect,
+      incorrect: isAnswered && isSelected && !isCorrect,
       'opacity-60': isAnswered && !isSelected && !isCorrect,
-    };
-  }
-
-  getBadgeClasses(index: number, isCorrect: boolean): Record<string, boolean> {
-    const isAnswered = this.answered();
-    const isSelected = this.selectedIndex() === index;
-    return {
-      'bg-muted': !isAnswered || (isAnswered && !isSelected && !isCorrect),
-      'bg-green-500': isAnswered && isCorrect,
-      'bg-red-500': isAnswered && isSelected && !isCorrect,
-      'text-white': isAnswered && (isCorrect || (isSelected && !isCorrect)),
     };
   }
 }

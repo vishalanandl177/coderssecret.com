@@ -43,7 +43,7 @@ interface Snippet {
             </div>
           </div>
 
-          <div class="bg-muted rounded-lg p-4 md:p-6 font-mono text-sm leading-relaxed mb-4 min-h-[200px] whitespace-pre overflow-x-auto"
+          <div class="md3-learning-code mb-4 min-h-[200px]"
                (click)="focusInput()">
             @for (char of typedChars(); track $index) {
               <span [class]="char.class">{{ char.char }}</span>

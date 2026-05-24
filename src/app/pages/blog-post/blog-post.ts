@@ -1,11 +1,12 @@
-import { Component, inject, DestroyRef, AfterViewChecked, OnDestroy, ElementRef, signal, HostListener, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, DestroyRef, AfterViewChecked, OnDestroy, ElementRef, signal, HostListener, ChangeDetectorRef, PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BLOG_POSTS, CATEGORIES, BlogPost } from '../../models/blog-post.model';
 import { SeoService } from '../../services/seo.service';
 import { AnalyticsService } from '../../services/analytics.service';
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { getActiveTocHeadingId } from '../../shared/blog-toc';
+import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
 
 @Component({
   selector: 'app-blog-post',
@@ -13,20 +14,21 @@ import { getActiveTocHeadingId } from '../../shared/blog-toc';
   template: `
     @if (post) {
       <!-- Reading progress bar -->
-      <div class="fixed top-0 left-0 z-[60] h-[3px] bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 transition-all duration-150"
+      <div class="md3-article-progress fixed top-0 left-0 z-[60] h-[3px] transition-all duration-150"
            [style.width.%]="readingProgress()"></div>
 
       <!-- Hero header -->
-      <section class="relative overflow-hidden">
+      <section id="article-start" class="md3-article-hero md3-page-hero relative overflow-hidden">
         <div class="absolute inset-0 -z-10">
           <div class="absolute top-[-30%] left-[20%] h-[400px] w-[400px] rounded-full blur-[120px] animate-blob"
-               [style.background-color]="categoryColor + '12'"></div>
-          <div class="absolute bottom-[-30%] right-[10%] h-[350px] w-[350px] rounded-full bg-purple-500/8 blur-[100px] animate-blob animation-delay-2000"></div>
+               aria-hidden="true"></div>
+          <div class="absolute bottom-[-30%] right-[10%] h-[350px] w-[350px] rounded-full blur-[100px] animate-blob animation-delay-2000"
+               style="background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent)"></div>
         </div>
 
-        <div class="container max-w-4xl mx-auto px-6 pt-12 pb-10 md:pt-16 md:pb-14">
+        <div class="md3-article-hero-inner container max-w-4xl mx-auto px-6 pt-12 pb-10 md:pt-16 md:pb-14">
           <!-- Breadcrumb navigation -->
-          <nav aria-label="Breadcrumb" class="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <nav aria-label="Breadcrumb" class="md3-article-breadcrumb mb-6">
             <ol class="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
               <li><a routerLink="/" class="hover:text-foreground transition-colors">Home</a></li>
               <li class="text-muted-foreground/50">/</li>
@@ -40,25 +42,23 @@ import { getActiveTocHeadingId } from '../../shared/blog-toc';
             </ol>
           </nav>
 
-          <header class="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
+          <header class="md3-article-header">
             <!-- Meta row -->
-            <div class="flex flex-wrap items-center gap-3 mb-6">
+            <div class="md3-article-meta-row flex flex-wrap items-center gap-3 mb-6">
               @if (categoryName) {
                 <a [routerLink]="['/category', post.category]"
-                   class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider transition-all duration-300 hover:shadow-md"
-                   [style.background-color]="categoryColor + '15'"
-                   [style.color]="categoryColor">
+                   class="md3-article-category-pill inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider transition-all duration-300 hover:shadow-md">
                   {{ categoryName }}
                 </a>
               }
-              <div class="flex items-center gap-2 text-sm text-muted-foreground">
+              <div class="md3-article-meta-tools flex items-center gap-2 text-sm text-muted-foreground">
                 <time class="font-mono text-xs" [attr.datetime]="post.date">{{ post.date }}</time>
                 <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
                 <span>{{ post.readTime }}</span>
                 <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
                 <!-- Listen button -->
                 <button (click)="toggleSpeech()"
-                        class="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/60 px-3 py-1 text-xs font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent hover:border-accent cursor-pointer"
+                        class="md3-article-tool-button inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/60 px-3 py-1 text-xs font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent hover:border-accent cursor-pointer"
                         [attr.aria-label]="isSpeaking() ? 'Pause reading' : 'Listen to article'">
                   @if (isSpeaking()) {
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
@@ -73,14 +73,14 @@ import { getActiveTocHeadingId } from '../../shared/blog-toc';
                 </button>
                 @if (isSpeaking() || speechPaused()) {
                   <button (click)="stopSpeech()"
-                          class="inline-flex items-center gap-1 rounded-full border border-border/60 bg-card/60 px-2.5 py-1 text-xs text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent cursor-pointer"
+                          class="md3-article-tool-button inline-flex items-center gap-1 rounded-full border border-border/60 bg-card/60 px-2.5 py-1 text-xs text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-accent cursor-pointer"
                           aria-label="Stop reading">
                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
                     Stop
                   </button>
                 }
                 <a [routerLink]="'/slides/' + post.slug"
-                   class="inline-flex min-h-[44px] touch-manipulation items-center gap-1.5 rounded-full border border-green-500/40 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 transition-all duration-200 hover:bg-green-500/20 hover:border-green-500/60 cursor-pointer">
+                   class="md3-article-slide-button inline-flex min-h-[44px] touch-manipulation items-center gap-1.5 rounded-full border border-green-500/40 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 transition-all duration-200 hover:bg-green-500/20 hover:border-green-500/60 cursor-pointer">
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
                   Watch as Slides
                 </a>
@@ -88,14 +88,17 @@ import { getActiveTocHeadingId } from '../../shared/blog-toc';
             </div>
 
             <!-- Title -->
-            <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.1]">
+            <h1 class="md3-article-title text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.1]">
               {{ post.title }}
             </h1>
+            <p class="md3-article-dek mt-5 max-w-3xl text-lg leading-8 text-muted-foreground">
+              {{ post.excerpt }}
+            </p>
 
             <!-- Author + tags -->
-            <div class="mt-6 flex flex-col sm:flex-row sm:items-center gap-4">
-              <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 text-white text-sm font-bold">
+            <div class="md3-article-author-row mt-6 flex flex-col sm:flex-row sm:items-center gap-4">
+              <div class="md3-article-author flex items-center gap-3">
+                <div class="md3-article-avatar flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 text-white text-sm font-bold">
                   {{ post.author.charAt(0) }}
                 </div>
                 <div>
@@ -104,7 +107,7 @@ import { getActiveTocHeadingId } from '../../shared/blog-toc';
                 </div>
               </div>
 
-              <div class="sm:ml-auto flex flex-wrap gap-1.5">
+              <div class="md3-article-tag-list sm:ml-auto flex flex-wrap gap-1.5">
                 @for (tag of post.tags; track tag) {
                   <a [routerLink]="['/blog']" [queryParams]="{tag: tag}"
                      class="inline-flex items-center rounded-full border border-border/40 bg-muted/50 px-3 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground hover:border-primary cursor-pointer">
@@ -118,30 +121,86 @@ import { getActiveTocHeadingId } from '../../shared/blog-toc';
       </section>
 
       <!-- Banner image -->
-      <div class="container max-w-4xl mx-auto px-6 mt-6 md:mt-8">
-        <img [src]="'/images/banners/' + post.slug + '.svg'"
-             [alt]="post.title"
-             width="1200" height="630"
-             class="w-full rounded-2xl border border-border/40 shadow-lg animate-in fade-in zoom-in-95 duration-700"
-             loading="eager"
-             fetchpriority="high"
-             decoding="async" />
+      <div class="md3-article-banner-wrap container max-w-4xl mx-auto px-6 mt-6 md:mt-8">
+        @if (bannerImageFor(post); as bannerImage) {
+          <img [src]="bannerImage"
+               [alt]="post.title + ' illustration'"
+               width="1200" height="480"
+               class="md3-article-banner w-full rounded-2xl border border-border/40 shadow-lg"
+               loading="eager"
+               fetchpriority="high"
+               decoding="async" />
+        } @else {
+          <div class="md3-article-banner md3-article-banner-fallback" aria-hidden="true">
+            <div class="md3-article-fallback-copy">
+              <span>{{ categoryName || 'Guide' }}</span>
+              <strong>{{ post.tags[0] || 'Production guide' }}</strong>
+              <small>CodersSecret production field guide</small>
+            </div>
+            <div class="md3-article-fallback-map">
+              <div class="md3-article-fallback-node node-primary">
+                <span>01</span>
+                <p>Design</p>
+              </div>
+              <div class="md3-article-fallback-node node-secondary">
+                <span>02</span>
+                <p>Build</p>
+              </div>
+              <div class="md3-article-fallback-node node-tertiary">
+                <span>03</span>
+                <p>Operate</p>
+              </div>
+            </div>
+          </div>
+        }
       </div>
 
       <!-- Divider -->
-      <div class="container max-w-4xl mx-auto px-6 mt-8">
-        <div class="h-[1px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
+      <div class="md3-article-divider-wrap container max-w-4xl mx-auto px-6 mt-8">
+        <div class="md3-article-divider h-[1px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
       </div>
 
+      @if (post.content && toc.length > 1) {
+        <details class="md3-article-toc-mobile xl:hidden mx-6 mt-6">
+          <summary [attr.aria-label]="'On this page, ' + toc.length + ' sections'">
+            <span>On this page</span>
+            <span>{{ toc.length }} sections</span>
+          </summary>
+          <nav aria-label="On this page">
+            <a href="#article-start"
+               class="md3-article-toc-overview md3-article-toc-overview-mobile"
+               [attr.aria-current]="activeTocId() === 'article-start' ? 'location' : null"
+               [class.md3-article-toc-link-active]="activeTocId() === 'article-start'"
+               (click)="scrollToHeading($event, 'article-start')">
+              {{ post.title }}
+            </a>
+            <ul>
+              @for (item of toc; track item.id) {
+                <li>
+                  <a [href]="'#' + item.id"
+                     class="md3-article-toc-link"
+                     [class.md3-article-toc-link-nested]="item.level === 3"
+                     [attr.aria-current]="activeTocId() === item.id ? 'location' : null"
+                     [class.md3-article-toc-link-active]="activeTocId() === item.id"
+                     (click)="scrollToHeading($event, item.id)">
+                    {{ item.text }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </nav>
+        </details>
+      }
+
       <!-- Article + Right-side TOC layout -->
-      <div class="container max-w-6xl mx-auto px-6">
-        <div class="flex gap-10">
+      <div class="md3-article-layout container max-w-6xl mx-auto px-6">
+        <div class="md3-article-layout-grid flex gap-10">
 
           @if (post.content) {
             <!-- Article content (left) -->
-            <article class="flex-1 min-w-0">
-              <div class="max-w-3xl mx-auto py-12 md:py-16">
-                <div class="prose prose-neutral max-w-none
+            <article class="md3-article-shell flex-1 min-w-0">
+              <div class="md3-article-content-surface max-w-3xl mx-auto py-12 md:py-16">
+                <div class="md3-article-content prose prose-neutral max-w-none
                             [&>p]:text-foreground [&>p]:leading-[1.8] [&>p]:mb-6 [&>p]:text-[15px]
                             [&>h2]:text-2xl [&>h2]:font-extrabold [&>h2]:tracking-tight [&>h2]:mt-14 [&>h2]:mb-5 [&>h2]:text-foreground
                             [&>ul]:text-foreground [&>ul]:mb-6 [&>ul]:ml-6 [&>ul]:list-disc [&>ul>li]:mb-2.5 [&>ul>li]:leading-[1.7] [&>ul>li]:text-[15px]
@@ -157,8 +216,8 @@ import { getActiveTocHeadingId } from '../../shared/blog-toc';
               </div>
             </article>
           } @else {
-            <article class="flex-1 min-w-0" aria-busy="true" aria-label="Loading article">
-              <div class="max-w-3xl mx-auto py-12 md:py-16">
+            <article class="md3-article-shell flex-1 min-w-0" aria-busy="true" aria-label="Loading article">
+              <div class="md3-article-content-surface max-w-3xl mx-auto py-12 md:py-16">
                 <div class="space-y-5">
                   <div class="h-4 w-full rounded bg-muted/70 animate-pulse"></div>
                   <div class="h-4 w-11/12 rounded bg-muted/70 animate-pulse"></div>
@@ -173,25 +232,54 @@ import { getActiveTocHeadingId } from '../../shared/blog-toc';
 
           <!-- Right-side TOC (desktop only, sticky) -->
           @if (post.content && toc.length > 2) {
-            <nav class="hidden xl:block w-64 flex-shrink-0"
+            <nav class="md3-article-toc hidden xl:block flex-shrink-0"
                  aria-label="On this page">
-              <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto py-12">
-                <h3 class="text-xs font-bold text-foreground uppercase tracking-wider mb-4 px-1">On this page</h3>
-                <ul class="space-y-0.5 border-l-2 border-border/40">
-                  @for (item of toc; track item.id) {
+              <div class="md3-article-toc-panel sticky top-20">
+                <div class="md3-article-toc-kicker">On this page</div>
+                <a href="#article-start"
+                   class="md3-article-toc-overview"
+                   [attr.title]="post.title"
+                   [attr.aria-current]="activeTocId() === 'article-start' ? 'location' : null"
+                   (click)="scrollToHeading($event, 'article-start')">
+                  {{ desktopTocTitle }}
+                </a>
+                <ul class="md3-article-toc-list">
+                  <li class="md3-article-toc-indicator"
+                      aria-hidden="true"
+                      [style.transform]="'translate3d(0, ' + tocIndicatorTop() + 'px, 0)'"
+                      [style.height.px]="tocIndicatorHeight()"
+                      [style.opacity]="tocIndicatorOpacity()"></li>
+                  @for (item of desktopToc; track item.id) {
                     <li>
-                      <button (click)="scrollToHeading(item.id)"
-                         class="block w-full text-left px-4 py-1.5 text-[13px] leading-snug text-muted-foreground transition-colors hover:text-foreground hover:border-l-primary border-l-2 border-transparent -ml-[2px] cursor-pointer"
-                         [attr.aria-current]="activeTocId() === item.id ? 'location' : null"
-                         [class.font-semibold]="activeTocId() === item.id"
-                         [style.color]="activeTocId() === item.id ? categoryColor : null"
-                         [style.border-left-color]="activeTocId() === item.id ? categoryColor : null"
-                         [style.background-color]="activeTocId() === item.id ? categoryColor + '14' : null">
+                      <a [href]="'#' + item.id"
+                         (click)="scrollToHeading($event, item.id)"
+                         class="md3-article-toc-link block w-full text-left px-4 py-1.5 text-[13px] leading-snug text-muted-foreground transition-colors hover:text-foreground hover:border-l-primary border-l-2 border-transparent -ml-[2px] cursor-pointer"
+                         [class.md3-article-toc-link-nested]="item.level === 3"
+                         [attr.aria-current]="isDesktopTocItemActive(item) ? 'location' : null"
+                         [class.font-semibold]="isDesktopTocItemActive(item)"
+                         [class.md3-article-toc-link-active]="isDesktopTocItemActive(item)">
                         {{ item.text }}
-                      </button>
+                      </a>
                     </li>
                   }
                 </ul>
+                <div class="md3-article-toc-share" aria-label="Share article">
+                  <span>Share on</span>
+                  <div>
+                    <a [href]="'https://twitter.com/intent/tweet?text=' + encodeURIComponent(post.title) + '&url=' + encodeURIComponent('https://coderssecret.com/blog/' + post.slug)"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       aria-label="Share on X">X</a>
+                    <a [href]="'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://coderssecret.com/blog/' + post.slug)"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       aria-label="Share on Facebook">f</a>
+                    <a [href]="'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent('https://coderssecret.com/blog/' + post.slug)"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       aria-label="Share on LinkedIn">in</a>
+                  </div>
+                </div>
               </div>
             </nav>
           }
@@ -200,27 +288,27 @@ import { getActiveTocHeadingId } from '../../shared/blog-toc';
 
       @if (post.content) {
       <!-- Share + related -->
-      <div class="container max-w-4xl mx-auto px-6 pb-20">
-        <div class="h-[1px] bg-gradient-to-r from-transparent via-border to-transparent mb-12"></div>
+      <div class="md3-article-after container max-w-4xl mx-auto px-6 pb-20">
+        <div class="md3-article-divider h-[1px] bg-gradient-to-r from-transparent via-border to-transparent mb-12"></div>
 
         <!-- Share buttons -->
-        <div class="flex items-center gap-4 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <span class="text-sm font-semibold text-muted-foreground">Share this article</span>
+        <div class="md3-article-share flex items-center gap-4 mb-12">
+          <span class="md3-article-share-label text-sm font-semibold text-muted-foreground">Share this article</span>
           <div class="flex gap-2">
             <a [href]="'https://twitter.com/intent/tweet?text=' + encodeURIComponent(post.title) + '&url=' + encodeURIComponent('https://coderssecret.com/blog/' + post.slug)"
                target="_blank" rel="noopener noreferrer"
-               class="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-all duration-300 hover:bg-accent hover:text-foreground hover:border-accent"
+               class="md3-article-icon-button inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-all duration-300 hover:bg-accent hover:text-foreground hover:border-accent"
                aria-label="Share on X (Twitter)">
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             </a>
             <a [href]="'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent('https://coderssecret.com/blog/' + post.slug)"
                target="_blank" rel="noopener noreferrer"
-               class="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-all duration-300 hover:bg-accent hover:text-foreground hover:border-accent"
+               class="md3-article-icon-button inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-all duration-300 hover:bg-accent hover:text-foreground hover:border-accent"
                aria-label="Share on LinkedIn">
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
             </a>
             <button (click)="copyLink()"
-                    class="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-all duration-300 hover:bg-accent hover:text-foreground hover:border-accent"
+                    class="md3-article-icon-button inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-all duration-300 hover:bg-accent hover:text-foreground hover:border-accent"
                     [attr.aria-label]="linkCopied() ? 'Link copied!' : 'Copy link'">
               @if (linkCopied()) {
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -232,7 +320,7 @@ import { getActiveTocHeadingId } from '../../shared/blog-toc';
         </div>
 
         <!-- Consultation CTA -->
-        <div class="mb-16 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 via-card to-primary/5 p-6 md:p-8 animate-in fade-in duration-700">
+        <div class="md3-article-consultation mb-16 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 via-card to-primary/5 p-6 md:p-8">
           <div class="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
             <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 flex-shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
@@ -250,69 +338,124 @@ import { getActiveTocHeadingId } from '../../shared/blog-toc';
           </div>
         </div>
 
-        <!-- Comments (Giscus) -->
-        <div class="mb-16 animate-in fade-in duration-700">
-          <h2 class="text-2xl font-extrabold tracking-tight mb-6">Discussion</h2>
-          <p class="text-sm text-muted-foreground mb-6">
-            Comments are powered by <a href="https://giscus.app" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Giscus</a> and GitHub Discussions. You'll need a GitHub account to comment.
-          </p>
-          <div #giscus class="giscus-container"></div>
+        <div class="md3-article-resources mb-16">
+          <h2 class="mb-6 text-2xl font-extrabold tracking-tight">Related Production Resources</h2>
+          <div class="md3-article-resource-grid grid gap-4 md:grid-cols-4">
+            <a routerLink="/courses" class="md3-card md3-article-resource-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary">
+              <span class="md3-chip-selected">Course</span>
+              <h3 class="mt-4 text-base font-bold text-foreground">Free learning tracks</h3>
+              <p class="mt-2 text-sm leading-6 text-muted-foreground">Turn this guide into a structured production engineering path.</p>
+            </a>
+            <a routerLink="/games" class="md3-card md3-article-resource-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary">
+              <span class="md3-chip">Lab</span>
+              <h3 class="mt-4 text-base font-bold text-foreground">Interactive engineering labs</h3>
+              <p class="mt-2 text-sm leading-6 text-muted-foreground">Practice the same ideas through scenario-based simulators.</p>
+            </a>
+            <a routerLink="/cheatsheets" class="md3-card md3-article-resource-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary">
+              <span class="md3-chip">Reference</span>
+              <h3 class="mt-4 text-base font-bold text-foreground">Production cheatsheets</h3>
+              <p class="mt-2 text-sm leading-6 text-muted-foreground">Keep the operational commands and checks nearby.</p>
+            </a>
+            <a routerLink="/glossary" class="md3-card md3-article-resource-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary">
+              <span class="md3-chip">Glossary</span>
+              <h3 class="mt-4 text-base font-bold text-foreground">Key terms</h3>
+              <p class="mt-2 text-sm leading-6 text-muted-foreground">Review the vocabulary behind the architecture.</p>
+            </a>
+          </div>
         </div>
+
+        <!-- Comments (Giscus) -->
+        <section class="md3-article-discussion mb-16" aria-labelledby="discussion-title">
+          <div class="md3-article-discussion-header">
+            <span class="md3-article-section-label">Community notes</span>
+            <h2 id="discussion-title">Discussion</h2>
+            <p>
+              Questions, corrections, or production notes? Add them here so other learners can benefit.
+            </p>
+          </div>
+          @if (discussionStatus() === 'loading') {
+            <div class="md3-article-discussion-state" role="status" aria-live="polite">
+              <span class="md3-discussion-spinner" aria-hidden="true"></span>
+              Loading GitHub Discussion...
+            </div>
+            <div class="md3-discussion-skeleton" aria-hidden="true">
+              <span class="md3-discussion-skeleton-avatar"></span>
+              <span class="md3-discussion-skeleton-line is-wide"></span>
+              <span class="md3-discussion-skeleton-line"></span>
+              <span class="md3-discussion-skeleton-box"></span>
+              <span class="md3-discussion-skeleton-action"></span>
+            </div>
+          }
+          @if (discussionStatus() === 'error') {
+            <div class="md3-article-discussion-fallback" role="alert">
+              <h3>Discussion is unavailable</h3>
+              <p>{{ discussionMessage() }}</p>
+              <a href="https://github.com/vishalanandl177/coderssecret.com/discussions"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="md3-button-tonal">
+                Open GitHub Discussions
+              </a>
+            </div>
+          }
+          <div #giscus
+               class="giscus-container"
+               [attr.aria-busy]="discussionStatus() === 'loading' ? 'true' : null"></div>
+        </section>
 
         <!-- Related posts -->
         @if (relatedPosts.length > 0) {
-          <div class="animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <h2 class="text-2xl font-extrabold tracking-tight mb-8">Continue Reading</h2>
-            <div class="grid gap-5 md:grid-cols-2">
+          <section class="md3-article-related" aria-labelledby="continue-reading-title">
+            <div class="md3-article-related-header">
+              <span class="md3-article-section-label">Next guides</span>
+              <h2 id="continue-reading-title">Continue Reading</h2>
+              <p>Related practical guides from the same production engineering path.</p>
+            </div>
+            <div class="md3-article-related-grid grid gap-4 md:grid-cols-2">
               @for (related of relatedPosts; track related.id) {
                 <a [routerLink]="['/blog', related.slug]"
-                   class="group relative rounded-2xl border border-border/60 bg-card overflow-hidden transition-all duration-500 hover:shadow-xl hover:-translate-y-1 hover:border-primary/20">
-                  <!-- Top accent -->
-                  <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                       [style.background-image]="'linear-gradient(to right, transparent, ' + getCategoryColor(related.category) + ', transparent)'"></div>
-
-                  <div class="p-6 md:p-8">
-                    <div class="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-                      <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                            [style.background-color]="getCategoryColor(related.category) + '15'"
-                            [style.color]="getCategoryColor(related.category)">
+                   class="md3-article-related-card group">
+                  <div class="md3-article-related-card-body">
+                    <div class="md3-article-related-meta">
+                      <span class="md3-article-related-chip">
                         {{ getCategoryName(related.category) }}
                       </span>
                       <time class="font-mono" [attr.datetime]="related.date">{{ related.date }}</time>
-                      <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
+                      <span class="md3-article-related-dot" aria-hidden="true"></span>
                       <span>{{ related.readTime }}</span>
                     </div>
-                    <h3 class="text-lg font-bold tracking-tight leading-snug transition-colors duration-300 group-hover:text-primary">
+                    <h3>
                       {{ related.title }}
                     </h3>
-                    <p class="mt-2 text-sm text-muted-foreground line-clamp-2">{{ related.excerpt }}</p>
+                    <p>{{ related.excerpt }}</p>
 
-                    <div class="mt-5 flex items-center justify-between">
-                      <div class="flex flex-wrap gap-1.5">
+                    <div class="md3-article-related-footer">
+                      <div class="md3-article-related-tags">
                         @for (tag of related.tags.slice(0, 2); track tag) {
-                          <span class="inline-flex items-center rounded-full border border-border/40 bg-muted/50 px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                          <span class="md3-article-related-tag">
                             {{ tag }}
                           </span>
                         }
                       </div>
-                      <div class="shrink-0 inline-flex items-center justify-center rounded-full h-8 w-8 bg-muted/50 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+                      <span class="md3-article-related-action" aria-hidden="true">
+                        Read
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                           <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
                         </svg>
-                      </div>
+                      </span>
                     </div>
                   </div>
                 </a>
               }
             </div>
-          </div>
+          </section>
         }
       </div>
       }
     } @else {
       <!-- 404 state -->
-      <div class="py-32 text-center animate-in fade-in duration-500">
+      <div class="py-32 text-center">
         <div class="container max-w-4xl mx-auto px-6">
           <div class="inline-flex items-center justify-center h-20 w-20 rounded-3xl bg-muted/50 mb-8">
             <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none"
@@ -337,24 +480,41 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   private seo = inject(SeoService);
   private el = inject(ElementRef);
   private doc = inject(DOCUMENT);
+  private platformId = inject(PLATFORM_ID);
   private analytics = inject(AnalyticsService);
   private cdr = inject(ChangeDetectorRef);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
   private copyButtonsAdded = false;
   private imagesProcessed = false;
   private headingsProcessed = false;
   private giscusAdded = false;
+  private discussionSlug = '';
+  private discussionTimeoutId: number | undefined;
   private scrollMilestones = new Set<number>();
   readingProgress = signal(0);
   activeTocId = signal('');
   linkCopied = signal(false);
   isSpeaking = signal(false);
   speechPaused = signal(false);
+  tocIndicatorTop = signal(0);
+  tocIndicatorHeight = signal(0);
+  tocIndicatorOpacity = signal(0);
+  discussionStatus = signal<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  discussionMessage = signal('');
   encodeURIComponent = encodeURIComponent;
   post: BlogPost | undefined;
   relatedPosts: BlogPost[] = [];
-  toc: { id: string; text: string }[] = [];
+  toc: { id: string; text: string; level: 2 | 3 }[] = [];
+  desktopToc: { id: string; text: string; level: 2 | 3 }[] = [];
+  desktopTocTitle = '';
   categoryName = '';
-  categoryColor = '#6b7280';
+  categoryColor = md3CategoryAccent('');
+  readonly generatedCoverMissingSlugs = new Set([
+    'distributed-systems-algorithms-production-guide',
+    'rate-limiting-algorithms-production-guide',
+    'caching-strategies-production-guide',
+    'scheduling-systems-production-guide',
+  ]);
 
   constructor() {
     this.route.paramMap
@@ -366,9 +526,16 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
         this.imagesProcessed = false;
         this.headingsProcessed = false;
         this.giscusAdded = false;
+        this.discussionSlug = '';
+        this.clearDiscussionTimeout();
+        this.discussionStatus.set('idle');
+        this.discussionMessage.set('');
         this.scrollMilestones.clear();
         this.stopSpeech();
         this.toc = [];
+        this.desktopToc = [];
+        this.desktopTocTitle = '';
+        this.tocIndicatorOpacity.set(0);
         this.activeTocId.set('');
 
         if (basePost && slug) {
@@ -388,15 +555,11 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
             content = `<p>${basePost.excerpt}</p>`;
           }
           if (this.post?.slug !== slug) return;
-          this.post = { ...basePost, content };
-          // Generate TOC from h2 tags in content
-          const h2Regex = /<h2>(.*?)<\/h2>/g;
-          let tocMatch;
-          let tocIndex = 0;
-          while ((tocMatch = h2Regex.exec(content)) !== null) {
-            const text = tocMatch[1].replace(/<[^>]+>/g, '');
-            this.toc.push({ id: `heading-${tocIndex++}`, text });
-          }
+          const prepared = this.prepareArticleContent(content);
+          this.post = { ...basePost, content: prepared.content };
+          this.toc = prepared.toc;
+          this.desktopToc = this.buildDesktopToc(prepared.toc);
+          this.desktopTocTitle = this.buildDesktopTocTitle(basePost.title);
           this.activeTocId.set(this.toc[0]?.id ?? '');
           this.seo.update({
             title: this.getSeoTitle(this.post.title),
@@ -420,11 +583,18 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
           });
           // Dynamic imports can settle outside the current render pass, so refresh before a scroll/event wakes the view.
           this.cdr.detectChanges();
+          this.enhanceArticleDom();
+          this.scheduleDesktopTocIndicatorRefresh();
+          this.loadDiscussion();
         } else {
           this.post = undefined;
           this.relatedPosts = [];
+          this.desktopToc = [];
+          this.desktopTocTitle = '';
           this.categoryName = '';
-          this.categoryColor = '#6b7280';
+          this.categoryColor = md3CategoryAccent('');
+          this.discussionStatus.set('idle');
+          this.discussionMessage.set('');
           this.cdr.detectChanges();
         }
       });
@@ -452,36 +622,132 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   ngOnDestroy() {
     this.readingProgress.set(0);
     this.activeTocId.set('');
+    this.clearDiscussionTimeout();
     this.stopSpeech();
   }
 
   ngAfterViewChecked() {
-    // Load Giscus comments
-    if (this.post && !this.giscusAdded) {
-      const container = this.el.nativeElement.querySelector('.giscus-container');
-      if (container) {
-        this.giscusAdded = true;
-        // Clear any existing Giscus iframe (for navigation between posts)
-        container.innerHTML = '';
-        const script = document.createElement('script');
-        script.src = 'https://giscus.app/client.js';
-        script.setAttribute('data-repo', 'vishalanandl177/coderssecret.com');
-        script.setAttribute('data-repo-id', 'R_kgDOR5J1Dw');
-        script.setAttribute('data-category', 'General');
-        script.setAttribute('data-category-id', 'DIC_kwDOR5J1D84C62V5');
-        script.setAttribute('data-mapping', 'title');
-        script.setAttribute('data-strict', '1');
-        script.setAttribute('data-reactions-enabled', '1');
-        script.setAttribute('data-emit-metadata', '1');
-        script.setAttribute('data-input-position', 'bottom');
-        script.setAttribute('data-theme', 'preferred_color_scheme');
-        script.setAttribute('data-lang', 'en');
-        script.setAttribute('data-loading', 'lazy');
-        script.setAttribute('crossorigin', 'anonymous');
-        script.async = true;
-        container.appendChild(script);
-      }
+    this.enhanceArticleDom();
+    this.loadDiscussion();
+  }
+
+  private prepareArticleContent(content: string): { content: string; toc: { id: string; text: string; level: 2 | 3 }[] } {
+    const usedIds = new Map<string, number>();
+    const toc: { id: string; text: string; level: 2 | 3 }[] = [];
+    const preparedContent = content.replace(/<h([23])([^>]*)>([\s\S]*?)<\/h\1>/gi, (match, levelValue, attrs, innerHtml) => {
+      const level = Number(levelValue) as 2 | 3;
+      const text = this.headingTextFromHtml(innerHtml);
+      if (!text) return match;
+
+      const existingId = this.extractHeadingId(attrs);
+      const baseId = this.slugifyHeading(existingId || text) || `section-${toc.length + 1}`;
+      const id = this.uniqueHeadingId(baseId, usedIds);
+      toc.push({ id, text, level });
+
+      return `<h${level}${this.withHeadingId(attrs, id)}>${innerHtml}</h${level}>`;
+    });
+
+    return { content: preparedContent, toc };
+  }
+
+  private buildDesktopToc(toc: { id: string; text: string; level: 2 | 3 }[]): { id: string; text: string; level: 2 | 3 }[] {
+    const topLevel = toc.filter(item => item.level === 2);
+    if (topLevel.length <= 5) return topLevel;
+
+    const selected = new Map<string, { id: string; text: string; level: 2 | 3 }>();
+    const add = (item: { id: string; text: string; level: 2 | 3 } | undefined) => {
+      if (item && !selected.has(item.id)) selected.set(item.id, item);
+    };
+
+    topLevel.slice(0, 4).forEach(add);
+    add(topLevel.slice(4).find(item => /architecture|pattern|checklist|faq|source/i.test(item.text)) ?? topLevel[4]);
+
+    return Array.from(selected.values()).slice(0, 5);
+  }
+
+  private buildDesktopTocTitle(title: string): string {
+    if (title.length <= 56) return title;
+    const [lead] = title.split(':');
+    return lead && lead.length >= 18 && lead.length <= 56 ? lead : title;
+  }
+
+  isDesktopTocItemActive(item: { id: string; text: string; level: 2 | 3 }): boolean {
+    const activeId = this.activeTocId();
+    if (!activeId) return false;
+    if (activeId === 'article-start') return this.desktopToc[0]?.id === item.id;
+    if (activeId === item.id) return true;
+
+    const activeIndex = this.toc.findIndex(tocItem => tocItem.id === activeId);
+    const itemIndex = this.toc.findIndex(tocItem => tocItem.id === item.id);
+    if (activeIndex < 0 || itemIndex < 0 || activeIndex < itemIndex) return false;
+
+    const nextDesktopItem = this.desktopToc.find(desktopItem => {
+      const index = this.toc.findIndex(tocItem => tocItem.id === desktopItem.id);
+      return index > itemIndex;
+    });
+    if (!nextDesktopItem) return true;
+
+    const nextDesktopIndex = this.toc.findIndex(tocItem => tocItem.id === nextDesktopItem.id);
+    return activeIndex < nextDesktopIndex;
+  }
+
+  private activeDesktopTocItem(): { id: string; text: string; level: 2 | 3 } | undefined {
+    if (this.activeTocId() === 'article-start') return this.desktopToc[0];
+    return this.desktopToc.find(item => this.isDesktopTocItemActive(item));
+  }
+
+  private headingTextFromHtml(html: string): string {
+    const text = html
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return this.decodeHtmlEntities(text);
+  }
+
+  private decodeHtmlEntities(text: string): string {
+    if (!this.isBrowser) {
+      return text
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'");
     }
+
+    const textarea = this.doc.createElement('textarea');
+    textarea.innerHTML = text;
+    return textarea.value;
+  }
+
+  private extractHeadingId(attrs: string): string {
+    return attrs.match(/\s+id=(["'])(.*?)\1/i)?.[2] ?? '';
+  }
+
+  private withHeadingId(attrs: string, id: string): string {
+    if (this.extractHeadingId(attrs)) {
+      return attrs.replace(/\s+id=(["'])(.*?)\1/i, ` id="${id}"`);
+    }
+    return `${attrs} id="${id}"`;
+  }
+
+  private slugifyHeading(text: string): string {
+    return text
+      .toLowerCase()
+      .replace(/&/g, ' and ')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 80);
+  }
+
+  private uniqueHeadingId(baseId: string, usedIds: Map<string, number>): string {
+    const count = usedIds.get(baseId) ?? 0;
+    usedIds.set(baseId, count + 1);
+    return count === 0 ? baseId : `${baseId}-${count + 1}`;
+  }
+
+  private enhanceArticleDom() {
+    if (!this.isBrowser) return;
+
     if (this.post && !this.imagesProcessed) {
       const images = this.el.nativeElement.querySelectorAll('article img');
       if (images.length > 0) {
@@ -498,11 +764,11 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
       }
     }
     if (this.post && !this.headingsProcessed) {
-      const h2s = this.el.nativeElement.querySelectorAll('article h2');
-      if (h2s.length > 0) {
+      const headings = this.el.nativeElement.querySelectorAll('article h2, article h3');
+      if (headings.length > 0) {
         this.headingsProcessed = true;
-        h2s.forEach((h2: HTMLElement, i: number) => {
-          if (!h2.id) h2.id = `heading-${i}`;
+        headings.forEach((heading: HTMLElement, i: number) => {
+          heading.id = this.toc[i]?.id ?? `heading-${i}`;
         });
         this.scheduleActiveTocRefresh();
       }
@@ -535,6 +801,88 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
         });
       }
     }
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    this.scheduleDesktopTocIndicatorRefresh();
+  }
+
+  private loadDiscussion() {
+    if (!this.isBrowser || !this.post?.slug || !this.post.content) return;
+
+    const container = this.el.nativeElement.querySelector('.giscus-container') as HTMLElement | null;
+    if (!container) return;
+
+    if (this.giscusAdded && this.discussionSlug === this.post.slug) return;
+
+    const slug = this.post.slug;
+    this.clearDiscussionTimeout();
+    this.giscusAdded = true;
+    this.discussionSlug = slug;
+    this.discussionStatus.set('loading');
+    this.discussionMessage.set('');
+    container.innerHTML = '';
+
+    const script = this.doc.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.setAttribute('data-repo', 'vishalanandl177/coderssecret.com');
+    script.setAttribute('data-repo-id', 'R_kgDOR5J1Dw');
+    script.setAttribute('data-category', 'General');
+    script.setAttribute('data-category-id', 'DIC_kwDOR5J1D84C62V5');
+    script.setAttribute('data-mapping', 'pathname');
+    script.setAttribute('data-strict', '1');
+    script.setAttribute('data-reactions-enabled', '1');
+    script.setAttribute('data-emit-metadata', '1');
+    script.setAttribute('data-input-position', 'bottom');
+    script.setAttribute('data-theme', this.doc.documentElement.classList.contains('dark') ? 'transparent_dark' : 'light');
+    script.setAttribute('data-lang', 'en');
+    script.setAttribute('data-loading', 'lazy');
+    script.setAttribute('crossorigin', 'anonymous');
+    script.async = true;
+    script.onerror = () => this.setDiscussionError(slug, 'GitHub Discussions could not be loaded. This is usually a network, ad blocker, or GitHub script availability issue.');
+
+    container.appendChild(script);
+    this.pollForDiscussionFrame(container, slug);
+  }
+
+  private pollForDiscussionFrame(container: HTMLElement, slug: string, attempt = 0) {
+    if (!this.isBrowser || this.post?.slug !== slug) return;
+
+    const frame = container.querySelector('iframe') || this.doc.querySelector('iframe.giscus-frame');
+    if (frame) {
+      this.clearDiscussionTimeout();
+      this.discussionStatus.set('ready');
+      this.discussionMessage.set('');
+      return;
+    }
+
+    if (attempt >= 18) {
+      this.setDiscussionError(slug, 'Discussion did not finish loading. You can still open the project discussions on GitHub.');
+      return;
+    }
+
+    const win = this.doc.defaultView;
+    if (!win) return;
+
+    this.discussionTimeoutId = win.setTimeout(() => {
+      this.pollForDiscussionFrame(container, slug, attempt + 1);
+    }, 750);
+  }
+
+  private setDiscussionError(slug: string, message: string) {
+    if (this.post?.slug !== slug) return;
+    this.clearDiscussionTimeout();
+    this.discussionStatus.set('error');
+    this.discussionMessage.set(message);
+  }
+
+  private clearDiscussionTimeout() {
+    const win = this.doc.defaultView;
+    if (win && this.discussionTimeoutId !== undefined) {
+      win.clearTimeout(this.discussionTimeoutId);
+    }
+    this.discussionTimeoutId = undefined;
   }
 
   toggleSpeech() {
@@ -639,19 +987,24 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
     }
 
     const headingElements = Array.from(
-      this.el.nativeElement.querySelectorAll('article h2[id]')
+      this.el.nativeElement.querySelectorAll('article h2[id], article h3[id]')
     ) as HTMLElement[];
-    const activeId = getActiveTocHeadingId(
+    const activationOffset = this.tocActivationOffset();
+    const firstHeadingTop = headingElements[0]?.getBoundingClientRect().top;
+    const activeId = firstHeadingTop !== undefined && firstHeadingTop > activationOffset
+      ? 'article-start'
+      : getActiveTocHeadingId(
       headingElements.map(heading => ({
         id: heading.id,
         top: heading.getBoundingClientRect().top,
       })),
-      this.tocActivationOffset()
+      activationOffset
     );
 
     if (activeId && activeId !== this.activeTocId()) {
       this.activeTocId.set(activeId);
     }
+    this.scheduleDesktopTocIndicatorRefresh();
   }
 
   private scheduleActiveTocRefresh() {
@@ -663,18 +1016,70 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
     queueMicrotask(() => this.refreshActiveToc());
   }
 
+  private scheduleDesktopTocIndicatorRefresh() {
+    if (!this.isBrowser) return;
+
+    const win = this.doc.defaultView;
+    if (win?.requestAnimationFrame) {
+      win.requestAnimationFrame(() => this.updateDesktopTocIndicator());
+      return;
+    }
+    queueMicrotask(() => this.updateDesktopTocIndicator());
+  }
+
+  private updateDesktopTocIndicator() {
+    if (!this.isBrowser || this.desktopToc.length === 0) {
+      this.tocIndicatorOpacity.set(0);
+      return;
+    }
+
+    const panel = this.el.nativeElement.querySelector('.md3-article-toc-panel') as HTMLElement | null;
+    const list = panel?.querySelector('.md3-article-toc-list') as HTMLElement | null;
+    const activeItem = this.activeDesktopTocItem();
+    if (!panel || !list || !activeItem) {
+      this.tocIndicatorOpacity.set(0);
+      return;
+    }
+
+    const activeLink = Array.from(panel.querySelectorAll('.md3-article-toc-link'))
+      .find(link => link.getAttribute('href') === `#${activeItem.id}`) as HTMLElement | undefined;
+    if (!activeLink) {
+      this.tocIndicatorOpacity.set(0);
+      return;
+    }
+
+    const listRect = list.getBoundingClientRect();
+    const linkRect = activeLink.getBoundingClientRect();
+    this.tocIndicatorTop.set(linkRect.top - listRect.top);
+    this.tocIndicatorHeight.set(linkRect.height);
+    this.tocIndicatorOpacity.set(1);
+  }
+
   private tocActivationOffset(): number {
     const viewportHeight = this.doc.defaultView?.innerHeight ?? 0;
     if (viewportHeight <= 0) return 140;
     return Math.min(180, Math.max(112, viewportHeight * 0.22));
   }
 
-  scrollToHeading(id: string) {
+  scrollToHeading(event: Event, id: string) {
+    event.preventDefault();
     const el = this.doc.getElementById(id);
-    if (el) {
-      this.activeTocId.set(id);
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    const win = this.doc.defaultView;
+    if (!el || !win) return;
+
+    const prefersReducedMotion = win.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const offset = this.tocScrollOffset();
+    const top = el.getBoundingClientRect().top + win.scrollY - offset;
+    this.activeTocId.set(id);
+    this.scheduleDesktopTocIndicatorRefresh();
+    win.scrollTo({ top, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+    win.history.replaceState(null, '', `${win.location.pathname}${win.location.search}#${id}`);
+  }
+
+  private tocScrollOffset(): number {
+    const header = this.doc.querySelector('app-header') as HTMLElement | null;
+    const headerHeight = header?.getBoundingClientRect().height ?? 72;
+    return Math.max(88, headerHeight + 24);
   }
 
   copyLink() {
@@ -687,17 +1092,24 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   }
 
   getCategoryColor(slug: string): string {
-    const colors: Record<string, string> = {
-      ai: '#06b6d4',
-      frontend: '#3b82f6', backend: '#22c55e', devops: '#f97316',
-      tutorials: '#a855f7', 'open-source': '#ec4899',
-    };
-    return colors[slug] ?? '#6b7280';
+    return md3CategoryAccent(slug);
   }
 
   getCategoryName(slug: string): string {
     const cat = CATEGORIES.find(c => c.slug === slug);
     return cat?.name ?? slug;
+  }
+
+  bannerImageFor(post: BlogPost): string | null {
+    if (post.coverImage) {
+      return post.coverImage;
+    }
+
+    if (this.generatedCoverMissingSlugs.has(post.slug)) {
+      return null;
+    }
+
+    return `/images/banners/${post.slug}.svg`;
   }
 
   private getBlogFaqSchema(slug: string): Record<string, unknown> | undefined {
