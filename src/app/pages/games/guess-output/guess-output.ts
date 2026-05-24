@@ -54,7 +54,7 @@ interface Question {
               </span>
             </div>
             <p class="font-semibold mb-2">What does this code print?</p>
-            <pre class="bg-muted rounded-lg p-4 overflow-x-auto text-sm font-mono mb-6"><code>{{ currentQuestion().code }}</code></pre>
+            <pre class="md3-learning-code mb-6"><code>{{ currentQuestion().code }}</code></pre>
 
             <div class="space-y-2">
               @for (option of currentQuestion().options; track $index; let i = $index) {

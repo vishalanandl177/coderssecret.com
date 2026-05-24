@@ -9,33 +9,63 @@ import { SeoService } from '../../../services/seo.service';
   imports: [RouterLink],
   template: `
     @if (page(); as p) {
-    <div class="container max-w-4xl mx-auto px-6 py-16">
-      <nav class="mb-8 text-sm text-muted-foreground">
-        <a routerLink="/" class="hover:text-foreground transition-colors">Home</a>
-        <span class="mx-2">/</span>
-        <a routerLink="/courses" class="hover:text-foreground transition-colors">Courses</a>
-        <span class="mx-2">/</span>
-        <span class="text-foreground">{{ p.title }}</span>
-      </nav>
+      <main class="md3-course-page app-forward">
+        <section class="md3-course-seo-hero md3-section">
+          <div class="md3-container">
+            <nav aria-label="Breadcrumb" class="md3-course-breadcrumb">
+              <ol>
+                <li><a routerLink="/">Home</a></li>
+                <li aria-hidden="true">/</li>
+                <li><a routerLink="/courses">Courses</a></li>
+                <li aria-hidden="true">/</li>
+                <li aria-current="page">{{ p.title }}</li>
+              </ol>
+            </nav>
+            <div class="md3-course-seo-copy">
+              <p class="md3-course-eyebrow">Course guide</p>
+              <h1>{{ p.title }}</h1>
+              <p class="md3-course-seo-text">{{ p.description }}</p>
+            </div>
+          </div>
+        </section>
 
-      <article class="course-content max-w-none" [innerHTML]="safeContent()"></article>
+        <section class="md3-section">
+          <div class="md3-container">
+            <div class="md3-course-seo-layout">
+              <article class="md3-course-article-surface course-content" [innerHTML]="safeContent()"></article>
 
-      <div class="mt-12 rounded-xl border border-primary/30 bg-primary/5 p-8 text-center">
-        <h2 class="text-2xl font-bold mb-3">Ready to Learn?</h2>
-        <p class="text-muted-foreground mb-6">Start with our free {{ courseTitle() }} course &mdash; {{ courseModuleCount() }} modules, {{ labCountLabel() }}, completely free.</p>
-        <div class="flex flex-wrap justify-center gap-3">
-          <a [routerLink]="ctaModuleUrl()"
-             class="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
-            Start Module {{ p.ctaModule }} &mdash; Free
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-          </a>
-          <a [routerLink]="'/courses/' + courseSlug()"
-             class="inline-flex items-center rounded-full border border-border/60 bg-card/60 px-6 py-3 text-sm font-semibold text-foreground hover:bg-accent transition-all duration-300">
-            View Full Curriculum
-          </a>
-        </div>
-      </div>
-    </div>
+              <aside class="md3-course-seo-panel" aria-label="Start this course">
+                <div class="md3-course-overview-panel-top">
+                  <span>Ready to learn?</span>
+                  <span>Free</span>
+                </div>
+                <div class="md3-course-overview-stats">
+                  <div class="md3-course-overview-stat">
+                    <strong>{{ courseModuleCount() }}</strong>
+                    <span>Modules</span>
+                  </div>
+                  <div class="md3-course-overview-stat">
+                    <strong>{{ totalLabs() }}</strong>
+                    <span>{{ course()?.labDelivery === 'inline' ? 'Exercises' : 'Labs' }}</span>
+                  </div>
+                </div>
+                <p>{{ courseTitle() }} gives you the practical path behind this topic, with module guides, slides, and production notes.</p>
+                <div class="md3-course-seo-actions">
+                  <a [routerLink]="ctaModuleUrl()" class="md3-button-filled">
+                    Start Module {{ p.ctaModule }}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                    </svg>
+                  </a>
+                  <a [routerLink]="'/courses/' + courseSlug()" class="md3-button-tonal">View full curriculum</a>
+                  <a routerLink="/cheatsheets" class="md3-button-outlined">Open reference sheets</a>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </section>
+      </main>
     }
   `,
 })
@@ -49,11 +79,6 @@ export class SeoLandingComponent {
   courseSlug = computed(() => this.course()?.slug ?? 'mastering-spiffe-spire');
   courseModuleCount = computed(() => this.course()?.modules.length ?? 13);
   totalLabs = computed(() => this.course()?.modules.reduce((sum, m) => sum + m.labs.length, 0) ?? 30);
-  labCountLabel = computed(() => {
-    const c = this.course();
-    const count = this.totalLabs();
-    return c?.labDelivery === 'inline' ? `${count} inline exercises` : `${count} hands-on labs`;
-  });
   ctaModuleUrl = computed(() => {
     const c = this.course();
     const p = this.page();
@@ -64,7 +89,8 @@ export class SeoLandingComponent {
   safeContent = computed<SafeHtml>(() => {
     const p = this.page();
     if (!p?.content) return '';
-    return this.sanitizer.bypassSecurityTrustHtml(p.content);
+    const contentWithoutDuplicateH1 = p.content.replace(/<h1[^>]*>[\s\S]*?<\/h1>/i, '');
+    return this.sanitizer.bypassSecurityTrustHtml(contentWithoutDuplicateH1);
   });
 
   constructor() {

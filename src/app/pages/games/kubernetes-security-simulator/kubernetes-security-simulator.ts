@@ -1,216 +1,16 @@
-import { Component, inject, signal, computed } from '@angular/core';
-import { NgClass } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Component, inject } from '@angular/core';
 import { SeoService } from '../../../services/seo.service';
-
-interface Choice {
-  label: string;
-  correct: boolean;
-  feedback: string;
-}
-
-interface Scenario {
-  id: string;
-  topic: 'RBAC' | 'NetworkPolicy' | 'PodSecurity' | 'Secrets' | 'Namespaces' | 'ImageSecurity';
-  title: string;
-  briefing: string;
-  yaml: string;
-  question: string;
-  choices: Choice[];
-  explanation: string;
-  learnMore: { label: string; href: string };
-}
+import { ScenarioQuizComponent, Scenario, QuizTheme, QuizIntro, QuizResults, QuizCallToActions } from '../_shared/scenario-quiz';
 
 @Component({
   selector: 'app-kubernetes-security-simulator',
-  imports: [RouterLink, NgClass],
+  imports: [ScenarioQuizComponent],
   template: `
-    <section class="py-12 md:py-16 animate-in fade-in duration-500">
-      <div class="container max-w-4xl mx-auto px-6">
-        <nav aria-label="Breadcrumb" class="mb-6">
-          <ol class="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <li><a routerLink="/" class="hover:text-foreground transition-colors">Home</a></li>
-            <li class="text-muted-foreground/50">/</li>
-            <li><a routerLink="/games" class="hover:text-foreground transition-colors">Security Simulators</a></li>
-            <li class="text-muted-foreground/50">/</li>
-            <li class="text-foreground font-medium" aria-current="page">Kubernetes Security Simulator</li>
-          </ol>
-        </nav>
-
-        <header class="text-center mb-10">
-          <span class="inline-block rounded-full bg-orange-500/10 border border-orange-500/30 px-4 py-1 text-xs font-bold text-orange-500 uppercase tracking-wider mb-4">Interactive Security Lab</span>
-          <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-[1.1] mb-4">
-            Kubernetes <span class="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 bg-clip-text text-transparent">Security Simulator</span>
-          </h1>
-          <p class="text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-            Secure a production Kubernetes cluster, scenario by scenario. Each round drops you into a real-world misconfiguration — RBAC, network policies, PodSecurity, secrets — and asks you to spot the issue before an attacker does.
-          </p>
-        </header>
-
-        @if (!gameStarted()) {
-          <div class="rounded-2xl border border-border/60 bg-card p-6 md:p-10 mb-6">
-            <h2 class="text-xl md:text-2xl font-bold mb-4">How the Simulator Works</h2>
-            <ul class="space-y-3 text-sm md:text-base text-muted-foreground mb-6">
-              <li class="flex items-start gap-3">
-                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-orange-500/15 text-orange-500 font-bold text-xs flex-shrink-0 mt-0.5">1</span>
-                <span>Each scenario shows a real Kubernetes manifest or cluster configuration with a hidden security flaw.</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-orange-500/15 text-orange-500 font-bold text-xs flex-shrink-0 mt-0.5">2</span>
-                <span>Identify the misconfiguration from four plausible options — the wrong answers explain why they aren't the issue.</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-orange-500/15 text-orange-500 font-bold text-xs flex-shrink-0 mt-0.5">3</span>
-                <span>Read the explanation, follow the link to the relevant lesson, and move to the next scenario.</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-orange-500/15 text-orange-500 font-bold text-xs flex-shrink-0 mt-0.5">4</span>
-                <span>Score yourself across all six rounds — covering RBAC, namespaces, network policies, PodSecurity, secrets, and image security.</span>
-              </li>
-            </ul>
-
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-              <div class="rounded-lg bg-accent/40 p-3 text-center">
-                <div class="text-2xl font-extrabold">{{ scenarios.length }}</div>
-                <div class="text-[10px] text-muted-foreground uppercase tracking-wider">Scenarios</div>
-              </div>
-              <div class="rounded-lg bg-accent/40 p-3 text-center">
-                <div class="text-2xl font-extrabold">~10</div>
-                <div class="text-[10px] text-muted-foreground uppercase tracking-wider">Minutes</div>
-              </div>
-              <div class="rounded-lg bg-accent/40 p-3 text-center col-span-2 md:col-span-1">
-                <div class="text-2xl font-extrabold">Hard</div>
-                <div class="text-[10px] text-muted-foreground uppercase tracking-wider">Difficulty</div>
-              </div>
-            </div>
-
-            <button (click)="startGame()" class="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-orange-500 hover:bg-orange-400 text-white font-bold px-7 py-3.5 text-sm shadow-lg shadow-orange-500/30 hover:shadow-xl hover:-translate-y-0.5 transition-all">
-              Start Simulation
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-            </button>
-          </div>
-
-          <div class="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-6 md:p-8">
-            <h2 class="text-lg md:text-xl font-bold mb-3">What You'll Practice</h2>
-            <p class="text-sm text-muted-foreground leading-relaxed mb-5">
-              The simulator covers the core security disciplines every Kubernetes operator needs to be fluent in. Each scenario maps to a real CVE class, a real production incident, or a misconfiguration class flagged by tools like <code class="text-xs bg-muted px-1.5 py-0.5 rounded">kube-bench</code>, <code class="text-xs bg-muted px-1.5 py-0.5 rounded">trivy</code>, and <code class="text-xs bg-muted px-1.5 py-0.5 rounded">polaris</code>.
-            </p>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-              <div class="rounded-lg border border-border/40 bg-card p-3"><strong class="text-foreground">RBAC</strong><p class="text-muted-foreground mt-0.5">Least-privilege roles &amp; bindings</p></div>
-              <div class="rounded-lg border border-border/40 bg-card p-3"><strong class="text-foreground">Network Policies</strong><p class="text-muted-foreground mt-0.5">East-west traffic isolation</p></div>
-              <div class="rounded-lg border border-border/40 bg-card p-3"><strong class="text-foreground">PodSecurity</strong><p class="text-muted-foreground mt-0.5">Restricted &amp; baseline standards</p></div>
-              <div class="rounded-lg border border-border/40 bg-card p-3"><strong class="text-foreground">Secrets</strong><p class="text-muted-foreground mt-0.5">CSI drivers &amp; secret rotation</p></div>
-              <div class="rounded-lg border border-border/40 bg-card p-3"><strong class="text-foreground">Namespaces</strong><p class="text-muted-foreground mt-0.5">Tenant boundaries &amp; quotas</p></div>
-              <div class="rounded-lg border border-border/40 bg-card p-3"><strong class="text-foreground">Image Security</strong><p class="text-muted-foreground mt-0.5">Signing, SBOM &amp; provenance</p></div>
-            </div>
-            <p class="mt-5 text-xs text-muted-foreground">
-              Want to go deeper after the simulation? Take the free
-              <a routerLink="/courses/cloud-native-security-engineering" class="text-primary underline">Cloud Native Security Engineering</a> course or the
-              <a routerLink="/courses/kubernetes-runtime-security" class="text-primary underline">Kubernetes Runtime Security</a> guide.
-            </p>
-          </div>
-        }
-
-        @if (gameStarted() && !gameEnded()) {
-          <div class="rounded-2xl border border-border/60 bg-card p-6 md:p-8 mb-6">
-            <div class="flex items-center justify-between text-sm mb-4">
-              <span class="text-muted-foreground">Scenario {{ currentIndex() + 1 }} of {{ scenarios.length }}</span>
-              <span>Score: <strong class="text-foreground">{{ score() }} / {{ currentIndex() + (answered() ? 1 : 0) }}</strong></span>
-            </div>
-            <div class="h-2 bg-muted rounded-full overflow-hidden mb-6">
-              <div class="h-full bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 transition-all duration-500"
-                   [style.width.%]="((currentIndex() + (answered() ? 1 : 0)) / scenarios.length) * 100"></div>
-            </div>
-
-            <div class="flex flex-wrap items-center gap-2 mb-4">
-              <span class="inline-flex items-center rounded-full bg-orange-500/15 text-orange-500 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-                {{ currentScenario().topic }}
-              </span>
-              <h2 class="text-lg md:text-xl font-bold tracking-tight">{{ currentScenario().title }}</h2>
-            </div>
-            <p class="text-sm text-muted-foreground mb-4 leading-relaxed">{{ currentScenario().briefing }}</p>
-
-            <pre class="bg-muted rounded-lg p-4 overflow-x-auto text-xs md:text-sm font-mono mb-6 leading-relaxed"><code>{{ currentScenario().yaml }}</code></pre>
-
-            <p class="font-semibold mb-3">{{ currentScenario().question }}</p>
-
-            <div class="space-y-2">
-              @for (choice of currentScenario().choices; track $index; let i = $index) {
-                <button
-                  (click)="select(i)"
-                  [disabled]="answered()"
-                  class="w-full text-left rounded-xl border-2 p-4 text-sm md:text-base transition-all duration-200"
-                  [ngClass]="getChoiceClasses(i, choice.correct)">
-                  <div class="flex items-start gap-3">
-                    <span class="inline-flex items-center justify-center h-7 w-7 rounded-full text-xs font-bold flex-shrink-0 mt-0.5"
-                          [ngClass]="getBadgeClasses(i, choice.correct)">
-                      {{ ['A','B','C','D'][i] }}
-                    </span>
-                    <div class="flex-1">
-                      <div class="font-medium">{{ choice.label }}</div>
-                      @if (answered() && (choice.correct || selectedIndex() === i)) {
-                        <p class="mt-2 text-xs text-muted-foreground leading-relaxed">{{ choice.feedback }}</p>
-                      }
-                    </div>
-                  </div>
-                </button>
-              }
-            </div>
-
-            @if (answered()) {
-              <div class="mt-6 rounded-xl border border-orange-500/30 bg-orange-500/5 p-5">
-                <h3 class="text-sm font-bold mb-2 text-orange-500 uppercase tracking-wider">What actually happens in production</h3>
-                <p class="text-sm text-foreground/90 leading-relaxed mb-3">{{ currentScenario().explanation }}</p>
-                <a [routerLink]="currentScenario().learnMore.href" class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:gap-2.5 transition-all">
-                  {{ currentScenario().learnMore.label }}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                </a>
-              </div>
-
-              <button (click)="next()" class="mt-5 w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-foreground text-background font-bold px-6 py-3 text-sm hover:gap-3 transition-all">
-                {{ currentIndex() + 1 < scenarios.length ? 'Next scenario' : 'See your results' }}
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-              </button>
-            }
-          </div>
-        }
-
-        @if (gameEnded()) {
-          <div class="rounded-2xl border border-border/60 bg-gradient-to-br from-orange-500/10 via-card to-amber-500/10 p-8 md:p-12 text-center">
-            <div class="text-6xl mb-4" aria-hidden="true">{{ resultEmoji() }}</div>
-            <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-3">{{ resultHeadline() }}</h2>
-            <p class="text-lg text-muted-foreground mb-2">You scored</p>
-            <div class="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 bg-clip-text text-transparent mb-3">
-              {{ score() }} / {{ scenarios.length }}
-            </div>
-            <p class="text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed mb-8">
-              {{ resultMessage() }}
-            </p>
-            <div class="flex flex-wrap justify-center gap-3">
-              <button (click)="restart()" class="inline-flex items-center gap-2 rounded-full bg-orange-500 hover:bg-orange-400 text-white font-bold px-6 py-3 text-sm shadow-lg shadow-orange-500/30 hover:-translate-y-0.5 transition-all">
-                Play again
-              </button>
-              <a routerLink="/courses/cloud-native-security-engineering" class="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-6 py-3 text-sm font-semibold text-foreground hover:bg-accent transition-all">
-                Take the full course
-              </a>
-              <a routerLink="/games" class="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-6 py-3 text-sm font-semibold text-foreground hover:bg-accent transition-all">
-                Try another simulator
-              </a>
-            </div>
-          </div>
-        }
-      </div>
-    </section>
+    <app-scenario-quiz [scenarios]="scenarios" [theme]="theme" [intro]="intro" [results]="results" [callToActions]="callToActions" />
   `,
 })
 export class KubernetesSecuritySimulatorComponent {
   private seo = inject(SeoService);
-
-  gameStarted = signal(false);
-  currentIndex = signal(0);
-  selectedIndex = signal<number | null>(null);
-  answered = signal(false);
-  score = signal(0);
 
   scenarios: Scenario[] = [
     {
@@ -464,92 +264,59 @@ metadata:
     },
   ];
 
-  currentScenario = computed<Scenario>(() => this.scenarios[this.currentIndex()]);
-  gameEnded = computed<boolean>(() => this.gameStarted() && this.currentIndex() >= this.scenarios.length);
+  theme: QuizTheme = {
+    badgePill: 'bg-orange-500/10 border-orange-500/30 text-orange-500',
+    accentText: 'text-orange-500',
+    titleGradient: 'from-orange-500 via-amber-500 to-yellow-500',
+    numberCircle: 'bg-orange-500/15 text-orange-500',
+    startButton: 'bg-orange-500 hover:bg-orange-400 shadow-orange-500/30',
+    topicPill: 'bg-orange-500/15 text-orange-500',
+    callout: 'border-orange-500/30 bg-orange-500/5',
+    calloutTitle: 'text-orange-500',
+    resultsBg: 'from-orange-500/10 via-card to-amber-500/10',
+  };
 
-  resultEmoji = computed<string>(() => {
-    const pct = this.score() / this.scenarios.length;
-    if (pct === 1) return '\u{1F947}';
-    if (pct >= 0.8) return '\u{1F6E1}\u{FE0F}';
-    if (pct >= 0.5) return '\u{1F4DA}';
-    return '\u{1F50D}';
-  });
+  intro: QuizIntro = {
+    badge: 'Interactive Security Lab',
+    titlePlain: 'Kubernetes Security',
+    titleGradient: 'Simulator',
+    description: 'Secure a production Kubernetes cluster, scenario by scenario. Each round drops you into a real-world misconfiguration across RBAC, NetworkPolicy, PodSecurity, secrets, namespaces, and image security.',
+    steps: [
+      'Each scenario shows a real Kubernetes manifest or cluster configuration with a hidden security flaw.',
+      'Identify the misconfiguration from four plausible options; the wrong answers explain why they are not the issue.',
+      'Read the production explanation, follow the linked lesson, and move to the next scenario.',
+      'Score yourself across six rounds covering RBAC, namespace boundaries, network policy, PodSecurity, secrets, and image provenance.',
+    ],
+    practiceTitle: `What You'll Practice`,
+    practiceDescription: 'The simulator covers the core security disciplines every Kubernetes operator needs to be fluent in. Each scenario maps to a real production incident class or a misconfiguration flagged by tools like kube-bench, trivy, and polaris.',
+    practiceConcepts: [
+      { name: 'RBAC', description: 'Least-privilege roles, bindings, and escalation paths' },
+      { name: 'Network Policies', description: 'Default-deny isolation and explicit east-west traffic' },
+      { name: 'PodSecurity', description: 'Restricted profile decisions and host escape prevention' },
+      { name: 'Secrets', description: 'External stores, CSI projection, and rotation hygiene' },
+      { name: 'Namespaces', description: 'Tenant boundaries, quotas, and ownership controls' },
+      { name: 'Image Security', description: 'Signing, SBOMs, digest pinning, and provenance' },
+    ],
+    deeperLine: 'Want to go deeper after the simulation? Open the ',
+    deeperLinks: [
+      { label: 'Cloud Native Security Engineering course', href: '/courses/cloud-native-security-engineering' },
+      { label: 'Kubernetes Security cheatsheet', href: '/cheatsheets/kubernetes-security' },
+    ],
+    timeMinutes: 10,
+    difficulty: 'Hard',
+  };
 
-  resultHeadline = computed<string>(() => {
-    const pct = this.score() / this.scenarios.length;
-    if (pct === 1) return 'Cluster secured. Flawless run.';
-    if (pct >= 0.8) return 'Solid operator instincts.';
-    if (pct >= 0.5) return 'Good foundation — refine the rough edges.';
-    return 'Time to dig into the fundamentals.';
-  });
+  results: QuizResults = {
+    perfect: { headline: 'Cluster secured. Flawless run.', emoji: '1', message: 'You spotted every misconfiguration in this run. The Cloud Native Security Engineering course goes deeper into multi-cluster federation, supply-chain attestation, and runtime detection.' },
+    great: { headline: 'Solid operator instincts.', emoji: '2', message: 'You read manifests like a security engineer. Brush up on the few you missed in the relevant lessons, then take on the full course for production-scale scenarios.' },
+    good: { headline: 'Good foundation. Refine the rough edges.', emoji: '3', message: 'You know enough to spot the shape of the risk. The structured curriculum covers each scenario in depth with labs that deploy the fixes on a real cluster.' },
+    weak: { headline: 'Time to dig into the fundamentals.', emoji: '4', message: 'Most of these scenarios are textbook misconfigurations covered in the first modules of the Cloud Native Security Engineering course. Start there, then run this again.' },
+  };
 
-  resultMessage = computed<string>(() => {
-    const pct = this.score() / this.scenarios.length;
-    if (pct === 1) {
-      return 'You spotted every misconfiguration in this run. The free Cloud Native Security Engineering course goes deeper into multi-cluster federation, supply-chain attestation, and runtime detection.';
-    }
-    if (pct >= 0.8) {
-      return 'You read manifests like a security engineer. Brush up on the few you missed in the relevant lessons, then take on the full course for production-scale scenarios.';
-    }
-    if (pct >= 0.5) {
-      return 'You know enough to be dangerous. The structured curriculum covers each of these scenarios in depth — with the labs to actually deploy the fixes on a real cluster.';
-    }
-    return 'Most of these scenarios are textbook misconfigurations covered in the first three modules of the Cloud Native Security Engineering course. Start there — come back and run this again.';
-  });
-
-  startGame() {
-    this.gameStarted.set(true);
-    this.currentIndex.set(0);
-    this.score.set(0);
-    this.answered.set(false);
-    this.selectedIndex.set(null);
-  }
-
-  select(i: number) {
-    if (this.answered()) return;
-    this.selectedIndex.set(i);
-    this.answered.set(true);
-    if (this.currentScenario().choices[i].correct) {
-      this.score.update(s => s + 1);
-    }
-  }
-
-  next() {
-    this.answered.set(false);
-    this.selectedIndex.set(null);
-    this.currentIndex.update(i => i + 1);
-  }
-
-  restart() {
-    this.startGame();
-  }
-
-  getChoiceClasses(index: number, isCorrect: boolean): Record<string, boolean> {
-    const isAnswered = this.answered();
-    const isSelected = this.selectedIndex() === index;
-    return {
-      'border-border': !isAnswered || (isAnswered && !isSelected && !isCorrect),
-      'hover:border-primary': !isAnswered,
-      'hover:bg-accent': !isAnswered,
-      'border-green-500': isAnswered && isCorrect,
-      'bg-green-500/10': isAnswered && isCorrect,
-      'border-red-500': isAnswered && isSelected && !isCorrect,
-      'bg-red-500/10': isAnswered && isSelected && !isCorrect,
-      'opacity-60': isAnswered && !isSelected && !isCorrect,
-    };
-  }
-
-  getBadgeClasses(index: number, isCorrect: boolean): Record<string, boolean> {
-    const isAnswered = this.answered();
-    const isSelected = this.selectedIndex() === index;
-    return {
-      'bg-muted': !isAnswered || (isAnswered && !isSelected && !isCorrect),
-      'bg-green-500': isAnswered && isCorrect,
-      'bg-red-500': isAnswered && isSelected && !isCorrect,
-      'text-white': isAnswered && (isCorrect || (isSelected && !isCorrect)),
-    };
-  }
-
+  callToActions: QuizCallToActions = {
+    primary: { label: 'Take the full course', href: '/courses/cloud-native-security-engineering' },
+    secondary: { label: 'Open Kubernetes security sheet', href: '/cheatsheets/kubernetes-security' },
+  };
   constructor() {
     this.seo.update({
       title: 'Kubernetes Security Simulator',

@@ -208,16 +208,24 @@ export class SeoService {
 
   private buildTitle(title: string): string {
     const trimmedTitle = title.trim();
+    const normalizedTitle = this.normalizeTitleSeparators(trimmedTitle);
 
-    if (trimmedTitle === this.siteName) {
-      return `${this.siteName} — Security, AI, Data & Production Engineering`;
+    if (normalizedTitle === this.siteName) {
+      return `${this.siteName} | Security, AI, Data & Production Engineering`;
     }
 
-    if (trimmedTitle.toLowerCase().includes(this.siteName.toLowerCase())) {
-      return trimmedTitle;
+    if (normalizedTitle.toLowerCase().includes(this.siteName.toLowerCase())) {
+      return normalizedTitle;
     }
 
-    return `${trimmedTitle} | ${this.siteName}`;
+    return `${normalizedTitle} | ${this.siteName}`;
+  }
+
+  private normalizeTitleSeparators(title: string): string {
+    return title
+      .replace(/\s+(?:\u2014|\u2013|\u00e2\u20ac\u201d|-)\s+/g, ' | ')
+      .replace(/\s+\|\s+/g, ' | ')
+      .trim();
   }
 
   private updateCanonical(url: string) {

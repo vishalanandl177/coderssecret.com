@@ -41,7 +41,7 @@ const categoryNames = {
   'open-source': 'Open Source',
 };
 
-const HOME_TITLE = `${SITE_NAME} - Security, AI, Data & Production Engineering`;
+const HOME_TITLE = `${SITE_NAME} | Security, AI, Data & Production Engineering`;
 const HOME_DESCRIPTION = 'Free engineering courses and guides on Kubernetes, SPIFFE/SPIRE, Zero Trust, production RAG, analytics engineering, DevSecOps, labs, and diagrams.';
 
 // Read the built index.html
@@ -49,7 +49,7 @@ const baseHtml = fs.readFileSync(path.join(OUTPUT_DIR, 'index.html'), 'utf-8');
 
 function makeHtml(options) {
   const { title, description, url, content, jsonLd, image, fullTitle: explicitFullTitle, ogType = 'website', extraHead = '' } = options;
-  const fullTitle = explicitFullTitle || buildFullTitle(title);
+  const fullTitle = normalizeTitleSeparators(explicitFullTitle || buildFullTitle(title));
   const canonical = `${SITE_URL}${url}`;
   const ogImage = image ? `${SITE_URL}${image}` : `${SITE_URL}/og-image.svg`;
   const safeTitle = escapeHtml(fullTitle);
@@ -109,12 +109,20 @@ function makeHtml(options) {
 
 function buildFullTitle(title) {
   const trimmedTitle = String(title || SITE_NAME).trim();
+  const normalizedTitle = normalizeTitleSeparators(trimmedTitle);
 
-  if (trimmedTitle.toLowerCase().includes(SITE_NAME.toLowerCase())) {
-    return trimmedTitle;
+  if (normalizedTitle.toLowerCase().includes(SITE_NAME.toLowerCase())) {
+    return normalizedTitle;
   }
 
-  return `${trimmedTitle} | ${SITE_NAME}`;
+  return `${normalizedTitle} | ${SITE_NAME}`;
+}
+
+function normalizeTitleSeparators(title) {
+  return String(title || '')
+    .replace(/\s+(?:\u2014|\u2013|\u00e2\u20ac\u201d|-)\s+/g, ' | ')
+    .replace(/\s+\|\s+/g, ' | ')
+    .trim();
 }
 
 function wrapPrerenderContent(content) {
@@ -1070,20 +1078,97 @@ fs.writeFileSync(path.join(OUTPUT_DIR, 'index.html'), makeHtml({
 created++;
 
 // ── Blog list page (/blog) ────────────────────
+const BLOG_LIST_TITLE = 'Blog | CodersSecret | Practical Engineering Tutorials';
+const BLOG_LIST_DESCRIPTION = 'Practical tutorials on system design, security, DevOps, AI, cloud, Python, databases, and production software engineering.';
+const visibleBlogPosts = posts.slice(0, 24);
+const startHerePosts = posts.filter(post => post.featured).slice(0, 4);
+const topicLinks = [
+  ['Security', 'security'],
+  ['System Design', 'system-design'],
+  ['DevOps', 'devops'],
+  ['AI', 'ai'],
+  ['Python', 'python'],
+  ['Cloud', 'cloud'],
+  ['Data', 'data'],
+  ['Frontend', 'frontend'],
+  ['Career', 'career'],
+];
 const blogListContent = `
-  <h1>All Articles — CodersSecret</h1>
-  <p>Battle-tested tutorials on Python, DevOps, APIs, AI, and system design. Every article can also be watched as a narrated slide presentation — click "Watch as Slides" on any tutorial.</p>
-  <ul>
-    ${posts.map(p => `<li><a href="/blog/${p.slug}">${escapeHtml(p.title)}</a> — ${escapeHtml(p.excerpt)} · <a href="/slides/${p.slug}">Watch as Slides</a></li>`).join('\n    ')}
-  </ul>
+  <nav aria-label="Breadcrumb"><a href="/">Home</a> / Blog</nav>
+  <header>
+    <p>CodersSecret blog</p>
+    <h1>Learn the systems behind production software</h1>
+    <p>${escapeHtml(BLOG_LIST_DESCRIPTION)}</p>
+    <p><a href="/courses">Start with courses</a> <a href="/cheatsheets">Use reference sheets</a></p>
+  </header>
+  <section aria-labelledby="blog-start-here">
+    <p>Start here</p>
+    <h2 id="blog-start-here">Featured paths for practical engineers</h2>
+    <ul>
+      ${(startHerePosts.length ? startHerePosts : posts.slice(0, 4)).map(post => `<li><a href="/blog/${post.slug}">${escapeHtml(post.title)}</a> - ${escapeHtml(post.excerpt)} <a href="/slides/${post.slug}">Watch as Slides</a></li>`).join('\n      ')}
+    </ul>
+  </section>
+  <section aria-labelledby="blog-topics">
+    <p>Browse by topic</p>
+    <h2 id="blog-topics">Find the guide that matches your work</h2>
+    <ul>
+      ${topicLinks.map(([label, tag]) => `<li><a href="/blog?tag=${encodeURIComponent(tag)}">${escapeHtml(label)}</a></li>`).join('\n      ')}
+    </ul>
+  </section>
+  <section aria-labelledby="blog-latest">
+    <p>Latest practical guides</p>
+    <h2 id="blog-latest">Newest engineering tutorials</h2>
+    <ul>
+      ${posts.map(post => `<li><article><h3><a href="/blog/${post.slug}">${escapeHtml(post.title)}</a></h3><p>${escapeHtml(post.excerpt)}</p><p>${escapeHtml(categoryNames[post.category] || post.category || 'Guide')} ${post.date ? `| ${escapeHtml(post.date)}` : ''} ${post.readTime ? `| ${escapeHtml(post.readTime)}` : ''}</p><p><a href="/blog/${post.slug}">Read article</a> <a href="/slides/${post.slug}">Watch as Slides</a></p></article></li>`).join('\n      ')}
+    </ul>
+  </section>
 `;
+const blogListJsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    'name': BLOG_LIST_TITLE,
+    'description': BLOG_LIST_DESCRIPTION,
+    'url': `${SITE_URL}/blog/`,
+    'mainEntity': {
+      '@type': 'ItemList',
+      'numberOfItems': visibleBlogPosts.length,
+      'itemListElement': visibleBlogPosts.map((post, index) => ({
+        '@type': 'ListItem',
+        'position': index + 1,
+        'url': `${SITE_URL}/blog/${post.slug}`,
+        'name': post.title,
+        'description': post.excerpt,
+      })),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': SITE_URL,
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': 'Blog',
+        'item': `${SITE_URL}/blog/`,
+      },
+    ],
+  },
+];
 const blogDir = path.join(OUTPUT_DIR, 'blog');
 fs.mkdirSync(blogDir, { recursive: true });
 fs.writeFileSync(path.join(blogDir, 'index.html'), makeHtml({
-  title: 'All Articles',
-  description: 'Browse all articles on Python, DevOps, APIs, Kubernetes, security, and modern web development.',
-  url: '/blog',
+  title: BLOG_LIST_TITLE,
+  description: BLOG_LIST_DESCRIPTION,
+  url: '/blog/',
   content: blogListContent,
+  jsonLd: blogListJsonLd,
 }));
 created++;
 

@@ -1,66 +1,29 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { CheatsheetHeader, CheatsheetPageComponent, CommandGroup } from '../_shared/cheatsheet-page';
 import { SeoService } from '../../../services/seo.service';
 
-interface Section {
-  title: string;
+interface Section extends CommandGroup {
   items: { cmd: string; desc: string }[];
 }
 
 @Component({
   selector: 'app-cheatsheet-python',
-  imports: [RouterLink],
+  imports: [CheatsheetPageComponent],
   template: `
-    <section class="py-16 md:py-20 animate-in fade-in duration-500">
-      <div class="container max-w-5xl mx-auto px-6">
-        <nav aria-label="Breadcrumb" class="mb-6">
-          <ol class="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <li><a routerLink="/" class="hover:text-foreground transition-colors">Home</a></li>
-            <li class="text-muted-foreground/50">/</li>
-            <li><a routerLink="/cheatsheets" class="hover:text-foreground transition-colors">Cheat Sheets</a></li>
-            <li class="text-muted-foreground/50">/</li>
-            <li class="text-foreground font-medium" aria-current="page">Python</li>
-          </ol>
-        </nav>
-
-        <div class="flex items-center gap-4 mb-8">
-          <span class="text-5xl">🐍</span>
-          <div>
-            <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">Python Cheat Sheet</h1>
-            <p class="text-muted-foreground mt-1">Essential Python syntax and patterns — bookmark this page</p>
-          </div>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-5">
-          @for (section of sections; track section.title) {
-            <div class="rounded-xl border border-border/60 bg-card overflow-hidden">
-              <div class="px-5 py-3 bg-muted/50 border-b border-border/40">
-                <h2 class="text-sm font-bold uppercase tracking-wider">{{ section.title }}</h2>
-              </div>
-              <div class="divide-y divide-border/40">
-                @for (item of section.items; track item.cmd) {
-                  <div class="px-5 py-3 flex gap-4 hover:bg-accent/30 transition-colors">
-                    <code class="text-xs font-mono bg-muted px-2 py-1 rounded flex-shrink-0 max-w-[55%] overflow-x-auto whitespace-nowrap">{{ item.cmd }}</code>
-                    <span class="text-xs text-muted-foreground">{{ item.desc }}</span>
-                  </div>
-                }
-              </div>
-            </div>
-          }
-        </div>
-
-        <div class="mt-8 text-center">
-          <a routerLink="/cheatsheets" class="text-sm text-muted-foreground hover:text-foreground">← All Cheat Sheets</a>
-          <span class="mx-3 text-muted-foreground/50">|</span>
-          <a routerLink="/blog" [queryParams]="{tag:'Python'}" class="text-sm text-primary hover:underline">Read Python tutorials →</a>
-        </div>
-      </div>
-    </section>
+    <app-cheatsheet-page [header]="header" [groups]="sections" />
   `,
 })
 export class PythonCheatsheetComponent {
   private seo = inject(SeoService);
 
+  header: CheatsheetHeader = {
+    icon: 'REF',
+    iconColor: '',
+    badge: 'Production Reference',
+    badgeClass: '',
+    title: 'Python Cheat Sheet',
+    intro: 'Essential Python syntax, runtime patterns, standard-library helpers, and environment commands worth keeping close while building production code.',
+  };
   sections: Section[] = [
     {
       title: 'Variables & Data Types',

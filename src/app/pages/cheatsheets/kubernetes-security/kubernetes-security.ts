@@ -1,136 +1,60 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { SeoService } from '../../../services/seo.service';
-
-interface CommandRow {
-  cmd: string;
-  desc: string;
-  prodNote?: string;
-  warning?: string;
-}
-
-interface CommandGroup {
-  title: string;
-  rows: CommandRow[];
-}
-
-interface MisconfigPair {
-  bad: string;
-  good: string;
-  why: string;
-}
+import { CheatsheetHeader, CheatsheetPageComponent, CommandGroup, MisconfigPair, RelatedLink } from '../_shared/cheatsheet-page';
 
 @Component({
   selector: 'app-cheatsheet-kubernetes-security',
-  imports: [RouterLink],
+  imports: [CheatsheetPageComponent],
   template: `
-    <section class="py-12 md:py-16 animate-in fade-in duration-500">
-      <div class="container max-w-5xl mx-auto px-6">
-        <nav aria-label="Breadcrumb" class="mb-6">
-          <ol class="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <li><a routerLink="/" class="hover:text-foreground transition-colors">Home</a></li>
-            <li class="text-muted-foreground/50">/</li>
-            <li><a routerLink="/cheatsheets" class="hover:text-foreground transition-colors">Reference</a></li>
-            <li class="text-muted-foreground/50">/</li>
-            <li class="text-foreground font-medium" aria-current="page">Kubernetes Security</li>
-          </ol>
-        </nav>
+    <app-cheatsheet-page [header]="header" [groups]="groups" [misconfigPairs]="misconfigurations" [relatedLinks]="related">
+      <section slot="diagram" class="mb-10" aria-labelledby="auth-chain-heading">
+        <div class="md3-learning-section-heading">
+          <span class="md3-learning-eyebrow">Request path</span>
+          <h2 id="auth-chain-heading">Kubernetes Authorization Chain</h2>
+          <p>Every API request goes through this chain. Most security misconfigurations are failures at the authentication, authorization, or admission layer.</p>
+        </div>
+        <div class="md3-learning-card">
+          <svg viewBox="0 0 760 130" class="w-full h-auto" role="img" aria-label="Kubernetes API request authorization chain diagram">
+            <defs>
+              <marker id="kArr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                <path d="M0,0 L7,3 L0,6 Z" fill="currentColor" class="text-muted-foreground"/>
+              </marker>
+            </defs>
+            <rect x="10" y="40" width="120" height="50" rx="16" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="70" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor">Client</text>
+            <text x="70" y="76" text-anchor="middle" font-size="9" fill="currentColor">kubectl / SDK</text>
+            <line x1="130" y1="65" x2="160" y2="65" stroke="currentColor" stroke-width="1.5" marker-end="url(#kArr)"/>
+            <rect x="160" y="40" width="120" height="50" rx="16" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="220" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor">Authentication</text>
+            <text x="220" y="76" text-anchor="middle" font-size="9" fill="currentColor">x509 / OIDC / SA</text>
+            <line x1="280" y1="65" x2="310" y2="65" stroke="currentColor" stroke-width="1.5" marker-end="url(#kArr)"/>
+            <rect x="310" y="40" width="120" height="50" rx="16" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="370" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor">Authorization</text>
+            <text x="370" y="76" text-anchor="middle" font-size="9" fill="currentColor">RBAC / Webhook</text>
+            <line x1="430" y1="65" x2="460" y2="65" stroke="currentColor" stroke-width="1.5" marker-end="url(#kArr)"/>
+            <rect x="460" y="40" width="120" height="50" rx="16" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="520" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor">Admission</text>
+            <text x="520" y="76" text-anchor="middle" font-size="9" fill="currentColor">PSA / OPA</text>
+            <line x1="580" y1="65" x2="610" y2="65" stroke="currentColor" stroke-width="1.5" marker-end="url(#kArr)"/>
+            <rect x="610" y="40" width="120" height="50" rx="16" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="670" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor">etcd</text>
+            <text x="670" y="76" text-anchor="middle" font-size="9" fill="currentColor">persisted</text>
+          </svg>
+        </div>
+      </section>
 
-        <header class="mb-10">
-          <div class="flex items-center gap-4 mb-4">
-            <span class="text-4xl md:text-5xl" aria-hidden="true">🛡️</span>
-            <div>
-              <span class="inline-block rounded-full bg-orange-500/10 border border-orange-500/30 px-3 py-0.5 text-[10px] font-bold text-orange-500 uppercase tracking-wider mb-2">Production Reference</span>
-              <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">Kubernetes Security Cheatsheet</h1>
-            </div>
+      <section slot="after-commands" class="mt-10" aria-labelledby="lab-heading">
+        <div class="md3-learning-section-heading">
+          <span class="md3-learning-eyebrow">Try it yourself</span>
+          <h2 id="lab-heading">Default-Deny NetworkPolicy</h2>
+          <p>Drop this into a namespace to block all ingress and egress, then add explicit allow rules for the traffic that should exist.</p>
+        </div>
+        <div class="md3-learning-command-card">
+          <div class="md3-learning-command-header">
+            <h3>network-policy-default-deny.yaml</h3>
+            <span class="md3-chip-selected">Blast-radius control</span>
           </div>
-          <p class="text-base md:text-lg text-muted-foreground leading-relaxed max-w-3xl">
-            A production-grade quick reference for securing Kubernetes clusters. Covers RBAC, PodSecurity standards, NetworkPolicies, runtime detection, secrets, image security, and the audit/forensic commands you reach for during an incident — with security context for every entry.
-          </p>
-        </header>
-
-        <!-- Visual quick-reference: Auth chain -->
-        <section class="mb-10" aria-labelledby="auth-chain-heading">
-          <h2 id="auth-chain-heading" class="text-xl md:text-2xl font-extrabold tracking-tight mb-3">Kubernetes Authorization Chain</h2>
-          <p class="text-sm text-muted-foreground mb-4 leading-relaxed">
-            Every API request goes through this chain. Most security misconfigurations are failures at the Authentication or Authorization layer.
-          </p>
-          <div class="rounded-2xl border border-border/60 bg-card p-6">
-            <svg viewBox="0 0 760 130" class="w-full h-auto" role="img" aria-label="Kubernetes API request authorization chain diagram">
-              <defs>
-                <marker id="kArr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-                  <path d="M0,0 L7,3 L0,6 Z" fill="currentColor" class="text-muted-foreground"/>
-                </marker>
-              </defs>
-              <rect x="10" y="40" width="120" height="50" rx="8" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
-              <text x="70" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="#3b82f6">Client</text>
-              <text x="70" y="76" text-anchor="middle" font-size="9" fill="currentColor" class="text-muted-foreground">kubectl / SDK</text>
-
-              <line x1="130" y1="65" x2="160" y2="65" stroke="currentColor" class="text-muted-foreground" stroke-width="1.5" marker-end="url(#kArr)"/>
-
-              <rect x="160" y="40" width="120" height="50" rx="8" fill="none" stroke="#a855f7" stroke-width="1.5"/>
-              <text x="220" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="#a855f7">Authentication</text>
-              <text x="220" y="76" text-anchor="middle" font-size="9" fill="currentColor" class="text-muted-foreground">x509 / OIDC / SA token</text>
-
-              <line x1="280" y1="65" x2="310" y2="65" stroke="currentColor" class="text-muted-foreground" stroke-width="1.5" marker-end="url(#kArr)"/>
-
-              <rect x="310" y="40" width="120" height="50" rx="8" fill="none" stroke="#ec4899" stroke-width="1.5"/>
-              <text x="370" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="#ec4899">Authorization</text>
-              <text x="370" y="76" text-anchor="middle" font-size="9" fill="currentColor" class="text-muted-foreground">RBAC / ABAC / Webhook</text>
-
-              <line x1="430" y1="65" x2="460" y2="65" stroke="currentColor" class="text-muted-foreground" stroke-width="1.5" marker-end="url(#kArr)"/>
-
-              <rect x="460" y="40" width="120" height="50" rx="8" fill="none" stroke="#f97316" stroke-width="1.5"/>
-              <text x="520" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="#f97316">Admission</text>
-              <text x="520" y="76" text-anchor="middle" font-size="9" fill="currentColor" class="text-muted-foreground">PodSecurity / OPA / Kyverno</text>
-
-              <line x1="580" y1="65" x2="610" y2="65" stroke="currentColor" class="text-muted-foreground" stroke-width="1.5" marker-end="url(#kArr)"/>
-
-              <rect x="610" y="40" width="120" height="50" rx="8" fill="none" stroke="#22c55e" stroke-width="1.5"/>
-              <text x="670" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="#22c55e">etcd</text>
-              <text x="670" y="76" text-anchor="middle" font-size="9" fill="currentColor" class="text-muted-foreground">resource persisted</text>
-            </svg>
-          </div>
-        </section>
-
-        <!-- Sectioned commands -->
-        @for (group of groups; track group.title) {
-          <section class="mb-10" [attr.aria-labelledby]="'group-' + slugify(group.title)">
-            <h2 [id]="'group-' + slugify(group.title)" class="text-xl md:text-2xl font-extrabold tracking-tight mb-4">{{ group.title }}</h2>
-            <div class="rounded-2xl border border-border/60 bg-card overflow-hidden">
-              <div class="divide-y divide-border/40">
-                @for (row of group.rows; track row.cmd) {
-                  <div class="px-5 py-4">
-                    <div class="flex flex-col md:flex-row md:items-start md:gap-4">
-                      <code class="block text-xs md:text-sm font-mono bg-muted px-3 py-2 rounded mb-2 md:mb-0 md:flex-shrink-0 md:max-w-[55%] overflow-x-auto whitespace-pre-wrap break-all">{{ row.cmd }}</code>
-                      <span class="text-sm text-muted-foreground md:flex-1">{{ row.desc }}</span>
-                    </div>
-                    @if (row.prodNote) {
-                      <div class="mt-2 rounded-lg border border-blue-500/20 bg-blue-500/5 p-3 text-xs text-foreground/90 leading-relaxed">
-                        <strong class="text-blue-500 uppercase tracking-wider text-[10px] font-bold mr-1">Production tip:</strong> {{ row.prodNote }}
-                      </div>
-                    }
-                    @if (row.warning) {
-                      <div class="mt-2 rounded-lg border border-red-500/20 bg-red-500/5 p-3 text-xs text-foreground/90 leading-relaxed">
-                        <strong class="text-red-500 uppercase tracking-wider text-[10px] font-bold mr-1">Security warning:</strong> {{ row.warning }}
-                      </div>
-                    }
-                  </div>
-                }
-              </div>
-            </div>
-          </section>
-        }
-
-        <!-- Try it yourself: default-deny NetworkPolicy -->
-        <section class="mb-10" aria-labelledby="lab-heading">
-          <h2 id="lab-heading" class="text-xl md:text-2xl font-extrabold tracking-tight mb-4">Try It Yourself: Default-Deny NetworkPolicy</h2>
-          <p class="text-sm text-muted-foreground mb-4 leading-relaxed">
-            Drop this in any namespace. It blocks all ingress and egress; you then add explicit allow rules for the traffic that should exist. This single change shrinks lateral-movement blast radius more than almost any other Kubernetes control.
-          </p>
-          <div class="rounded-2xl border border-border/60 bg-card overflow-hidden">
-            <div class="px-5 py-2 bg-muted/50 border-b border-border/40 text-[10px] font-mono text-muted-foreground uppercase tracking-wider">network-policy-default-deny.yaml</div>
-            <pre class="p-5 text-xs md:text-sm font-mono overflow-x-auto leading-relaxed"><code>apiVersion: networking.k8s.io/v1
+          <pre class="md3-learning-code"><code>apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: default-deny-all
@@ -141,7 +65,6 @@ spec:
   - Ingress
   - Egress
 ---
-# Then explicitly allow what should be allowed:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -156,84 +79,26 @@ spec:
   egress:
   - to:
     - ipBlock:
-        cidr: 10.20.0.0/16  # RDS subnet
+        cidr: 10.20.0.0/16
     ports:
     - protocol: TCP
       port: 5432</code></pre>
-          </div>
-        </section>
-
-        <!-- Common Misconfigurations (good vs bad) -->
-        <section class="mb-10" aria-labelledby="misconfigs-heading">
-          <h2 id="misconfigs-heading" class="text-xl md:text-2xl font-extrabold tracking-tight mb-4">Common Misconfigurations</h2>
-          <div class="space-y-5">
-            @for (m of misconfigurations; track m.bad) {
-              <div class="rounded-2xl border border-border/60 bg-card overflow-hidden">
-                <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border/40">
-                  <div class="p-5">
-                    <div class="flex items-center gap-2 mb-2">
-                      <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-500/15 text-red-500 text-xs font-bold" aria-hidden="true">✕</span>
-                      <span class="text-xs font-bold text-red-500 uppercase tracking-wider">Insecure</span>
-                    </div>
-                    <pre class="text-xs font-mono bg-muted rounded p-3 overflow-x-auto whitespace-pre-wrap break-all leading-relaxed"><code>{{ m.bad }}</code></pre>
-                  </div>
-                  <div class="p-5">
-                    <div class="flex items-center gap-2 mb-2">
-                      <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-500/15 text-green-500 text-xs font-bold" aria-hidden="true">✓</span>
-                      <span class="text-xs font-bold text-green-500 uppercase tracking-wider">Hardened</span>
-                    </div>
-                    <pre class="text-xs font-mono bg-muted rounded p-3 overflow-x-auto whitespace-pre-wrap break-all leading-relaxed"><code>{{ m.good }}</code></pre>
-                  </div>
-                </div>
-                <div class="px-5 py-3 bg-muted/30 border-t border-border/40 text-xs text-muted-foreground leading-relaxed">
-                  <strong class="text-foreground">Why:</strong> {{ m.why }}
-                </div>
-              </div>
-            }
-          </div>
-        </section>
-
-        <!-- Related learning -->
-        <section class="mb-10" aria-labelledby="related-heading">
-          <h2 id="related-heading" class="text-xl md:text-2xl font-extrabold tracking-tight mb-4">Related Tutorials &amp; Labs</h2>
-          <div class="grid md:grid-cols-2 gap-4">
-            <a routerLink="/courses/cloud-native-security-engineering" class="group rounded-2xl border border-border/60 bg-card p-5 hover:border-orange-500/40 hover:-translate-y-0.5 transition-all">
-              <div class="text-[10px] font-bold uppercase tracking-wider text-orange-500 mb-1">Course · Free</div>
-              <h3 class="font-bold mb-1 group-hover:text-primary transition-colors">Cloud Native Security Engineering</h3>
-              <p class="text-xs text-muted-foreground leading-relaxed">16 modules, 50+ labs covering every primitive on this cheatsheet from beginner to production.</p>
-            </a>
-            <a routerLink="/courses/kubernetes-runtime-security" class="group rounded-2xl border border-border/60 bg-card p-5 hover:border-orange-500/40 hover:-translate-y-0.5 transition-all">
-              <div class="text-[10px] font-bold uppercase tracking-wider text-orange-500 mb-1">Guide</div>
-              <h3 class="font-bold mb-1 group-hover:text-primary transition-colors">Kubernetes Runtime Security</h3>
-              <p class="text-xs text-muted-foreground leading-relaxed">Falco, Tetragon, eBPF — detect compromise inside running pods, not just at admission time.</p>
-            </a>
-            <a routerLink="/games/kubernetes-security-simulator" class="group rounded-2xl border border-border/60 bg-card p-5 hover:border-orange-500/40 hover:-translate-y-0.5 transition-all">
-              <div class="text-[10px] font-bold uppercase tracking-wider text-orange-500 mb-1">Interactive Lab</div>
-              <h3 class="font-bold mb-1 group-hover:text-primary transition-colors">Kubernetes Security Simulator</h3>
-              <p class="text-xs text-muted-foreground leading-relaxed">Six production scenarios. Spot the misconfigurations from this cheatsheet in real manifests.</p>
-            </a>
-            <a routerLink="/glossary" class="group rounded-2xl border border-border/60 bg-card p-5 hover:border-orange-500/40 hover:-translate-y-0.5 transition-all">
-              <div class="text-[10px] font-bold uppercase tracking-wider text-orange-500 mb-1">Reference</div>
-              <h3 class="font-bold mb-1 group-hover:text-primary transition-colors">Cloud Native Glossary</h3>
-              <p class="text-xs text-muted-foreground leading-relaxed">Quick definitions for SPIFFE, SVID, OPA, Falco, mTLS, and the rest of the cloud-native security vocabulary.</p>
-            </a>
-          </div>
-        </section>
-
-        <div class="mt-8 flex flex-wrap items-center justify-between gap-3 text-sm">
-          <a routerLink="/cheatsheets" class="text-muted-foreground hover:text-foreground transition-colors">← All reference sheets</a>
-          <a routerLink="/blog" [queryParams]="{tag:'Kubernetes Security'}" class="text-primary hover:underline">Read related tutorials →</a>
         </div>
-      </div>
-    </section>
+      </section>
+    </app-cheatsheet-page>
   `,
 })
 export class KubernetesSecurityCheatsheetComponent {
   private seo = inject(SeoService);
 
-  slugify(s: string): string {
-    return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  }
+  header: CheatsheetHeader = {
+    icon: 'K8S',
+    iconColor: '',
+    badge: 'Production Reference',
+    badgeClass: '',
+    title: 'Kubernetes Security Cheatsheet',
+    intro: 'A production-grade quick reference for securing Kubernetes clusters. Covers RBAC, PodSecurity standards, NetworkPolicies, runtime detection, secrets, image security, and audit or forensic commands with security context for every entry.',
+  };
 
   groups: CommandGroup[] = [
     {
@@ -464,6 +329,24 @@ env:
 # ...and ideally projected via the secrets-store CSI driver
 # pulling from Vault / AWS Secrets Manager.`,
       why: 'Plaintext secrets in manifests end up in Git history forever. Once leaked, the only fix is rotation — not a revert. Use external secret managers with the secrets-store CSI driver so the credential never touches source control.',
+    },
+  ];
+
+  related: RelatedLink[] = [
+    {
+      label: 'Cloud Native Security Engineering',
+      href: '/courses/cloud-native-security-engineering',
+      description: 'A free course covering the primitives on this cheatsheet from beginner foundations to production practice.',
+    },
+    {
+      label: 'Kubernetes Security Simulator',
+      href: '/games/kubernetes-security-simulator',
+      description: 'Practice the decisions from this reference against realistic production security scenarios.',
+    },
+    {
+      label: 'Cloud Native Glossary',
+      href: '/glossary',
+      description: 'Definitions for SPIFFE, SVID, OPA, Falco, mTLS, and other cloud-native security vocabulary.',
     },
   ];
 

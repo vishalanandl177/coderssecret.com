@@ -237,7 +237,7 @@ export class CourseSlidesComponent {
       type: 'end',
       title: `Module ${mod.number} Complete!`,
       subtitle: mod.number < course.modules.length
-        ? `Next up: Module ${mod.number + 1} — ${course.modules[mod.number]?.title}`
+        ? `Next up: Module ${mod.number + 1}: ${course.modules[mod.number]?.title}`
         : 'Congratulations! You have completed the entire course.',
       narration: mod.number < course.modules.length
         ? `You have completed Module ${mod.number}. Great work! Next up is Module ${mod.number + 1}: ${course.modules[mod.number]?.title}.`
@@ -246,7 +246,7 @@ export class CourseSlidesComponent {
 
     this.slides.set(generatedSlides);
     this.seo.update({
-      title: `Module ${mod.number}: ${mod.title} — Slides | CodersSecret`,
+      title: `Module ${mod.number}: ${mod.title} | Slides`,
       description: mod.subtitle,
     });
   }

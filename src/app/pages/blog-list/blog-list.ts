@@ -1,253 +1,530 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { BLOG_POSTS, CATEGORIES } from '../../models/blog-post.model';
+import { BLOG_POSTS, BlogPost, CATEGORIES } from '../../models/blog-post.model';
 import { SeoService } from '../../services/seo.service';
+
+type TopicFilter = {
+  label: string;
+  key: string;
+  hint: string;
+};
 
 @Component({
   selector: 'app-blog-list',
   imports: [RouterLink],
   template: `
-    <!-- Hero header with gradient blobs -->
-    <section class="relative overflow-hidden">
-      <div class="absolute inset-0 -z-10">
-        <div class="absolute top-[-30%] right-[-15%] h-[400px] w-[400px] rounded-full bg-blue-500/10 blur-[100px] animate-blob"></div>
-        <div class="absolute bottom-[-20%] left-[-10%] h-[350px] w-[350px] rounded-full bg-purple-500/10 blur-[100px] animate-blob animation-delay-2000"></div>
-      </div>
+    <div class="md3-blog-page">
+      <section class="md3-blog-hero md3-page-hero" aria-labelledby="blog-heading">
+        <div class="md3-blog-hero-inner">
+          <nav aria-label="Breadcrumb" class="md3-blog-breadcrumb">
+            <ol>
+              <li><a routerLink="/">Home</a></li>
+              <li aria-hidden="true">/</li>
+              <li aria-current="page">Blog</li>
+            </ol>
+          </nav>
 
-      <div class="container max-w-6xl mx-auto px-6 pt-16 pb-12 md:pt-24 md:pb-16">
-        <div class="max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <div class="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 backdrop-blur-sm px-4 py-1.5 text-xs font-medium text-muted-foreground mb-6">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>
-            </svg>
-            {{ totalPosts }} articles published
+          <div class="md3-blog-hero-grid">
+            <div class="md3-blog-hero-copy">
+              <p class="md3-blog-kicker">CodersSecret blog</p>
+              <h1 id="blog-heading">Learn the systems behind production software</h1>
+              <p class="md3-blog-hero-lede">
+                Practical guides on system design, security, DevOps, AI, cloud, databases, and the engineering decisions that matter in real projects.
+              </p>
+
+              <div class="md3-blog-hero-actions" aria-label="Learning focus">
+                <a routerLink="/courses" class="md3-button-filled">
+                  Start with courses
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                  </svg>
+                </a>
+                <a routerLink="/cheatsheets" class="md3-button-tonal">Use reference sheets</a>
+              </div>
+            </div>
+
+            <aside class="md3-blog-hero-panel" aria-label="Blog overview">
+              <div class="md3-blog-panel-header">
+                <p>Learning hub</p>
+                <span>{{ latestPost().date }}</span>
+              </div>
+              <div class="md3-blog-metric-grid" aria-label="Blog stats">
+                <div>
+                  <strong>{{ totalPosts }}</strong>
+                  <span>Guides</span>
+                </div>
+                <div>
+                  <strong>{{ topTags.length }}</strong>
+                  <span>Popular topics</span>
+                </div>
+              </div>
+              <div class="md3-blog-topic-stack" aria-label="Common blog topics">
+                @for (tag of topTags.slice(0, 4); track tag.label) {
+                  <a [routerLink]="['/blog']" [queryParams]="{ tag: tag.label }">
+                    <span>{{ tag.label }}</span>
+                    <strong>{{ tag.count }}</strong>
+                  </a>
+                }
+              </div>
+            </aside>
           </div>
-          <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight leading-[1.1]">
-            All <span class="bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 bg-clip-text text-transparent">Articles</span>
-          </h1>
-          <p class="mt-4 text-lg text-muted-foreground leading-relaxed">
-            Thoughts on Angular, Python, DevOps, and modern tooling — written by developers, for developers.
-          </p>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Filters + Posts -->
-    <section class="pb-20">
-      <div class="container max-w-6xl mx-auto px-6">
-        <!-- Active tag filter -->
-        @if (activeTag()) {
-          <div class="flex items-center gap-2 mb-6 animate-in fade-in duration-300">
-            <span class="text-sm text-muted-foreground">Filtered by tag:</span>
-            <span class="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground">
-              {{ activeTag() }}
-              <button (click)="clearTag()" class="ml-1 hover:opacity-70" aria-label="Clear tag filter">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-              </button>
-            </span>
-            <span class="text-xs text-muted-foreground">({{ allFilteredPosts().length }} articles)</span>
-          </div>
-        }
+      @if (isDefaultView()) {
+        <section class="md3-blog-section md3-blog-featured-section" aria-labelledby="start-here-heading">
+          <div class="md3-blog-container">
+            <div class="md3-blog-section-header">
+              <div>
+                <p class="md3-blog-section-label">Start here</p>
+                <h2 id="start-here-heading">Featured paths for practical engineers</h2>
+              </div>
+              <a routerLink="/slides/mcp-security-production-ai-agents-oauth-gateways" class="md3-button-outlined">
+                Watch a guide
+              </a>
+            </div>
 
-        <!-- Category filter pills -->
-        <div class="flex flex-wrap gap-2 mb-10 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
-          @for (cat of categories; track cat.slug) {
-            <button (click)="activeCategory.set(cat.slug); currentPage.set(1)"
-                    class="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 active:scale-[0.96]"
-                    [class]="activeCategory() === cat.slug ?
-                      'bg-primary text-primary-foreground shadow-lg shadow-primary/25' :
-                      'border border-border/60 bg-card/60 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:bg-accent hover:border-accent'">
-              @if (cat.slug && activeCategory() === cat.slug) {
-                <span class="h-1.5 w-1.5 rounded-full bg-primary-foreground"></span>
-              }
-              {{ cat.name }}
-              <span class="text-xs text-muted-foreground">({{ getCount(cat.slug) }})</span>
-            </button>
-          }
-        </div>
-
-        <!-- Post grid -->
-        <div class="grid md:grid-cols-2 gap-5 animate-in fade-in duration-500 delay-300">
-          @for (post of filteredPosts(); track post.id; let i = $index) {
-            <article class="group" [class]="i === 0 && !activeCategory() ? 'md:col-span-2' : ''">
-              <a [routerLink]="['/blog', post.slug]" class="block h-full">
-                <div class="relative h-full rounded-2xl border border-border/60 bg-card overflow-hidden transition-all duration-500 hover:shadow-xl hover:-translate-y-1 hover:border-primary/20"
-                     [class]="i === 0 && !activeCategory() ? 'md:flex md:items-stretch' : ''">
-                  <!-- Top accent bar -->
-                  <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                       [style.background-image]="'linear-gradient(to right, transparent, ' + getCategoryColor(post.category) + ', transparent)'"></div>
-
-                  <div class="p-6 md:p-8 flex flex-col justify-between" [class]="i === 0 && !activeCategory() ? 'md:flex-1' : ''">
-                    <div>
-                      <!-- Meta row -->
-                      <div class="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-4">
-                        <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                              [style.background-color]="getCategoryColor(post.category) + '15'"
-                              [style.color]="getCategoryColor(post.category)">
-                          {{ getCategoryName(post.category) }}
-                        </span>
-                        <time class="font-mono" [attr.datetime]="post.date">{{ post.date }}</time>
-                        <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
-                        <span>{{ post.readTime }}</span>
-                        @if (post.featured) {
-                          <span class="inline-flex items-center gap-1 rounded-full bg-yellow-500/10 text-yellow-600 px-2 py-0.5 text-[10px] font-bold">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
-                              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                            </svg>
-                            Featured
-                          </span>
-                        }
+            <div class="md3-blog-featured-grid">
+              @if (startHerePost(); as post) {
+                <article class="md3-blog-featured-card" [attr.aria-labelledby]="'featured-' + post.id">
+                  <div class="md3-blog-featured-media">
+                    @if (coverImageFor(post); as cover) {
+                      <img [src]="cover"
+                           [alt]="post.title + ' illustration'"
+                           width="1200"
+                           height="630"
+                           loading="eager"
+                           decoding="async" />
+                    } @else {
+                      <div class="md3-blog-card-visual-fallback" aria-hidden="true">
+                        <span>{{ getCategoryName(post.category) }}</span>
+                        <strong>{{ post.tags[0] || 'Guide' }}</strong>
                       </div>
-
-                      <!-- Title -->
-                      <h2 class="font-bold tracking-tight leading-snug transition-colors duration-300 group-hover:text-primary"
-                          [class]="i === 0 && !activeCategory() ? 'text-2xl md:text-3xl' : 'text-xl'">
-                        {{ post.title }}
-                      </h2>
-
-                      <!-- Excerpt -->
-                      <p class="mt-3 text-muted-foreground leading-relaxed"
-                         [class]="i === 0 && !activeCategory() ? 'text-base line-clamp-3' : 'text-sm line-clamp-2'">
-                        {{ post.excerpt }}
-                      </p>
+                    }
+                  </div>
+                  <div class="md3-blog-featured-body">
+                    <div class="md3-blog-meta-row">
+                      <a [routerLink]="['/category', post.category]" class="md3-blog-category-pill">{{ getCategoryName(post.category) }}</a>
+                      <time [attr.datetime]="post.date">{{ formatDate(post.date) }}</time>
+                      <span>{{ post.readTime }}</span>
                     </div>
-
-                    <!-- Footer -->
-                    <div class="mt-5 flex items-center justify-between">
-                      <div class="flex flex-wrap gap-1.5">
-                        @for (tag of post.tags.slice(0, i === 0 && !activeCategory() ? 4 : 2); track tag) {
-                          <span class="inline-flex items-center rounded-full border border-border/40 bg-muted/50 px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                            {{ tag }}
-                          </span>
-                        }
-                        @if (post.tags.length > (i === 0 && !activeCategory() ? 4 : 2)) {
-                          <span class="inline-flex items-center rounded-full bg-muted/50 px-2 py-0.5 text-[10px] text-muted-foreground">
-                            +{{ post.tags.length - (i === 0 && !activeCategory() ? 4 : 2) }}
-                          </span>
-                        }
-                      </div>
-                      <div class="shrink-0 ml-4 inline-flex items-center justify-center rounded-full h-8 w-8 bg-muted/50 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
-                        </svg>
-                      </div>
+                    <h3 [id]="'featured-' + post.id">{{ post.title }}</h3>
+                    <p>{{ summaryFor(post) }}</p>
+                    <div class="md3-blog-tag-row">
+                      @for (tag of post.tags.slice(0, 4); track tag) {
+                        <a [routerLink]="['/blog']" [queryParams]="{ tag: tag }">{{ tag }}</a>
+                      }
+                    </div>
+                    <div class="md3-blog-card-actions">
+                      <a [routerLink]="['/blog', post.slug]" class="md3-button-filled" [attr.aria-label]="'Read article: ' + post.title">
+                        Read article
+                      </a>
+                      <a [routerLink]="['/slides', post.slug]" class="md3-button-outlined" [attr.aria-label]="'Watch as slides: ' + post.title">
+                        Watch as Slides
+                      </a>
                     </div>
                   </div>
-                </div>
-              </a>
-            </article>
-          }
+                </article>
+              }
 
-          @if (filteredPosts().length === 0) {
-            <div class="md:col-span-2 text-center py-20 animate-in fade-in duration-300">
-              <div class="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-muted/50 mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground">
+              <div class="md3-blog-supporting-list" aria-label="Supporting featured guides">
+                @for (post of supportingFeatured(); track post.id) {
+                  <article class="md3-blog-supporting-card" [attr.aria-labelledby]="'supporting-' + post.id">
+                    <div class="md3-blog-meta-row">
+                      <a [routerLink]="['/category', post.category]" class="md3-blog-category-pill">{{ getCategoryName(post.category) }}</a>
+                      <span>{{ post.readTime }}</span>
+                    </div>
+                    <h3 [id]="'supporting-' + post.id">{{ post.title }}</h3>
+                    <p>{{ summaryFor(post) }}</p>
+                    <div class="md3-blog-card-actions">
+                      <a [routerLink]="['/blog', post.slug]" class="md3-blog-text-action" [attr.aria-label]="'Read article: ' + post.title">
+                        Read article
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                        </svg>
+                      </a>
+                      <a [routerLink]="['/slides', post.slug]" class="md3-blog-text-action md3-blog-text-action-tonal" [attr.aria-label]="'Watch as slides: ' + post.title">
+                        Slides
+                      </a>
+                    </div>
+                  </article>
+                }
+              </div>
+            </div>
+          </div>
+        </section>
+      }
+
+      <section class="md3-blog-filter-section" aria-labelledby="browse-topic-heading">
+        <div class="md3-blog-container">
+          <div class="md3-blog-filter-surface">
+            <div class="md3-blog-filter-header">
+              <div>
+                <p class="md3-blog-section-label">Browse by topic</p>
+                <h2 id="browse-topic-heading">Find the guide that matches your work</h2>
+              </div>
+              <p>{{ allFilteredPosts().length }} matching guide{{ allFilteredPosts().length === 1 ? '' : 's' }}</p>
+            </div>
+
+            <div class="md3-blog-search-field">
+              <label for="blog-filter-search">Search guides</label>
+              <div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                </svg>
+                <input id="blog-filter-search"
+                       type="search"
+                       autocomplete="off"
+                       placeholder="Search by title, summary, tag, or author"
+                       [value]="searchQuery()"
+                       (input)="onSearchInput($event)" />
+              </div>
+            </div>
+
+            <nav class="md3-blog-filter-chip-list" aria-label="Article topic filters">
+              @for (filter of topicFilters; track filter.key) {
+                <button type="button"
+                        class="md3-blog-filter-chip"
+                        [class.md3-blog-filter-chip-selected]="activeTopic() === filter.key"
+                        [attr.aria-pressed]="activeTopic() === filter.key"
+                        [attr.aria-label]="filter.hint + ': ' + getTopicCount(filter.key) + ' guides'"
+                        (click)="setTopic(filter.key)">
+                  @if (activeTopic() === filter.key) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="m5 12 4 4L19 6"/>
+                    </svg>
+                  }
+                  <span>{{ filter.label }}</span>
+                  <strong>{{ getTopicCount(filter.key) }}</strong>
+                </button>
+              }
+            </nav>
+
+            @if (activeTag()) {
+              <div class="md3-blog-active-filter" role="status">
+                <span>Filtered by tag: <strong>{{ activeTag() }}</strong></span>
+                <button type="button" (click)="clearTag()" aria-label="Clear tag filter">
+                  Clear tag
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="md3-blog-section md3-blog-section-alt" aria-labelledby="latest-guides-heading">
+        <div class="md3-blog-container">
+          <div class="md3-blog-section-header">
+            <div>
+              <p class="md3-blog-section-label">Latest practical guides</p>
+              <h2 id="latest-guides-heading">{{ resultHeading() }}</h2>
+            </div>
+            @if (!isDefaultView()) {
+              <button type="button" class="md3-button-outlined" (click)="clearAllFilters()">
+                Reset filters
+              </button>
+            }
+          </div>
+
+          @if (filteredPosts().length > 0) {
+            <div class="md3-blog-grid">
+              @for (post of filteredPosts(); track post.id) {
+                <article class="md3-blog-article-card" [attr.aria-labelledby]="'article-' + post.id">
+                  <div class="md3-blog-card-media">
+                    @if (coverImageFor(post); as cover) {
+                      <img [src]="cover"
+                           [alt]="post.title + ' illustration'"
+                           width="1200"
+                           height="630"
+                           loading="lazy"
+                           decoding="async" />
+                    } @else {
+                      <div class="md3-blog-card-visual-fallback" aria-hidden="true">
+                        <span>{{ getCategoryName(post.category) }}</span>
+                        <strong>{{ post.tags[0] || 'Guide' }}</strong>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="md3-blog-card-body">
+                    <div class="md3-blog-meta-row">
+                      <a [routerLink]="['/category', post.category]" class="md3-blog-category-pill">{{ getCategoryName(post.category) }}</a>
+                      <time [attr.datetime]="post.date">{{ formatDate(post.date) }}</time>
+                      <span>{{ post.readTime }}</span>
+                    </div>
+
+                    <h3 [id]="'article-' + post.id">{{ post.title }}</h3>
+                    <p>{{ summaryFor(post) }}</p>
+
+                    <div class="md3-blog-tag-row">
+                      @for (tag of post.tags.slice(0, 3); track tag) {
+                        <a [routerLink]="['/blog']" [queryParams]="{ tag: tag }">{{ tag }}</a>
+                      }
+                    </div>
+
+                    <div class="md3-blog-card-actions">
+                      <a [routerLink]="['/blog', post.slug]" class="md3-blog-read-link" [attr.aria-label]="'Read article: ' + post.title">
+                        Read article
+                      </a>
+                      <a [routerLink]="['/slides', post.slug]" class="md3-blog-slide-link" [attr.aria-label]="'Watch as slides: ' + post.title">
+                        Watch as Slides
+                      </a>
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          } @else {
+            <div class="md3-blog-empty-state" role="status">
+              <div aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
                 </svg>
               </div>
-              <p class="text-muted-foreground text-lg font-medium">No posts found in this category.</p>
-              <button (click)="activeCategory.set(''); currentPage.set(1)"
-                      class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline underline-offset-4">
-                View all posts
+              <h2>No guides match these filters</h2>
+              <p>Try a broader topic, remove the tag filter, or search for the system you are working on.</p>
+              <button type="button" class="md3-button-filled" (click)="clearAllFilters()">View all guides</button>
+            </div>
+          }
+
+          @if (hasMore()) {
+            <div class="md3-blog-load-more">
+              <button type="button" class="md3-button-tonal" (click)="loadMore()">
+                Load more guides
+                <span>{{ articleGridPosts().length - filteredPosts().length }} remaining</span>
               </button>
             </div>
           }
         </div>
-
-        <!-- Load more -->
-        @if (hasMore()) {
-          <div class="mt-10 text-center">
-            <button (click)="loadMore()"
-                    class="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 backdrop-blur-sm px-8 py-3.5 text-sm font-semibold text-foreground transition-all duration-300 hover:bg-accent hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97]">
-              Load more articles
-              <span class="text-xs text-muted-foreground">({{ allFilteredPosts().length - filteredPosts().length }} remaining)</span>
-            </button>
-          </div>
-        }
-      </div>
-    </section>
+      </section>
+    </div>
   `,
 })
 export class BlogListComponent {
   private seo = inject(SeoService);
   private route = inject(ActivatedRoute);
-  categories = CATEGORIES;
-  activeCategory = signal('');
-  activeTag = signal('');
-  currentPage = signal(1);
-  postsPerPage = 10;
-  totalPosts = BLOG_POSTS.length;
+
+  readonly categories = CATEGORIES;
+  readonly totalPosts = BLOG_POSTS.length;
+  readonly postsPerPage = 12;
+  readonly topTags = this.computeTopTags();
+  readonly generatedCoverMissingSlugs = new Set([
+    'distributed-systems-algorithms-production-guide',
+    'rate-limiting-algorithms-production-guide',
+    'caching-strategies-production-guide',
+    'scheduling-systems-production-guide',
+  ]);
+
+  readonly activeTopic = signal('all');
+  readonly activeTag = signal('');
+  readonly searchQuery = signal('');
+  readonly currentPage = signal(1);
+
+  readonly topicFilters: TopicFilter[] = [
+    { label: 'All', key: 'all', hint: 'Show all practical engineering guides' },
+    { label: 'Security', key: 'security', hint: 'Security, identity, OAuth, and Zero Trust guides' },
+    { label: 'System Design', key: 'system-design', hint: 'Distributed systems, architecture, caching, and scaling guides' },
+    { label: 'DevOps', key: 'devops', hint: 'Kubernetes, CI/CD, observability, and operations guides' },
+    { label: 'AI', key: 'ai', hint: 'RAG, agents, Claude, MCP, and AI infrastructure guides' },
+    { label: 'Python', key: 'python', hint: 'Python, Django, async, and performance guides' },
+    { label: 'Cloud', key: 'cloud', hint: 'Cloud, Kubernetes, containers, and platform guides' },
+    { label: 'Data', key: 'data', hint: 'SQL, analytics, dbt, pipelines, and data architecture guides' },
+    { label: 'Frontend', key: 'frontend', hint: 'Angular, React, TypeScript, CSS, and UI engineering guides' },
+    { label: 'Career', key: 'career', hint: 'Engineering career, compensation, OKRs, and communication guides' },
+  ];
+
+  readonly latestPost = computed(() => BLOG_POSTS[0]);
+  readonly featuredPosts = computed(() => BLOG_POSTS.filter(post => post.featured).slice(0, 4));
+  readonly startHerePost = computed(() => this.featuredPosts()[0] ?? BLOG_POSTS[0]);
+  readonly supportingFeatured = computed(() => {
+    const primary = this.startHerePost();
+    return this.featuredPosts().filter(post => post.slug !== primary.slug).slice(0, 3);
+  });
+  readonly isDefaultView = computed(() => {
+    return this.activeTopic() === 'all' && !this.activeTag() && !this.searchQuery().trim();
+  });
+
+  readonly allFilteredPosts = computed(() => {
+    let posts = BLOG_POSTS;
+    const topic = this.activeTopic();
+    const tag = this.activeTag();
+    const query = this.searchQuery().trim().toLowerCase();
+
+    if (topic !== 'all') {
+      posts = posts.filter(post => this.matchesTopic(post, topic));
+    }
+
+    if (tag) {
+      posts = posts.filter(post => post.tags.some(item => item.toLowerCase() === tag.toLowerCase()));
+    }
+
+    if (query) {
+      posts = posts.filter(post => {
+        const haystack = [post.title, post.excerpt, post.author, post.category, ...post.tags].join(' ').toLowerCase();
+        return haystack.includes(query);
+      });
+    }
+
+    return posts;
+  });
+
+  readonly articleGridPosts = computed(() => {
+    const posts = this.allFilteredPosts();
+    if (!this.isDefaultView()) {
+      return posts;
+    }
+
+    const featuredSlugs = new Set([
+      this.startHerePost().slug,
+      ...this.supportingFeatured().map(post => post.slug),
+    ]);
+    return posts.filter(post => !featuredSlugs.has(post.slug));
+  });
+
+  readonly filteredPosts = computed(() => {
+    return this.articleGridPosts().slice(0, this.currentPage() * this.postsPerPage);
+  });
+
+  readonly hasMore = computed(() => {
+    return this.filteredPosts().length < this.articleGridPosts().length;
+  });
 
   constructor() {
-    // Read tag from query parameter: /blog?tag=Python
     const tag = this.route.snapshot.queryParamMap.get('tag');
     if (tag) {
       this.activeTag.set(tag);
     }
+
     this.seo.update({
-      title: tag ? `Articles tagged "${tag}"` : 'All Articles — Developer Tutorials & Guides',
+      title: tag ? `Articles tagged "${tag}" | CodersSecret Blog` : 'Blog | CodersSecret | Practical Engineering Tutorials',
       description: tag
-        ? `Browse all articles tagged with ${tag} on CodersSecret — practical tutorials, deep dives, and real-world examples.`
-        : 'In-depth tutorials on Python, Kubernetes, API security, gRPC, encryption, ethical hacking, and modern web development. Written by engineers, for engineers.',
-      url: '/blog',
-      itemList: BLOG_POSTS.slice(0, 20).map(p => ({
-        name: p.title,
-        url: `/blog/${p.slug}`,
-        description: p.excerpt,
+        ? `Practical CodersSecret tutorials tagged ${tag}, with clear examples, diagrams, and slide walkthroughs for production engineering work.`
+        : 'Practical tutorials on system design, security, DevOps, AI, cloud, Python, databases, and production software engineering.',
+      url: '/blog/',
+      breadcrumbs: [
+        { name: 'Home', url: '/' },
+        { name: 'Blog', url: '/blog/' },
+      ],
+      itemList: BLOG_POSTS.slice(0, 24).map(post => ({
+        name: post.title,
+        url: `/blog/${post.slug}`,
+        description: post.excerpt,
       })),
     });
   }
 
-  clearTag() {
-    this.activeTag.set('');
+  setTopic(topic: string) {
+    this.activeTopic.set(topic);
+    this.currentPage.set(1);
   }
 
-  allFilteredPosts = computed(() => {
-    let posts = BLOG_POSTS;
-    const cat = this.activeCategory();
-    const tag = this.activeTag();
-    if (cat) {
-      posts = posts.filter(post => post.category === cat);
-    }
-    if (tag) {
-      posts = posts.filter(post => post.tags.some(t => t.toLowerCase() === tag.toLowerCase()));
-    }
-    return posts;
-  });
+  clearTag() {
+    this.activeTag.set('');
+    this.currentPage.set(1);
+  }
 
-  filteredPosts = computed(() => {
-    const all = this.allFilteredPosts();
-    const page = this.currentPage();
-    return all.slice(0, page * this.postsPerPage);
-  });
-
-  hasMore = computed(() => {
-    return this.filteredPosts().length < this.allFilteredPosts().length;
-  });
+  clearAllFilters() {
+    this.activeTopic.set('all');
+    this.activeTag.set('');
+    this.searchQuery.set('');
+    this.currentPage.set(1);
+  }
 
   loadMore() {
     this.currentPage.set(this.currentPage() + 1);
   }
 
-  getCount(slug: string): number {
-    if (!slug) return BLOG_POSTS.length;
-    return BLOG_POSTS.filter(p => p.category === slug).length;
+  onSearchInput(event: Event) {
+    this.searchQuery.set((event.target as HTMLInputElement).value);
+    this.currentPage.set(1);
   }
 
-  getCategoryColor(slug: string): string {
-    const colors: Record<string, string> = {
-      ai: '#06b6d4',
-      frontend: '#3b82f6', backend: '#22c55e', devops: '#f97316',
-      tutorials: '#a855f7', 'open-source': '#ec4899',
-    };
-    return colors[slug] ?? '#6b7280';
+  resultHeading(): string {
+    if (this.searchQuery().trim()) {
+      return `Guides matching "${this.searchQuery().trim()}"`;
+    }
+    if (this.activeTag()) {
+      return `Guides tagged ${this.activeTag()}`;
+    }
+    const filter = this.topicFilters.find(item => item.key === this.activeTopic());
+    return this.activeTopic() === 'all' ? 'Newest engineering tutorials' : `${filter?.label ?? 'Topic'} guides`;
+  }
+
+  getTopicCount(key: string): number {
+    if (key === 'all') {
+      return BLOG_POSTS.length;
+    }
+    return BLOG_POSTS.filter(post => this.matchesTopic(post, key)).length;
   }
 
   getCategoryName(slug: string): string {
-    const cat = CATEGORIES.find(c => c.slug === slug);
-    return cat?.name ?? slug;
+    return CATEGORIES.find(category => category.slug === slug)?.name ?? slug;
+  }
+
+  formatDate(date: string): string {
+    if (!date) {
+      return '';
+    }
+
+    const parsed = new Date(`${date}T00:00:00`);
+    if (Number.isNaN(parsed.getTime())) {
+      return date;
+    }
+
+    return new Intl.DateTimeFormat('en', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(parsed);
+  }
+
+  summaryFor(post: BlogPost): string {
+    return post.excerpt.replace(/\s+/g, ' ').trim();
+  }
+
+  coverImageFor(post: BlogPost): string | null {
+    if (post.coverImage) {
+      return post.coverImage;
+    }
+
+    if (this.generatedCoverMissingSlugs.has(post.slug)) {
+      return null;
+    }
+
+    return `/images/banners/${post.slug}.svg`;
+  }
+
+  private matchesTopic(post: BlogPost, topic: string): boolean {
+    const haystack = [post.category, post.title, post.excerpt, ...post.tags].join(' ').toLowerCase();
+    const topicTerms: Record<string, string[]> = {
+      security: ['security', 'zero trust', 'spiffe', 'spire', 'oauth', 'mtls', 'api security', 'supply chain', 'compliance'],
+      'system-design': ['system design', 'distributed systems', 'architecture', 'cap theorem', 'load balancer', 'caching', 'rate limiting', 'scalability'],
+      devops: ['devops', 'kubernetes', 'docker', 'ci/cd', 'terraform', 'observability', 'scheduling', 'linux'],
+      ai: ['ai', 'rag', 'llm', 'mcp', 'agent', 'claude', 'vector'],
+      python: ['python', 'django', 'fastapi', 'asyncio', 'gil'],
+      cloud: ['cloud', 'kubernetes', 'serverless', 'aws', 'gcp', 'azure', 'container'],
+      data: ['data', 'sql', 'dbt', 'analytics', 'pipeline', 'lakehouse', 'warehouse', 'dag'],
+      frontend: ['frontend', 'angular', 'react', 'css', 'javascript', 'ui'],
+      career: ['career', 'salary', 'interview', 'resume', 'okr', 'communication'],
+    };
+
+    return topicTerms[topic]?.some(term => haystack.includes(term)) ?? post.category === topic;
+  }
+
+  private computeTopTags(): Array<{ label: string; count: number }> {
+    const counts = new Map<string, number>();
+    BLOG_POSTS.forEach(post => {
+      post.tags.forEach(tag => counts.set(tag, (counts.get(tag) ?? 0) + 1));
+    });
+
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, 8)
+      .map(([label, count]) => ({ label, count }));
   }
 }
