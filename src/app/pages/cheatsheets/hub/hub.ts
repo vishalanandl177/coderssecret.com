@@ -84,7 +84,7 @@ export class CheatsheetsHubComponent {
         title: 'Reference library',
         meta: `${this.allSheets.length} sheets`,
         ariaLabel: 'Reference library summary',
-        mapLabels: ['K8S', 'API', 'CI', 'SQL'],
+        mapLabels: ['FIND', 'VERIFY', 'RUN', 'SAVE'],
         stats: [
           { value: `${this.tier1Sheets.length}`, label: 'Production security sheets' },
           { value: `${this.essentialsSheets.length}`, label: 'Daily engineering sheets' },

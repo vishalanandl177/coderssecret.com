@@ -14,9 +14,9 @@ export class ApiSecurityCheatsheetComponent {
 
   header: CheatsheetHeader = {
     icon: '🔑',
-    iconColor: '#ef4444',
+    iconColor: 'var(--md-sys-color-error)',
     badge: 'Production Reference',
-    badgeClass: 'bg-red-500/10 border-red-500/30 text-red-500',
+    badgeClass: 'md3-chip-selected',
     title: 'API Security Cheatsheet',
     intro: 'Operational reference for securing HTTP APIs in production. JWT verification patterns, OAuth2 flows, secure HTTP headers, mTLS, webhook signing, and rate-limiting that holds up against the OWASP API Top 10.',
   };

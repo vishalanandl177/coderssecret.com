@@ -91,7 +91,7 @@ export class GamesHubComponent {
         title: 'Lab cockpit',
         meta: `${this.availableLabs.length} available`,
         ariaLabel: 'Lab coverage summary',
-        mapLabels: ['K8S', 'ID', 'IR', 'API'],
+        mapLabels: ['LAB', 'SIGNAL', 'FIX', 'REF'],
         stats: [
           { value: `${this.securitySimulators.length}`, label: 'Security scenarios' },
           { value: `${this.foundationsGames.length}`, label: 'Foundation drills' },

@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BLOG_POSTS, BlogPost, CATEGORIES } from '../../models/blog-post.model';
 import { SeoService } from '../../services/seo.service';
+import { Md3ActiveIndicatorDirective } from '../../shared/md3/md3-active-indicator';
 
 type TopicFilter = {
   label: string;
@@ -9,9 +10,15 @@ type TopicFilter = {
   hint: string;
 };
 
+type CategoryRail = {
+  category: (typeof CATEGORIES)[number];
+  posts: BlogPost[];
+  intro: string;
+};
+
 @Component({
   selector: 'app-blog-list',
-  imports: [RouterLink],
+  imports: [RouterLink, Md3ActiveIndicatorDirective],
   template: `
     <div class="md3-blog-page">
       <section class="md3-blog-hero md3-page-hero" aria-labelledby="blog-heading">
@@ -184,7 +191,9 @@ type TopicFilter = {
               </div>
             </div>
 
-            <nav class="md3-blog-filter-chip-list" aria-label="Article topic filters">
+            <nav class="md3-blog-filter-chip-list"
+                 appMd3ActiveIndicator=".md3-blog-filter-chip-selected"
+                 aria-label="Article topic filters">
               @for (filter of topicFilters; track filter.key) {
                 <button type="button"
                         class="md3-blog-filter-chip"
@@ -220,7 +229,7 @@ type TopicFilter = {
         <div class="md3-blog-container">
           <div class="md3-blog-section-header">
             <div>
-              <p class="md3-blog-section-label">Latest practical guides</p>
+              <p class="md3-blog-section-label">Category shelves</p>
               <h2 id="latest-guides-heading">{{ resultHeading() }}</h2>
             </div>
             @if (!isDefaultView()) {
@@ -230,52 +239,74 @@ type TopicFilter = {
             }
           </div>
 
-          @if (filteredPosts().length > 0) {
-            <div class="md3-blog-grid">
-              @for (post of filteredPosts(); track post.id) {
-                <article class="md3-blog-article-card" [attr.aria-labelledby]="'article-' + post.id">
-                  <div class="md3-blog-card-media">
-                    @if (coverImageFor(post); as cover) {
-                      <img [src]="cover"
-                           [alt]="post.title + ' illustration'"
-                           width="1200"
-                           height="630"
-                           loading="lazy"
-                           decoding="async" />
-                    } @else {
-                      <div class="md3-blog-card-visual-fallback" aria-hidden="true">
-                        <span>{{ getCategoryName(post.category) }}</span>
-                        <strong>{{ post.tags[0] || 'Guide' }}</strong>
-                      </div>
+          @if (categoryRails().length > 0) {
+            <div class="md3-blog-category-rails">
+              @for (rail of categoryRails(); track rail.category.slug) {
+                <section class="md3-blog-category-rail" [attr.aria-labelledby]="'blog-rail-' + rail.category.slug">
+                  <div class="md3-blog-category-rail-header">
+                    <div>
+                      <p class="md3-blog-section-label">{{ rail.posts.length }} guide{{ rail.posts.length === 1 ? '' : 's' }}</p>
+                      <h3 [id]="'blog-rail-' + rail.category.slug">{{ rail.category.name }}</h3>
+                      <p>{{ rail.intro }}</p>
+                    </div>
+                    <a [routerLink]="['/category', rail.category.slug]" class="md3-button-outlined">
+                      View category
+                    </a>
+                  </div>
+
+                  <div class="md3-blog-horizontal-scroller"
+                       role="list"
+                       tabindex="0"
+                       [attr.aria-label]="rail.category.name + ' article list'">
+                    @for (post of rail.posts; track post.id) {
+                      <article class="md3-blog-article-card md3-blog-rail-card"
+                               role="listitem"
+                               [attr.aria-labelledby]="'article-' + post.id">
+                        <div class="md3-blog-card-media">
+                          @if (coverImageFor(post); as cover) {
+                            <img [src]="cover"
+                                 [alt]="post.title + ' illustration'"
+                                 width="1200"
+                                 height="630"
+                                 loading="lazy"
+                                 decoding="async" />
+                          } @else {
+                            <div class="md3-blog-card-visual-fallback" aria-hidden="true">
+                              <span>{{ getCategoryName(post.category) }}</span>
+                              <strong>{{ post.tags[0] || 'Guide' }}</strong>
+                            </div>
+                          }
+                        </div>
+
+                        <div class="md3-blog-card-body">
+                          <div class="md3-blog-meta-row">
+                            <a [routerLink]="['/category', post.category]" class="md3-blog-category-pill">{{ getCategoryName(post.category) }}</a>
+                            <time [attr.datetime]="post.date">{{ formatDate(post.date) }}</time>
+                            <span>{{ post.readTime }}</span>
+                          </div>
+
+                          <h3 [id]="'article-' + post.id">{{ post.title }}</h3>
+                          <p>{{ summaryFor(post) }}</p>
+
+                          <div class="md3-blog-tag-row">
+                            @for (tag of post.tags.slice(0, 3); track tag) {
+                              <a [routerLink]="['/blog']" [queryParams]="{ tag: tag }">{{ tag }}</a>
+                            }
+                          </div>
+
+                          <div class="md3-blog-card-actions">
+                            <a [routerLink]="['/blog', post.slug]" class="md3-blog-read-link" [attr.aria-label]="'Read article: ' + post.title">
+                              Read article
+                            </a>
+                            <a [routerLink]="['/slides', post.slug]" class="md3-blog-slide-link" [attr.aria-label]="'Watch as slides: ' + post.title">
+                              Watch as Slides
+                            </a>
+                          </div>
+                        </div>
+                      </article>
                     }
                   </div>
-
-                  <div class="md3-blog-card-body">
-                    <div class="md3-blog-meta-row">
-                      <a [routerLink]="['/category', post.category]" class="md3-blog-category-pill">{{ getCategoryName(post.category) }}</a>
-                      <time [attr.datetime]="post.date">{{ formatDate(post.date) }}</time>
-                      <span>{{ post.readTime }}</span>
-                    </div>
-
-                    <h3 [id]="'article-' + post.id">{{ post.title }}</h3>
-                    <p>{{ summaryFor(post) }}</p>
-
-                    <div class="md3-blog-tag-row">
-                      @for (tag of post.tags.slice(0, 3); track tag) {
-                        <a [routerLink]="['/blog']" [queryParams]="{ tag: tag }">{{ tag }}</a>
-                      }
-                    </div>
-
-                    <div class="md3-blog-card-actions">
-                      <a [routerLink]="['/blog', post.slug]" class="md3-blog-read-link" [attr.aria-label]="'Read article: ' + post.title">
-                        Read article
-                      </a>
-                      <a [routerLink]="['/slides', post.slug]" class="md3-blog-slide-link" [attr.aria-label]="'Watch as slides: ' + post.title">
-                        Watch as Slides
-                      </a>
-                    </div>
-                  </div>
-                </article>
+                </section>
               }
             </div>
           } @else {
@@ -291,15 +322,6 @@ type TopicFilter = {
               <button type="button" class="md3-button-filled" (click)="clearAllFilters()">View all guides</button>
             </div>
           }
-
-          @if (hasMore()) {
-            <div class="md3-blog-load-more">
-              <button type="button" class="md3-button-tonal" (click)="loadMore()">
-                Load more guides
-                <span>{{ articleGridPosts().length - filteredPosts().length }} remaining</span>
-              </button>
-            </div>
-          }
         </div>
       </section>
     </div>
@@ -311,7 +333,6 @@ export class BlogListComponent {
 
   readonly categories = CATEGORIES;
   readonly totalPosts = BLOG_POSTS.length;
-  readonly postsPerPage = 12;
   readonly topTags = this.computeTopTags();
   readonly generatedCoverMissingSlugs = new Set([
     'distributed-systems-algorithms-production-guide',
@@ -323,7 +344,6 @@ export class BlogListComponent {
   readonly activeTopic = signal('all');
   readonly activeTag = signal('');
   readonly searchQuery = signal('');
-  readonly currentPage = signal(1);
 
   readonly topicFilters: TopicFilter[] = [
     { label: 'All', key: 'all', hint: 'Show all practical engineering guides' },
@@ -386,12 +406,16 @@ export class BlogListComponent {
     return posts.filter(post => !featuredSlugs.has(post.slug));
   });
 
-  readonly filteredPosts = computed(() => {
-    return this.articleGridPosts().slice(0, this.currentPage() * this.postsPerPage);
-  });
-
-  readonly hasMore = computed(() => {
-    return this.filteredPosts().length < this.articleGridPosts().length;
+  readonly categoryRails = computed<CategoryRail[]>(() => {
+    const posts = this.articleGridPosts();
+    return CATEGORIES
+      .filter(category => category.slug)
+      .map(category => ({
+        category,
+        posts: posts.filter(post => post.category === category.slug),
+        intro: this.categoryIntro(category.slug),
+      }))
+      .filter(rail => rail.posts.length > 0);
   });
 
   constructor() {
@@ -420,39 +444,31 @@ export class BlogListComponent {
 
   setTopic(topic: string) {
     this.activeTopic.set(topic);
-    this.currentPage.set(1);
   }
 
   clearTag() {
     this.activeTag.set('');
-    this.currentPage.set(1);
   }
 
   clearAllFilters() {
     this.activeTopic.set('all');
     this.activeTag.set('');
     this.searchQuery.set('');
-    this.currentPage.set(1);
-  }
-
-  loadMore() {
-    this.currentPage.set(this.currentPage() + 1);
   }
 
   onSearchInput(event: Event) {
     this.searchQuery.set((event.target as HTMLInputElement).value);
-    this.currentPage.set(1);
   }
 
   resultHeading(): string {
     if (this.searchQuery().trim()) {
-      return `Guides matching "${this.searchQuery().trim()}"`;
+      return `Guides matching "${this.searchQuery().trim()}" by category`;
     }
     if (this.activeTag()) {
-      return `Guides tagged ${this.activeTag()}`;
+      return `Guides tagged ${this.activeTag()} by category`;
     }
     const filter = this.topicFilters.find(item => item.key === this.activeTopic());
-    return this.activeTopic() === 'all' ? 'Newest engineering tutorials' : `${filter?.label ?? 'Topic'} guides`;
+    return this.activeTopic() === 'all' ? 'Browse engineering guides by category' : `${filter?.label ?? 'Topic'} guides by category`;
   }
 
   getTopicCount(key: string): number {
@@ -514,6 +530,19 @@ export class BlogListComponent {
     };
 
     return topicTerms[topic]?.some(term => haystack.includes(term)) ?? post.category === topic;
+  }
+
+  private categoryIntro(slug: string): string {
+    const intros: Record<string, string> = {
+      ai: 'RAG, MCP, agents, Claude, embeddings, and production AI infrastructure.',
+      frontend: 'Angular, React, CSS, TypeScript, UI systems, and client-side performance.',
+      backend: 'APIs, distributed systems, databases, caching, auth, and service architecture.',
+      devops: 'Kubernetes, Linux, CI/CD, reliability, observability, and production operations.',
+      tutorials: 'Step-by-step explanations with examples, commands, and practical trade-offs.',
+      'open-source': 'Developer tooling, libraries, contribution workflows, and project structure.',
+    };
+
+    return intros[slug] ?? 'Practical engineering guides grouped for faster browsing.';
   }
 
   private computeTopTags(): Array<{ label: string; count: number }> {

@@ -14,9 +14,9 @@ export class LinuxNetworkingCheatsheetComponent {
 
   header: CheatsheetHeader = {
     icon: '🌐',
-    iconColor: '#22c55e',
+    iconColor: 'var(--md-sys-color-secondary)',
     badge: 'Production Reference',
-    badgeClass: 'bg-green-500/10 border-green-500/30 text-green-500',
+    badgeClass: 'md3-chip-selected',
     title: 'Linux Networking Cheatsheet',
     intro: 'Operational reference for the Linux networking toolkit. Sockets, routes, firewalls (iptables/nftables), packet capture (tcpdump), TLS debugging (openssl), and the eBPF-era diagnostics for the moments a connection just will not establish.',
   };

@@ -6,6 +6,7 @@ import { SeoService } from '../../services/seo.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { getActiveTocHeadingId } from '../../shared/blog-toc';
+import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
 
 @Component({
   selector: 'app-blog-post',
@@ -21,7 +22,8 @@ import { getActiveTocHeadingId } from '../../shared/blog-toc';
         <div class="absolute inset-0 -z-10">
           <div class="absolute top-[-30%] left-[20%] h-[400px] w-[400px] rounded-full blur-[120px] animate-blob"
                aria-hidden="true"></div>
-          <div class="absolute bottom-[-30%] right-[10%] h-[350px] w-[350px] rounded-full bg-purple-500/8 blur-[100px] animate-blob animation-delay-2000"></div>
+          <div class="absolute bottom-[-30%] right-[10%] h-[350px] w-[350px] rounded-full blur-[100px] animate-blob animation-delay-2000"
+               style="background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent)"></div>
         </div>
 
         <div class="md3-article-hero-inner container max-w-4xl mx-auto px-6 pt-12 pb-10 md:pt-16 md:pb-14">
@@ -506,7 +508,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   desktopToc: { id: string; text: string; level: 2 | 3 }[] = [];
   desktopTocTitle = '';
   categoryName = '';
-  categoryColor = '#6b7280';
+  categoryColor = md3CategoryAccent('');
   readonly generatedCoverMissingSlugs = new Set([
     'distributed-systems-algorithms-production-guide',
     'rate-limiting-algorithms-production-guide',
@@ -590,7 +592,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
           this.desktopToc = [];
           this.desktopTocTitle = '';
           this.categoryName = '';
-          this.categoryColor = '#6b7280';
+          this.categoryColor = md3CategoryAccent('');
           this.discussionStatus.set('idle');
           this.discussionMessage.set('');
           this.cdr.detectChanges();
@@ -1090,12 +1092,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   }
 
   getCategoryColor(slug: string): string {
-    const colors: Record<string, string> = {
-      ai: '#06b6d4',
-      frontend: '#3b82f6', backend: '#22c55e', devops: '#f97316',
-      tutorials: '#a855f7', 'open-source': '#ec4899',
-    };
-    return colors[slug] ?? '#6b7280';
+    return md3CategoryAccent(slug);
   }
 
   getCategoryName(slug: string): string {

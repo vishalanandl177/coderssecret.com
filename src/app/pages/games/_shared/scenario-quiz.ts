@@ -2,6 +2,7 @@ import { Component, Input, signal, computed } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Md3BreadcrumbComponent } from '../../../shared/md3/md3-breadcrumb';
+import { Md3MiniMapComponent } from '../../../shared/md3/md3-mini-map';
 import { Md3BreadcrumbItem } from '../../../shared/md3/md3.types';
 
 export interface Choice {
@@ -68,7 +69,7 @@ export interface QuizCallToActions {
 
 @Component({
   selector: 'app-scenario-quiz',
-  imports: [RouterLink, NgClass, Md3BreadcrumbComponent],
+  imports: [RouterLink, NgClass, Md3BreadcrumbComponent, Md3MiniMapComponent],
   template: `
     <section class="md3-learning-page py-12 md:py-16">
       <div class="md3-learning-container">
@@ -103,18 +104,7 @@ export interface QuizCallToActions {
                     <span>Current score</span>
                   </div>
                 </div>
-                <div class="md3-learning-mini-map" aria-hidden="true">
-                  <svg viewBox="0 0 420 220" role="img">
-                    <line x1="92" y1="82" x2="210" y2="82" stroke-width="6" stroke-linecap="round" opacity="0.5" />
-                    <line x1="210" y1="82" x2="310" y2="146" stroke-width="6" stroke-linecap="round" opacity="0.5" />
-                    <rect x="50" y="52" width="84" height="60" rx="24" stroke-width="4" />
-                    <rect x="168" y="52" width="84" height="60" rx="24" stroke-width="4" />
-                    <rect x="268" y="116" width="84" height="60" rx="24" stroke-width="4" />
-                    <text x="92" y="88" text-anchor="middle">READ</text>
-                    <text x="210" y="88" text-anchor="middle">PICK</text>
-                    <text x="310" y="152" text-anchor="middle">FIX</text>
-                  </svg>
-                </div>
+                <app-md3-mini-map [labels]="mapLabels" />
               </aside>
             </div>
           </header>
@@ -252,6 +242,7 @@ export class ScenarioQuizComponent {
     { label: 'Home', href: '/' },
     { label: 'Interactive labs', href: '/games' },
   ];
+  readonly mapLabels = ['READ', 'PICK', 'FIX', 'REVIEW'];
 
   gameStarted = signal(false);
   currentIndex = signal(0);

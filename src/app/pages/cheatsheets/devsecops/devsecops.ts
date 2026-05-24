@@ -14,9 +14,9 @@ export class DevSecOpsCheatsheetComponent {
 
   header: CheatsheetHeader = {
     icon: '🔗',
-    iconColor: '#14b8a6',
+    iconColor: 'var(--md-sys-color-secondary)',
     badge: 'Production Reference',
-    badgeClass: 'bg-teal-500/10 border-teal-500/30 text-teal-500',
+    badgeClass: 'md3-chip-selected',
     title: 'DevSecOps & Supply Chain Cheatsheet',
     intro: 'Operational reference for securing the software supply chain. cosign signing, SBOM generation, SLSA provenance, GitHub Actions security patterns, and the gates that catch supply-chain attacks at CI time before they reach production.',
   };

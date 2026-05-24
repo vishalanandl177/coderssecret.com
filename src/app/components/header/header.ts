@@ -5,10 +5,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SearchComponent } from '../search/search';
 import { EXTERNAL_LINKS } from '../../shared/external-links';
 import { BrandMarkComponent } from '../../shared/brand/brand-mark';
+import { Md3ActiveIndicatorDirective } from '../../shared/md3/md3-active-indicator';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, RouterLinkActive, SearchComponent, BrandMarkComponent],
+  imports: [RouterLink, RouterLinkActive, SearchComponent, BrandMarkComponent, Md3ActiveIndicatorDirective],
   template: `
     <aside class="md3-nav-rail hidden lg:flex"
            [class.md3-nav-rail-searching]="searchLaunching()"
@@ -100,7 +101,9 @@ import { BrandMarkComponent } from '../../shared/brand/brand-mark';
         </a>
 
         <div class="hidden min-w-0 flex-1 justify-center xl:flex">
-        <nav aria-label="Primary navigation" class="md3-nav-shell flex h-12 max-w-full items-center gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <nav aria-label="Primary navigation"
+             appMd3ActiveIndicator=".md3-nav-link-active"
+             class="md3-nav-shell flex h-12 max-w-full items-center gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <a routerLink="/" routerLinkActive="md3-nav-link-active" [routerLinkActiveOptions]="{ exact: true }"
              ariaCurrentWhenActive="page"
              class="md3-nav-link">

@@ -8,6 +8,12 @@ import { AnalyticsService } from './services/analytics.service';
 
 type RouteTransitionPattern = 'top-level' | 'container' | 'forward' | 'back' | 'lateral' | 'slides';
 type RouteInteractionSource = 'unknown' | 'nav' | 'card' | 'filter' | 'toc' | 'action';
+type ActiveContainerTransform = {
+  clone: HTMLElement;
+  sourceRect: DOMRect;
+  animation?: Animation;
+  cleanupTimer?: number;
+};
 
 @Component({
   selector: 'app-root',
@@ -17,8 +23,11 @@ type RouteInteractionSource = 'unknown' | 'nav' | 'card' | 'filter' | 'toc' | 'a
        class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-full focus:bg-primary focus:px-5 focus:py-3 focus:text-sm focus:font-bold focus:text-primary-foreground focus:shadow-[var(--md-sys-elevation-2)]">
       Skip to main content
     </a>
-    <div class="flex min-h-screen flex-col bg-background text-foreground lg:pl-[5.5rem]">
-      <app-header />
+    <div class="md3-app-shell flex min-h-screen flex-col bg-background text-foreground"
+         [class.md3-app-shell-slides]="isSlideRoute()">
+      @if (!isSlideRoute()) {
+        <app-header />
+      }
       <main id="main-content" class="flex-1 min-h-screen overflow-x-clip">
         <router-outlet />
       </main>
@@ -26,7 +35,7 @@ type RouteInteractionSource = 'unknown' | 'nav' | 'card' | 'filter' | 'toc' | 'a
     </div>
 
     <!-- Back to top button -->
-    @if (showBackToTop()) {
+    @if (showBackToTop() && !isSlideRoute()) {
       <button (click)="scrollToTop()"
               aria-label="Back to top"
               class="md3-motion-pressable fixed bottom-5 right-5 z-50 inline-flex h-12 w-12 touch-manipulation items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[var(--md-sys-elevation-2)] hover:shadow-[var(--md-sys-elevation-3)] sm:bottom-6 sm:right-6">
@@ -40,6 +49,22 @@ type RouteInteractionSource = 'unknown' | 'nav' | 'card' | 'filter' | 'toc' | 'a
   styles: `
     :host {
       display: block;
+    }
+
+    .md3-app-shell {
+      transition: padding-left var(--md-sys-motion-duration-medium-2) var(--md-sys-motion-easing-emphasized-decelerate);
+    }
+
+    @media (min-width: 1024px) {
+      .md3-app-shell:not(.md3-app-shell-slides) {
+        padding-left: 5.5rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .md3-app-shell {
+        transition: none;
+      }
     }
   `,
 })
@@ -55,6 +80,7 @@ export class App implements OnInit {
   private activeSourceElement: HTMLElement | undefined;
   private routeTransitionTimer: number | undefined;
   private interactionCleanupTimer: number | undefined;
+  private activeContainerTransform: ActiveContainerTransform | undefined;
   private readonly transitionClasses = [
     'cs-transition-top-level',
     'cs-transition-container',
@@ -83,9 +109,11 @@ export class App implements OnInit {
   ].join(',');
 
   showBackToTop = signal(false);
+  isSlideRoute = signal(false);
 
   ngOnInit() {
     this.analytics.monitorCoreWebVitals();
+    this.isSlideRoute.set(this.isSlideUrl(this.router.url || '/'));
 
     if (!isPlatformBrowser(this.platformId)) {
       return;
@@ -97,20 +125,25 @@ export class App implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((event) => {
         if (event instanceof NavigationStart) {
+          this.isSlideRoute.set(this.isSlideUrl(event.url));
           this.prepareRouteTransition(event.url);
           return;
         }
 
         if (event instanceof NavigationEnd) {
           this.lastNavigationUrl = event.urlAfterRedirects || event.url || this.lastNavigationUrl;
+          this.isSlideRoute.set(this.isSlideUrl(this.lastNavigationUrl));
+          this.finishContainerTransform();
           this.scheduleRouteTransitionClear(750);
           return;
         }
 
-        if (event instanceof NavigationCancel || event instanceof NavigationError) {
-          this.clearRouteTransitionClasses();
-          this.clearInteractionSource();
-        }
+    if (event instanceof NavigationCancel || event instanceof NavigationError) {
+      this.isSlideRoute.set(this.isSlideUrl(this.lastNavigationUrl));
+      this.clearRouteTransitionClasses();
+      this.clearInteractionSource();
+      this.clearContainerTransform();
+    }
       });
   }
 
@@ -119,8 +152,23 @@ export class App implements OnInit {
     this.showBackToTop.set(window.scrollY > 400);
   }
 
+  @HostListener('document:pointerdown', ['$event'])
+  onDocumentPointerDown(event: PointerEvent) {
+    this.trackRouteInteraction(event);
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
+    this.trackRouteInteraction(event);
+  }
+
+  scrollToTop() {
+    const win = this.document.defaultView;
+    const reduceMotion = win?.matchMedia('(prefers-reduced-motion: reduce)').matches ?? false;
+    win?.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+  }
+
+  private trackRouteInteraction(event: MouseEvent | PointerEvent) {
     if (!isPlatformBrowser(this.platformId) || event.defaultPrevented || event.button !== 0) {
       return;
     }
@@ -164,16 +212,14 @@ export class App implements OnInit {
     this.setInteractionSource(this.classifyInteractionSource(anchor), anchor);
   }
 
-  scrollToTop() {
-    const win = this.document.defaultView;
-    const reduceMotion = win?.matchMedia('(prefers-reduced-motion: reduce)').matches ?? false;
-    win?.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
-  }
-
   private prepareRouteTransition(nextUrl: string) {
     const win = this.document.defaultView;
     const root = this.document.documentElement;
     const pattern = this.getRouteTransitionPattern(this.lastNavigationUrl, nextUrl);
+    const shouldUseCardTransform = pattern === 'container'
+      && this.lastInteractionSource === 'card'
+      && !!this.activeSourceElement
+      && this.isBlogListToDetail(this.lastNavigationUrl, nextUrl);
 
     this.clearRouteTransitionClasses();
     root.classList.add(`cs-transition-${pattern}`);
@@ -182,6 +228,10 @@ export class App implements OnInit {
     if (this.lastInteractionSource !== 'unknown') {
       root.classList.add(`cs-transition-from-${this.lastInteractionSource}`);
       root.dataset['csInteraction'] = this.lastInteractionSource;
+    }
+
+    if (shouldUseCardTransform && this.activeSourceElement) {
+      this.startContainerTransform(this.activeSourceElement);
     }
 
     this.scheduleRouteTransitionClear(2400);
@@ -222,6 +272,106 @@ export class App implements OnInit {
       this.clearRouteTransitionClasses(false);
       this.clearInteractionSource();
     }, delay);
+  }
+
+  private startContainerTransform(sourceElement: HTMLElement) {
+    const win = this.document.defaultView;
+    if (!win || win.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const sourceRect = sourceElement.getBoundingClientRect();
+    if (sourceRect.width < 1 || sourceRect.height < 1) {
+      return;
+    }
+
+    this.clearContainerTransform();
+
+    const clone = sourceElement.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll('[id]').forEach(element => element.removeAttribute('id'));
+    clone.setAttribute('aria-hidden', 'true');
+    clone.classList.add('md3-route-container-clone');
+    clone.style.setProperty('--md3-route-container-left', `${sourceRect.left}px`);
+    clone.style.setProperty('--md3-route-container-top', `${sourceRect.top}px`);
+    clone.style.setProperty('--md3-route-container-width', `${sourceRect.width}px`);
+    clone.style.setProperty('--md3-route-container-height', `${sourceRect.height}px`);
+
+    this.document.body.appendChild(clone);
+    this.document.documentElement.classList.add('cs-custom-card-transform-running');
+    this.document.documentElement.dataset['csCustomCardTransform'] = 'pending';
+    this.activeContainerTransform = { clone, sourceRect };
+  }
+
+  private finishContainerTransform() {
+    const win = this.document.defaultView;
+    const transform = this.activeContainerTransform;
+    if (!win || !transform) {
+      this.clearContainerTransform();
+      return;
+    }
+
+    win.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+
+    win.requestAnimationFrame(() => {
+      win.requestAnimationFrame(() => {
+        const target = this.document.querySelector<HTMLElement>('app-blog-post .md3-article-hero');
+        const currentTransform = this.activeContainerTransform;
+        if (!target || !currentTransform) {
+          this.clearContainerTransform();
+          return;
+        }
+
+        const targetRect = target.getBoundingClientRect();
+        const dx = targetRect.left - currentTransform.sourceRect.left;
+        const dy = targetRect.top - currentTransform.sourceRect.top;
+        const scaleX = targetRect.width / currentTransform.sourceRect.width;
+        const scaleY = Math.min(targetRect.height / currentTransform.sourceRect.height, 2.75);
+        const duration = 560;
+        const easing = 'cubic-bezier(0.2, 0, 0, 1)';
+
+        target.classList.add('md3-route-container-target');
+        target.animate(
+          [
+            { opacity: 0.08, transform: 'scale(0.985)' },
+            { opacity: 0.08, transform: 'scale(0.985)', offset: 0.42 },
+            { opacity: 1, transform: 'scale(1)' },
+          ],
+          { duration, easing, fill: 'both' }
+        );
+
+        currentTransform.animation = currentTransform.clone.animate(
+          [
+            {
+              opacity: 1,
+              transform: 'translate3d(0, 0, 0) scale(1, 1)',
+              borderRadius: 'var(--md-sys-shape-corner-xl)',
+            },
+            {
+              opacity: 0.96,
+              transform: `translate3d(${dx}px, ${dy}px, 0) scale(${scaleX}, ${scaleY})`,
+              borderRadius: 'var(--md-sys-shape-corner-lg)',
+              offset: 0.76,
+            },
+            {
+              opacity: 0,
+              transform: `translate3d(${dx}px, ${dy}px, 0) scale(${scaleX}, ${scaleY})`,
+              borderRadius: 'var(--md-sys-shape-corner-lg)',
+            },
+          ],
+          { duration, easing, fill: 'both' }
+        );
+
+        currentTransform.animation.onfinish = () => {
+          target.classList.remove('md3-route-container-target');
+          this.clearContainerTransform();
+        };
+
+        currentTransform.cleanupTimer = win.setTimeout(() => {
+          target.classList.remove('md3-route-container-target');
+          this.clearContainerTransform();
+        }, duration + 180);
+      });
+    });
   }
 
   private classifyInteractionSource(anchor: HTMLAnchorElement): RouteInteractionSource {
@@ -265,6 +415,10 @@ export class App implements OnInit {
     if (source === 'card' && anchor) {
       const sourceElement = anchor.closest(this.sourceCardSelector) as HTMLElement | null;
       sourceElement?.classList.add('cs-motion-source-pressed');
+      if (this.shouldUseSelectedCardTransition(anchor)) {
+        sourceElement?.style.setProperty('view-transition-name', 'cs-selected-card');
+        root.dataset['csCustomCardTransform'] = 'pending';
+      }
       this.activeSourceElement = sourceElement ?? undefined;
     }
 
@@ -284,7 +438,13 @@ export class App implements OnInit {
     this.lastInteractionSource = 'unknown';
 
     this.activeSourceElement?.classList.remove('cs-motion-source-pressed');
+    this.activeSourceElement?.style.removeProperty('view-transition-name');
     this.activeSourceElement = undefined;
+
+    if (!this.activeContainerTransform) {
+      delete root.dataset['csCustomCardTransform'];
+      root.classList.remove('cs-custom-card-transform-running');
+    }
 
     if (clearTimer && win && this.interactionCleanupTimer !== undefined) {
       win.clearTimeout(this.interactionCleanupTimer);
@@ -355,5 +515,58 @@ export class App implements OnInit {
 
   private toSegments(path: string): string[] {
     return path.split('/').filter(Boolean);
+  }
+
+  private isSlideUrl(url: string): boolean {
+    const path = this.toPath(url);
+    const segments = this.toSegments(path);
+    return segments[0] === 'slides' || path.endsWith('/slides');
+  }
+
+  private isBlogListToDetail(fromUrl: string, toUrl: string): boolean {
+    const fromSegments = this.toSegments(this.toPath(fromUrl));
+    const toSegments = this.toSegments(this.toPath(toUrl));
+    return fromSegments[0] === 'blog'
+      && fromSegments.length <= 1
+      && toSegments[0] === 'blog'
+      && toSegments.length > 1;
+  }
+
+  private shouldUseSelectedCardTransition(anchor: HTMLAnchorElement): boolean {
+    const win = this.document.defaultView;
+    if (!win) {
+      return false;
+    }
+
+    let destination: URL;
+    try {
+      destination = new URL(anchor.href, win.location.origin);
+    } catch {
+      return false;
+    }
+
+    if (destination.origin !== win.location.origin) {
+      return false;
+    }
+
+    const fromSegments = this.toSegments(this.toPath(win.location.pathname));
+    const toSegments = this.toSegments(this.toPath(destination.pathname));
+
+    return this.isBlogListToDetail(win.location.pathname, destination.pathname);
+  }
+
+  private clearContainerTransform() {
+    const win = this.document.defaultView;
+    const transform = this.activeContainerTransform;
+
+    if (transform?.cleanupTimer !== undefined && win) {
+      win.clearTimeout(transform.cleanupTimer);
+    }
+
+    transform?.animation?.cancel();
+    transform?.clone.remove();
+    this.activeContainerTransform = undefined;
+    this.document.documentElement.classList.remove('cs-custom-card-transform-running');
+    delete this.document.documentElement.dataset['csCustomCardTransform'];
   }
 }

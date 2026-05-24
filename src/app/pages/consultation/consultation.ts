@@ -126,7 +126,7 @@ export class ConsultationComponent {
         title: 'How it works',
         meta: 'Private by default',
         ariaLabel: 'Engagement summary',
-        mapLabels: ['ASK', 'MAP', 'FIX'],
+        mapLabels: ['ASK', 'MAP', 'FIX', 'SHIP'],
         stats: [
           { value: '24-48h', label: 'Typical response' },
           { value: '1:1', label: 'Focused session' },

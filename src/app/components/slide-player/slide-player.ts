@@ -83,51 +83,51 @@ export interface SlideData {
               <svg class="absolute top-1/2 right-[-100px] -translate-y-1/2 w-[600px] h-[600px] opacity-30" viewBox="0 0 400 400" fill="none">
                 <defs>
                   <linearGradient id="ring-g" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#a855f7"/><stop offset="100%" stop-color="#3b82f6"/>
+                    <stop offset="0%" stop-color="var(--md-sys-color-tertiary)"/><stop offset="100%" stop-color="var(--md-sys-color-primary)"/>
                   </linearGradient>
                 </defs>
                 <circle cx="200" cy="200" r="180" stroke="url(#ring-g)" stroke-width="1" fill="none" class="slide-ring-1"/>
                 <circle cx="200" cy="200" r="130" stroke="url(#ring-g)" stroke-width="1" fill="none" class="slide-ring-2"/>
                 <circle cx="200" cy="200" r="80" stroke="url(#ring-g)" stroke-width="1.5" fill="none" class="slide-ring-3"/>
-                <circle cx="380" cy="200" r="6" fill="#a855f7" class="slide-orbit-1"/>
-                <circle cx="330" cy="200" r="4" fill="#3b82f6" class="slide-orbit-2"/>
-                <circle cx="280" cy="200" r="5" fill="#ec4899" class="slide-orbit-3"/>
+                <circle cx="380" cy="200" r="6" fill="var(--md-sys-color-tertiary)" class="slide-orbit-1"/>
+                <circle cx="330" cy="200" r="4" fill="var(--md-sys-color-primary)" class="slide-orbit-2"/>
+                <circle cx="280" cy="200" r="5" fill="var(--md-sys-color-secondary)" class="slide-orbit-3"/>
               </svg>
             }
             @case ('content') {
               <svg class="absolute top-10 right-10 w-48 h-48 opacity-20" viewBox="0 0 200 200" fill="none">
-                <rect x="20" y="20" width="60" height="60" rx="8" stroke="#a855f7" stroke-width="1.5" class="slide-float-1"/>
-                <rect x="110" y="40" width="50" height="50" rx="8" stroke="#3b82f6" stroke-width="1.5" class="slide-float-2"/>
-                <rect x="50" y="110" width="70" height="70" rx="8" stroke="#ec4899" stroke-width="1.5" class="slide-float-3"/>
-                <circle cx="155" cy="140" r="18" stroke="#f97316" stroke-width="1.5" class="slide-float-1"/>
+                <rect x="20" y="20" width="60" height="60" rx="8" stroke="var(--md-sys-color-tertiary)" stroke-width="1.5" class="slide-float-1"/>
+                <rect x="110" y="40" width="50" height="50" rx="8" stroke="var(--md-sys-color-primary)" stroke-width="1.5" class="slide-float-2"/>
+                <rect x="50" y="110" width="70" height="70" rx="8" stroke="var(--md-sys-color-secondary)" stroke-width="1.5" class="slide-float-3"/>
+                <circle cx="155" cy="140" r="18" stroke="var(--md-sys-color-tertiary)" stroke-width="1.5" class="slide-float-1"/>
               </svg>
             }
             @case ('code') {
               <svg class="absolute top-10 right-10 w-56 h-56 opacity-15" viewBox="0 0 200 200" fill="none">
-                <polyline points="30,60 60,40 30,20" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="slide-float-1"/>
-                <polyline points="30,180 60,160 30,140" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="slide-float-2"/>
-                <line x1="80" y1="50" x2="160" y2="50" stroke="#ec4899" stroke-width="2" stroke-linecap="round" class="slide-pulse-1"/>
-                <line x1="80" y1="100" x2="140" y2="100" stroke="#f97316" stroke-width="2" stroke-linecap="round" class="slide-pulse-2"/>
-                <line x1="80" y1="150" x2="170" y2="150" stroke="#10b981" stroke-width="2" stroke-linecap="round" class="slide-pulse-3"/>
+                <polyline points="30,60 60,40 30,20" stroke="var(--md-sys-color-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="slide-float-1"/>
+                <polyline points="30,180 60,160 30,140" stroke="var(--md-sys-color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="slide-float-2"/>
+                <line x1="80" y1="50" x2="160" y2="50" stroke="var(--md-sys-color-secondary)" stroke-width="2" stroke-linecap="round" class="slide-pulse-1"/>
+                <line x1="80" y1="100" x2="140" y2="100" stroke="var(--md-sys-color-tertiary)" stroke-width="2" stroke-linecap="round" class="slide-pulse-2"/>
+                <line x1="80" y1="150" x2="170" y2="150" stroke="var(--md-sys-color-secondary)" stroke-width="2" stroke-linecap="round" class="slide-pulse-3"/>
               </svg>
             }
             @case ('grid') {
               <svg class="absolute bottom-10 right-10 w-60 h-60 opacity-15" viewBox="0 0 200 200" fill="none">
-                <path d="M 40 100 L 100 40 L 160 100 L 100 160 Z" stroke="#a855f7" stroke-width="1.5" class="slide-rotate-slow"/>
-                <path d="M 60 100 L 100 60 L 140 100 L 100 140 Z" stroke="#3b82f6" stroke-width="1.5" class="slide-rotate-reverse"/>
-                <circle cx="100" cy="100" r="6" fill="#ec4899" class="slide-pulse-1"/>
+                <path d="M 40 100 L 100 40 L 160 100 L 100 160 Z" stroke="var(--md-sys-color-tertiary)" stroke-width="1.5" class="slide-rotate-slow"/>
+                <path d="M 60 100 L 100 60 L 140 100 L 100 140 Z" stroke="var(--md-sys-color-primary)" stroke-width="1.5" class="slide-rotate-reverse"/>
+                <circle cx="100" cy="100" r="6" fill="var(--md-sys-color-secondary)" class="slide-pulse-1"/>
               </svg>
             }
             @case ('end') {
               <svg class="absolute inset-0 w-full h-full opacity-30" viewBox="0 0 400 400" fill="none" preserveAspectRatio="xMidYMid slice">
-                <circle cx="80" cy="60" r="4" fill="#a855f7" class="slide-confetti-1"/>
-                <circle cx="320" cy="80" r="5" fill="#3b82f6" class="slide-confetti-2"/>
-                <circle cx="150" cy="120" r="3" fill="#ec4899" class="slide-confetti-3"/>
-                <circle cx="280" cy="160" r="4" fill="#f97316" class="slide-confetti-4"/>
-                <circle cx="60" cy="220" r="5" fill="#10b981" class="slide-confetti-5"/>
-                <circle cx="340" cy="280" r="3" fill="#a855f7" class="slide-confetti-1"/>
-                <circle cx="200" cy="320" r="4" fill="#3b82f6" class="slide-confetti-2"/>
-                <path d="M 180 180 L 195 200 L 220 165" stroke="#10b981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" class="slide-check"/>
+                <circle cx="80" cy="60" r="4" fill="var(--md-sys-color-tertiary)" class="slide-confetti-1"/>
+                <circle cx="320" cy="80" r="5" fill="var(--md-sys-color-primary)" class="slide-confetti-2"/>
+                <circle cx="150" cy="120" r="3" fill="var(--md-sys-color-secondary)" class="slide-confetti-3"/>
+                <circle cx="280" cy="160" r="4" fill="var(--md-sys-color-tertiary)" class="slide-confetti-4"/>
+                <circle cx="60" cy="220" r="5" fill="var(--md-sys-color-secondary)" class="slide-confetti-5"/>
+                <circle cx="340" cy="280" r="3" fill="var(--md-sys-color-tertiary)" class="slide-confetti-1"/>
+                <circle cx="200" cy="320" r="4" fill="var(--md-sys-color-primary)" class="slide-confetti-2"/>
+                <path d="M 180 180 L 195 200 L 220 165" stroke="var(--md-sys-color-secondary)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" class="slide-check"/>
               </svg>
             }
           }

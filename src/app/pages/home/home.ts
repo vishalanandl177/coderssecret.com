@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SeoService } from '../../services/seo.service';
 import { EXTERNAL_LINKS } from '../../shared/external-links';
+import { md3CategoryAccent, md3CategoryAccentLine, md3CategoryGradient, md3CategoryTint } from '../../shared/md3/md3-color-roles';
 
 type PostCard = { id: string; title: string; slug: string; excerpt: string; category: string; date: string; readTime: string; tags: string[]; author: string; featured?: boolean; popularRank?: number; coverImage: string };
 type CategoryInfo = { name: string; slug: string };
@@ -781,18 +782,18 @@ type HeroTrack = {
                   <div class="md3-home-post-card md3-home-post-card-ranked relative h-full rounded-2xl border border-border/60 bg-card overflow-hidden transition-all duration-500 hover:shadow-xl hover:-translate-y-1 hover:border-primary/20">
                     <!-- Rank badge -->
                     <div class="md3-home-rank-badge absolute top-3 left-3 z-10 inline-flex items-center justify-center h-8 w-8 rounded-full font-extrabold text-sm"
-                         [class]="i === 0 ? 'bg-yellow-500 text-yellow-950' : i === 1 ? 'bg-gray-300 text-gray-700' : i === 2 ? 'bg-orange-400 text-orange-950' : 'bg-muted text-muted-foreground'">
+                         [attr.aria-label]="'Popularity rank ' + (i + 1)">
                       #{{ i + 1 }}
                     </div>
                     <!-- Top accent bar -->
-                    <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                         [style.background-image]="'linear-gradient(to right, transparent, ' + getCategoryColor(post.category) + ', transparent)'"></div>
+                  <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                         [style.background-image]="getCategoryAccentLine(post.category)"></div>
 
                     <div class="p-6 pt-14 flex flex-col justify-between h-full">
                       <div>
                         <div class="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-3">
                           <span class="md3-home-post-category inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                                [style.background-color]="getCategoryColor(post.category) + '15'"
+                                [style.background-color]="getCategoryTint(post.category)"
                                 [style.color]="getCategoryColor(post.category)">
                             {{ post.category }}
                           </span>
@@ -860,7 +861,7 @@ type HeroTrack = {
                     <div>
                       <div class="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-4">
                         <span class="md3-home-post-category inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                              [style.background-color]="getCategoryColor(post.category) + '15'"
+                              [style.background-color]="getCategoryTint(post.category)"
                               [style.color]="getCategoryColor(post.category)">
                           {{ post.category }}
                         </span>
@@ -1526,27 +1527,19 @@ export class HomeComponent implements OnInit {
   }
 
   getCategoryColor(slug: string): string {
-    const colors: Record<string, string> = {
-      ai: '#06b6d4',
-      frontend: '#3b82f6',
-      backend: '#22c55e',
-      devops: '#f97316',
-      tutorials: '#a855f7',
-      'open-source': '#ec4899',
-    };
-    return colors[slug] ?? '#6b7280';
+    return md3CategoryAccent(slug);
+  }
+
+  getCategoryTint(slug: string): string {
+    return md3CategoryTint(slug);
+  }
+
+  getCategoryAccentLine(slug: string): string {
+    return md3CategoryAccentLine(slug);
   }
 
   getCategoryGradient(slug: string): string {
-    const gradients: Record<string, string> = {
-      ai: 'linear-gradient(135deg, rgba(6,182,212,0.08), rgba(6,182,212,0.02))',
-      frontend: 'linear-gradient(135deg, rgba(59,130,246,0.08), rgba(59,130,246,0.02))',
-      backend: 'linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.02))',
-      devops: 'linear-gradient(135deg, rgba(249,115,22,0.08), rgba(249,115,22,0.02))',
-      tutorials: 'linear-gradient(135deg, rgba(168,85,247,0.08), rgba(168,85,247,0.02))',
-      'open-source': 'linear-gradient(135deg, rgba(236,72,153,0.08), rgba(236,72,153,0.02))',
-    };
-    return gradients[slug] ?? '';
+    return md3CategoryGradient(slug);
   }
 
   getCategoryIcon(slug: string): string {

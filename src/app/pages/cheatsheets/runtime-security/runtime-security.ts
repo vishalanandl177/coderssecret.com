@@ -14,9 +14,9 @@ export class RuntimeSecurityCheatsheetComponent {
 
   header: CheatsheetHeader = {
     icon: '🚨',
-    iconColor: '#dc2626',
+    iconColor: 'var(--md-sys-color-error)',
     badge: 'Production Reference',
-    badgeClass: 'bg-red-500/10 border-red-500/30 text-red-500',
+    badgeClass: 'md3-chip-selected',
     title: 'Runtime Security Cheatsheet (Falco / eBPF)',
     intro: 'Detection-engineering reference for Linux runtime security. Falco rule syntax, syscall reference, eBPF observability with Tetragon, and the patterns that catch real attacks while keeping noise out of your alert pipeline.',
   };

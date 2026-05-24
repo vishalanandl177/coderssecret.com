@@ -2,6 +2,7 @@ import { Component, inject, computed, signal, effect } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BLOG_POSTS, CATEGORIES } from '../../models/blog-post.model';
 import { SeoService } from '../../services/seo.service';
+import { md3CategoryAccent, md3CategoryAccentLine, md3CategoryTint } from '../../shared/md3/md3-color-roles';
 
 @Component({
   selector: 'app-category',
@@ -11,8 +12,9 @@ import { SeoService } from '../../services/seo.service';
     <section class="relative overflow-hidden">
       <div class="absolute inset-0 -z-10">
         <div class="absolute top-[-25%] left-[10%] h-[400px] w-[400px] rounded-full blur-[120px] animate-blob"
-             [style.background-color]="categoryColor() + '12'"></div>
-        <div class="absolute bottom-[-30%] right-[-5%] h-[350px] w-[350px] rounded-full bg-purple-500/8 blur-[100px] animate-blob animation-delay-2000"></div>
+             [style.background-color]="categoryTint(10)"></div>
+        <div class="absolute bottom-[-30%] right-[-5%] h-[350px] w-[350px] rounded-full blur-[100px] animate-blob animation-delay-2000"
+             style="background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent)"></div>
       </div>
 
       <div class="container max-w-6xl mx-auto px-6 pt-16 pb-12 md:pt-24 md:pb-16">
@@ -28,7 +30,7 @@ import { SeoService } from '../../services/seo.service';
         </nav>
         <div class="max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider mb-6"
-               [style.background-color]="categoryColor() + '15'"
+               [style.background-color]="categoryTint()"
                [style.color]="categoryColor()">
             <span class="h-2 w-2 rounded-full" [style.background-color]="categoryColor()"></span>
             Category
@@ -68,7 +70,7 @@ import { SeoService } from '../../services/seo.service';
                      [class]="i === 0 ? 'md:flex md:items-stretch' : ''">
                   <!-- Top accent -->
                   <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                       [style.background-image]="'linear-gradient(to right, transparent, ' + categoryColor() + ', transparent)'"></div>
+                       [style.background-image]="categoryAccentLine()"></div>
 
                   <div class="p-6 md:p-8 flex flex-col justify-between" [class]="i === 0 ? 'md:flex-1' : ''">
                     <div>
@@ -79,7 +81,8 @@ import { SeoService } from '../../services/seo.service';
                         <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
                         <span>By {{ post.author }}</span>
                         @if (post.featured) {
-                          <span class="inline-flex items-center gap-1 rounded-full bg-yellow-500/10 text-yellow-600 px-2 py-0.5 text-[10px] font-bold">
+                          <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold"
+                                style="background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
                               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                             </svg>
@@ -152,12 +155,16 @@ export class CategoryComponent {
   });
 
   categoryColor = computed(() => {
-    const colors: Record<string, string> = {
-      ai: '#06b6d4', frontend: '#3b82f6', backend: '#22c55e', devops: '#f97316',
-      tutorials: '#a855f7', 'open-source': '#ec4899',
-    };
-    return colors[this.categorySlug()] ?? '#6b7280';
+    return md3CategoryAccent(this.categorySlug());
   });
+
+  categoryTint(amount = 14): string {
+    return md3CategoryTint(this.categorySlug(), amount);
+  }
+
+  categoryAccentLine(): string {
+    return md3CategoryAccentLine(this.categorySlug());
+  }
 
   private categoryDescriptions: Record<string, string> = {
     ai: 'Guides on AI, LLMs, Claude, MCP servers, prompting, local AI stacks, and building with modern AI tools.',

@@ -119,7 +119,7 @@ export class AboutComponent {
         title: 'Site snapshot',
         meta: 'Free and ad-free',
         ariaLabel: 'CodersSecret metrics',
-        mapLabels: ['OSS', 'LAB', 'SHIP', 'DOC'],
+        mapLabels: ['GUIDE', 'COURSE', 'LAB', 'REF'],
         stats: this.trustSignals,
       },
     };

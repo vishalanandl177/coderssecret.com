@@ -14,9 +14,9 @@ export class OpaRegoCheatsheetComponent {
 
   header: CheatsheetHeader = {
     icon: '⚖️',
-    iconColor: '#a855f7',
+    iconColor: 'var(--md-sys-color-primary)',
     badge: 'Production Reference',
-    badgeClass: 'bg-purple-500/10 border-purple-500/30 text-purple-500',
+    badgeClass: 'md3-chip-selected',
     title: 'OPA & Rego Cheatsheet',
     intro: 'Operational reference for Open Policy Agent (OPA) and the Rego policy language. Rego syntax, Kubernetes admission patterns with Gatekeeper, OPA bundle workflow, and the testing flow that catches policy regressions before they reach production.',
   };

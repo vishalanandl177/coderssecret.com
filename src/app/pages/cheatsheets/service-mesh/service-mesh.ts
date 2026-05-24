@@ -14,9 +14,9 @@ export class ServiceMeshCheatsheetComponent {
 
   header: CheatsheetHeader = {
     icon: '🕸️',
-    iconColor: '#8b5cf6',
+    iconColor: 'var(--md-sys-color-primary)',
     badge: 'Production Reference',
-    badgeClass: 'bg-violet-500/10 border-violet-500/30 text-violet-500',
+    badgeClass: 'md3-chip-selected',
     title: 'Service Mesh Cheatsheet (Istio / Envoy)',
     intro: 'Operational reference for Istio service mesh and Envoy proxy. mTLS configuration, AuthorizationPolicy patterns, traffic management, and the diagnostic commands that actually pinpoint why a request was rejected.',
   };

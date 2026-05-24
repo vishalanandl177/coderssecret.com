@@ -14,9 +14,9 @@ export class SpiffeSpireCheatsheetComponent {
 
   header: CheatsheetHeader = {
     icon: '🔐',
-    iconColor: '#06b6d4',
+    iconColor: 'var(--md-sys-color-secondary)',
     badge: 'Production Reference',
-    badgeClass: 'bg-cyan-500/10 border-cyan-500/30 text-cyan-500',
+    badgeClass: 'md3-chip-selected',
     title: 'SPIFFE & SPIRE Cheatsheet',
     intro: 'Operational reference for SPIFFE workload identity and SPIRE deployment. SPIFFE IDs, SVID issuance, registration entries, attestor selectors, federation, and the diagnostic commands you reach for when a workload is not getting its identity.',
   };
