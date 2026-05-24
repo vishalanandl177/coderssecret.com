@@ -1,14 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#7c3aed"/>
-      <stop offset="100%" style="stop-color:#3b82f6"/>
-    </linearGradient>
-  </defs>
-  <rect width="32" height="32" rx="7" fill="url(#g)"/>
-  <g stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
-    <polyline points="11,10 6,16 11,22"/>
-    <polyline points="21,10 26,16 21,22"/>
-    <line x1="18.5" y1="8" x2="13.5" y2="24"/>
-  </g>
+  <rect x="1" y="1" width="30" height="30" rx="10" fill="#EADDFF"/>
+  <path d="M13.4 10.2 8.2 16l5.2 5.8" stroke="#6750A4" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="m19.1 10.2 4.7 5.8-4.7 5.8" stroke="#6750A4" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="m18 7.8-4 16.4" stroke="#6750A4" stroke-width="2.7" stroke-linecap="round"/>
+  <circle cx="23.6" cy="8.4" r="3.3" fill="#006A6A" stroke="#FFFBFF" stroke-width="1.5"/>
+  <rect x="1" y="1" width="30" height="30" rx="10" stroke="#CAC4D0"/>
 </svg>

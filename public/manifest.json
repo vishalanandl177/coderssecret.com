@@ -1,11 +1,11 @@
 {
-  "name": "CodersSecret - Modern Web Development Blog",
+  "name": "CodersSecret | Practical Engineering Tutorials",
   "short_name": "CodersSecret",
-  "description": "Battle-tested guides on Python, DevOps, APIs, and system design — written by engineers, for engineers who ship.",
+  "description": "Practical guides on security, AI infrastructure, DevOps, data engineering, and production software systems.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0a",
-  "theme_color": "#0a0a0a",
+  "background_color": "#FFFBFF",
+  "theme_color": "#6750A4",
   "icons": [
     {
       "src": "icon-192.png",

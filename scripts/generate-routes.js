@@ -44,8 +44,30 @@ const categoryNames = {
 const HOME_TITLE = `${SITE_NAME} | Security, AI, Data & Production Engineering`;
 const HOME_DESCRIPTION = 'Free engineering courses and guides on Kubernetes, SPIFFE/SPIRE, Zero Trust, production RAG, analytics engineering, DevSecOps, labs, and diagrams.';
 
-// Read the built index.html
-const baseHtml = fs.readFileSync(path.join(OUTPUT_DIR, 'index.html'), 'utf-8');
+// Read the built index.html. The generator is intentionally idempotent: if it
+// is rerun after a previous prerender, strip previously injected route content
+// and head tags before using index.html as the shell for every route.
+const baseHtml = normalizeBuiltShell(fs.readFileSync(path.join(OUTPUT_DIR, 'index.html'), 'utf-8'));
+removeStaleGeneratedRoutes();
+
+function normalizeBuiltShell(html) {
+  return String(html)
+    .replace(/<app-root[\s\S]*?<\/app-root>/i, '<app-root></app-root>')
+    .replace(/\s*<link rel="canonical"[^>]*>\n?/gi, '')
+    .replace(/\s*<link rel="alternate" hreflang="en"[^>]*>\n?/gi, '')
+    .replace(/\s*<meta property="og:[^"]+" content="[^"]*">\n?/gi, '')
+    .replace(/\s*<meta name="twitter:[^"]+" content="[^"]*">\n?/gi, '')
+    .replace(/\s*<script type="application\/ld\+json">[\s\S]*?<\/script>\n?/gi, '');
+}
+
+function removeStaleGeneratedRoutes() {
+  for (const route of ['home']) {
+    const routePath = path.resolve(OUTPUT_DIR, route);
+    if (routePath.startsWith(path.resolve(OUTPUT_DIR) + path.sep)) {
+      fs.rmSync(routePath, { recursive: true, force: true });
+    }
+  }
+}
 
 function makeHtml(options) {
   const { title, description, url, content, jsonLd, image, fullTitle: explicitFullTitle, ogType = 'website', extraHead = '' } = options;
@@ -221,6 +243,87 @@ function loadCoursesFromModel(courseContent) {
     console.warn(`Could not load course model for rich course hub prerender: ${err.message}`);
     return [];
   }
+}
+
+function loadComponentDataFromSource(relativePath, propertyNames) {
+  const fullPath = path.join(__dirname, '..', relativePath);
+  if (!fs.existsSync(fullPath)) {
+    console.warn(`Could not find component source for SEO prerender: ${relativePath}`);
+    return {};
+  }
+
+  try {
+    const ts = require('typescript');
+    const sourceText = fs.readFileSync(fullPath, 'utf-8');
+    const sourceFile = ts.createSourceFile(fullPath, sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    const wanted = new Set(propertyNames);
+    const data = {};
+
+    function visit(node) {
+      if (
+        ts.isPropertyDeclaration(node) &&
+        node.initializer &&
+        ts.isIdentifier(node.name) &&
+        wanted.has(node.name.text)
+      ) {
+        const expression = sourceText.slice(
+          node.initializer.getStart(sourceFile),
+          node.initializer.getEnd()
+        );
+        data[node.name.text] = evaluateTsExpression(expression, `${relativePath}:${node.name.text}`);
+      }
+
+      ts.forEachChild(node, visit);
+    }
+
+    visit(sourceFile);
+    return data;
+  } catch (err) {
+    console.warn(`Could not extract component data from ${relativePath}: ${err.message}`);
+    return {};
+  }
+}
+
+function evaluateTsExpression(expression, label) {
+  try {
+    const ts = require('typescript');
+    const js = ts.transpileModule(`exports.value = (${expression});`, {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2020,
+      },
+    }).outputText;
+    const mod = { exports: {} };
+    new Function('exports', 'module', js)(mod.exports, mod);
+    return mod.exports.value;
+  } catch (err) {
+    console.warn(`Could not evaluate SEO prerender expression ${label}: ${err.message}`);
+    return undefined;
+  }
+}
+
+function rowsForCommandGroup(group) {
+  return Array.isArray(group?.rows) ? group.rows : (Array.isArray(group?.items) ? group.items : []);
+}
+
+function renderCodeBlock(code, label = 'Example') {
+  if (!code) return '';
+  return `<figure>
+    <figcaption>${escapeHtml(label)}</figcaption>
+    <pre><code>${escapeHtml(code)}</code></pre>
+  </figure>`;
+}
+
+function renderTextList(items) {
+  const values = Array.isArray(items) ? items.filter(Boolean) : [];
+  return values.length ? `<ul>${values.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>` : '';
+}
+
+function renderLinkList(links) {
+  const values = Array.isArray(links) ? links.filter(link => link?.href && link?.label) : [];
+  return values.length
+    ? `<ul>${values.map(link => `<li><a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>${link.description ? ` - ${escapeHtml(link.description)}` : ''}</li>`).join('')}</ul>`
+    : '';
 }
 
 function stripHtml(html) {
@@ -871,6 +974,125 @@ function renderModuleContent(course, mod) {
   </main>`;
 }
 
+function writeCourseModulePage(course, mod) {
+  const moduleDir = path.join(OUTPUT_DIR, 'courses', course.slug, mod.slug);
+  fs.mkdirSync(moduleDir, { recursive: true });
+  fs.writeFileSync(path.join(moduleDir, 'index.html'), makeHtml({
+    title: moduleSeoTitle(course, mod),
+    description: moduleSeoDescription(course, mod),
+    url: `/courses/${course.slug}/${mod.slug}`,
+    image: courseImagePath(course),
+    content: renderModuleContent(course, mod),
+    jsonLd: [
+      courseBreadcrumbJsonLd(course, [{ name: `Module ${mod.number}: ${mod.title}`, url: `/courses/${course.slug}/${mod.slug}` }]),
+      moduleJsonLd(course, mod),
+    ],
+  }));
+  created++;
+
+  writeCourseModuleSlidesPage(course, mod);
+}
+
+function writeCourseModuleSlidesPage(course, mod) {
+  const slidesDir = path.join(OUTPUT_DIR, 'courses', course.slug, mod.slug, 'slides');
+  fs.mkdirSync(slidesDir, { recursive: true });
+  fs.writeFileSync(path.join(slidesDir, 'index.html'), makeHtml({
+    title: moduleSlidesSeoTitle(course, mod),
+    description: moduleSlidesSeoDescription(course, mod),
+    url: `/courses/${course.slug}/${mod.slug}/slides`,
+    image: courseImagePath(course),
+    content: renderModuleSlidesContent(course, mod),
+    jsonLd: courseModuleSlidesJsonLd(course, mod),
+  }));
+  created++;
+}
+
+function moduleSlidesSeoTitle(course, mod) {
+  return compactSeoTitle(`Module ${mod.number}: ${mod.title} Slides`, 55);
+}
+
+function moduleSlidesSeoDescription(course, mod) {
+  return clampText(`Slide walkthrough for Module ${mod.number} of ${course.title}: ${mod.subtitle}. Covers objectives, production notes, labs, and key takeaways.`, 155);
+}
+
+function renderModuleSlidesContent(course, mod) {
+  const outline = courseModuleSlideOutline(course, mod);
+
+  return `<main>
+    <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/courses">Courses</a> / <a href="/courses/${course.slug}">${escapeHtml(course.title)}</a> / <a href="/courses/${course.slug}/${mod.slug}">Module ${mod.number}</a> / Slides</nav>
+    <article>
+      <h1>Module ${mod.number}: ${escapeHtml(mod.title)} Slides</h1>
+      <p>${escapeHtml(moduleSlidesSeoDescription(course, mod))}</p>
+      <p>This slide page is the visual review companion for the full course module. Use it to recap the architecture, examples, exercises, production warnings, and takeaways after reading the lesson.</p>
+      <section>
+        <h2>Slide Outline</h2>
+        <ol>${outline.map(item => `<li><strong>${escapeHtml(item.title)}</strong>${item.description ? ` - ${escapeHtml(item.description)}` : ''}</li>`).join('')}</ol>
+      </section>
+      <section>
+        <h2>Learning Objectives</h2>
+        ${renderList(mod.objectives)}
+      </section>
+      ${mod.whyThisMatters ? `<section><h2>Why This Module Matters</h2><p>${escapeHtml(mod.whyThisMatters)}</p></section>` : ''}
+      ${renderOptionalList('Production Notes', mod.productionNotes)}
+      ${renderOptionalList('Common Mistakes', mod.commonMistakes)}
+      ${renderOptionalList('Key Takeaways', mod.keyTakeaways)}
+      ${renderLabs(course, mod)}
+      <p><a href="/courses/${course.slug}/${mod.slug}">Read the full module</a> | <a href="/courses/${course.slug}">Back to course curriculum</a></p>
+    </article>
+  </main>`;
+}
+
+function courseModuleSlideOutline(course, mod) {
+  const h2s = [...String(mod.content || '').matchAll(/<h2[^>]*>(.*?)<\/h2>/gi)]
+    .map(match => stripHtml(match[1]))
+    .filter(Boolean)
+    .slice(0, 8);
+
+  return [
+    { title: `${mod.title}`, description: mod.subtitle },
+    { title: 'Learning Objectives', description: `${mod.objectives.length} outcomes for this module` },
+    mod.whyThisMatters ? { title: 'Why This Module Matters', description: stripHtml(mod.whyThisMatters).slice(0, 120) } : undefined,
+    mod.beforeAfter ? { title: 'Before vs After', description: 'The operational shift this module teaches' } : undefined,
+    ...h2s.map(title => ({ title, description: 'Lesson section from the full module' })),
+    mod.realWorldUseCases?.length ? { title: 'Real-World Use Cases', description: mod.realWorldUseCases.slice(0, 2).join(', ') } : undefined,
+    mod.commonMistakes?.length ? { title: 'Common Mistakes to Avoid', description: `${mod.commonMistakes.length} mistakes covered` } : undefined,
+    mod.productionNotes?.length ? { title: 'Production Notes', description: `${mod.productionNotes.length} practical notes` } : undefined,
+    mod.securityRisks?.length ? { title: 'Security Risks to Watch', description: `${mod.securityRisks.length} risks covered` } : undefined,
+    mod.labs?.length ? { title: course.labDelivery === 'inline' ? 'Inline Exercises' : 'Hands-On Labs', description: moduleLabLabelFor(course, mod) } : undefined,
+    { title: 'Key Takeaways', description: `${mod.keyTakeaways.length} points to remember` },
+  ].filter(Boolean);
+}
+
+function courseModuleSlidesJsonLd(course, mod) {
+  return [
+    courseBreadcrumbJsonLd(course, [
+      { name: `Module ${mod.number}: ${mod.title}`, url: `/courses/${course.slug}/${mod.slug}` },
+      { name: 'Slides', url: `/courses/${course.slug}/${mod.slug}/slides` },
+    ]),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'LearningResource',
+      'name': `Module ${mod.number}: ${mod.title} Slides`,
+      'description': moduleSlidesSeoDescription(course, mod),
+      'url': `${SITE_URL}/courses/${course.slug}/${mod.slug}/slides`,
+      'learningResourceType': 'Slide deck',
+      'isAccessibleForFree': true,
+      'inLanguage': 'en',
+      'teaches': mod.objectives,
+      'isPartOf': {
+        '@type': 'LearningResource',
+        'name': `Module ${mod.number}: ${mod.title}`,
+        'url': `${SITE_URL}/courses/${course.slug}/${mod.slug}`,
+      },
+      'provider': {
+        '@type': 'Organization',
+        'name': 'CodersSecret',
+        'url': SITE_URL,
+      },
+    },
+  ];
+}
+
 function renderSeoLandingContent(course, page) {
   const target = course.modules.find(mod => mod.number === page.ctaModule);
   const ctaHref = target ? `/courses/${course.slug}/${target.slug}` : `/courses/${course.slug}`;
@@ -1421,6 +1643,24 @@ const games = [
   },
 ];
 
+const gameDetailsBySlug = new Map(games
+  .filter(game => game.slug)
+  .map(game => [
+    game.slug,
+    loadComponentDataFromSource(`src/app/pages/games/${game.slug}/${game.slug}.ts`, [
+      'intro',
+      'scenarios',
+      'questions',
+      'snippets',
+      'challenges',
+      'roles',
+      'levels',
+      'locations',
+      'companies',
+      'callToActions',
+    ]),
+  ]));
+
 function gameSeoTitle(game) {
   return compactSeoTitle(game.title.replace(/\s+—\s+(Interactive Lab|SPIFFE\/SPIRE Workload Identity Lab)$/i, ''), 52);
 }
@@ -1436,6 +1676,7 @@ function gameDescription(game) {
 
 function renderGameContent(game, allGames) {
   const description = gameDescription(game);
+  const detail = game.slug ? gameDetailsBySlug.get(game.slug) : undefined;
   const related = allGames
     .filter(item => item.slug && item.slug !== game.slug)
     .slice(0, 6);
@@ -1459,6 +1700,7 @@ function renderGameContent(game, allGames) {
       <h1>${escapeHtml(game.heading)}</h1>
       <p>${escapeHtml(description)}</p>
       <p>${escapeHtml(game.content)}</p>
+      ${renderGameDetailContent(detail)}
       <section>
         <h2>What You Practice</h2>
         <ul>
@@ -1474,6 +1716,126 @@ function renderGameContent(game, allGames) {
       <p><a href="/courses">Continue with free courses</a> or <a href="/blog">read production engineering articles</a>.</p>
     </article>
   </main>`;
+}
+
+function renderGameDetailContent(detail) {
+  if (!detail) return '';
+
+  return [
+    renderScenarioIntro(detail.intro),
+    renderScenarioWalkthroughs(detail.scenarios),
+    renderCodeQuestions(detail.questions),
+    renderTypingSnippets(detail.snippets),
+    renderLinuxChallenges(detail.challenges),
+    renderSalaryInputs(detail),
+  ].filter(Boolean).join('\n');
+}
+
+function renderScenarioIntro(intro) {
+  if (!intro) return '';
+  return `<section>
+    <h2>How This Lab Works</h2>
+    <p>${escapeHtml(intro.description)}</p>
+    ${renderTextList(intro.steps)}
+    ${intro.practiceTitle ? `<h3>${escapeHtml(intro.practiceTitle)}</h3>` : ''}
+    ${intro.practiceDescription ? `<p>${escapeHtml(intro.practiceDescription)}</p>` : ''}
+    ${Array.isArray(intro.practiceConcepts) && intro.practiceConcepts.length ? `<ul>${intro.practiceConcepts.map(concept => `<li><strong>${escapeHtml(concept.name)}</strong> - ${escapeHtml(concept.description)}</li>`).join('')}</ul>` : ''}
+    ${intro.deeperLine ? `<p>${escapeHtml(intro.deeperLine)}</p>` : ''}
+    ${renderLinkList(intro.deeperLinks)}
+  </section>`;
+}
+
+function renderScenarioWalkthroughs(scenarios) {
+  if (!Array.isArray(scenarios) || !scenarios.length) return '';
+
+  return `<section>
+    <h2>Scenario Walkthroughs</h2>
+    ${scenarios.map((scenario, index) => {
+      const choices = Array.isArray(scenario.choices)
+        ? scenario.choices.map(choice => ({
+          label: choice.label,
+          correct: Boolean(choice.correct),
+          feedback: choice.feedback,
+        }))
+        : (Array.isArray(scenario.options)
+          ? scenario.options.map((label, optionIndex) => ({
+            label,
+            correct: optionIndex === scenario.correctIndex,
+          }))
+          : []);
+
+      return `<article>
+        <h3>${index + 1}. ${escapeHtml(scenario.title)}</h3>
+        ${scenario.topic ? `<p><strong>Skill area:</strong> ${escapeHtml(scenario.topic)}</p>` : ''}
+        ${scenario.briefing || scenario.situation ? `<p>${escapeHtml(scenario.briefing || scenario.situation)}</p>` : ''}
+        ${renderTextList(scenario.symptoms)}
+        ${renderCodeBlock(scenario.yaml || scenario.code, scenario.topic ? `${scenario.topic} scenario` : 'Scenario code')}
+        ${scenario.question ? `<p><strong>${escapeHtml(scenario.question)}</strong></p>` : ''}
+        ${choices.length ? `<ol>${choices.map(choice => `<li>${choice.correct ? '<strong>Correct pattern:</strong> ' : ''}${escapeHtml(choice.label)}${choice.feedback ? `<p>${escapeHtml(choice.feedback)}</p>` : ''}</li>`).join('')}</ol>` : ''}
+        ${scenario.explanation ? `<p><strong>Production lesson:</strong> ${escapeHtml(scenario.explanation)}</p>` : ''}
+        ${scenario.learnMore?.href ? `<p><a href="${escapeHtml(scenario.learnMore.href)}">${escapeHtml(scenario.learnMore.label || 'Continue learning')}</a></p>` : ''}
+      </article>`;
+    }).join('\n')}
+  </section>`;
+}
+
+function renderCodeQuestions(questions) {
+  if (!Array.isArray(questions) || !questions.length) return '';
+
+  return `<section>
+    <h2>Practice Questions</h2>
+    ${questions.map((question, index) => `<article>
+      <h3>${index + 1}. ${escapeHtml(question.language || 'Code')} question</h3>
+      ${renderCodeBlock(question.code, question.language || 'Code snippet')}
+      ${Array.isArray(question.options) ? `<ol>${question.options.map((option, optionIndex) => `<li>${optionIndex === question.correctIndex ? '<strong>Correct answer:</strong> ' : ''}${escapeHtml(option)}</li>`).join('')}</ol>` : ''}
+      ${question.explanation ? `<p><strong>Explanation:</strong> ${escapeHtml(question.explanation)}</p>` : ''}
+    </article>`).join('\n')}
+  </section>`;
+}
+
+function renderTypingSnippets(snippets) {
+  if (!Array.isArray(snippets) || !snippets.length) return '';
+
+  return `<section>
+    <h2>Typing Snippets</h2>
+    <p>The typing test uses real code-shaped snippets so the practice feels closer to daily engineering work than random words.</p>
+    ${snippets.map((snippet, index) => `<article>
+      <h3>${index + 1}. ${escapeHtml(snippet.language)} - ${escapeHtml(snippet.source)}</h3>
+      ${renderCodeBlock(snippet.code, `${snippet.language} snippet`)}
+    </article>`).join('\n')}
+  </section>`;
+}
+
+function renderLinuxChallenges(challenges) {
+  if (!Array.isArray(challenges) || !challenges.length) return '';
+
+  return `<section>
+    <h2>Command Challenges</h2>
+    ${challenges.map((challenge, index) => `<article>
+      <h3>${index + 1}. ${escapeHtml(challenge.task)}</h3>
+      ${challenge.hint ? `<p><strong>Hint:</strong> ${escapeHtml(challenge.hint)}</p>` : ''}
+      ${Array.isArray(challenge.acceptedAnswers) ? `<p><strong>Accepted commands:</strong></p><ul>${challenge.acceptedAnswers.map(answer => `<li><code>${escapeHtml(answer)}</code></li>`).join('')}</ul>` : ''}
+    </article>`).join('\n')}
+  </section>`;
+}
+
+function renderSalaryInputs(detail) {
+  if (!Array.isArray(detail?.roles) || !Array.isArray(detail?.levels) || !Array.isArray(detail?.locations) || !Array.isArray(detail?.companies)) {
+    return '';
+  }
+
+  return `<section>
+    <h2>Calculator Inputs</h2>
+    <p>The calculator lets learners compare compensation estimates by role, experience level, location, and company type. Estimates are guidance only; individual offers vary by company, skill set, negotiation, and market timing.</p>
+    <h3>Roles</h3>
+    <ul>${detail.roles.map(role => `<li>${escapeHtml(role.label)}</li>`).join('')}</ul>
+    <h3>Experience Levels</h3>
+    <ul>${detail.levels.map(level => `<li>${escapeHtml(level.label)}</li>`).join('')}</ul>
+    <h3>Locations</h3>
+    <ul>${detail.locations.map(location => `<li>${escapeHtml(location.label)}</li>`).join('')}</ul>
+    <h3>Company Types</h3>
+    <ul>${detail.companies.map(company => `<li>${escapeHtml(company.label)}</li>`).join('')}</ul>
+  </section>`;
 }
 
 function gameJsonLd(game, allGames) {
@@ -1552,6 +1914,20 @@ const cheatsheets = [
   { slug: 'devsecops', name: 'DevSecOps & Supply Chain Cheatsheet', desc: 'Production reference for software supply chain security: cosign keyless signing, SBOM generation with syft, SLSA provenance levels, Kyverno admission policy, and hardened GitHub Actions patterns.' },
 ];
 
+const cheatsheetDetailsBySlug = new Map(cheatsheets
+  .filter(cs => cs.slug)
+  .map(cs => [
+    cs.slug,
+    loadComponentDataFromSource(`src/app/pages/cheatsheets/${cs.slug}/${cs.slug}.ts`, [
+      'header',
+      'groups',
+      'sections',
+      'misconfigurations',
+      'misconfigs',
+      'related',
+    ]),
+  ]));
+
 function cheatsheetDescription(cs) {
   const desc = stripHtml(cs.desc);
   if (desc.length >= 80) {
@@ -1563,6 +1939,7 @@ function cheatsheetDescription(cs) {
 
 function renderCheatsheetContent(cs, allCheatsheets) {
   const description = cheatsheetDescription(cs);
+  const detail = cs.slug ? cheatsheetDetailsBySlug.get(cs.slug) : undefined;
   const related = allCheatsheets
     .filter(item => item.slug && item.slug !== cs.slug)
     .slice(0, 6);
@@ -1589,6 +1966,7 @@ function renderCheatsheetContent(cs, allCheatsheets) {
     <article>
       <h1>${escapeHtml(cs.name)}</h1>
       <p>${escapeHtml(description)}</p>
+      ${renderCheatsheetDetailContent(detail, cs.slug)}
       <section>
         <h2>What This Reference Covers</h2>
         <ul>
@@ -1609,6 +1987,110 @@ function renderCheatsheetContent(cs, allCheatsheets) {
       <p><a href="/cheatsheets">All Cheat Sheets</a></p>
     </article>
   </main>`;
+}
+
+function renderCheatsheetDetailContent(detail, slug) {
+  if (!detail) return '';
+
+  const header = detail.header;
+  const groups = Array.isArray(detail.groups) ? detail.groups : (Array.isArray(detail.sections) ? detail.sections : []);
+  const misconfigPairs = Array.isArray(detail.misconfigurations) ? detail.misconfigurations : (Array.isArray(detail.misconfigs) ? detail.misconfigs : []);
+
+  return [
+    header?.intro ? `<section><h2>Reference Scope</h2><p>${escapeHtml(header.intro)}</p></section>` : '',
+    renderCheatsheetTemplateExtras(slug),
+    renderCheatsheetCommandGroups(groups),
+    renderCheatsheetMisconfigurations(misconfigPairs),
+    renderCheatsheetRelated(detail.related),
+  ].filter(Boolean).join('\n');
+}
+
+function renderCheatsheetTemplateExtras(slug) {
+  if (slug !== 'kubernetes-security') return '';
+
+  return `<section>
+    <h2>Kubernetes Authorization Chain</h2>
+    <p>Every API request moves from the client to authentication, authorization, admission, and finally etcd persistence. Most cluster security failures happen when authentication, RBAC authorization, or admission policy is too permissive.</p>
+    <ol>
+      <li>Client: kubectl, controllers, SDKs, or service accounts call the API server.</li>
+      <li>Authentication: x509, OIDC, bootstrap tokens, or service-account tokens establish identity.</li>
+      <li>Authorization: RBAC or webhook authorizers decide whether the identity can perform the verb on the resource.</li>
+      <li>Admission: PodSecurity Admission, OPA, Gatekeeper, Kyverno, or webhooks enforce policy before persistence.</li>
+      <li>etcd: accepted objects are stored and then reconciled by controllers.</li>
+    </ol>
+    <h2>Default-Deny NetworkPolicy</h2>
+    <p>Use default-deny as the baseline for namespace blast-radius control, then add explicit allows for traffic that should exist.</p>
+    ${renderCodeBlock(`apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: payments
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-payments-to-rds
+  namespace: payments
+spec:
+  podSelector:
+    matchLabels:
+      app: payments-api
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 10.20.0.0/16
+    ports:
+    - protocol: TCP
+      port: 5432`, 'network-policy-default-deny.yaml')}
+  </section>`;
+}
+
+function renderCheatsheetCommandGroups(groups) {
+  if (!Array.isArray(groups) || !groups.length) return '';
+
+  return `<section>
+    <h2>Command Reference</h2>
+    ${groups.map(group => {
+      const rows = rowsForCommandGroup(group);
+      return `<section>
+        <h3>${escapeHtml(group.title)}</h3>
+        ${rows.length ? `<dl>${rows.map(row => `<div>
+          <dt><code>${escapeHtml(row.cmd)}</code></dt>
+          <dd>${escapeHtml(row.desc)}${row.prodNote ? `<p><strong>Production note:</strong> ${escapeHtml(row.prodNote)}</p>` : ''}${row.warning ? `<p><strong>Warning:</strong> ${escapeHtml(row.warning)}</p>` : ''}</dd>
+        </div>`).join('')}</dl>` : ''}
+      </section>`;
+    }).join('\n')}
+  </section>`;
+}
+
+function renderCheatsheetMisconfigurations(misconfigPairs) {
+  if (!Array.isArray(misconfigPairs) || !misconfigPairs.length) return '';
+
+  return `<section>
+    <h2>Common Misconfigurations</h2>
+    ${misconfigPairs.map((pair, index) => `<article>
+      <h3>${index + 1}. Safer replacement pattern</h3>
+      ${renderCodeBlock(pair.bad, 'Risky pattern')}
+      ${renderCodeBlock(pair.good, 'Hardened pattern')}
+      <p><strong>Why it matters:</strong> ${escapeHtml(pair.why)}</p>
+    </article>`).join('\n')}
+  </section>`;
+}
+
+function renderCheatsheetRelated(related) {
+  if (!Array.isArray(related) || !related.length) return '';
+
+  return `<section>
+    <h2>Related Learning Paths</h2>
+    ${renderLinkList(related)}
+  </section>`;
 }
 
 function cheatsheetJsonLd(cs, allCheatsheets) {
@@ -1833,20 +2315,7 @@ if (courseContent) {
     created++;
 
     spiffeCourse.modules.forEach(mod => {
-      const moduleDir = path.join(OUTPUT_DIR, 'courses', spiffeCourse.slug, mod.slug);
-      fs.mkdirSync(moduleDir, { recursive: true });
-      fs.writeFileSync(path.join(moduleDir, 'index.html'), makeHtml({
-        title: moduleSeoTitle(spiffeCourse, mod),
-        description: moduleSeoDescription(spiffeCourse, mod),
-        url: `/courses/${spiffeCourse.slug}/${mod.slug}`,
-        image: courseImagePath(spiffeCourse),
-        content: renderModuleContent(spiffeCourse, mod),
-        jsonLd: [
-          courseBreadcrumbJsonLd(spiffeCourse, [{ name: `Module ${mod.number}: ${mod.title}`, url: `/courses/${spiffeCourse.slug}/${mod.slug}` }]),
-          moduleJsonLd(spiffeCourse, mod),
-        ],
-      }));
-      created++;
+      writeCourseModulePage(spiffeCourse, mod);
     });
 
     spiffeCourse.seoPages.forEach(page => {
@@ -1897,20 +2366,7 @@ if (courseContent) {
       created++;
 
       course.modules.forEach(mod => {
-        const moduleDir = path.join(OUTPUT_DIR, 'courses', course.slug, mod.slug);
-        fs.mkdirSync(moduleDir, { recursive: true });
-        fs.writeFileSync(path.join(moduleDir, 'index.html'), makeHtml({
-          title: moduleSeoTitle(course, mod),
-          description: moduleSeoDescription(course, mod),
-          url: `/courses/${course.slug}/${mod.slug}`,
-          image: courseImagePath(course),
-          content: renderModuleContent(course, mod),
-          jsonLd: [
-            courseBreadcrumbJsonLd(course, [{ name: `Module ${mod.number}: ${mod.title}`, url: `/courses/${course.slug}/${mod.slug}` }]),
-            moduleJsonLd(course, mod),
-          ],
-        }));
-        created++;
+        writeCourseModulePage(course, mod);
       });
 
       course.seoPages.forEach(page => {
@@ -2138,12 +2594,24 @@ fs.mkdirSync(homeDir, { recursive: true });
 fs.writeFileSync(path.join(homeDir, 'index.html'), `<!doctype html>
 <html lang="en"><head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Redirecting to the canonical CodersSecret homepage for practical engineering tutorials, courses, labs, and reference sheets.">
+<meta name="robots" content="noindex">
 <meta http-equiv="refresh" content="0;url=/">
 <link rel="canonical" href="https://coderssecret.com/">
+<meta property="og:title" content="CodersSecret">
+<meta property="og:description" content="Redirecting to the canonical CodersSecret homepage.">
+<meta property="og:url" content="https://coderssecret.com/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://coderssecret.com/og-image.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="CodersSecret">
+<meta name="twitter:description" content="Redirecting to the canonical CodersSecret homepage.">
+<meta name="twitter:image" content="https://coderssecret.com/og-image.svg">
 <title>Redirecting to CodersSecret</title>
 </head><body>
 <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg">Skip to main content</a>
-<main id="main-content" class="seo-prerender-content"><p>Redirecting to <a href="/">home page</a>...</p></main>
+<main id="main-content" class="seo-prerender-content"><h1>Redirecting to CodersSecret</h1><p>Redirecting to <a href="/">the canonical CodersSecret homepage</a>.</p></main>
 </body></html>`);
 created++;
 
@@ -2475,20 +2943,70 @@ fs.writeFileSync(path.join(consultationDir, 'index.html'), makeHtml({
 }));
 created++;
 
-let notFoundHtml = baseHtml;
-// Add noindex so Google ignores the 404 fallback
-notFoundHtml = notFoundHtml.replace('</head>', '  <meta name="robots" content="noindex">\n</head>');
-// Inject fallback content inside app-root for pre-JS rendering
-notFoundHtml = notFoundHtml.replace(
-  '<app-root></app-root>',
-  `<app-root>${wrapPrerenderContent(`
+let notFoundHtml = makeHtml({
+  title: 'Page Not Found',
+  description: 'The requested CodersSecret page does not exist. Return to the homepage or browse engineering articles, courses, labs, and reference sheets.',
+  url: '/404',
+  content: `<main>
     <h1>Page Not Found</h1>
     <p>The page you are looking for does not exist or has been moved.</p>
     <p><a href="/">Go to Home</a> | <a href="/blog">Browse Blog</a></p>
-  `)}</app-root>`
-);
+  </main>`,
+});
+// Add noindex so Google ignores the 404 fallback.
+notFoundHtml = notFoundHtml.replace('</head>', '  <meta name="robots" content="noindex">\n</head>');
 fs.writeFileSync(path.join(OUTPUT_DIR, '404.html'), notFoundHtml);
 
+
+assertGeneratedSeoContent([
+  {
+    route: 'games/kubernetes-security-simulator/index.html',
+    requiredText: ['ClusterRoleBinding', 'cluster-admin', 'NetworkPolicy', 'Secrets-in-Git'],
+  },
+  {
+    route: 'games/service-mesh-routing/index.html',
+    requiredText: ['STRICT mTLS', 'AuthorizationPolicy', 'RequestAuthentication'],
+  },
+  {
+    route: 'games/guess-output/index.html',
+    requiredText: ['Mutable default arguments', 'Floating-point arithmetic', 'String interning'],
+  },
+  {
+    route: 'cheatsheets/kubernetes-security/index.html',
+    requiredText: ['kubectl auth can-i', 'PodSecurity', 'Default-Deny NetworkPolicy'],
+  },
+  {
+    route: 'cheatsheets/api-security/index.html',
+    requiredText: ['jwt.verify', 'OAuth2 / OIDC', 'CORS', 'webhook signature'],
+  },
+  {
+    route: 'courses/mastering-spiffe-spire/understanding-zero-trust-security/slides/index.html',
+    requiredText: ['Slide Outline', 'Learning Objectives', 'Zero Trust'],
+  },
+]);
+
+function assertGeneratedSeoContent(checks) {
+  const failures = [];
+
+  for (const check of checks) {
+    const filePath = path.join(OUTPUT_DIR, check.route);
+    if (!fs.existsSync(filePath)) {
+      failures.push(`${check.route}: file missing`);
+      continue;
+    }
+
+    const html = fs.readFileSync(filePath, 'utf-8');
+    for (const text of check.requiredText) {
+      if (!html.includes(text)) {
+        failures.push(`${check.route}: missing "${text}"`);
+      }
+    }
+  }
+
+  if (failures.length > 0) {
+    throw new Error(`Static SEO prerender content check failed:\n${failures.join('\n')}`);
+  }
+}
 
 console.log(`✅ Pre-rendered ${created} route files + 404.html with SEO content.`);
 console.log(`   Blog posts: ${posts.length}`);

@@ -188,8 +188,13 @@ export class App implements OnInit {
   }
 
   private setViewTransitionCapability() {
-    const hasViewTransitionApi = typeof this.document.defaultView?.document.startViewTransition === 'function';
+    const win = this.document.defaultView;
+    const hasViewTransitionApi = typeof win?.document.startViewTransition === 'function';
+    const reduceMotion = win?.matchMedia('(prefers-reduced-motion: reduce)').matches ?? false;
+    const useNativeViewTransitions = hasViewTransitionApi && !reduceMotion;
+
     this.document.documentElement.classList.toggle('cs-view-transition-api', hasViewTransitionApi);
+    this.document.documentElement.classList.toggle('cs-native-view-transition', useNativeViewTransitions);
   }
 
   private clearRouteTransitionClasses(clearTimer = true) {

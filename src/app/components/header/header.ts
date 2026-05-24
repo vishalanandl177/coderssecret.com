@@ -4,10 +4,11 @@ import { filter } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SearchComponent } from '../search/search';
 import { EXTERNAL_LINKS } from '../../shared/external-links';
+import { BrandMarkComponent } from '../../shared/brand/brand-mark';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, RouterLinkActive, SearchComponent],
+  imports: [RouterLink, RouterLinkActive, SearchComponent, BrandMarkComponent],
   template: `
     <aside class="md3-nav-rail hidden lg:flex"
            [class.md3-nav-rail-searching]="searchLaunching()"
@@ -94,15 +95,7 @@ import { EXTERNAL_LINKS } from '../../shared/external-links';
       <div class="mx-auto flex h-20 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
         <a routerLink="/"
            class="md3-brand group inline-flex min-h-[44px] shrink-0 items-center gap-3 rounded-full pr-3 text-base font-extrabold tracking-tight text-foreground md:text-lg">
-          <span class="md3-brand-mark grid h-10 w-10 place-items-center rounded-[1.25rem] bg-[color:var(--md-sys-color-primary-container)] text-primary shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
-                 class="md3-icon-glyph">
-              <path d="m9 18-6-6 6-6"/>
-              <path d="m15 6 6 6-6 6"/>
-              <path d="m14 4-4 16"/>
-            </svg>
-          </span>
+          <app-brand-mark />
           <span><span class="text-primary">Coders</span><span class="text-foreground">Secret</span></span>
         </a>
 
@@ -227,7 +220,10 @@ import { EXTERNAL_LINKS } from '../../shared/external-links';
              aria-label="Site navigation"
              class="md3-nav-drawer fixed inset-y-0 right-0 z-50 flex w-[min(26rem,92vw)] flex-col border-l border-border p-4 lg:hidden">
         <div class="flex items-center justify-between border-b border-border pb-3">
-          <span class="text-sm font-extrabold text-foreground">CodersSecret</span>
+          <span class="inline-flex items-center gap-3 text-sm font-extrabold text-foreground">
+            <app-brand-mark />
+            CodersSecret
+          </span>
           <button type="button"
                   (click)="mobileMenuOpen.set(false)"
                   class="md3-icon-button inline-flex h-11 w-11 items-center justify-center rounded-full"
@@ -286,12 +282,12 @@ export class HeaderComponent implements AfterViewInit {
   searchComponent = viewChild(SearchComponent);
   railNav = viewChild<ElementRef<HTMLElement>>('railNav');
   categories = [
-    { name: 'AI', slug: 'ai', color: '#4DDADA' },
-    { name: 'Frontend', slug: 'frontend', color: '#6750A4' },
-    { name: 'Backend', slug: 'backend', color: '#006A6A' },
-    { name: 'DevOps', slug: 'devops', color: '#7D5260' },
-    { name: 'Tutorials', slug: 'tutorials', color: '#D0BCFF' },
-    { name: 'Open Source', slug: 'open-source', color: '#EFB8C8' },
+    { name: 'AI', slug: 'ai', color: 'var(--md-sys-color-secondary)' },
+    { name: 'Frontend', slug: 'frontend', color: 'var(--md-sys-color-primary)' },
+    { name: 'Backend', slug: 'backend', color: 'var(--md-sys-color-secondary)' },
+    { name: 'DevOps', slug: 'devops', color: 'var(--md-sys-color-tertiary)' },
+    { name: 'Tutorials', slug: 'tutorials', color: 'var(--md-sys-color-primary-container)' },
+    { name: 'Open Source', slug: 'open-source', color: 'var(--md-sys-color-tertiary-container)' },
   ];
 
   private readonly router = inject(Router);

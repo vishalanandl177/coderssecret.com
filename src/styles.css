@@ -10,8 +10,8 @@
     --md-sys-color-on-primary-container: #21005D;
     --md-sys-color-secondary: #006A6A;
     --md-sys-color-on-secondary: #FFFFFF;
-    --md-sys-color-secondary-container: #6FF7F5;
-    --md-sys-color-on-secondary-container: #002020;
+    --md-sys-color-secondary-container: #CCE8E7;
+    --md-sys-color-on-secondary-container: #051F1F;
     --md-sys-color-tertiary: #7D5260;
     --md-sys-color-on-tertiary: #FFFFFF;
     --md-sys-color-tertiary-container: #FFD8E4;
@@ -335,29 +335,28 @@
   }
 
   #main-content > :not(router-outlet):not(app-auto-slides):not(app-drf-api-logger-slides):not(app-python-c-ext-slides):not(app-claude-token-costs-slides):not(app-course-slides) {
-    animation: md3-page-enter var(--md-sys-motion-duration-medium-2) var(--md-sys-motion-easing-emphasized-decelerate) both;
     transform-origin: center top;
     will-change: opacity, transform;
   }
 
   html.cs-transition-top-level #main-content > :not(router-outlet):not(app-auto-slides):not(app-drf-api-logger-slides):not(app-python-c-ext-slides):not(app-claude-token-costs-slides):not(app-course-slides) {
-    animation-name: md3-top-level-enter;
+    animation: md3-top-level-enter var(--md-sys-motion-duration-medium-2) var(--md-sys-motion-easing-emphasized-decelerate) both;
   }
 
   html.cs-transition-container #main-content > :not(router-outlet):not(app-auto-slides):not(app-drf-api-logger-slides):not(app-python-c-ext-slides):not(app-claude-token-costs-slides):not(app-course-slides) {
-    animation-name: md3-container-transform-enter;
+    animation: md3-container-transform-enter var(--md-sys-motion-duration-medium-2) var(--md-sys-motion-easing-emphasized-decelerate) both;
   }
 
   html.cs-transition-forward #main-content > :not(router-outlet):not(app-auto-slides):not(app-drf-api-logger-slides):not(app-python-c-ext-slides):not(app-claude-token-costs-slides):not(app-course-slides) {
-    animation-name: md3-shared-axis-forward-enter;
+    animation: md3-shared-axis-forward-enter var(--md-sys-motion-duration-medium-2) var(--md-sys-motion-easing-emphasized-decelerate) both;
   }
 
   html.cs-transition-back #main-content > :not(router-outlet):not(app-auto-slides):not(app-drf-api-logger-slides):not(app-python-c-ext-slides):not(app-claude-token-costs-slides):not(app-course-slides) {
-    animation-name: md3-shared-axis-back-enter;
+    animation: md3-shared-axis-back-enter var(--md-sys-motion-duration-medium-2) var(--md-sys-motion-easing-emphasized-decelerate) both;
   }
 
   html.cs-transition-lateral #main-content > :not(router-outlet):not(app-auto-slides):not(app-drf-api-logger-slides):not(app-python-c-ext-slides):not(app-claude-token-costs-slides):not(app-course-slides) {
-    animation-name: md3-lateral-forward-enter;
+    animation: md3-lateral-forward-enter var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard-decelerate) both;
   }
 
   html.cs-transition-container.cs-transition-from-card app-blog-post .md3-article-hero-inner,
@@ -851,12 +850,15 @@
 
   .md3-rail-fab,
   .md3-rail-icon-button {
+    position: relative;
     display: inline-flex;
     flex: none;
     align-items: center;
     justify-content: center;
     border: 0;
     color: var(--md-sys-color-on-primary-container);
+    overflow: hidden;
+    isolation: isolate;
     transition:
       background-color var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard),
       color var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard),
@@ -1062,6 +1064,20 @@
     }
   }
 
+  @keyframes md3-ripple-press {
+    0% {
+      opacity: 0.18;
+      transform: scale(0.12);
+    }
+    58% {
+      opacity: 0.14;
+    }
+    100% {
+      opacity: 0;
+      transform: scale(2.65);
+    }
+  }
+
   .md3-rail-label {
     max-width: 4.75rem;
     overflow: hidden;
@@ -1115,6 +1131,18 @@
   }
 
   .md3-brand-mark {
+    display: grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: none;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--md-sys-color-primary) 18%, var(--md-sys-color-outline-variant));
+    border-radius: var(--md-sys-shape-corner-lg);
+    background:
+      radial-gradient(circle at 78% 20%, color-mix(in srgb, var(--md-sys-color-secondary-container) 72%, transparent), transparent 29%),
+      linear-gradient(135deg, var(--md-sys-color-primary-container), color-mix(in srgb, var(--md-sys-color-surface-container-high) 78%, var(--md-sys-color-primary-container)));
+    color: var(--md-sys-color-primary);
+    box-shadow: var(--md-sys-elevation-1);
     transition:
       border-radius var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-emphasized),
       transform var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-emphasized),
@@ -1125,6 +1153,27 @@
     border-radius: 999px;
     box-shadow: var(--md-sys-elevation-2);
     transform: rotate(-4deg) scale(1.05);
+  }
+
+  .md3-brand-mark-svg {
+    width: 1.8rem;
+    height: 1.8rem;
+    overflow: visible;
+  }
+
+  .md3-brand-mark-left,
+  .md3-brand-mark-right,
+  .md3-brand-mark-slash {
+    stroke: currentColor;
+    stroke-width: 3.1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .md3-brand-mark-node {
+    fill: var(--md-sys-color-secondary);
+    stroke: var(--md-sys-color-surface-container-low);
+    stroke-width: 2;
   }
 
   .md3-icon-glyph {
@@ -1257,6 +1306,9 @@
   }
 
   .md3-search-result-item {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
     transition:
       background-color var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard),
       color var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard),
@@ -4477,6 +4529,7 @@
   .md3-button-filled,
   .md3-button-tonal,
   .md3-button-outlined {
+    position: relative;
     display: inline-flex;
     min-height: 44px;
     align-items: center;
@@ -4488,7 +4541,46 @@
     font-weight: 700;
     line-height: 1.25;
     text-decoration: none;
+    overflow: hidden;
+    isolation: isolate;
     transition: var(--md-sys-motion-transition-state), box-shadow var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+  }
+
+  .md3-button-filled::after,
+  .md3-button-tonal::after,
+  .md3-button-outlined::after,
+  .md3-icon-button::after,
+  .md3-search-button::after,
+  .md3-rail-fab::after,
+  .md3-rail-icon-button::after,
+  .md3-rail-icon::after,
+  .md3-mobile-link::after,
+  .md3-chip::after,
+  .md3-chip-selected::after,
+  .md3-search-result-item::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at center, currentColor 0 14%, transparent 58%);
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.12);
+  }
+
+  .md3-button-filled:active::after,
+  .md3-button-tonal:active::after,
+  .md3-button-outlined:active::after,
+  .md3-icon-button:active::after,
+  .md3-search-button:active::after,
+  .md3-rail-fab:active::after,
+  .md3-rail-icon-button:active::after,
+  .md3-rail-link:active .md3-rail-icon::after,
+  .md3-mobile-link:active::after,
+  .md3-chip:active::after,
+  .md3-chip-selected:active::after,
+  .md3-search-result-item:active::after {
+    animation: md3-ripple-press var(--md-sys-motion-duration-long-1) var(--md-sys-motion-easing-emphasized-decelerate);
   }
 
   .md3-button-filled {
@@ -4534,6 +4626,7 @@
 
   .md3-chip,
   .md3-chip-selected {
+    position: relative;
     display: inline-flex;
     min-height: 44px;
     align-items: center;
@@ -4543,6 +4636,8 @@
     font-size: 0.75rem;
     font-weight: 700;
     line-height: 1.1;
+    overflow: hidden;
+    isolation: isolate;
   }
 
   .md3-chip {
@@ -4552,9 +4647,29 @@
   }
 
   .md3-chip-selected {
-    border: 1px solid var(--md-sys-color-secondary-container);
-    background: var(--md-sys-color-secondary-container);
-    color: var(--md-sys-color-on-secondary-container);
+    border: 1px solid var(--md-sys-color-primary-container);
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+  }
+
+  .md3-status-dot-wrap {
+    position: relative;
+    display: inline-flex;
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+
+  .md3-status-dot-ping,
+  .md3-status-dot {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: var(--md-sys-color-primary);
+  }
+
+  .md3-status-dot-ping {
+    opacity: 0.34;
+    animation: ping 1.5s var(--md-sys-motion-easing-standard-decelerate) infinite;
   }
 
   .md3-callout {
@@ -6607,6 +6722,19 @@
     .md3-button-filled,
     .md3-button-tonal,
     .md3-button-outlined,
+    .md3-button-filled::after,
+    .md3-button-tonal::after,
+    .md3-button-outlined::after,
+    .md3-icon-button::after,
+    .md3-search-button::after,
+    .md3-rail-fab::after,
+    .md3-rail-icon-button::after,
+    .md3-rail-icon::after,
+    .md3-mobile-link::after,
+    .md3-chip::after,
+    .md3-chip-selected::after,
+    .md3-search-result-item::after,
+    .md3-status-dot-ping,
     .md3-course-card,
     .md3-course-card::before,
     .md3-course-action,

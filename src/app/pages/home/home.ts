@@ -27,9 +27,9 @@ type HeroTrack = {
         <div class="md3-home-hero-copy flex max-w-6xl flex-col items-start text-left">
           <!-- Badge -->
           <a routerLink="/slides/drf-api-logger" class="md3-chip-selected mb-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <span class="relative flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            <span class="md3-status-dot-wrap" aria-hidden="true">
+              <span class="md3-status-dot-ping"></span>
+              <span class="md3-status-dot"></span>
             </span>
             <span class="font-mono text-[10px] uppercase tracking-wider">NEW</span>
             Watch any article as narrated slides
@@ -1326,7 +1326,7 @@ export class HomeComponent implements OnInit {
       title: 'Build identity-first cloud native systems',
       outcome: 'Practice SPIFFE/SPIRE, Kubernetes hardening, mTLS, OPA policy, and runtime detection as one production workflow.',
       route: '/courses/cloud-native-security-engineering',
-      color: '#6750A4',
+      color: 'var(--md-sys-color-primary)',
       nodes: ['K8s', 'SPIRE', 'mTLS', 'OPA'],
       metrics: [
         { label: 'security modules', value: '24' },
@@ -1341,7 +1341,7 @@ export class HomeComponent implements OnInit {
       title: 'Ship production RAG without guesswork',
       outcome: 'Connect retrieval, evaluation, prompt boundaries, API security, and observability into a deployable AI infrastructure track.',
       route: '/courses/production-rag-systems-engineering',
-      color: '#006A6A',
+      color: 'var(--md-sys-color-secondary)',
       nodes: ['Docs', 'Vector DB', 'Gateway', 'Eval'],
       metrics: [
         { label: 'RAG modules', value: '14' },
@@ -1356,7 +1356,7 @@ export class HomeComponent implements OnInit {
       title: 'Make analytics engineering production-grade',
       outcome: 'Move from dbt basics to semantic layers, lineage, quality checks, metric governance, and reliable pipeline operations.',
       route: '/courses/production-analytics-engineering-dbt',
-      color: '#7D5260',
+      color: 'var(--md-sys-color-tertiary)',
       nodes: ['dbt', 'Tests', 'Lineage', 'Metrics'],
       metrics: [
         { label: 'dbt modules', value: '15' },
@@ -1371,7 +1371,7 @@ export class HomeComponent implements OnInit {
       title: 'Debug distributed systems under pressure',
       outcome: 'Study caching, scheduling, API reliability, CI/CD, incident response, and observability through practical engineering guides.',
       route: '/blog',
-      color: '#4DDADA',
+      color: 'var(--md-sys-color-secondary)',
       nodes: ['API', 'Queue', 'Cache', 'Trace'],
       metrics: [
         { label: 'guides', value: '86' },
@@ -1386,7 +1386,7 @@ export class HomeComponent implements OnInit {
       title: 'Practice with interactive engineering labs',
       outcome: 'Use games and labs to rehearse Kubernetes, API security, incident response, supply chain, Linux, and AI infrastructure scenarios.',
       route: '/games',
-      color: '#6FF7F5',
+      color: 'var(--md-sys-color-primary)',
       nodes: ['Scenario', 'Signal', 'Decision', 'Debrief'],
       metrics: [
         { label: 'lab drills', value: '145+' },
