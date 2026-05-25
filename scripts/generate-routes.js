@@ -14,7 +14,9 @@
  */
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
+const { spawn, spawnSync } = require('child_process');
 
 const SITE_NAME = 'CodersSecret';
 const SITE_URL = 'https://coderssecret.com';
@@ -22,6 +24,13 @@ const YOUTUBE_URL = 'https://www.youtube.com/@CodersSecret';
 const SPOTIFY_PODCAST_URL = 'https://open.spotify.com/show/033dhxk8tNClX2r4XduVyb';
 const GITHUB_REPO_URL = 'https://github.com/vishalanandl177/coderssecret.com';
 const OUTPUT_DIR = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'browser');
+const UI_SOURCE_PRERENDER = process.env.CODERSSECRET_PRERENDER_SOURCE !== 'manual';
+const PRERENDER_BUDGET_MS = Number(process.env.CODERSSECRET_PRERENDER_BUDGET_MS || 1800);
+const PRERENDER_RETRY_BUDGET_MS = Number(process.env.CODERSSECRET_PRERENDER_RETRY_BUDGET_MS || 5000);
+const PRERENDER_TIMEOUT_MS = Number(process.env.CODERSSECRET_PRERENDER_TIMEOUT_MS || 30000);
+const CHROME_WINDOW_SIZE = process.env.CODERSSECRET_PRERENDER_WINDOW || '1365,900';
+const hydratedRouteCache = new Map();
+let prerenderRuntime;
 
 // Read the blog post model
 const modelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'blog-post.model.ts');
@@ -76,7 +85,8 @@ function makeHtml(options) {
   const ogImage = image ? `${SITE_URL}${image}` : `${SITE_URL}/og-image.svg`;
   const safeTitle = escapeHtml(fullTitle);
   const safeDescription = escapeHtml(clampText(description, 160));
-  const prerenderedContent = wrapPrerenderContent(content);
+  const renderedRoute = renderRouteSource({ url, fallbackContent: content });
+  const appRootHtml = renderedRoute.appRootHtml;
   const structuredData = structuredDataForPage({
     jsonLd,
     fullTitle,
@@ -85,7 +95,9 @@ function makeHtml(options) {
     ogImage,
   });
 
-  let html = baseHtml;
+  let html = renderedRoute.documentHtml
+    ? normalizeBuiltShell(renderedRoute.documentHtml)
+    : baseHtml;
 
   // Replace <title>
   html = html.replace(
@@ -120,14 +132,282 @@ function makeHtml(options) {
     '</head>'
   );
 
-  // Inject real content inside <app-root> so Google can read it
+  // Inject the same rendered app source users see in the browser.
   html = html.replace(
     '<app-root></app-root>',
-    `<app-root>${prerenderedContent}</app-root>`
+    appRootHtml
   );
 
   return html;
 }
+
+function renderRouteSource({ url, fallbackContent }) {
+  if (!UI_SOURCE_PRERENDER) {
+    return {
+      documentHtml: '',
+      appRootHtml: `<app-root>${wrapPrerenderContent(fallbackContent)}</app-root>`,
+    };
+  }
+
+  const routePath = normalizeRoutePathForRender(url);
+  if (hydratedRouteCache.has(routePath)) {
+    return hydratedRouteCache.get(routePath);
+  }
+
+  const firstAttempt = renderRouteWithBudget(routePath, PRERENDER_BUDGET_MS);
+  const firstText = stripHtml(firstAttempt.appRootHtml);
+  const fallbackText = stripHtml(fallbackContent);
+  const needsRetry = fallbackText.length > 120 && firstText.length < Math.min(120, fallbackText.length * 0.2);
+  const rendered = needsRetry
+    ? renderRouteWithBudget(routePath, PRERENDER_RETRY_BUDGET_MS)
+    : firstAttempt;
+
+  hydratedRouteCache.set(routePath, rendered);
+  return rendered;
+}
+
+function normalizeRoutePathForRender(url) {
+  const raw = String(url || '/').trim() || '/';
+  const pathOnly = raw.startsWith('http') ? new URL(raw).pathname : raw.split(/[?#]/)[0];
+  return pathOnly.startsWith('/') ? pathOnly : `/${pathOnly}`;
+}
+
+function renderRouteWithBudget(routePath, budgetMs) {
+  const runtime = ensurePrerenderRuntime();
+  const browserArgs = [
+    '--headless=new',
+    '--disable-gpu',
+    '--disable-dev-shm-usage',
+    '--disable-background-networking',
+    '--disable-extensions',
+    '--disable-sync',
+    '--hide-scrollbars',
+    '--mute-audio',
+    '--no-first-run',
+    '--no-default-browser-check',
+    '--no-sandbox',
+    '--run-all-compositor-stages-before-draw',
+    `--user-data-dir=${runtime.userDataDir}`,
+    `--window-size=${CHROME_WINDOW_SIZE}`,
+    `--virtual-time-budget=${budgetMs}`,
+    '--dump-dom',
+    `${runtime.baseUrl}${routePath}`,
+  ];
+  const result = spawnSync(runtime.browserPath, browserArgs, {
+    encoding: 'utf-8',
+    maxBuffer: 128 * 1024 * 1024,
+    timeout: PRERENDER_TIMEOUT_MS,
+  });
+
+  if (result.error) {
+    throw new Error(`Could not render ${routePath} for static source: ${result.error.message}`);
+  }
+
+  if (result.status !== 0) {
+    throw new Error(
+      `Could not render ${routePath} for static source. Browser exited with ${result.status}.\n${String(result.stderr || '').slice(0, 4000)}`
+    );
+  }
+
+  const documentHtml = String(result.stdout || '').trim();
+  const appRootHtml = extractAppRootHtml(documentHtml, routePath);
+  const text = stripHtml(appRootHtml);
+
+  if (text.length < 20) {
+    throw new Error(`Rendered Angular source for ${routePath} is too small. Refusing to publish thin static HTML.`);
+  }
+
+  return { documentHtml, appRootHtml };
+}
+
+function extractAppRootHtml(documentHtml, routePath) {
+  const match = String(documentHtml || '').match(/<app-root\b[^>]*>[\s\S]*?<\/app-root>/i);
+  if (!match) {
+    throw new Error(`Rendered Angular source for ${routePath} does not contain <app-root>.`);
+  }
+
+  return match[0];
+}
+
+function ensurePrerenderRuntime() {
+  if (prerenderRuntime) {
+    return prerenderRuntime;
+  }
+
+  const browserPath = findBrowserExecutable();
+  if (!browserPath) {
+    throw new Error(
+      'scripts/generate-routes.js needs Chrome/Chromium/Edge to prerender the exact Angular UI source. ' +
+      'Install a browser, set CHROME_BIN, or set CODERSSECRET_PRERENDER_SOURCE=manual only for emergency non-UI fallback builds.'
+    );
+  }
+
+  const port = Number(process.env.CODERSSECRET_PRERENDER_PORT || (43000 + (process.pid % 1000)));
+  const runtimeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'coderssecret-prerender-'));
+  const shellPath = path.join(runtimeDir, 'index-shell.html');
+  const readyPath = path.join(runtimeDir, 'server.ready');
+  const userDataDir = path.join(runtimeDir, 'chrome-profile');
+  fs.writeFileSync(shellPath, baseHtml, 'utf-8');
+  fs.mkdirSync(userDataDir, { recursive: true });
+
+  const serverProcess = spawn(process.execPath, ['-e', staticServerScript()], {
+    env: {
+      ...process.env,
+      CS_PRERENDER_ROOT: OUTPUT_DIR,
+      CS_PRERENDER_SHELL: shellPath,
+      CS_PRERENDER_READY: readyPath,
+      CS_PRERENDER_PORT: String(port),
+    },
+    stdio: 'ignore',
+    windowsHide: true,
+  });
+  serverProcess.unref();
+
+  waitForFile(readyPath, 8000, 'static prerender server');
+
+  prerenderRuntime = {
+    browserPath,
+    serverProcess,
+    runtimeDir,
+    userDataDir,
+    baseUrl: `http://127.0.0.1:${port}`,
+  };
+
+  console.log(`Rendering static route source from hydrated Angular UI using ${path.basename(browserPath)}.`);
+  return prerenderRuntime;
+}
+
+function findBrowserExecutable() {
+  const candidates = [
+    process.env.CHROME_BIN,
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+    'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/microsoft-edge',
+    'google-chrome',
+    'google-chrome-stable',
+    'chromium',
+    'chromium-browser',
+    'microsoft-edge',
+    'msedge',
+  ].filter(Boolean);
+
+  for (const candidate of candidates) {
+    if (path.isAbsolute(candidate) && fs.existsSync(candidate)) {
+      return candidate;
+    }
+
+    if (!path.isAbsolute(candidate)) {
+      const probe = spawnSync(candidate, ['--version'], { encoding: 'utf-8', windowsHide: true });
+      if (!probe.error && probe.status === 0) {
+        return candidate;
+      }
+    }
+  }
+
+  return '';
+}
+
+function staticServerScript() {
+  return `
+const fs = require('fs');
+const http = require('http');
+const path = require('path');
+const root = path.resolve(process.env.CS_PRERENDER_ROOT);
+const shell = fs.readFileSync(process.env.CS_PRERENDER_SHELL, 'utf-8');
+const ready = process.env.CS_PRERENDER_READY;
+const port = Number(process.env.CS_PRERENDER_PORT);
+const types = {
+  '.css': 'text/css; charset=utf-8',
+  '.html': 'text/html; charset=utf-8',
+  '.ico': 'image/x-icon',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.js': 'application/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.svg': 'image/svg+xml; charset=utf-8',
+  '.webp': 'image/webp',
+  '.woff2': 'font/woff2',
+};
+function send(res, status, contentType, body) {
+  res.writeHead(status, {
+    'content-type': contentType,
+    'cache-control': 'no-store',
+  });
+  res.end(body);
+}
+const server = http.createServer((req, res) => {
+  try {
+    const requestUrl = new URL(req.url || '/', 'http://127.0.0.1');
+    if (requestUrl.pathname === '/__coderssecret_prerender_ping') {
+      send(res, 200, 'text/plain; charset=utf-8', 'ok');
+      return;
+    }
+
+    const decodedPath = decodeURIComponent(requestUrl.pathname);
+    const hasExtension = path.extname(decodedPath) !== '';
+    const requestedFile = path.resolve(root, '.' + decodedPath);
+    if (hasExtension && requestedFile.startsWith(root + path.sep) && fs.existsSync(requestedFile) && fs.statSync(requestedFile).isFile()) {
+      const ext = path.extname(requestedFile).toLowerCase();
+      send(res, 200, types[ext] || 'application/octet-stream', fs.readFileSync(requestedFile));
+      return;
+    }
+
+    send(res, 200, 'text/html; charset=utf-8', shell);
+  } catch (err) {
+    send(res, 500, 'text/plain; charset=utf-8', err && err.stack ? err.stack : String(err));
+  }
+});
+server.listen(port, '127.0.0.1', () => fs.writeFileSync(ready, String(port)));
+process.on('SIGTERM', () => server.close(() => process.exit(0)));
+process.on('SIGINT', () => server.close(() => process.exit(0)));
+`;
+}
+
+function waitForFile(filePath, timeoutMs, label) {
+  const deadline = Date.now() + timeoutMs;
+  while (!fs.existsSync(filePath)) {
+    if (Date.now() > deadline) {
+      throw new Error(`Timed out waiting for ${label}.`);
+    }
+    sleepSync(50);
+  }
+}
+
+function sleepSync(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function cleanupPrerenderRuntime() {
+  if (!prerenderRuntime) {
+    return;
+  }
+
+  try {
+    prerenderRuntime.serverProcess.kill();
+  } catch {
+    // Best-effort cleanup; build output has already been written.
+  }
+
+  try {
+    fs.rmSync(prerenderRuntime.runtimeDir, { recursive: true, force: true });
+  } catch {
+    // Best-effort cleanup of temporary browser profile and shell.
+  }
+
+  prerenderRuntime = undefined;
+}
+
+process.on('exit', cleanupPrerenderRuntime);
 
 function buildFullTitle(title) {
   const trimmedTitle = String(title || SITE_NAME).trim();
@@ -149,16 +429,14 @@ function normalizeTitleSeparators(title) {
 
 function wrapPrerenderContent(content) {
   const normalized = String(content ?? '').trim();
-  const skipLink = '<a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg">Skip to main content</a>';
 
   if (/^<main\b/i.test(normalized)) {
-    const main = normalized.replace(/^<main\b([^>]*)>/i, (_match, attrs) => {
+    return normalized.replace(/^<main\b([^>]*)>/i, (_match, attrs) => {
       return `<main${prerenderMainAttrs(attrs)}>`;
     });
-    return `${skipLink}\n${main}`;
   }
 
-  return `${skipLink}\n<main id="main-content" class="seo-prerender-content">${normalized}</main>`;
+  return `<main id="main-content" class="seo-prerender-content">${normalized}</main>`;
 }
 
 function prerenderMainAttrs(attrs) {
@@ -2610,7 +2888,6 @@ fs.writeFileSync(path.join(homeDir, 'index.html'), `<!doctype html>
 <meta name="twitter:image" content="https://coderssecret.com/og-image.svg">
 <title>Redirecting to CodersSecret</title>
 </head><body>
-<a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg">Skip to main content</a>
 <main id="main-content" class="seo-prerender-content"><h1>Redirecting to CodersSecret</h1><p>Redirecting to <a href="/">the canonical CodersSecret homepage</a>.</p></main>
 </body></html>`);
 created++;
@@ -2960,30 +3237,43 @@ fs.writeFileSync(path.join(OUTPUT_DIR, '404.html'), notFoundHtml);
 
 assertGeneratedSeoContent([
   {
+    route: 'index.html',
+    requiredText: ['Security, AI, Data & Production Engineering', 'Start a Free Course'],
+  },
+  {
+    route: 'blog/index.html',
+    requiredText: ['Learn the systems behind production software', 'Browse by topic', 'Watch as Slides'],
+  },
+  {
+    route: 'blog/mcp-security-production-ai-agents-oauth-gateways/index.html',
+    requiredText: ['MCP Security in Production', 'On this page', 'Discussion', 'Continue Reading'],
+  },
+  {
     route: 'games/kubernetes-security-simulator/index.html',
-    requiredText: ['ClusterRoleBinding', 'cluster-admin', 'NetworkPolicy', 'Secrets-in-Git'],
+    requiredText: ['Kubernetes Security Simulator', 'Practice loop', 'Start simulation'],
   },
   {
     route: 'games/service-mesh-routing/index.html',
-    requiredText: ['STRICT mTLS', 'AuthorizationPolicy', 'RequestAuthentication'],
+    requiredText: ['Service Mesh Routing Game', 'Practice loop', 'Start simulation'],
   },
   {
     route: 'games/guess-output/index.html',
-    requiredText: ['Mutable default arguments', 'Floating-point arithmetic', 'String interning'],
+    requiredText: ['Guess the Output', 'Question 1 of', 'What does this code print?'],
   },
   {
     route: 'cheatsheets/kubernetes-security/index.html',
-    requiredText: ['kubectl auth can-i', 'PodSecurity', 'Default-Deny NetworkPolicy'],
+    requiredText: ['Kubernetes Security', 'kubectl auth can-i', 'PodSecurity'],
   },
   {
     route: 'cheatsheets/api-security/index.html',
-    requiredText: ['jwt.verify', 'OAuth2 / OIDC', 'CORS', 'webhook signature'],
+    requiredText: ['API Security', 'jwt.verify', 'OAuth2 / OIDC'],
   },
   {
     route: 'courses/mastering-spiffe-spire/understanding-zero-trust-security/slides/index.html',
-    requiredText: ['Slide Outline', 'Learning Objectives', 'Zero Trust'],
+    requiredText: ['Understanding Zero Trust Security', 'Module 1 of 13', 'app-slide-player'],
   },
 ]);
+cleanupPrerenderRuntime();
 
 function assertGeneratedSeoContent(checks) {
   const failures = [];
@@ -2996,6 +3286,29 @@ function assertGeneratedSeoContent(checks) {
     }
 
     const html = fs.readFileSync(filePath, 'utf-8');
+    const appRootMatch = html.match(/<app-root\b[^>]*>[\s\S]*?<\/app-root>/i);
+    if (!appRootMatch) {
+      failures.push(`${check.route}: missing rendered <app-root>`);
+      continue;
+    }
+
+    const appRootText = stripHtml(appRootMatch[0]);
+    if (appRootText.length < 120) {
+      failures.push(`${check.route}: rendered app source is too small`);
+    }
+
+    if (/<main\b[^>]*class=["'][^"']*\bseo-prerender-content\b/i.test(appRootMatch[0])) {
+      failures.push(`${check.route}: still contains old summary-only seo-prerender-content main`);
+    }
+
+    if (!/<link rel="canonical" href="https:\/\/coderssecret\.com\//.test(html)) {
+      failures.push(`${check.route}: missing canonical link`);
+    }
+
+    if (!/<script type="application\/ld\+json">/.test(html)) {
+      failures.push(`${check.route}: missing JSON-LD`);
+    }
+
     for (const text of check.requiredText) {
       if (!html.includes(text)) {
         failures.push(`${check.route}: missing "${text}"`);

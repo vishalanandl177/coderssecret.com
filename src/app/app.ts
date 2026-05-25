@@ -19,11 +19,6 @@ type ActiveContainerTransform = {
   selector: 'app-root',
   imports: [RouterOutlet, HeaderComponent, FooterComponent],
   template: `
-    <a href="#main-content"
-       class="cs-skip-link"
-       style="position: fixed; top: 1rem; left: 1rem; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;">
-      Skip to main content
-    </a>
     <div class="md3-app-shell flex min-h-screen flex-col bg-background text-foreground"
          [class.md3-app-shell-slides]="isSlideRoute()">
       @if (!isSlideRoute()) {
@@ -52,47 +47,6 @@ type ActiveContainerTransform = {
       display: block;
     }
 
-    .cs-skip-link {
-      position: fixed;
-      top: 1rem;
-      left: 1rem;
-      z-index: 200;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
-      clip: rect(0 0 0 0);
-      white-space: nowrap;
-      border-radius: var(--md-sys-shape-corner-full);
-      background: var(--md-sys-color-primary);
-      color: var(--md-sys-color-on-primary);
-      box-shadow: var(--md-sys-elevation-2);
-      font-size: 0.875rem;
-      font-weight: 700;
-      line-height: 1;
-      padding: 0;
-      outline: none;
-      transform: translateY(-0.25rem);
-      opacity: 0;
-      transition:
-        opacity var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
-        transform var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
-    }
-
-    .cs-skip-link:focus,
-    .cs-skip-link:focus-visible {
-      width: auto !important;
-      height: auto !important;
-      clip-path: none !important;
-      clip: auto !important;
-      overflow: visible !important;
-      padding: 0.875rem 1.25rem !important;
-      opacity: 1 !important;
-      transform: translateY(0) !important;
-      outline: 3px solid color-mix(in srgb, var(--md-sys-color-primary) 55%, var(--md-sys-color-on-primary));
-      outline-offset: 3px;
-    }
-
     .md3-app-shell {
       transition: padding-left var(--md-sys-motion-duration-medium-2) var(--md-sys-motion-easing-emphasized-decelerate);
     }
@@ -104,8 +58,7 @@ type ActiveContainerTransform = {
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .md3-app-shell,
-      .cs-skip-link {
+      .md3-app-shell {
         transition: none;
       }
     }
