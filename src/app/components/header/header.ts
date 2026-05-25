@@ -332,12 +332,17 @@ export class HeaderComponent implements AfterViewInit {
   }
 
   toggleTheme() {
+    if (!this.canUseDom) return;
     document.documentElement.classList.add('theme-transition');
     const dark = !this.isDark();
     this.isDark.set(dark);
     document.documentElement.classList.toggle('dark', dark);
-    localStorage.setItem('theme', dark ? 'dark' : 'light');
-    setTimeout(() => document.documentElement.classList.remove('theme-transition'), 300);
+    try {
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+    } catch {
+      // Theme still updates for the current session when storage is unavailable.
+    }
+    window.setTimeout(() => document.documentElement.classList.remove('theme-transition'), 300);
   }
 
   openSearch() {
