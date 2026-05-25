@@ -27,10 +27,12 @@ const OUTPUT_DIR = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'brows
 const UI_SOURCE_PRERENDER = process.env.CODERSSECRET_PRERENDER_SOURCE !== 'manual';
 const PRERENDER_BUDGET_MS = Number(process.env.CODERSSECRET_PRERENDER_BUDGET_MS || 1800);
 const PRERENDER_RETRY_BUDGET_MS = Number(process.env.CODERSSECRET_PRERENDER_RETRY_BUDGET_MS || 5000);
-const PRERENDER_TIMEOUT_MS = Number(process.env.CODERSSECRET_PRERENDER_TIMEOUT_MS || 30000);
+const PRERENDER_TIMEOUT_MS = Number(process.env.CODERSSECRET_PRERENDER_TIMEOUT_MS || 60000);
 const CHROME_WINDOW_SIZE = process.env.CODERSSECRET_PRERENDER_WINDOW || '1365,900';
+const PRERENDER_ALLOW_EXTERNAL_NETWORK = process.env.CODERSSECRET_PRERENDER_ALLOW_NETWORK === '1';
 const hydratedRouteCache = new Map();
 let prerenderRuntime;
+let prerenderRouteCount = 0;
 
 // Read the blog post model
 const modelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'blog-post.model.ts');
@@ -174,33 +176,66 @@ function normalizeRoutePathForRender(url) {
 
 function renderRouteWithBudget(routePath, budgetMs) {
   const runtime = ensurePrerenderRuntime();
+  const routeRenderId = ++prerenderRouteCount;
+  const userDataDir = path.join(
+    runtime.runtimeDir,
+    `chrome-profile-${routeRenderId}-${sanitizeFileSegment(routePath)}`
+  );
+  fs.mkdirSync(userDataDir, { recursive: true });
+
   const browserArgs = [
     '--headless=new',
     '--disable-gpu',
     '--disable-dev-shm-usage',
     '--disable-background-networking',
+    '--disable-component-update',
     '--disable-extensions',
+    '--disable-features=Translate,OptimizationHints,MediaRouter',
     '--disable-sync',
     '--hide-scrollbars',
+    '--metrics-recording-only',
     '--mute-audio',
     '--no-first-run',
     '--no-default-browser-check',
     '--no-sandbox',
     '--run-all-compositor-stages-before-draw',
-    `--user-data-dir=${runtime.userDataDir}`,
+    `--user-data-dir=${userDataDir}`,
     `--window-size=${CHROME_WINDOW_SIZE}`,
     `--virtual-time-budget=${budgetMs}`,
     '--dump-dom',
     `${runtime.baseUrl}${routePath}`,
   ];
+
+  if (!PRERENDER_ALLOW_EXTERNAL_NETWORK) {
+    browserArgs.splice(
+      browserArgs.length - 2,
+      0,
+      '--host-resolver-rules=MAP * 0.0.0.0, EXCLUDE 127.0.0.1, EXCLUDE localhost'
+    );
+  }
+
+  if (process.env.GITHUB_ACTIONS || routeRenderId === 1 || routeRenderId % 25 === 0) {
+    console.log(`[prerender] ${routeRenderId}: ${routePath}`);
+  }
+
   const result = spawnSync(runtime.browserPath, browserArgs, {
     encoding: 'utf-8',
     maxBuffer: 128 * 1024 * 1024,
     timeout: PRERENDER_TIMEOUT_MS,
   });
 
+  try {
+    fs.rmSync(userDataDir, { recursive: true, force: true });
+  } catch {
+    // Best-effort cleanup; the parent temp directory is also removed at exit.
+  }
+
   if (result.error) {
-    throw new Error(`Could not render ${routePath} for static source: ${result.error.message}`);
+    throw new Error(
+      `Could not render ${routePath} for static source: ${result.error.message}\n` +
+      `stderr:\n${String(result.stderr || '').slice(0, 4000)}\n` +
+      `stdout:\n${String(result.stdout || '').slice(0, 2000)}`
+    );
   }
 
   if (result.status !== 0) {
@@ -218,6 +253,15 @@ function renderRouteWithBudget(routePath, budgetMs) {
   }
 
   return { documentHtml, appRootHtml };
+}
+
+function sanitizeFileSegment(value) {
+  const segment = String(value || 'root')
+    .replace(/[^a-z0-9]+/gi, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+
+  return segment || 'root';
 }
 
 function extractAppRootHtml(documentHtml, routePath) {
@@ -246,9 +290,7 @@ function ensurePrerenderRuntime() {
   const runtimeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'coderssecret-prerender-'));
   const shellPath = path.join(runtimeDir, 'index-shell.html');
   const readyPath = path.join(runtimeDir, 'server.ready');
-  const userDataDir = path.join(runtimeDir, 'chrome-profile');
   fs.writeFileSync(shellPath, baseHtml, 'utf-8');
-  fs.mkdirSync(userDataDir, { recursive: true });
 
   const serverProcess = spawn(process.execPath, ['-e', staticServerScript()], {
     env: {
@@ -257,6 +299,7 @@ function ensurePrerenderRuntime() {
       CS_PRERENDER_SHELL: shellPath,
       CS_PRERENDER_READY: readyPath,
       CS_PRERENDER_PORT: String(port),
+      CS_PRERENDER_BLOCK_EXTERNAL: PRERENDER_ALLOW_EXTERNAL_NETWORK ? '0' : '1',
     },
     stdio: 'ignore',
     windowsHide: true,
@@ -269,11 +312,10 @@ function ensurePrerenderRuntime() {
     browserPath,
     serverProcess,
     runtimeDir,
-    userDataDir,
     baseUrl: `http://127.0.0.1:${port}`,
   };
 
-  console.log(`Rendering static route source from hydrated Angular UI using ${path.basename(browserPath)}.`);
+  console.log(`Rendering static route source from hydrated Angular UI using ${browserPath}.`);
   return prerenderRuntime;
 }
 
@@ -339,10 +381,14 @@ const types = {
   '.woff2': 'font/woff2',
 };
 function send(res, status, contentType, body) {
-  res.writeHead(status, {
+  const headers = {
     'content-type': contentType,
     'cache-control': 'no-store',
-  });
+  };
+  if (process.env.CS_PRERENDER_BLOCK_EXTERNAL === '1') {
+    headers['content-security-policy'] = "default-src 'self' data: blob: 'unsafe-inline'; connect-src 'self'; frame-src 'none'; font-src 'self' data:; img-src 'self' data: blob:; media-src 'self' data: blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'";
+  }
+  res.writeHead(status, headers);
   res.end(body);
 }
 const server = http.createServer((req, res) => {
