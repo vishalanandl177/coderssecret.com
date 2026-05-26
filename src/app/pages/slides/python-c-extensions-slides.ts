@@ -255,6 +255,7 @@ export class PythonCExtSlidesComponent {
       description:
         'Learn Python C extensions through 18 interactive slides with voice narration. Covers when to use C, the Python C API, setuptools workflow, benchmarks, trade-offs, and alternatives like Cython and PyO3.',
       url: '/slides/python-c-extensions',
+      robots: 'noindex,follow',
       breadcrumbs: [
         { name: 'Home', url: '/' },
         { name: 'Blog', url: '/blog' },

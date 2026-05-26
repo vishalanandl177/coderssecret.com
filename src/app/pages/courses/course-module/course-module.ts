@@ -514,9 +514,11 @@ export class CourseModuleComponent {
   }
 
   private getModuleSeoDescription(course: Course, module: CourseModule): string {
-    const labLabel = module.labs.length === 1 ? 'lab' : 'labs';
+    const unit = course.labDelivery === 'inline' ? 'exercise' : 'lab';
+    const labLabel = module.labs.length === 1 ? unit : `${unit}s`;
+    const practiceType = course.labDelivery === 'inline' ? 'inline' : 'hands-on';
     const courseName = course.slug === 'mastering-spiffe-spire' ? 'SPIFFE/SPIRE' : course.title;
-    return `Module ${module.number} of the free ${courseName} course: ${module.subtitle}. ${module.labs.length} hands-on ${labLabel}.`;
+    return `Module ${module.number} of the free ${courseName} course: ${module.subtitle}. ${module.labs.length} ${practiceType} ${labLabel}.`;
   }
 
   private getCourseImage(course: Course): string {

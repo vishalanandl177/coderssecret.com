@@ -24,6 +24,7 @@ const YOUTUBE_URL = 'https://www.youtube.com/@CodersSecret';
 const SPOTIFY_PODCAST_URL = 'https://open.spotify.com/show/033dhxk8tNClX2r4XduVyb';
 const GITHUB_REPO_URL = 'https://github.com/vishalanandl177/coderssecret.com';
 const OUTPUT_DIR = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'browser');
+const NOINDEX_FOLLOW_META = '  <meta name="robots" content="noindex,follow">\n';
 const UI_SOURCE_PRERENDER = process.env.CODERSSECRET_PRERENDER_SOURCE !== 'manual';
 const PRERENDER_BUDGET_MS = Number(process.env.CODERSSECRET_PRERENDER_BUDGET_MS || 1800);
 const PRERENDER_RETRY_BUDGET_MS = Number(process.env.CODERSSECRET_PRERENDER_RETRY_BUDGET_MS || 5000);
@@ -67,6 +68,7 @@ function normalizeBuiltShell(html) {
     .replace(/<app-root[\s\S]*?<\/app-root>/i, '<app-root></app-root>')
     .replace(/\s*<link rel="canonical"[^>]*>\n?/gi, '')
     .replace(/\s*<link rel="alternate" hreflang="en"[^>]*>\n?/gi, '')
+    .replace(/\s*<meta name="robots" content="[^"]*">\n?/gi, '')
     .replace(/\s*<meta property="og:[^"]+" content="[^"]*">\n?/gi, '')
     .replace(/\s*<meta name="twitter:[^"]+" content="[^"]*">\n?/gi, '')
     .replace(/\s*<script type="application\/ld\+json">[\s\S]*?<\/script>\n?/gi, '');
@@ -954,7 +956,7 @@ function claudeTokenSlidesPrerender(post) {
     },
   ];
 
-  return { title, description, url, content, jsonLd, image: '/images/blog/claude-token-cost-stack.svg' };
+  return { title, description, url, content, jsonLd, image: '/images/blog/claude-token-cost-stack.svg', extraHead: NOINDEX_FOLLOW_META };
 }
 
 function compactSeoTitle(title, maxLength) {
@@ -1089,9 +1091,9 @@ function courseSeoTitle(course) {
 function courseSeoDescription(course) {
   const labCount = totalLabsFor(course);
   if (course.slug === 'mastering-spiffe-spire') {
-    return `Free ${course.modules.length}-module SPIFFE/SPIRE course: deploy SPIRE on Kubernetes, issue SVIDs, configure mTLS, enforce OPA, federate clusters, and run ${labCount}+ labs.`;
+    return `Free ${course.modules.length}-module SPIFFE/SPIRE course: deploy SPIRE on Kubernetes, issue SVIDs, configure mTLS, enforce OPA, federate clusters, and run ${labCount} labs.`;
   }
-  return clampText(`${course.excerpt} ${course.modules.length} modules, ${labCountLabelFor(course, true)}, free.`);
+  return clampText(`${course.excerpt} ${course.modules.length} modules, ${labCountLabelFor(course)}, free.`);
 }
 
 function moduleSeoTitle(course, mod) {
@@ -1391,6 +1393,7 @@ function writeCourseModuleSlidesPage(course, mod) {
     description: moduleSlidesSeoDescription(course, mod),
     url: `/courses/${course.slug}/${mod.slug}/slides`,
     image: courseImagePath(course),
+    extraHead: NOINDEX_FOLLOW_META,
     content: renderModuleSlidesContent(course, mod),
     jsonLd: courseModuleSlidesJsonLd(course, mod),
   }));
@@ -1724,7 +1727,7 @@ const blogListContent = `
     <p>Browse by topic</p>
     <h2 id="blog-topics">Find the guide that matches your work</h2>
     <ul>
-      ${topicLinks.map(([label, tag]) => `<li><a href="/blog?tag=${encodeURIComponent(tag)}">${escapeHtml(label)}</a></li>`).join('\n      ')}
+      ${topicLinks.map(([label]) => `<li><span>${escapeHtml(label)}</span></li>`).join('\n      ')}
     </ul>
   </section>
   <section aria-labelledby="blog-latest">
@@ -1809,7 +1812,7 @@ for (const post of posts) {
       <p>By ${escapeHtml(authorName)} | ${post.date || ''} | Category: ${escapeHtml(categoryNames[post.category] || post.category || '')} | ${escapeHtml(post.readTime || '')}</p>
       <p>${escapeHtml(post.excerpt)}</p>
       ${articleBody}
-      ${tags.length > 0 ? '<p>Tags: ' + tags.map(t => `<a href="/blog?tag=${encodeURIComponent(t)}">${escapeHtml(t)}</a>`).join(', ') + '</p>' : ''}
+      ${tags.length > 0 ? '<p>Tags: ' + tags.map(t => `<span>${escapeHtml(t)}</span>`).join(', ') + '</p>' : ''}
       ${related.length > 0 ? '<h2>Related Articles</h2><ul>' + related.map(r => `<li><a href="/blog/${r.slug}">${escapeHtml(r.title)}</a></li>`).join('') + '</ul>' : ''}
     </article>
   `;
@@ -1876,32 +1879,80 @@ for (const post of posts) {
 }
 
 // ── Category pages (/category/:slug) ──────────
+function categoryHubDetails(slug, name) {
+  const hubs = {
+    ai: {
+      description: 'Learn production AI systems through RAG, MCP, Claude, embeddings, agents, and observability guides.',
+      scope: 'This hub connects AI application ideas to the systems work that makes them reliable: retrieval quality, token cost control, tool permissions, evaluation, and safe deployment.',
+      topics: ['RAG', 'MCP', 'AI agents', 'Vector search', 'Prompting', 'Evaluation'],
+    },
+    frontend: {
+      description: 'Learn practical frontend engineering through real layout, framework, state-management, and performance guides.',
+      scope: 'This hub is for engineers who want frontend decisions to stay maintainable under real product pressure: routing, state, responsive layout, accessibility, and production UI trade-offs.',
+      topics: ['Angular', 'React', 'TypeScript', 'CSS architecture', 'Responsive UI', 'Performance'],
+    },
+    backend: {
+      description: 'Learn backend architecture through API design, authentication, databases, distributed systems, and production patterns.',
+      scope: 'This hub covers the decisions backend engineers revisit repeatedly: rate limiting, caching, auth, connection pooling, queues, concurrency, and operational debugging.',
+      topics: ['APIs', 'Auth', 'Databases', 'Caching', 'Queues', 'Distributed systems'],
+    },
+    devops: {
+      description: 'Learn DevOps and platform engineering through Kubernetes, Linux, CI/CD, observability, and infrastructure automation.',
+      scope: 'This hub is built for engineers who operate systems after deployment: scheduling, debugging, infrastructure-as-code, deployment safety, and production reliability.',
+      topics: ['Kubernetes', 'Linux', 'CI/CD', 'Terraform', 'Observability', 'Reliability'],
+    },
+    tutorials: {
+      description: 'Step-by-step engineering tutorials with examples, commands, trade-offs, and production notes.',
+      scope: 'This hub collects guided walkthroughs that teach one practical skill at a time, with enough context to understand the decisions behind the code.',
+      topics: ['Hands-on guides', 'Code examples', 'Architecture notes', 'Debugging', 'Production trade-offs'],
+    },
+    'open-source': {
+      description: 'Learn how to read, contribute to, and maintain open-source projects without turning the workflow into guesswork.',
+      scope: 'This hub focuses on the engineering habits behind public software: first pull requests, repository structure, maintainer communication, package quality, and practical project hygiene.',
+      topics: ['First PRs', 'Project structure', 'Maintainer workflow', 'Package quality', 'Developer tooling'],
+    },
+  };
+
+  return hubs[slug] || {
+    description: `Practical ${name} guides for engineers building production software.`,
+    scope: `Use this hub to scan the most useful ${name} articles, then follow the internal links into detailed tutorials, examples, and related learning paths.`,
+    topics: [name, 'Production engineering', 'Practical guides'],
+  };
+}
+
 for (const cat of categories) {
   const dir = path.join(OUTPUT_DIR, 'category', cat);
   fs.mkdirSync(dir, { recursive: true });
 
   const catName = categoryNames[cat] || cat;
   const catPosts = posts.filter(p => p.category === cat);
+  const recommended = catPosts.slice(0, 3);
+  const hub = categoryHubDetails(cat, catName);
 
-  const description = {
-    ai: 'Guides on AI, LLMs, Claude, MCP servers, prompting, local AI stacks, and building with modern AI tools.',
-    frontend: 'Tutorials and deep dives into Angular, React, TypeScript, CSS, and modern frontend development.',
-    backend: 'Practical guides on Python, Django, APIs, authentication, and backend architecture patterns.',
-    devops: 'Learn Kubernetes, Docker, CI/CD, cron jobs, and infrastructure automation for production systems.',
-    tutorials: 'Step-by-step workshops and hands-on tutorials for developers learning production engineering, APIs, Python, infrastructure, security, and system design through practical examples.',
-    'open-source': 'Open-source guides, project walkthroughs, contribution advice, library deep dives, and practical notes for building and maintaining developer tools in public.',
-  }[cat] || `Browse articles about ${catName} on CodersSecret.`;
+  const description = hub.description;
 
   const content = `
-    <h1>${catName} Articles — CodersSecret</h1>
-    <p>${description}</p>
+    <h1>${escapeHtml(catName)} Tutorials and Guides</h1>
+    <p>${escapeHtml(hub.description)}</p>
+    <section>
+      <h2>What This Category Covers</h2>
+      <p>${escapeHtml(hub.scope)}</p>
+      <ul>${hub.topics.map(topic => `<li>${escapeHtml(topic)}</li>`).join('')}</ul>
+    </section>
+    ${recommended.length ? `<section>
+      <h2>Recommended Starting Guides</h2>
+      <ol>${recommended.map(p => `<li><a href="/blog/${p.slug}">${escapeHtml(p.title)}</a> - ${escapeHtml(p.excerpt)}</li>`).join('')}</ol>
+    </section>` : ''}
+    <section>
+      <h2>All ${escapeHtml(catName)} Guides</h2>
     <ul>
       ${catPosts.map(p => `<li><a href="/blog/${p.slug}">${escapeHtml(p.title)}</a> — ${escapeHtml(p.excerpt)}</li>`).join('\n      ')}
     </ul>
+    </section>
   `;
 
   fs.writeFileSync(path.join(dir, 'index.html'), makeHtml({
-    title: `${catName} Articles`,
+    title: `${catName} Tutorials and Guides`,
     description,
     url: `/category/${cat}`,
     content,
@@ -2876,6 +2927,7 @@ for (const post of posts) {
     title: slideTitle,
     description: slideDescription,
     url: `/slides/${post.slug}`,
+    extraHead: NOINDEX_FOLLOW_META,
     content: `<main>
       <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/blog/${post.slug}">Article</a> / Slides</nav>
       <h1>${escapeHtml(post.title)} Slides</h1>
@@ -2943,6 +2995,7 @@ for (const slide of standaloneSlidePages) {
     title: slide.title,
     description: slide.description,
     url: `/slides/${slide.slug}`,
+    extraHead: NOINDEX_FOLLOW_META,
     content: `<main>
       <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="${slide.articleUrl}">Article</a> / Slides</nav>
       <h1>${escapeHtml(slide.title)}</h1>
@@ -3016,9 +3069,9 @@ created++;
   fs.mkdirSync(ragDir, { recursive: true });
   fs.writeFileSync(path.join(ragDir, 'index.html'), makeHtml({
     title: 'Production-Grade RAG Systems Engineering — Free Course',
-    description: 'Build scalable, reliable RAG systems. Embeddings, vector databases, hybrid retrieval, reranking, AI agents, evaluation, security, and Kubernetes deployment. 16 modules, 50+ labs, free.',
+    description: 'Build scalable, reliable RAG systems. Embeddings, vector databases, hybrid retrieval, reranking, AI agents, evaluation, security, and Kubernetes deployment. 16 modules, 31 labs, free.',
     url: '/courses/production-rag-systems-engineering',
-    content: '<h1>Production-Grade RAG Systems Engineering</h1><p>16 modules, 50+ hands-on labs, completely free.</p>',
+    content: '<h1>Production-Grade RAG Systems Engineering</h1><p>16 modules, 31 hands-on labs, completely free.</p>',
   }));
   created++;
 
@@ -3348,8 +3401,18 @@ let notFoundHtml = makeHtml({
     <p><a href="/">Go to Home</a> | <a href="/blog">Browse Blog</a></p>
   </main>`,
 });
-// Add noindex so Google ignores the 404 fallback.
-notFoundHtml = notFoundHtml.replace('</head>', '  <meta name="robots" content="noindex">\n</head>');
+// Add noindex so Google ignores the 404 fallback. The script only normalizes
+// non-root trailing-slash paths; root remains stable and assets are untouched.
+notFoundHtml = notFoundHtml.replace('</head>', `  <meta name="robots" content="noindex">
+  <script>
+    (function () {
+      var path = window.location.pathname;
+      if (path.length > 1 && /\\/$/.test(path)) {
+        window.location.replace(path.replace(/\\/+$/, '') + window.location.search + window.location.hash);
+      }
+    })();
+  </script>
+</head>`);
 fs.writeFileSync(path.join(OUTPUT_DIR, '404.html'), notFoundHtml);
 
 const extensionlessAliases = writeExtensionlessRouteAliases();
@@ -3412,6 +3475,7 @@ assertGeneratedSeoContent([
     requiredText: ['Understanding Zero Trust Security', 'Module 1 of 13', 'app-slide-player'],
   },
 ]);
+const removedDirectoryIndexes = removeNonCanonicalDirectoryIndexes();
 cleanupPrerenderRuntime();
 
 function writeExtensionlessRouteAliases() {
@@ -3438,6 +3502,32 @@ function writeExtensionlessRouteAliases() {
 
   visit(outputRoot);
   return aliases;
+}
+
+function removeNonCanonicalDirectoryIndexes() {
+  const outputRoot = path.resolve(OUTPUT_DIR);
+  let removed = 0;
+
+  function visit(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) {
+        visit(path.join(dir, entry.name));
+      }
+    }
+
+    const relativeDir = path.relative(outputRoot, dir);
+    const indexPath = path.join(dir, 'index.html');
+    if (relativeDir && fs.existsSync(indexPath)) {
+      const resolved = path.resolve(indexPath);
+      if (resolved.startsWith(outputRoot + path.sep)) {
+        fs.rmSync(resolved, { force: true });
+        removed++;
+      }
+    }
+  }
+
+  visit(outputRoot);
+  return removed;
 }
 
 function extensionlessAliasForRoute(route) {
@@ -3501,6 +3591,7 @@ function assertGeneratedSeoContent(checks) {
 
 console.log(`✅ Pre-rendered ${created} route files + 404.html with SEO content.`);
 console.log(`   Extensionless aliases: ${extensionlessAliases}`);
+console.log(`   Removed non-canonical directory index files: ${removedDirectoryIndexes}`);
 console.log(`   Blog posts: ${posts.length}`);
 console.log(`   Categories: ${categories.size}`);
 console.log(`   Blog list: 1`);

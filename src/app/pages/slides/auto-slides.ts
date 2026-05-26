@@ -49,6 +49,7 @@ export class AutoSlidesComponent {
         title: `${post.title} — Interactive Slides`,
         description: `Learn "${post.title}" through interactive slides with voice narration. ${post.excerpt}`,
         url: `/slides/${post.slug}`,
+        robots: 'noindex,follow',
         breadcrumbs: [
           { name: 'Home', url: '/' },
           { name: 'Blog', url: '/blog' },

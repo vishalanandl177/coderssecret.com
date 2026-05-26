@@ -11,6 +11,7 @@ interface SeoConfig {
   image?: string;
   imageWidth?: number;
   imageHeight?: number;
+  robots?: string;
   article?: {
     author?: string;
     publishedTime?: string;
@@ -49,6 +50,11 @@ export class SeoService {
 
     // Standard meta
     this.meta.updateTag({ name: 'description', content: description });
+    if (config.robots) {
+      this.meta.updateTag({ name: 'robots', content: config.robots });
+    } else {
+      this.meta.removeTag('name="robots"');
+    }
 
     // Open Graph
     this.meta.updateTag({ property: 'og:title', content: fullTitle });

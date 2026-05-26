@@ -66,12 +66,12 @@ type CategoryRail = {
                   <span>Popular topics</span>
                 </div>
               </div>
-              <div class="md3-blog-topic-stack" aria-label="Common blog topics">
-                @for (tag of topTags.slice(0, 4); track tag.label) {
-                  <a [routerLink]="['/blog']" [queryParams]="{ tag: tag.label }">
+                <div class="md3-blog-topic-stack" aria-label="Common blog topics">
+                  @for (tag of topTags.slice(0, 4); track tag.label) {
+                  <button type="button" (click)="setTag(tag.label)" [attr.aria-label]="'Filter guides by ' + tag.label">
                     <span>{{ tag.label }}</span>
                     <strong>{{ tag.count }}</strong>
-                  </a>
+                  </button>
                 }
               </div>
             </aside>
@@ -120,7 +120,7 @@ type CategoryRail = {
                     <p>{{ summaryFor(post) }}</p>
                     <div class="md3-blog-tag-row">
                       @for (tag of post.tags.slice(0, 4); track tag) {
-                        <a [routerLink]="['/blog']" [queryParams]="{ tag: tag }">{{ tag }}</a>
+                        <button type="button" (click)="setTag(tag)" [attr.aria-label]="'Filter guides by ' + tag">{{ tag }}</button>
                       }
                     </div>
                     <div class="md3-blog-card-actions">
@@ -290,7 +290,7 @@ type CategoryRail = {
 
                           <div class="md3-blog-tag-row">
                             @for (tag of post.tags.slice(0, 3); track tag) {
-                              <a [routerLink]="['/blog']" [queryParams]="{ tag: tag }">{{ tag }}</a>
+                              <button type="button" (click)="setTag(tag)" [attr.aria-label]="'Filter guides by ' + tag">{{ tag }}</button>
                             }
                           </div>
 
@@ -420,6 +420,7 @@ export class BlogListComponent {
 
   constructor() {
     const tag = this.route.snapshot.queryParamMap.get('tag');
+    const hasQueryFilters = this.route.snapshot.queryParamMap.keys.length > 0;
     if (tag) {
       this.activeTag.set(tag);
     }
@@ -430,6 +431,7 @@ export class BlogListComponent {
         ? `Practical CodersSecret tutorials tagged ${tag}, with clear examples, diagrams, and slide walkthroughs for production engineering work.`
         : 'Practical tutorials on system design, security, DevOps, AI, cloud, Python, databases, and production software engineering.',
       url: '/blog',
+      robots: hasQueryFilters ? 'noindex,follow' : undefined,
       breadcrumbs: [
         { name: 'Home', url: '/' },
         { name: 'Blog', url: '/blog' },
@@ -444,6 +446,10 @@ export class BlogListComponent {
 
   setTopic(topic: string) {
     this.activeTopic.set(topic);
+  }
+
+  setTag(tag: string) {
+    this.activeTag.set(tag);
   }
 
   clearTag() {

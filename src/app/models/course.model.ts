@@ -3303,9 +3303,9 @@ allow {
     title: 'Production-Grade RAG Systems Engineering',
     slug: 'production-rag-systems-engineering',
     subtitle: 'Build scalable, reliable, observable, and secure Retrieval-Augmented Generation systems — not another chatbot tutorial',
-    excerpt: 'Go beyond toy demos. Learn how production RAG systems are architected: embeddings, vector databases, hybrid retrieval, reranking, AI agents, evaluation, observability, security, and Kubernetes deployment. 16 modules, 50+ labs, free.',
-    description: 'The most practical production-focused RAG engineering course available. Not another chatbot demo — this is how real-world scalable, reliable, observable, secure RAG systems are designed and operated. 16 modules covering embeddings, vector databases (Qdrant, pgvector), hybrid retrieval, reranking, AI agents (LangGraph), evaluation, observability, prompt injection defense, and Kubernetes deployment. 50+ hands-on labs, completely free.',
-    totalDuration: '60+ hours',
+    excerpt: 'Go beyond toy demos. Learn how production RAG systems are architected: embeddings, vector databases, hybrid retrieval, reranking, AI agents, evaluation, observability, security, and Kubernetes deployment. 16 modules, 31 labs, free.',
+    description: 'The most practical production-focused RAG engineering course available. Not another chatbot demo — this is how real-world scalable, reliable, observable, secure RAG systems are designed and operated. 16 modules covering embeddings, vector databases (Qdrant, pgvector), hybrid retrieval, reranking, AI agents (LangGraph), evaluation, observability, prompt injection defense, and Kubernetes deployment. 31 hands-on labs, completely free.',
+    totalDuration: '50+ hours',
     level: 'Beginner to Advanced',
     category: 'ai',
     tags: ['RAG', 'LLM', 'Vector Database', 'Embeddings', 'Semantic Search', 'AI Agents', 'LangChain', 'LangGraph', 'Qdrant', 'pgvector', 'FastAPI', 'Python', 'AI Observability', 'Prompt Injection', 'Kubernetes', 'AI Security', 'Hybrid Search', 'Reranking', 'Graph RAG', 'MCP', 'Production AI', 'OpenTelemetry'],
@@ -3317,6 +3317,14 @@ allow {
       'Platform engineers building AI-ready platforms',
       'Software architects designing retrieval systems',
       'Developers who are tired of shallow chatbot tutorials',
+    ],
+    outcomes: [
+      'A production-ready RAG architecture with ingestion, chunking, embedding, retrieval, reranking, and answer generation',
+      'A vector-search backend using Qdrant or pgvector with filtering, metadata, and hybrid retrieval',
+      'Evaluation workflows for retrieval quality, groundedness, hallucination checks, and regression testing',
+      'Observability for prompts, retrieval latency, context quality, token cost, and user-facing failures',
+      'Security controls for prompt injection, tenant isolation, data leakage, and tool permissions',
+      'A deployable FastAPI RAG service with caching, streaming, CI/CD checks, Docker, and Kubernetes deployment notes',
     ],
     instructor: {
       name: 'Vishal Anand',
@@ -3332,7 +3340,7 @@ allow {
     },
     faqs: [
       { question: 'What is RAG?', answer: 'RAG (Retrieval-Augmented Generation) is an AI architecture that retrieves relevant documents from a knowledge base and injects them into the LLM prompt. This grounds the model response in real data, dramatically reducing hallucinations and enabling domain-specific AI applications.' },
-      { question: 'Is this course free?', answer: 'Yes, 100% free. 16 modules, 50+ hands-on labs, all content and companion GitHub repository are completely free with no paywalls.' },
+      { question: 'Is this course free?', answer: 'Yes, 100% free. 16 modules, 31 hands-on labs, all content and companion GitHub repository are completely free with no paywalls.' },
       { question: 'How is this different from LangChain tutorials?', answer: 'Most RAG tutorials show you how to chain API calls. This course teaches production architecture: scalable retrieval, evaluation, observability, security, multi-tenancy, caching, and Kubernetes deployment. Framework-agnostic engineering, not framework-specific demos.' },
       { question: 'Do I need ML experience?', answer: 'No. The course starts with LLM fundamentals and search basics, then progressively builds to advanced retrieval, agents, and production deployment. Python experience is sufficient.' },
       { question: 'What vector database does this course use?', answer: 'Primarily Qdrant (open source, production-grade) and pgvector (PostgreSQL extension). The concepts apply to any vector database — Pinecone, Weaviate, Milvus, ChromaDB.' },
@@ -3358,7 +3366,7 @@ allow {
             <li><strong>Generate:</strong> The LLM generates an answer grounded in the retrieved documents</li>
           </ol>
           <h2>Learn RAG Engineering — Free</h2>
-          <p>Our free <a href="/courses/production-rag-systems-engineering">Production-Grade RAG Systems Engineering</a> course teaches you to build scalable, reliable RAG systems — not toy demos. 16 modules, 50+ labs.</p>
+          <p>Our free <a href="/courses/production-rag-systems-engineering">Production-Grade RAG Systems Engineering</a> course teaches you to build scalable, reliable RAG systems — not toy demos. 16 modules, 31 labs.</p>
         `,
       },
       {

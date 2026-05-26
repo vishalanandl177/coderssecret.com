@@ -58,30 +58,6 @@ const REQUIRED_URLS = [
   `${SITE_URL}/courses/production-rag-systems-engineering`,
   `${SITE_URL}/courses/production-rag-systems-engineering/production-rag-architecture`,
   `${SITE_URL}/courses/semantic-layer-course`,
-  `${SITE_URL}/slides/are-dags-dying-declarative-data-pipelines`,
-  `${SITE_URL}/slides/caching-strategies-production-guide`,
-  `${SITE_URL}/slides/celery-task-queues-django-workflows-guide`,
-  `${SITE_URL}/slides/cloud-iam-aws-gcp-azure-compared`,
-  `${SITE_URL}/slides/contributing-open-source-first-pull-request`,
-  `${SITE_URL}/slides/css-grid-flexbox-mastery-responsive-layouts`,
-  `${SITE_URL}/slides/database-connection-pooling-pgbouncer-guide`,
-  `${SITE_URL}/slides/design-patterns-strategy-observer-factory-guide`,
-  `${SITE_URL}/slides/event-driven-architecture-kafka-cqrs-guide`,
-  `${SITE_URL}/slides/fine-tuning-vs-rag-vs-prompt-engineering`,
-  `${SITE_URL}/slides/github-actions-ci-cd-pipelines-mastery`,
-  `${SITE_URL}/slides/kubernetes-debugging-toolkit-kubectl-guide`,
-  `${SITE_URL}/slides/linux-commands-developer-debugging-guide`,
-  `${SITE_URL}/slides/mcp-security-production-ai-agents-oauth-gateways`,
-  `${SITE_URL}/slides/micro-frontends-module-federation-guide`,
-  `${SITE_URL}/slides/monorepo-vs-polyrepo-codebase-structure`,
-  `${SITE_URL}/slides/oauth2-openid-connect-developer-guide`,
-  `${SITE_URL}/slides/observability-opentelemetry-logs-metrics-traces`,
-  `${SITE_URL}/slides/python-concurrency-threads-async-multiprocessing`,
-  `${SITE_URL}/slides/rate-limiting-algorithms-production-guide`,
-  `${SITE_URL}/slides/regex-demystified-practical-patterns-guide`,
-  `${SITE_URL}/slides/sql-window-functions-rank-lag-running-totals`,
-  `${SITE_URL}/slides/vector-databases-embeddings-similarity-search`,
-  `${SITE_URL}/slides/web-authentication-passkeys-passwordless-login`,
 ];
 
 const DISALLOWED_PATH_SEGMENTS = [
@@ -156,7 +132,7 @@ function htmlFileForUrl(url) {
   if (url === SITE_URL) {
     return {
       primary: path.join(DIST_DIR, 'index.html'),
-      alias: '',
+      directoryIndex: '',
       route: 'index.html',
     };
   }
@@ -164,9 +140,9 @@ function htmlFileForUrl(url) {
   const parsed = new URL(url);
   const route = parsed.pathname.replace(/^\/+/, '');
   return {
-    primary: path.join(DIST_DIR, route, 'index.html'),
-    alias: path.join(DIST_DIR, `${route}.html`),
-    route: `${route}/index.html`,
+    primary: path.join(DIST_DIR, `${route}.html`),
+    directoryIndex: path.join(DIST_DIR, route, 'index.html'),
+    route: `${route}.html`,
   };
 }
 
@@ -290,6 +266,9 @@ function validateSitemapXml() {
     if (parsed.search) fail(`sitemap.xml: loc contains a query string (${loc})`);
     if (parsed.hash) fail(`sitemap.xml: loc contains a hash fragment (${loc})`);
     if (hasDisallowedPath(loc)) fail(`sitemap.xml: loc should not expose private/draft/admin routes (${loc})`);
+    if (parsed.pathname.startsWith('/slides/') || parsed.pathname.endsWith('/slides')) {
+      fail(`sitemap.xml: noindex slide route must not be included (${loc})`);
+    }
   }
 
   for (const requiredUrl of REQUIRED_URLS) {
@@ -322,16 +301,16 @@ function validateRobotsTxt() {
 }
 
 function validatePageForSitemapUrl(url) {
-  const { primary, alias, route } = htmlFileForUrl(url);
+  const { primary, directoryIndex, route } = htmlFileForUrl(url);
   const relativePrimary = path.relative(DIST_DIR, primary);
-  const relativeAlias = alias ? path.relative(DIST_DIR, alias) : '';
+  const relativeDirectoryIndex = directoryIndex ? path.relative(DIST_DIR, directoryIndex) : '';
 
   if (!fs.existsSync(primary)) {
     fail(`${route}: generated page file is missing for sitemap URL ${url}`);
     return;
   }
-  if (alias && !fs.existsSync(alias)) {
-    fail(`${relativeAlias}: extensionless static alias is missing for sitemap URL ${url}`);
+  if (directoryIndex && fs.existsSync(directoryIndex)) {
+    fail(`${relativeDirectoryIndex}: non-root directory index would make trailing-slash duplicate render for sitemap URL ${url}`);
   }
 
   const content = read(primary);
@@ -384,10 +363,18 @@ function validateGeneratedHtmlFiles() {
   const files = collectHtmlFiles(DIST_DIR);
   for (const filePath of files) {
     const relative = path.relative(DIST_DIR, filePath);
+    const normalizedRelative = relative.replace(/\\/g, '/');
     const content = read(filePath);
+
+    if (normalizedRelative !== 'index.html' && normalizedRelative.endsWith('/index.html')) {
+      fail(`${relative}: non-root directory index would expose a trailing-slash duplicate URL`);
+    }
 
     if (content.includes('http://coderssecret.com')) {
       fail(`${relative}: generated HTML contains http://coderssecret.com`);
+    }
+    if (/href=["']\/blog\/?\?tag=/.test(content)) {
+      fail(`${relative}: generated HTML links to duplicate /blog?tag query URLs`);
     }
 
     const urlAttrs = [
@@ -412,9 +399,12 @@ function validateGeneratedHtmlFiles() {
       if (!href.startsWith('/') || href === '/' || href.startsWith('/#') || href.startsWith('//')) {
         continue;
       }
-      const [pathPart] = href.split(/[?#]/);
+      const [pathPart, queryPart = ''] = href.split(/[?#]/);
       const ext = path.extname(pathPart);
       if (ASSET_EXTENSIONS.has(ext)) continue;
+      if (pathPart === '/blog' && /(?:^|&)tag=/.test(queryPart)) {
+        fail(`${relative}: internal link points to duplicate blog tag query URL (${href})`);
+      }
       if (pathPart.endsWith('/')) {
         fail(`${relative}: internal link points to trailing-slash route (${href})`);
       }
@@ -442,4 +432,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log('Generated SEO validation passed: sitemap, robots, canonicals, aliases, metadata, JSON-LD, and internal links are consistent.');
+console.log('Generated SEO validation passed: sitemap, robots, canonicals, extensionless route files, metadata, JSON-LD, and internal links are consistent.');

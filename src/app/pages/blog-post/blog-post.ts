@@ -109,7 +109,8 @@ import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
 
               <div class="md3-article-tag-list sm:ml-auto flex flex-wrap gap-1.5">
                 @for (tag of post.tags; track tag) {
-                  <a [routerLink]="['/blog']" [queryParams]="{tag: tag}"
+                  <a routerLink="/blog"
+                     [attr.aria-label]="'Browse CodersSecret blog guides related to ' + tag"
                      class="inline-flex items-center rounded-full border border-border/40 bg-muted/50 px-3 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground hover:border-primary cursor-pointer">
                     {{ tag }}
                   </a>

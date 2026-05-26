@@ -2,6 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <script>
+    (function() {
+      var pathname = window.location.pathname;
+      if (pathname !== '/' && /\/+$/.test(pathname)) {
+        window.location.replace(pathname.replace(/\/+$/, '') + window.location.search + window.location.hash);
+      }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
   <title>Page Not Found | CodersSecret</title>

@@ -287,6 +287,7 @@ export class DrfApiLoggerSlidesComponent {
       title: 'DRF API Logger Tutorial — Interactive Slides with Narration',
       description: 'Learn DRF API Logger through 24 interactive slides with voice narration. Covers installation, database logging, signal mode, admin dashboard, filtering, security masking, and production tuning.',
       url: '/slides/drf-api-logger',
+      robots: 'noindex,follow',
       breadcrumbs: [
         { name: 'Home', url: '/' },
         { name: 'Blog', url: '/blog' },

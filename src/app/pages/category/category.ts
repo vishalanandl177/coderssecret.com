@@ -39,7 +39,7 @@ import { md3CategoryAccent, md3CategoryAccentLine, md3CategoryTint } from '../..
             {{ categoryName() }}
           </h1>
           <p class="mt-4 text-lg text-muted-foreground leading-relaxed">
-            {{ filteredPosts().length }} article{{ filteredPosts().length !== 1 ? 's' : '' }} in this category
+            {{ categoryHub().description }}
           </p>
         </div>
       </div>
@@ -48,6 +48,43 @@ import { md3CategoryAccent, md3CategoryAccentLine, md3CategoryTint } from '../..
     <!-- Category pills + Posts -->
     <section class="pb-20">
       <div class="container max-w-6xl mx-auto px-6">
+        <section class="mb-10 rounded-[2rem] border border-border/60 bg-card/70 p-6 shadow-sm md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div class="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wider" [style.color]="categoryColor()">Learning hub</p>
+              <h2 class="mt-2 text-2xl font-extrabold tracking-tight">What this category covers</h2>
+              <p class="mt-3 text-muted-foreground leading-relaxed">{{ categoryHub().scope }}</p>
+              <div class="mt-5 flex flex-wrap gap-2">
+                @for (topic of categoryHub().topics; track topic) {
+                  <span class="inline-flex min-h-[36px] items-center rounded-full border border-border/60 bg-muted/50 px-3 text-xs font-bold text-muted-foreground">
+                    {{ topic }}
+                  </span>
+                }
+              </div>
+            </div>
+            <div class="rounded-[1.5rem] bg-muted/50 p-5">
+              <h3 class="text-base font-bold">Recommended starting guides</h3>
+              <ul class="mt-4 space-y-3">
+                @for (post of recommendedPosts(); track post.id) {
+                  <li>
+                    <a [routerLink]="['/blog', post.slug]" class="group flex gap-3 rounded-2xl p-2 transition-colors hover:bg-accent focus-visible:bg-accent">
+                      <span class="mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                            [style.background-color]="categoryTint(18)"
+                            [style.color]="categoryColor()">
+                        {{ $index + 1 }}
+                      </span>
+                      <span>
+                        <span class="block text-sm font-bold text-foreground group-hover:text-primary">{{ post.title }}</span>
+                        <span class="mt-1 block text-xs text-muted-foreground">{{ post.readTime }}</span>
+                      </span>
+                    </a>
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+        </section>
+
         <!-- Category navigation -->
         <div class="flex flex-wrap gap-2 mb-10 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
           @for (cat of categories; track cat.slug) {
@@ -168,11 +205,44 @@ export class CategoryComponent {
 
   private categoryDescriptions: Record<string, string> = {
     ai: 'Guides on AI, LLMs, Claude, MCP servers, prompting, local AI stacks, and building with modern AI tools.',
-    frontend: 'Tutorials and deep dives into Angular, React, TypeScript, CSS, and modern frontend development.',
+    frontend: 'Frontend engineering guides for building reliable Angular, React, TypeScript, CSS, and UI systems that hold up in production.',
     backend: 'Practical guides on Python, Django, APIs, authentication, and backend architecture patterns.',
     devops: 'Learn Kubernetes, Docker, CI/CD, cron jobs, and infrastructure automation for production systems.',
     tutorials: 'Step-by-step workshops and hands-on tutorials for developers at every level.',
-    'open-source': 'Discover and contribute to open-source projects, tools, and libraries.',
+    'open-source': 'Open-source engineering guides for contributing safely, structuring public projects, and maintaining developer tools with confidence.',
+  };
+
+  private categoryHubContent: Record<string, { description: string; scope: string; topics: string[] }> = {
+    frontend: {
+      description: 'Learn practical frontend engineering through real layout, framework, state-management, and performance guides.',
+      scope: 'This hub is for engineers who want frontend decisions to stay maintainable under real product pressure: routing, state, responsive layout, accessibility, and production UI trade-offs.',
+      topics: ['Angular', 'React', 'TypeScript', 'CSS architecture', 'Responsive UI', 'Performance'],
+    },
+    'open-source': {
+      description: 'Learn how to read, contribute to, and maintain open-source projects without turning the workflow into guesswork.',
+      scope: 'This hub focuses on the engineering habits behind public software: first pull requests, repository structure, maintainer communication, package quality, and practical project hygiene.',
+      topics: ['First PRs', 'Project structure', 'Maintainer workflow', 'Package quality', 'Developer tooling'],
+    },
+    ai: {
+      description: 'Learn production AI systems through RAG, MCP, Claude, embeddings, agents, and observability guides.',
+      scope: 'This hub connects AI application ideas to the systems work that makes them reliable: retrieval quality, token cost control, tool permissions, evaluation, and safe deployment.',
+      topics: ['RAG', 'MCP', 'AI agents', 'Vector search', 'Prompting', 'Evaluation'],
+    },
+    backend: {
+      description: 'Learn backend architecture through API design, authentication, databases, distributed systems, and production patterns.',
+      scope: 'This hub covers the decisions backend engineers revisit repeatedly: rate limiting, caching, auth, connection pooling, queues, concurrency, and operational debugging.',
+      topics: ['APIs', 'Auth', 'Databases', 'Caching', 'Queues', 'Distributed systems'],
+    },
+    devops: {
+      description: 'Learn DevOps and platform engineering through Kubernetes, Linux, CI/CD, observability, and infrastructure automation.',
+      scope: 'This hub is built for engineers who operate systems after deployment: scheduling, debugging, infrastructure-as-code, deployment safety, and production reliability.',
+      topics: ['Kubernetes', 'Linux', 'CI/CD', 'Terraform', 'Observability', 'Reliability'],
+    },
+    tutorials: {
+      description: 'Step-by-step engineering tutorials with examples, commands, trade-offs, and production notes.',
+      scope: 'This hub collects guided walkthroughs that teach one practical skill at a time, with enough context to understand the decisions behind the code.',
+      topics: ['Hands-on guides', 'Code examples', 'Architecture notes', 'Debugging', 'Production trade-offs'],
+    },
   };
 
   constructor() {
@@ -180,11 +250,11 @@ export class CategoryComponent {
       const name = this.categoryName();
       const slug = this.categorySlug();
       const count = this.filteredPosts().length;
-      const desc = this.categoryDescriptions[slug]
+      const desc = this.categoryHub().description || this.categoryDescriptions[slug]
         || `Browse ${count} article${count !== 1 ? 's' : ''} about ${name} on CodersSecret.`;
       const posts = this.filteredPosts();
       this.seo.update({
-        title: `${name} Articles — Tutorials & Guides`,
+        title: `${name} Tutorials and Guides | CodersSecret`,
         description: desc,
         url: `/category/${slug}`,
         breadcrumbs: [
@@ -205,5 +275,17 @@ export class CategoryComponent {
     const slug = this.categorySlug();
     if (!slug) return BLOG_POSTS;
     return BLOG_POSTS.filter(post => post.category === slug);
+  });
+
+  recommendedPosts = computed(() => this.filteredPosts().slice(0, 3));
+
+  categoryHub = computed(() => {
+    const slug = this.categorySlug();
+    const name = this.categoryName();
+    return this.categoryHubContent[slug] ?? {
+      description: this.categoryDescriptions[slug] || `Practical ${name} guides for engineers building production software.`,
+      scope: `Use this hub to scan the most useful ${name} articles, then follow the internal links into detailed tutorials, examples, and related learning paths.`,
+      topics: [name, 'Production engineering', 'Practical guides'],
+    };
   });
 }

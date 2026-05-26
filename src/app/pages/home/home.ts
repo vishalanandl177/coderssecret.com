@@ -922,11 +922,12 @@ type HeroTrack = {
       <div class="container max-w-6xl mx-auto px-6">
         <div class="mb-6">
           <h2 id="trending-tags-heading" class="text-2xl font-extrabold tracking-tight">Trending Topics</h2>
-          <p class="mt-1 text-sm text-muted-foreground">Click any tag to find related articles &amp; tutorials.</p>
+          <p class="mt-1 text-sm text-muted-foreground">Use these topics as a quick path into the engineering guide library.</p>
         </div>
         <div class="flex flex-wrap gap-2">
           @for (tag of trendingTags(); track tag.name) {
-            <a [routerLink]="['/blog']" [queryParams]="{tag: tag.name}"
+            <a routerLink="/blog"
+               [attr.aria-label]="'Browse blog guides related to ' + tag.name"
                class="md3-home-topic-chip group inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300">
               <span>{{ tag.name }}</span>
               <span class="md3-home-topic-count text-xs">{{ tag.count }}</span>

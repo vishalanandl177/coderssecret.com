@@ -211,7 +211,7 @@ export class CoursesHubComponent {
 
   labCountLabel(course: Course): string {
     const count = this.totalLabsFor(course);
-    return course.labDelivery === 'inline' ? `${count} inline exercises` : `${count}+ labs`;
+    return course.labDelivery === 'inline' ? `${count} inline exercises` : `${count} labs`;
   }
 
   courseIconLabel(course: Course): string {

@@ -73,18 +73,6 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/slides/drf-api-logger</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>${SITE_URL}/slides/python-c-extensions</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>${SITE_URL}/games</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
@@ -863,7 +851,6 @@ for (const course of loadCoursesFromModel()) {
   appendUrl(`/courses/${course.slug}`, '0.9');
   for (const mod of course.modules || []) {
     appendUrl(`/courses/${course.slug}/${mod.slug}`, '0.8');
-    appendUrl(`/courses/${course.slug}/${mod.slug}/slides`, '0.7');
   }
   for (const page of course.seoPages || []) {
     appendUrl(`/courses/${page.slug}`, '0.8');
@@ -881,7 +868,8 @@ for (const cat of categories) {
 `;
 }
 
-// Blog post pages + auto-generated slide pages for each
+// Blog post pages. Slide decks remain available to users, but they are
+// noindex supporting pages and are intentionally excluded from the sitemap.
 for (let i = 0; i < slugs.length; i++) {
   const date = dates[i] || today;
   xml += `  <url>
@@ -889,12 +877,6 @@ for (let i = 0; i < slugs.length; i++) {
     <lastmod>${date}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>${SITE_URL}/slides/${slugs[i]}</loc>
-    <lastmod>${date}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
   </url>
 `;
 }
@@ -916,7 +898,7 @@ const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
 if (fs.existsSync(OUTPUT_DIR)) {
   fs.writeFileSync(path.join(OUTPUT_DIR, 'sitemap.xml'), xml);
   fs.writeFileSync(path.join(OUTPUT_DIR, 'sitemap_index.xml'), sitemapIndex);
-  console.log(`✅ Sitemap generated with ${slugs.length} blog posts and ${categories.size} categories.`);
+  console.log(`✅ Sitemap generated with ${slugs.length} blog posts and ${categories.size} categories. Slide routes are noindex supporting pages and excluded.`);
 } else {
   console.error('❌ Build output directory not found. Run ng build first.');
   process.exit(1);

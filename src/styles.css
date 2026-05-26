@@ -5458,7 +5458,9 @@
 
   app-blog-list .md3-blog-breadcrumb a,
   app-blog-list .md3-blog-tag-row a,
+  app-blog-list .md3-blog-tag-row button,
   app-blog-list .md3-blog-topic-stack a,
+  app-blog-list .md3-blog-topic-stack button,
   app-blog-list .md3-blog-category-pill,
   app-blog-list .md3-blog-read-link,
   app-blog-list .md3-blog-slide-link,
@@ -5594,21 +5596,28 @@
     margin-top: 1rem;
   }
 
-  app-blog-list .md3-blog-topic-stack a {
+  app-blog-list .md3-blog-topic-stack a,
+  app-blog-list .md3-blog-topic-stack button {
     display: flex;
     min-height: 44px;
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
+    border: 0;
     border-radius: var(--md-sys-shape-corner-full);
     background: var(--md-sys-color-surface-container-low);
     color: var(--md-sys-color-on-surface);
     padding: 0.55rem 0.85rem 0.55rem 1rem;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
     transition: background-color var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard), transform var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard);
   }
 
   app-blog-list .md3-blog-topic-stack a:hover,
-  app-blog-list .md3-blog-topic-stack a:focus-visible {
+  app-blog-list .md3-blog-topic-stack a:focus-visible,
+  app-blog-list .md3-blog-topic-stack button:hover,
+  app-blog-list .md3-blog-topic-stack button:focus-visible {
     background: var(--md-sys-color-primary-container);
     color: var(--md-sys-color-on-primary-container);
     transform: translateX(0.125rem);
@@ -5836,7 +5845,8 @@
     gap: 0.5rem;
   }
 
-  app-blog-list .md3-blog-tag-row a {
+  app-blog-list .md3-blog-tag-row a,
+  app-blog-list .md3-blog-tag-row button {
     display: inline-flex;
     min-height: 44px;
     align-items: center;
@@ -5845,8 +5855,10 @@
     background: color-mix(in srgb, var(--md-sys-color-surface-container-low) 78%, transparent);
     color: var(--md-sys-color-on-surface-variant);
     padding-inline: 0.75rem;
+    font: inherit;
     font-size: 0.75rem;
     font-weight: 700;
+    cursor: pointer;
     transition: var(--md-sys-motion-transition-state);
   }
 
@@ -7586,6 +7598,7 @@
     }
 
     app-blog-list .md3-blog-topic-stack a,
+    app-blog-list .md3-blog-topic-stack button,
     app-blog-list .md3-blog-featured-card,
     app-blog-list .md3-blog-supporting-card,
     app-blog-list .md3-blog-article-card,
@@ -7596,6 +7609,8 @@
 
     app-blog-list .md3-blog-topic-stack a:hover,
     app-blog-list .md3-blog-topic-stack a:focus-visible,
+    app-blog-list .md3-blog-topic-stack button:hover,
+    app-blog-list .md3-blog-topic-stack button:focus-visible,
     app-blog-list .md3-blog-featured-card:hover,
     app-blog-list .md3-blog-featured-card:focus-within,
     app-blog-list .md3-blog-featured-card:active,

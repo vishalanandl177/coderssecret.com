@@ -186,8 +186,8 @@ function checkContentQuality() {
   if (!/Related Articles|relatedPosts|related/.test(content)) {
     warnings.push('generate-routes.js: Pre-rendered pages missing related post links — internal linking weaker');
   }
-  if (!/tag=/.test(content)) {
-    warnings.push('generate-routes.js: Pre-rendered pages missing tag links — no topic clustering');
+  if (/\/blog\?tag=|\/blog\/\?tag=/.test(content)) {
+    errors.push('generate-routes.js: Pre-rendered pages expose /blog?tag= query URLs; use canonical category/tag hubs instead');
   }
   if (!/canonical/.test(content)) {
     errors.push('generate-routes.js: Pre-rendered pages missing canonical URLs — duplicate content risk');
@@ -423,10 +423,6 @@ function checkGeneratedCanonicalUrls() {
     'https://coderssecret.com',
     'https://coderssecret.com/blog',
     'https://coderssecret.com/consultation',
-    'https://coderssecret.com/slides/build-your-own-design-system-guide',
-    'https://coderssecret.com/slides/x86-vs-arm-architecture-comparison',
-    'https://coderssecret.com/slides/kubernetes-operators-build-your-own-with-golang',
-    'https://coderssecret.com/slides/solid-principles-practical-examples',
   ];
 
   for (const requiredLoc of requiredLocs) {

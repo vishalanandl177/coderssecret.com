@@ -248,6 +248,8 @@ export class CourseSlidesComponent {
     this.seo.update({
       title: `Module ${mod.number}: ${mod.title} | Slides`,
       description: mod.subtitle,
+      url: `/courses/${course.slug}/${mod.slug}/slides`,
+      robots: 'noindex,follow',
     });
   }
 }

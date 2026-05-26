@@ -271,6 +271,7 @@ Cache read:
       description: 'Watch a narrated slide walkthrough of Claude token costs, Opus 4.7 pricing, prompt caching, Claude Code context, MCP overhead, and thinking tokens.',
       url: '/slides/claude-tokens-hidden-costs-optimization-guide',
       image: 'https://coderssecret.com/images/blog/claude-token-cost-stack.svg',
+      robots: 'noindex,follow',
       breadcrumbs: [
         { name: 'Home', url: '/' },
         { name: 'Blog', url: '/blog' },
