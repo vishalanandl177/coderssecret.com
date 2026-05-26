@@ -38,7 +38,7 @@ export class SeoService {
   update(config: SeoConfig) {
     const fullTitle = this.buildTitle(config.title);
     const description = config.description || this.defaultDescription;
-    const url = config.url ? `${this.siteUrl}${config.url}` : this.siteUrl;
+    const url = config.url ? this.absoluteUrl(config.url) : this.siteUrl;
     const type = config.type || 'website';
     const image = config.image || this.defaultImage;
     const imageWidth = config.imageWidth || this.defaultImageWidth;
@@ -164,7 +164,7 @@ export class SeoService {
           '@type': 'ListItem',
           'position': i + 1,
           'name': crumb.name,
-          'item': `${this.siteUrl}${crumb.url}`,
+          'item': this.absoluteUrl(crumb.url),
         })),
       });
     }
@@ -183,7 +183,7 @@ export class SeoService {
           'itemListElement': config.itemList.map((item, i) => ({
             '@type': 'ListItem',
             'position': i + 1,
-            'url': `${this.siteUrl}${item.url}`,
+            'url': this.absoluteUrl(item.url),
             'name': item.name,
           })),
         },
@@ -236,6 +236,17 @@ export class SeoService {
       this.doc.head.appendChild(link);
     }
     link.setAttribute('href', url);
+  }
+
+  private normalizeCanonicalPath(path: string): string {
+    const pathOnly = String(path || '/').split(/[?#]/)[0] || '/';
+    const normalized = `/${pathOnly.replace(/^\/+/, '')}`.replace(/\/+$/, '');
+    return normalized === '' ? '/' : normalized;
+  }
+
+  private absoluteUrl(path: string): string {
+    const normalizedPath = this.normalizeCanonicalPath(path);
+    return normalizedPath === '/' ? this.siteUrl : `${this.siteUrl}${normalizedPath}`;
   }
 
   private updateJsonLd(data: Record<string, unknown> | Record<string, unknown>[]) {

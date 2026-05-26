@@ -28,6 +28,7 @@ const UI_SOURCE_PRERENDER = process.env.CODERSSECRET_PRERENDER_SOURCE !== 'manua
 const PRERENDER_BUDGET_MS = Number(process.env.CODERSSECRET_PRERENDER_BUDGET_MS || 1800);
 const PRERENDER_RETRY_BUDGET_MS = Number(process.env.CODERSSECRET_PRERENDER_RETRY_BUDGET_MS || 5000);
 const PRERENDER_TIMEOUT_MS = Number(process.env.CODERSSECRET_PRERENDER_TIMEOUT_MS || 60000);
+const PRERENDER_RETRY_TIMEOUT_MS = Number(process.env.CODERSSECRET_PRERENDER_RETRY_TIMEOUT_MS || 120000);
 const CHROME_WINDOW_SIZE = process.env.CODERSSECRET_PRERENDER_WINDOW || '1365,900';
 const PRERENDER_ALLOW_EXTERNAL_NETWORK = process.env.CODERSSECRET_PRERENDER_ALLOW_NETWORK === '1';
 const hydratedRouteCache = new Map();
@@ -78,16 +79,31 @@ function removeStaleGeneratedRoutes() {
       fs.rmSync(routePath, { recursive: true, force: true });
     }
   }
+  removeGeneratedExtensionlessAliases(OUTPUT_DIR);
+}
+
+function removeGeneratedExtensionlessAliases(dir) {
+  if (!fs.existsSync(dir)) return;
+
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      removeGeneratedExtensionlessAliases(fullPath);
+    } else if (entry.name.endsWith('.html') && entry.name !== 'index.html' && entry.name !== '404.html') {
+      fs.rmSync(fullPath, { force: true });
+    }
+  }
 }
 
 function makeHtml(options) {
   const { title, description, url, content, jsonLd, image, fullTitle: explicitFullTitle, ogType = 'website', extraHead = '' } = options;
+  const normalizedUrl = normalizeCanonicalPath(url);
   const fullTitle = normalizeTitleSeparators(explicitFullTitle || buildFullTitle(title));
-  const canonical = `${SITE_URL}${url}`;
+  const canonical = absoluteUrl(normalizedUrl);
   const ogImage = image ? `${SITE_URL}${image}` : `${SITE_URL}/og-image.svg`;
   const safeTitle = escapeHtml(fullTitle);
   const safeDescription = escapeHtml(clampText(description, 160));
-  const renderedRoute = renderRouteSource({ url, fallbackContent: content });
+  const renderedRoute = renderRouteSource({ url: normalizedUrl, fallbackContent: content });
   const appRootHtml = renderedRoute.appRootHtml;
   const structuredData = structuredDataForPage({
     jsonLd,
@@ -156,13 +172,18 @@ function renderRouteSource({ url, fallbackContent }) {
     return hydratedRouteCache.get(routePath);
   }
 
-  const firstAttempt = renderRouteWithBudget(routePath, PRERENDER_BUDGET_MS);
+  const firstAttempt = renderRouteWithRetry(routePath, PRERENDER_BUDGET_MS, PRERENDER_TIMEOUT_MS);
   const firstText = stripHtml(firstAttempt.appRootHtml);
   const fallbackText = stripHtml(fallbackContent);
   const needsRetry = fallbackText.length > 120 && firstText.length < Math.min(120, fallbackText.length * 0.2);
   const rendered = needsRetry
-    ? renderRouteWithBudget(routePath, PRERENDER_RETRY_BUDGET_MS)
+    ? renderRouteWithRetry(routePath, PRERENDER_RETRY_BUDGET_MS, PRERENDER_RETRY_TIMEOUT_MS)
     : firstAttempt;
+  const renderedText = stripHtml(rendered.appRootHtml);
+
+  if (renderedText.length < 20) {
+    throw new Error(`Rendered Angular source for ${routePath} is too small. Refusing to publish thin static HTML.`);
+  }
 
   hydratedRouteCache.set(routePath, rendered);
   return rendered;
@@ -171,10 +192,31 @@ function renderRouteSource({ url, fallbackContent }) {
 function normalizeRoutePathForRender(url) {
   const raw = String(url || '/').trim() || '/';
   const pathOnly = raw.startsWith('http') ? new URL(raw).pathname : raw.split(/[?#]/)[0];
-  return pathOnly.startsWith('/') ? pathOnly : `/${pathOnly}`;
+  return normalizeCanonicalPath(pathOnly.startsWith('/') ? pathOnly : `/${pathOnly}`);
 }
 
-function renderRouteWithBudget(routePath, budgetMs) {
+function normalizeCanonicalPath(url) {
+  const raw = String(url || '/').trim() || '/';
+  const pathOnly = raw.startsWith('http') ? new URL(raw).pathname : raw.split(/[?#]/)[0];
+  const normalized = `/${pathOnly.replace(/^\/+/, '')}`.replace(/\/+$/, '');
+  return normalized === '' ? '/' : normalized;
+}
+
+function absoluteUrl(url) {
+  const normalizedPath = normalizeCanonicalPath(url);
+  return normalizedPath === '/' ? SITE_URL : `${SITE_URL}${normalizedPath}`;
+}
+
+function renderRouteWithRetry(routePath, budgetMs, timeoutMs) {
+  try {
+    return renderRouteWithBudget(routePath, budgetMs, timeoutMs);
+  } catch (err) {
+    console.warn(`[prerender] retrying ${routePath}: ${err.message}`);
+    return renderRouteWithBudget(routePath, PRERENDER_RETRY_BUDGET_MS, PRERENDER_RETRY_TIMEOUT_MS);
+  }
+}
+
+function renderRouteWithBudget(routePath, budgetMs, timeoutMs) {
   const runtime = ensurePrerenderRuntime();
   const routeRenderId = ++prerenderRouteCount;
   const userDataDir = path.join(
@@ -221,7 +263,7 @@ function renderRouteWithBudget(routePath, budgetMs) {
   const result = spawnSync(runtime.browserPath, browserArgs, {
     encoding: 'utf-8',
     maxBuffer: 128 * 1024 * 1024,
-    timeout: PRERENDER_TIMEOUT_MS,
+    timeout: timeoutMs,
   });
 
   try {
@@ -246,12 +288,6 @@ function renderRouteWithBudget(routePath, budgetMs) {
 
   const documentHtml = String(result.stdout || '').trim();
   const appRootHtml = extractAppRootHtml(documentHtml, routePath);
-  const text = stripHtml(appRootHtml);
-
-  if (text.length < 20) {
-    throw new Error(`Rendered Angular source for ${routePath} is too small. Refusing to publish thin static HTML.`);
-  }
-
   return { documentHtml, appRootHtml };
 }
 
@@ -526,7 +562,37 @@ function structuredDataForPage({ jsonLd, fullTitle, description, canonical, ogIm
 
   const items = Array.isArray(jsonLd) ? jsonLd : [jsonLd];
   const hasPageSchema = items.some(item => item && ['WebPage', 'CollectionPage'].includes(item['@type']));
-  return hasPageSchema ? items : [pageSchema, ...items];
+  return normalizeStructuredDataUrls(hasPageSchema ? items : [pageSchema, ...items]);
+}
+
+function normalizeStructuredDataUrls(value) {
+  if (typeof value === 'string') {
+    return normalizeSiteUrlString(value);
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(normalizeStructuredDataUrls);
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [key, normalizeStructuredDataUrls(entry)])
+    );
+  }
+
+  return value;
+}
+
+function normalizeSiteUrlString(value) {
+  if (value === `${SITE_URL}/`) {
+    return SITE_URL;
+  }
+
+  if (/^https:\/\/coderssecret\.com\/[^?#]+\/$/.test(value)) {
+    return value.replace(/\/+$/, '');
+  }
+
+  return value;
 }
 
 function escapeHtml(str) {
@@ -870,7 +936,7 @@ function claudeTokenSlidesPrerender(post) {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       'itemListElement': [
-        { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+        { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': SITE_URL },
         { '@type': 'ListItem', 'position': 2, 'name': 'Blog', 'item': `${SITE_URL}/blog` },
         { '@type': 'ListItem', 'position': 3, 'name': post.title, 'item': `${SITE_URL}/blog/${post.slug}` },
         { '@type': 'ListItem', 'position': 4, 'name': 'Slides', 'item': `${SITE_URL}${url}` },
@@ -1675,7 +1741,7 @@ const blogListJsonLd = [
     '@type': 'CollectionPage',
     'name': BLOG_LIST_TITLE,
     'description': BLOG_LIST_DESCRIPTION,
-    'url': `${SITE_URL}/blog/`,
+    'url': `${SITE_URL}/blog`,
     'mainEntity': {
       '@type': 'ItemList',
       'numberOfItems': visibleBlogPosts.length,
@@ -1702,7 +1768,7 @@ const blogListJsonLd = [
         '@type': 'ListItem',
         'position': 2,
         'name': 'Blog',
-        'item': `${SITE_URL}/blog/`,
+        'item': `${SITE_URL}/blog`,
       },
     ],
   },
@@ -1712,7 +1778,7 @@ fs.mkdirSync(blogDir, { recursive: true });
 fs.writeFileSync(path.join(blogDir, 'index.html'), makeHtml({
   title: BLOG_LIST_TITLE,
   description: BLOG_LIST_DESCRIPTION,
-  url: '/blog/',
+  url: '/blog',
   content: blogListContent,
   jsonLd: blogListJsonLd,
 }));
@@ -1785,7 +1851,7 @@ for (const post of posts) {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     'itemListElement': [
-      { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+      { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': SITE_URL },
       { '@type': 'ListItem', 'position': 2, 'name': 'Blog', 'item': `${SITE_URL}/blog` },
       { '@type': 'ListItem', 'position': 3, 'name': post.title, 'item': `${SITE_URL}/blog/${post.slug}` },
     ],
@@ -2168,7 +2234,7 @@ function gameJsonLd(game, allGames) {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     'itemListElement': [
-      { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+      { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': SITE_URL },
       { '@type': 'ListItem', 'position': 2, 'name': 'Games', 'item': `${SITE_URL}/games` },
       ...(game.slug ? [{ '@type': 'ListItem', 'position': 3, 'name': game.heading, 'item': `${SITE_URL}${url}` }] : []),
     ],
@@ -2423,7 +2489,7 @@ function cheatsheetJsonLd(cs, allCheatsheets) {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     'itemListElement': [
-      { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+      { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': SITE_URL },
       { '@type': 'ListItem', 'position': 2, 'name': 'Cheatsheets', 'item': `${SITE_URL}/cheatsheets` },
       ...(cs.slug ? [{ '@type': 'ListItem', 'position': 3, 'name': cs.name, 'item': `${SITE_URL}${url}` }] : []),
     ],
@@ -2797,14 +2863,16 @@ for (const post of posts) {
   fs.mkdirSync(slideDir, { recursive: true });
   const customSlidePage = claudeTokenSlidesPrerender(post);
   if (customSlidePage) {
-    fs.writeFileSync(path.join(slideDir, 'index.html'), makeHtml(customSlidePage));
+    const html = makeHtml(customSlidePage);
+    fs.mkdirSync(slideDir, { recursive: true });
+    fs.writeFileSync(path.join(slideDir, 'index.html'), html);
     created++;
     continue;
   }
   const slideTitle = `${compactSeoTitle(post.title, 42)} Slides`;
   const slideTopic = compactSeoTitle(post.title, 45);
   const slideDescription = `Watch narrated slides for ${slideTopic}. Review the core ideas with lightweight visuals, then read the full article for code and diagrams.`;
-  fs.writeFileSync(path.join(slideDir, 'index.html'), makeHtml({
+  const slideHtml = makeHtml({
     title: slideTitle,
     description: slideDescription,
     url: `/slides/${post.slug}`,
@@ -2828,7 +2896,7 @@ for (const post of posts) {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         'itemListElement': [
-          { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+          { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': SITE_URL },
           { '@type': 'ListItem', 'position': 2, 'name': 'Article', 'item': `${SITE_URL}/blog/${post.slug}` },
           { '@type': 'ListItem', 'position': 3, 'name': 'Slides', 'item': `${SITE_URL}/slides/${post.slug}` },
         ],
@@ -2844,7 +2912,9 @@ for (const post of posts) {
         'inLanguage': 'en',
       },
     ],
-  }));
+  });
+  fs.mkdirSync(slideDir, { recursive: true });
+  fs.writeFileSync(path.join(slideDir, 'index.html'), slideHtml);
   created++;
 }
 
@@ -2869,7 +2939,7 @@ const standaloneSlidePages = [
 for (const slide of standaloneSlidePages) {
   const slideDir = path.join(OUTPUT_DIR, 'slides', slide.slug);
   fs.mkdirSync(slideDir, { recursive: true });
-  fs.writeFileSync(path.join(slideDir, 'index.html'), makeHtml({
+  const standaloneSlideHtml = makeHtml({
     title: slide.title,
     description: slide.description,
     url: `/slides/${slide.slug}`,
@@ -2893,7 +2963,7 @@ for (const slide of standaloneSlidePages) {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         'itemListElement': [
-          { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+          { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': SITE_URL },
           { '@type': 'ListItem', 'position': 2, 'name': 'Article', 'item': `${SITE_URL}${slide.articleUrl}` },
           { '@type': 'ListItem', 'position': 3, 'name': 'Slides', 'item': `${SITE_URL}/slides/${slide.slug}` },
         ],
@@ -2909,7 +2979,9 @@ for (const slide of standaloneSlidePages) {
         'inLanguage': 'en',
       },
     ],
-  }));
+  });
+  fs.mkdirSync(slideDir, { recursive: true });
+  fs.writeFileSync(path.join(slideDir, 'index.html'), standaloneSlideHtml);
   created++;
 }
 
@@ -2922,10 +2994,10 @@ fs.writeFileSync(path.join(homeDir, 'index.html'), `<!doctype html>
 <meta name="description" content="Redirecting to the canonical CodersSecret homepage for practical engineering tutorials, courses, labs, and reference sheets.">
 <meta name="robots" content="noindex">
 <meta http-equiv="refresh" content="0;url=/">
-<link rel="canonical" href="https://coderssecret.com/">
+<link rel="canonical" href="https://coderssecret.com">
 <meta property="og:title" content="CodersSecret">
 <meta property="og:description" content="Redirecting to the canonical CodersSecret homepage.">
-<meta property="og:url" content="https://coderssecret.com/">
+<meta property="og:url" content="https://coderssecret.com">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://coderssecret.com/og-image.svg">
 <meta name="twitter:card" content="summary_large_image">
@@ -3100,7 +3172,7 @@ function glossaryJsonLd(t) {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       'itemListElement': [
-        { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+        { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': SITE_URL },
         { '@type': 'ListItem', 'position': 2, 'name': 'Glossary', 'item': `${SITE_URL}/glossary` },
         { '@type': 'ListItem', 'position': 3, 'name': t.term, 'item': `${SITE_URL}/glossary/${t.slug}` },
       ],
@@ -3245,7 +3317,7 @@ fs.writeFileSync(path.join(consultationDir, 'index.html'), makeHtml({
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       'itemListElement': [
-        { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${SITE_URL}/` },
+        { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': SITE_URL },
         { '@type': 'ListItem', 'position': 2, 'name': 'Consultation', 'item': `${SITE_URL}/consultation` },
       ],
     },
@@ -3280,6 +3352,7 @@ let notFoundHtml = makeHtml({
 notFoundHtml = notFoundHtml.replace('</head>', '  <meta name="robots" content="noindex">\n</head>');
 fs.writeFileSync(path.join(OUTPUT_DIR, '404.html'), notFoundHtml);
 
+const extensionlessAliases = writeExtensionlessRouteAliases();
 
 assertGeneratedSeoContent([
   {
@@ -3293,6 +3366,26 @@ assertGeneratedSeoContent([
   {
     route: 'blog/mcp-security-production-ai-agents-oauth-gateways/index.html',
     requiredText: ['MCP Security in Production', 'On this page', 'Discussion', 'Continue Reading'],
+  },
+  {
+    route: 'consultation/index.html',
+    requiredText: ['Architecture, Security, and Production Engineering Consulting', 'Submit your challenge'],
+  },
+  {
+    route: 'slides/build-your-own-design-system-guide/index.html',
+    requiredText: ['Building Your Own Design System', 'app-slide-player'],
+  },
+  {
+    route: 'slides/x86-vs-arm-architecture-comparison/index.html',
+    requiredText: ['x86 vs ARM', 'app-slide-player'],
+  },
+  {
+    route: 'slides/kubernetes-operators-build-your-own-with-golang/index.html',
+    requiredText: ['Kubernetes Operators', 'app-slide-player'],
+  },
+  {
+    route: 'slides/solid-principles-practical-examples/index.html',
+    requiredText: ['SOLID Principles', 'app-slide-player'],
   },
   {
     route: 'games/kubernetes-security-simulator/index.html',
@@ -3321,6 +3414,40 @@ assertGeneratedSeoContent([
 ]);
 cleanupPrerenderRuntime();
 
+function writeExtensionlessRouteAliases() {
+  const outputRoot = path.resolve(OUTPUT_DIR);
+  let aliases = 0;
+
+  function visit(dir) {
+    const indexPath = path.join(dir, 'index.html');
+    const relativeDir = path.relative(outputRoot, dir);
+    if (relativeDir && fs.existsSync(indexPath)) {
+      const aliasPath = path.resolve(outputRoot, `${relativeDir}.html`);
+      if (aliasPath.startsWith(outputRoot + path.sep)) {
+        fs.copyFileSync(indexPath, aliasPath);
+        aliases++;
+      }
+    }
+
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) {
+        visit(path.join(dir, entry.name));
+      }
+    }
+  }
+
+  visit(outputRoot);
+  return aliases;
+}
+
+function extensionlessAliasForRoute(route) {
+  if (route === 'index.html' || !route.endsWith('/index.html')) {
+    return '';
+  }
+
+  return route.replace(/\/index\.html$/, '.html');
+}
+
 function assertGeneratedSeoContent(checks) {
   const failures = [];
 
@@ -3329,6 +3456,11 @@ function assertGeneratedSeoContent(checks) {
     if (!fs.existsSync(filePath)) {
       failures.push(`${check.route}: file missing`);
       continue;
+    }
+
+    const aliasRoute = extensionlessAliasForRoute(check.route);
+    if (aliasRoute && !fs.existsSync(path.join(OUTPUT_DIR, aliasRoute))) {
+      failures.push(`${aliasRoute}: extensionless route alias missing`);
     }
 
     const html = fs.readFileSync(filePath, 'utf-8');
@@ -3347,7 +3479,7 @@ function assertGeneratedSeoContent(checks) {
       failures.push(`${check.route}: still contains old summary-only seo-prerender-content main`);
     }
 
-    if (!/<link rel="canonical" href="https:\/\/coderssecret\.com\//.test(html)) {
+    if (!/<link rel="canonical" href="https:\/\/coderssecret\.com(?:\/[^"]*)?"/.test(html)) {
       failures.push(`${check.route}: missing canonical link`);
     }
 
@@ -3368,6 +3500,7 @@ function assertGeneratedSeoContent(checks) {
 }
 
 console.log(`✅ Pre-rendered ${created} route files + 404.html with SEO content.`);
+console.log(`   Extensionless aliases: ${extensionlessAliases}`);
 console.log(`   Blog posts: ${posts.length}`);
 console.log(`   Categories: ${categories.size}`);
 console.log(`   Blog list: 1`);

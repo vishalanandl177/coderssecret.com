@@ -387,6 +387,55 @@ function checkGeneratedTitles() {
   }
 }
 
+function hasTrailingSlashUrl(url) {
+  return url === 'https://coderssecret.com/' || /^https:\/\/coderssecret\.com\/.+\/$/.test(url);
+}
+
+function checkGeneratedCanonicalUrls() {
+  const distDir = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'browser');
+  if (!fs.existsSync(distDir)) return;
+
+  const htmlFiles = collectIndexHtmlFiles(distDir);
+  for (const filePath of htmlFiles) {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const canonicalMatch = content.match(/<link rel="canonical" href="([^"]+)"/i);
+    if (!canonicalMatch) continue;
+
+    const canonical = canonicalMatch[1];
+    if (hasTrailingSlashUrl(canonical)) {
+      const relative = path.relative(distDir, filePath);
+      errors.push(`${relative}: canonical URL uses a trailing slash (${canonical})`);
+    }
+  }
+
+  const sitemapPath = path.join(distDir, 'sitemap.xml');
+  if (!fs.existsSync(sitemapPath)) return;
+
+  const sitemap = fs.readFileSync(sitemapPath, 'utf-8');
+  const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
+  for (const loc of locs) {
+    if (hasTrailingSlashUrl(loc)) {
+      errors.push(`sitemap.xml: URL uses a trailing slash (${loc})`);
+    }
+  }
+
+  const requiredLocs = [
+    'https://coderssecret.com',
+    'https://coderssecret.com/blog',
+    'https://coderssecret.com/consultation',
+    'https://coderssecret.com/slides/build-your-own-design-system-guide',
+    'https://coderssecret.com/slides/x86-vs-arm-architecture-comparison',
+    'https://coderssecret.com/slides/kubernetes-operators-build-your-own-with-golang',
+    'https://coderssecret.com/slides/solid-principles-practical-examples',
+  ];
+
+  for (const requiredLoc of requiredLocs) {
+    if (!locs.includes(requiredLoc)) {
+      errors.push(`sitemap.xml: missing required public URL (${requiredLoc})`);
+    }
+  }
+}
+
 // Run all checks
 console.log('🔍 Running SEO & quality checks...\n');
 
@@ -401,6 +450,7 @@ checkContentQuality();
 checkKeywordTargeting();
 checkBlogPostQuality();
 checkGeneratedTitles();
+checkGeneratedCanonicalUrls();
 
 // Report
 if (warnings.length > 0) {

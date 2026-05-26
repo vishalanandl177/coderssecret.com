@@ -429,10 +429,10 @@ export class BlogListComponent {
       description: tag
         ? `Practical CodersSecret tutorials tagged ${tag}, with clear examples, diagrams, and slide walkthroughs for production engineering work.`
         : 'Practical tutorials on system design, security, DevOps, AI, cloud, Python, databases, and production software engineering.',
-      url: '/blog/',
+      url: '/blog',
       breadcrumbs: [
         { name: 'Home', url: '/' },
-        { name: 'Blog', url: '/blog/' },
+        { name: 'Blog', url: '/blog' },
       ],
       itemList: BLOG_POSTS.slice(0, 24).map(post => ({
         name: post.title,

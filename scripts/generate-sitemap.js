@@ -45,16 +45,23 @@ while ((match = dateRegex.exec(blogSection)) !== null) {
 
 const today = new Date().toISOString().split('T')[0];
 
+function normalizeSitemapXml(sitemapXml) {
+  return sitemapXml
+    .replace(/\n\s*<changefreq>[^<]*<\/changefreq>/g, '')
+    .replace(/\n\s*<priority>[^<]*<\/priority>/g, '')
+    .replace(new RegExp(`\\n\\s*<lastmod>${today}<\\/lastmod>`, 'g'), '');
+}
+
 let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>${SITE_URL}/</loc>
+    <loc>${SITE_URL}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>${SITE_URL}/blog/</loc>
+    <loc>${SITE_URL}/blog</loc>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
@@ -894,13 +901,13 @@ for (let i = 0; i < slugs.length; i++) {
 
 xml += `</urlset>
 `;
+xml = normalizeSitemapXml(xml);
 
 // Sitemap index (so both /sitemap.xml and /sitemap_index.xml work)
 const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
     <loc>${SITE_URL}/sitemap.xml</loc>
-    <lastmod>${today}</lastmod>
   </sitemap>
 </sitemapindex>
 `;

@@ -5,13 +5,14 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "build:prod": "ng build --configuration production && node scripts/generate-sitemap.js && node scripts/generate-routes.js",
+    "build:prod": "ng build --configuration production && node scripts/generate-sitemap.js && node scripts/generate-routes.js && node scripts/validate-generated-seo.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "check:vulnerabilities": "npm audit --audit-level=high --omit=dev",
     "check:build": "ng build --configuration production",
     "check:seo": "node scripts/check-seo.js",
-    "precommit": "run-s check:vulnerabilities check:build check:seo"
+    "check:generated-seo": "node scripts/validate-generated-seo.js",
+    "precommit": "run-s check:vulnerabilities build:prod check:seo"
   },
   "private": true,
   "packageManager": "npm@10.9.7",
