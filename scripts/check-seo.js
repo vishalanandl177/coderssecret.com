@@ -186,7 +186,7 @@ function checkContentQuality() {
   if (!/Related Articles|relatedPosts|related/.test(content)) {
     warnings.push('generate-routes.js: Pre-rendered pages missing related post links — internal linking weaker');
   }
-  if (/\/blog\?tag=|\/blog\/\?tag=/.test(content)) {
+  if (/(?:href|routerLink|url|item)\s*[:=]\s*['"`][^'"`]*\/blog\/?\?tag=/.test(content)) {
     errors.push('generate-routes.js: Pre-rendered pages expose /blog?tag= query URLs; use canonical category/tag hubs instead');
   }
   if (!/canonical/.test(content)) {

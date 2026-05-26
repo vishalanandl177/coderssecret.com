@@ -1098,7 +1098,7 @@ function courseSeoDescription(course) {
 
 function moduleSeoTitle(course, mod) {
   const title = course.slug === 'mastering-spiffe-spire' ? spiffeModuleShortTitle(mod) : mod.title;
-  return `M${mod.number}: ${compactSeoTitle(title, 26)} | ${courseShortName(course)}`;
+  return `M${mod.number}: ${compactSeoTitle(title, 34)} | ${courseShortName(course)}`;
 }
 
 function spiffeModuleShortTitle(mod) {
@@ -3407,8 +3407,13 @@ notFoundHtml = notFoundHtml.replace('</head>', `  <meta name="robots" content="n
   <script>
     (function () {
       var path = window.location.pathname;
+      var canonicalPath = path.replace(/\\/+$/, '') || '/';
+      if (canonicalPath === '/blog' && window.location.search) {
+        window.location.replace('/blog' + window.location.hash);
+        return;
+      }
       if (path.length > 1 && /\\/$/.test(path)) {
-        window.location.replace(path.replace(/\\/+$/, '') + window.location.search + window.location.hash);
+        window.location.replace(canonicalPath + window.location.search + window.location.hash);
       }
     })();
   </script>
@@ -3476,6 +3481,7 @@ assertGeneratedSeoContent([
   },
 ]);
 const removedDirectoryIndexes = removeNonCanonicalDirectoryIndexes();
+const staticRedirectRules = writeStaticRedirectRules();
 cleanupPrerenderRuntime();
 
 function writeExtensionlessRouteAliases() {
@@ -3528,6 +3534,44 @@ function removeNonCanonicalDirectoryIndexes() {
 
   visit(outputRoot);
   return removed;
+}
+
+function writeStaticRedirectRules() {
+  const outputRoot = path.resolve(OUTPUT_DIR);
+  const rules = [
+    '# Canonical redirects for hosts that support _redirects, such as Netlify or Cloudflare Pages.',
+    '# GitHub Pages ignores this file; 404.html keeps a client-side canonical fallback for users.',
+    'http://coderssecret.com/* https://coderssecret.com/:splat 301!',
+    'https://www.coderssecret.com/* https://coderssecret.com/:splat 301!',
+    '/blog/?tag=:tag /blog 301!',
+    '/blog?tag=:tag /blog 301!',
+  ];
+  const routePaths = [];
+
+  function visit(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        visit(fullPath);
+        continue;
+      }
+
+      if (!entry.name.endsWith('.html') || entry.name === 'index.html' || entry.name === '404.html') {
+        continue;
+      }
+
+      const relative = path.relative(outputRoot, fullPath).replace(/\\/g, '/');
+      routePaths.push(`/${relative.replace(/\.html$/, '')}`);
+    }
+  }
+
+  visit(outputRoot);
+  for (const routePath of [...new Set(routePaths)].sort()) {
+    rules.push(`${routePath}/ ${routePath} 301!`);
+  }
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, '_redirects'), `${rules.join('\n')}\n`);
+  return rules.length;
 }
 
 function extensionlessAliasForRoute(route) {
@@ -3592,8 +3636,9 @@ function assertGeneratedSeoContent(checks) {
 console.log(`✅ Pre-rendered ${created} route files + 404.html with SEO content.`);
 console.log(`   Extensionless aliases: ${extensionlessAliases}`);
 console.log(`   Removed non-canonical directory index files: ${removedDirectoryIndexes}`);
+console.log(`   Static redirect rules: ${staticRedirectRules}`);
 console.log(`   Blog posts: ${posts.length}`);
 console.log(`   Categories: ${categories.size}`);
 console.log(`   Blog list: 1`);
-console.log(`   404.html: Angular app with noindex (no redirect!)`);
+console.log(`   404.html: Angular app with noindex and client-side canonical fallback`);
 console.log(`   Each page has: unique <title>, meta description, OG tags, canonical URL, and real HTML content.`);

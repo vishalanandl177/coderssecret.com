@@ -5,8 +5,13 @@
   <script>
     (function() {
       var pathname = window.location.pathname;
+      var canonicalPath = pathname.replace(/\/+$/, '') || '/';
+      if (canonicalPath === '/blog' && window.location.search) {
+        window.location.replace('/blog' + window.location.hash);
+        return;
+      }
       if (pathname !== '/' && /\/+$/.test(pathname)) {
-        window.location.replace(pathname.replace(/\/+$/, '') + window.location.search + window.location.hash);
+        window.location.replace(canonicalPath + window.location.search + window.location.hash);
       }
     })();
   </script>

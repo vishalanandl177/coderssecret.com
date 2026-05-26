@@ -13,6 +13,7 @@ const SITE_URL = 'https://coderssecret.com';
 const DIST_DIR = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'browser');
 const SITEMAP_PATH = path.join(DIST_DIR, 'sitemap.xml');
 const ROBOTS_PATH = path.join(DIST_DIR, 'robots.txt');
+const REDIRECTS_PATH = path.join(DIST_DIR, '_redirects');
 
 const REQUIRED_URLS = [
   SITE_URL,
@@ -300,6 +301,34 @@ function validateRobotsTxt() {
   }
 }
 
+function validateStaticRedirectRules() {
+  if (!fs.existsSync(REDIRECTS_PATH)) {
+    fail('_redirects is missing from generated output');
+    return;
+  }
+
+  const redirects = read(REDIRECTS_PATH);
+  const requiredRules = [
+    'http://coderssecret.com/* https://coderssecret.com/:splat 301!',
+    'https://www.coderssecret.com/* https://coderssecret.com/:splat 301!',
+    '/blog/?tag=:tag /blog 301!',
+    '/blog?tag=:tag /blog 301!',
+    '/blog/cap-theorem-distributed-systems-explained/ /blog/cap-theorem-distributed-systems-explained 301!',
+    '/category/frontend/ /category/frontend 301!',
+    '/courses/production-rag-systems-engineering/production-rag-architecture/ /courses/production-rag-systems-engineering/production-rag-architecture 301!',
+  ];
+
+  for (const rule of requiredRules) {
+    if (!redirects.includes(rule)) {
+      fail(`_redirects: missing required canonical redirect rule (${rule})`);
+    }
+  }
+
+  if (/\/sitemap\.xml\/|\/robots\.txt\/|\/assets\//.test(redirects)) {
+    fail('_redirects: should not include sitemap, robots, or asset redirects');
+  }
+}
+
 function validatePageForSitemapUrl(url) {
   const { primary, directoryIndex, route } = htmlFileForUrl(url);
   const relativePrimary = path.relative(DIST_DIR, primary);
@@ -417,6 +446,7 @@ if (!fs.existsSync(DIST_DIR)) {
 } else {
   const sitemapUrls = validateSitemapXml();
   validateRobotsTxt();
+  validateStaticRedirectRules();
   validateGeneratedHtmlFiles();
   sitemapUrls.forEach(validatePageForSitemapUrl);
 }
