@@ -3481,6 +3481,7 @@ assertGeneratedSeoContent([
   },
 ]);
 const removedDirectoryIndexes = removeNonCanonicalDirectoryIndexes();
+const removedEmptyRouteDirectories = removeEmptyRouteDirectories();
 const staticRedirectRules = writeStaticRedirectRules();
 cleanupPrerenderRuntime();
 
@@ -3529,6 +3530,38 @@ function removeNonCanonicalDirectoryIndexes() {
         fs.rmSync(resolved, { force: true });
         removed++;
       }
+    }
+  }
+
+  visit(outputRoot);
+  return removed;
+}
+
+function removeEmptyRouteDirectories() {
+  const outputRoot = path.resolve(OUTPUT_DIR);
+  let removed = 0;
+
+  function visit(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) {
+        visit(path.join(dir, entry.name));
+      }
+    }
+
+    const relativeDir = path.relative(outputRoot, dir);
+    if (!relativeDir) {
+      return;
+    }
+
+    if (fs.readdirSync(dir).length > 0) {
+      return;
+    }
+
+    const aliasPath = path.resolve(outputRoot, `${relativeDir}.html`);
+    const resolvedDir = path.resolve(dir);
+    if (aliasPath.startsWith(outputRoot + path.sep) && fs.existsSync(aliasPath) && resolvedDir.startsWith(outputRoot + path.sep)) {
+      fs.rmSync(resolvedDir, { recursive: true, force: true });
+      removed++;
     }
   }
 
@@ -3636,6 +3669,7 @@ function assertGeneratedSeoContent(checks) {
 console.log(`✅ Pre-rendered ${created} route files + 404.html with SEO content.`);
 console.log(`   Extensionless aliases: ${extensionlessAliases}`);
 console.log(`   Removed non-canonical directory index files: ${removedDirectoryIndexes}`);
+console.log(`   Removed empty route directories: ${removedEmptyRouteDirectories}`);
 console.log(`   Static redirect rules: ${staticRedirectRules}`);
 console.log(`   Blog posts: ${posts.length}`);
 console.log(`   Categories: ${categories.size}`);

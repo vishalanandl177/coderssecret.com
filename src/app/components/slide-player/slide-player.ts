@@ -76,6 +76,35 @@ export interface SlideData {
 
       <!-- Slide content -->
       <main class="flex-1 overflow-y-auto relative">
+        @if (audioPrompt()) {
+          <section
+            role="dialog"
+            aria-modal="false"
+            aria-labelledby="slide-audio-prompt-title"
+            aria-describedby="slide-audio-prompt-desc"
+            class="absolute inset-x-4 bottom-6 z-40 mx-auto max-w-xl rounded-[var(--md-sys-shape-corner-xl)] border border-[color:var(--md-sys-color-outline-variant)] bg-[color:var(--md-sys-color-surface-container-high)] p-5 shadow-[var(--md-sys-elevation-3)] md:bottom-8">
+            <div class="flex items-start gap-4">
+              <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[color:var(--md-sys-color-primary-container)] text-[color:var(--md-sys-color-on-primary-container)]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>
+              </span>
+              <div class="min-w-0 flex-1">
+                <h2 id="slide-audio-prompt-title" class="text-base font-bold text-[color:var(--md-sys-color-on-surface)]">{{ audioPromptTitle() }}</h2>
+                <p id="slide-audio-prompt-desc" class="mt-1 text-sm leading-relaxed text-[color:var(--md-sys-color-on-surface-variant)]">{{ audioPromptMessage() }}</p>
+                <div class="mt-4 flex flex-wrap gap-2">
+                  @if (synthAvailable()) {
+                    <button type="button" (click)="startNarrationWithConsent()" class="md3-button-filled">
+                      Start narration
+                    </button>
+                  }
+                  <button type="button" (click)="continueWithoutNarration()" class="md3-button-outlined">
+                    Continue without audio
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        }
+
         <!-- Animated background visuals per slide type -->
         <div class="absolute inset-0 pointer-events-none overflow-hidden -z-0">
           @switch (currentSlide().type) {
@@ -349,6 +378,11 @@ export class SlidePlayerComponent implements OnDestroy {
   availableVoices = signal<SpeechSynthesisVoice[]>([]);
   selectedVoice = signal<string>('');
   rate = signal<number>(1.0);
+  audioPrompt = signal(false);
+  audioPromptTitle = signal('Start narrated slides?');
+  audioPromptMessage = signal('Browser audio and speech playback need your permission before narration starts. Start narration once, or continue reading the slides manually.');
+  narrationUnlocked = signal(false);
+  synthAvailable = signal(typeof window !== 'undefined' && 'speechSynthesis' in window);
   rates = [0.75, 1.0, 1.25, 1.5];
 
   private synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
@@ -405,15 +439,14 @@ export class SlidePlayerComponent implements OnDestroy {
   prev() {
     if (this.idx() > 0) {
       this.idx.update(i => i - 1);
-      if (this.userInitiated) this.speak();
+      if (this.shouldNarrateOnSlideChange()) this.speak();
     }
   }
 
   jumpTo(i: number) {
     if (i >= 0 && i < this.slides().length && i !== this.idx()) {
       this.idx.set(i);
-      this.userInitiated = true;
-      this.speak();
+      if (this.shouldNarrateOnSlideChange()) this.speak();
     }
   }
 
@@ -432,7 +465,7 @@ export class SlidePlayerComponent implements OnDestroy {
   next() {
     if (this.idx() < this.slides().length - 1) {
       this.idx.update(i => i + 1);
-      if (this.userInitiated) this.speak();
+      if (this.shouldNarrateOnSlideChange()) this.speak();
     }
   }
 
@@ -441,8 +474,11 @@ export class SlidePlayerComponent implements OnDestroy {
       this.synth?.pause();
       this.speaking.set(false);
     } else if (this.synth?.paused) {
+      this.narrationUnlocked.set(true);
       this.synth.resume();
       this.speaking.set(true);
+    } else if (!this.narrationUnlocked()) {
+      this.requestNarrationStart();
     } else {
       this.userInitiated = true;
       this.speak();
@@ -451,9 +487,8 @@ export class SlidePlayerComponent implements OnDestroy {
 
   stopAll() {
     this.userInitiated = false;
-    this.synth?.cancel();
+    this.cancelActiveUtterance();
     this.speaking.set(false);
-    this.utterance = null;
   }
 
   toggleAutoAdvance() {
@@ -464,19 +499,79 @@ export class SlidePlayerComponent implements OnDestroy {
     const name = (e.target as HTMLSelectElement).value;
     this.selectedVoice.set(name);
     if (typeof localStorage !== 'undefined') localStorage.setItem('slides.voice', name);
-    if (this.userInitiated) this.speak();
+    if (this.shouldNarrateOnSlideChange()) this.speak();
   }
 
   onRateChange(e: Event) {
     const r = parseFloat((e.target as HTMLSelectElement).value);
     this.rate.set(r);
     if (typeof localStorage !== 'undefined') localStorage.setItem('slides.rate', String(r));
-    if (this.userInitiated) this.speak();
+    if (this.shouldNarrateOnSlideChange()) this.speak();
+  }
+
+  startNarrationWithConsent() {
+    if (!this.synth) {
+      this.showNarrationUnavailable();
+      return;
+    }
+
+    this.audioPrompt.set(false);
+    this.narrationUnlocked.set(true);
+    this.userInitiated = true;
+    this.synth.resume();
+    this.speak();
+  }
+
+  continueWithoutNarration() {
+    this.audioPrompt.set(false);
+    this.userInitiated = false;
+    this.narrationUnlocked.set(false);
+    this.cancelActiveUtterance();
+    this.speaking.set(false);
+  }
+
+  private requestNarrationStart() {
+    if (!this.synth) {
+      this.showNarrationUnavailable();
+      return;
+    }
+
+    this.audioPromptTitle.set('Start narrated slides?');
+    this.audioPromptMessage.set('Browser audio and speech playback need your permission before narration starts. Start narration once, or continue reading the slides manually.');
+    this.audioPrompt.set(true);
+  }
+
+  private showNarrationUnavailable() {
+    this.audioPromptTitle.set('Narration is not available');
+    this.audioPromptMessage.set('This browser does not expose speech narration for the slide player. You can still move through the slides manually.');
+    this.audioPrompt.set(true);
+    this.speaking.set(false);
+  }
+
+  private shouldNarrateOnSlideChange() {
+    return this.userInitiated && this.narrationUnlocked() && !this.synth?.paused;
+  }
+
+  private cancelActiveUtterance() {
+    if (this.utterance) {
+      this.utterance.onstart = null;
+      this.utterance.onend = null;
+      this.utterance.onerror = null;
+    }
+    this.synth?.cancel();
+    this.utterance = null;
   }
 
   private speak() {
-    this.synth?.cancel();
-    if (!this.synth) return;
+    if (!this.narrationUnlocked()) {
+      this.requestNarrationStart();
+      return;
+    }
+    if (!this.synth) {
+      this.showNarrationUnavailable();
+      return;
+    }
+    this.cancelActiveUtterance();
     const text = this.currentSlide().narration;
     if (!text) return;
     const u = new SpeechSynthesisUtterance(text);
@@ -492,9 +587,19 @@ export class SlidePlayerComponent implements OnDestroy {
         setTimeout(() => this.next(), 600);
       }
     };
-    u.onerror = () => this.speaking.set(false);
+    u.onerror = () => {
+      this.speaking.set(false);
+      this.narrationUnlocked.set(false);
+      this.audioPromptTitle.set('Start narration again?');
+      this.audioPromptMessage.set('The browser stopped slide narration. Start narration again if you want audio, or continue reading manually.');
+      this.audioPrompt.set(true);
+    };
     this.utterance = u;
-    setTimeout(() => this.synth!.speak(u), 200);
+    setTimeout(() => {
+      if (this.utterance === u && this.synth) {
+        this.synth.speak(u);
+      }
+    }, 200);
   }
 
   ngOnDestroy() {

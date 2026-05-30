@@ -441,6 +441,32 @@ function validateGeneratedHtmlFiles() {
   }
 }
 
+function validateNoEmptyRouteDirectories() {
+  function visit(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) {
+        visit(path.join(dir, entry.name));
+      }
+    }
+
+    const relativeDir = path.relative(DIST_DIR, dir);
+    if (!relativeDir) {
+      return;
+    }
+
+    if (fs.readdirSync(dir).length > 0) {
+      return;
+    }
+
+    const aliasPath = path.resolve(DIST_DIR, `${relativeDir}.html`);
+    if (fs.existsSync(aliasPath)) {
+      fail(`${relativeDir}: empty route directory remains beside ${relativeDir}.html and can shadow the canonical extensionless URL on static hosts`);
+    }
+  }
+
+  visit(DIST_DIR);
+}
+
 if (!fs.existsSync(DIST_DIR)) {
   fail(`Generated output directory is missing: ${DIST_DIR}`);
 } else {
@@ -448,6 +474,7 @@ if (!fs.existsSync(DIST_DIR)) {
   validateRobotsTxt();
   validateStaticRedirectRules();
   validateGeneratedHtmlFiles();
+  validateNoEmptyRouteDirectories();
   sitemapUrls.forEach(validatePageForSitemapUrl);
 }
 
