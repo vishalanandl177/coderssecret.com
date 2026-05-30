@@ -299,54 +299,66 @@ export interface SlideData {
       </main>
 
       <!-- Controls bar -->
-      <footer class="flex flex-wrap items-center justify-center gap-2 md:gap-3 px-4 py-3 md:py-0 md:h-16 border-t border-border/60 bg-card/80 backdrop-blur flex-shrink-0">
+      <footer class="flex-shrink-0 border-t border-[color:var(--md-sys-color-outline-variant)] bg-[color:var(--md-sys-color-surface-container-low)] px-4 py-3">
+        <div class="mx-auto flex w-full max-w-4xl flex-wrap items-center justify-center gap-2 rounded-[var(--md-sys-shape-corner-full)] border border-[color:var(--md-sys-color-outline-variant)] bg-[color:var(--md-sys-color-surface-container-high)] px-3 py-2 shadow-[var(--md-sys-elevation-1)]">
         <!-- Prev -->
         <button type="button" (click)="prev()" [disabled]="idx() === 0"
                 aria-label="Previous slide"
-                class="inline-flex items-center justify-center w-10 h-10 rounded-full border border-border/60 text-foreground hover:bg-accent transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                class="md3-focus-ring inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--md-sys-color-outline-variant)] bg-[color:var(--md-sys-color-surface-container)] text-[color:var(--md-sys-color-on-surface-variant)] transition-[background-color,border-color,color,transform] duration-200 hover:bg-[color:var(--md-sys-color-primary-container)] hover:text-[color:var(--md-sys-color-on-primary-container)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
         </button>
 
         <!-- Play / Pause -->
         <button type="button" (click)="togglePlay()"
-                [attr.aria-label]="speaking() ? 'Pause narration' : 'Play narration'"
-                class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg shadow-primary/25 hover:shadow-xl hover:-translate-y-0.5 transition-all">
+                [attr.aria-label]="mediaButtonLabel()"
+                [attr.aria-pressed]="speaking()"
+                [style.background-color]="speaking() ? 'var(--md-sys-color-primary-container)' : 'var(--md-sys-color-primary)'"
+                [style.color]="speaking() ? 'var(--md-sys-color-on-primary-container)' : 'var(--md-sys-color-on-primary)'"
+                class="md3-focus-ring inline-flex h-14 w-14 items-center justify-center rounded-full shadow-[var(--md-sys-elevation-2)] transition-[background-color,color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--md-sys-elevation-3)] active:translate-y-0 active:scale-95">
           @if (speaking()) {
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4.5" height="14" rx="1.5"/><rect x="13.5" y="5" width="4.5" height="14" rx="1.5"/></svg>
           } @else {
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5"/></svg>
           }
         </button>
 
         <!-- Stop -->
         <button type="button" (click)="stopAll()"
                 aria-label="Stop narration"
-                class="inline-flex items-center justify-center w-10 h-10 rounded-full border border-border/60 text-foreground hover:bg-accent transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                class="md3-focus-ring inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--md-sys-color-outline-variant)] bg-[color:var(--md-sys-color-surface-container)] text-[color:var(--md-sys-color-on-surface-variant)] transition-[background-color,border-color,color,transform] duration-200 hover:bg-[color:var(--md-sys-color-tertiary-container)] hover:text-[color:var(--md-sys-color-on-tertiary-container)] active:scale-95">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
         </button>
 
         <!-- Next -->
         <button type="button" (click)="next()" [disabled]="idx() === slides().length - 1"
                 aria-label="Next slide"
-                class="inline-flex items-center justify-center w-10 h-10 rounded-full border border-border/60 text-foreground hover:bg-accent transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                class="md3-focus-ring inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--md-sys-color-outline-variant)] bg-[color:var(--md-sys-color-surface-container)] text-[color:var(--md-sys-color-on-surface-variant)] transition-[background-color,border-color,color,transform] duration-200 hover:bg-[color:var(--md-sys-color-primary-container)] hover:text-[color:var(--md-sys-color-on-primary-container)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
         </button>
 
-        <div class="w-px h-6 bg-border/60 mx-1"></div>
+        <div class="mx-1 hidden h-8 w-px bg-[color:var(--md-sys-color-outline-variant)] sm:block"></div>
+
+        <span class="hidden min-w-20 text-center text-[11px] font-bold uppercase tracking-[0.16em] text-[color:var(--md-sys-color-on-surface-variant)] sm:inline">
+          {{ narrationStatusLabel() }}
+        </span>
 
         <!-- Auto-advance -->
         <button type="button" (click)="toggleAutoAdvance()"
                 [attr.aria-pressed]="autoAdvance()"
-                class="inline-flex items-center gap-1.5 rounded-full border px-3 h-10 text-xs font-mono transition-colors"
-                [class]="autoAdvance() ? 'border-primary bg-primary/10 text-primary' : 'border-border/60 text-muted-foreground hover:bg-accent'">
-          {{ autoAdvance() ? 'AUTO: ON' : 'AUTO: OFF' }}
+                class="md3-focus-ring inline-flex h-11 items-center gap-2 rounded-[var(--md-sys-shape-corner-full)] border px-4 text-xs font-bold transition-[background-color,border-color,color,transform] duration-200 active:scale-[0.98]"
+                [style.background-color]="autoAdvance() ? 'var(--md-sys-color-secondary-container)' : 'var(--md-sys-color-surface-container)'"
+                [style.border-color]="autoAdvance() ? 'var(--md-sys-color-secondary)' : 'var(--md-sys-color-outline-variant)'"
+                [style.color]="autoAdvance() ? 'var(--md-sys-color-on-secondary-container)' : 'var(--md-sys-color-on-surface-variant)'">
+          <span class="inline-block h-2 w-2 rounded-full" [style.background-color]="autoAdvance() ? 'var(--md-sys-color-secondary)' : 'var(--md-sys-color-outline)'"></span>
+          {{ autoAdvance() ? 'Auto' : 'Manual' }}
         </button>
 
         <!-- Voice selector -->
         @if (availableVoices().length > 0) {
-          <select (change)="onVoiceChange($event)"
-                  class="rounded-full border border-border/60 bg-card h-10 px-3 text-xs font-mono text-foreground hover:bg-accent transition-colors cursor-pointer max-w-[180px]"
-                  aria-label="Voice selector">
+          <label class="sr-only" for="slide-voice-select">Narration voice</label>
+          <select id="slide-voice-select" (change)="onVoiceChange($event)"
+                  class="md3-focus-ring h-11 max-w-[220px] cursor-pointer rounded-[var(--md-sys-shape-corner-full)] border border-[color:var(--md-sys-color-outline-variant)] bg-[color:var(--md-sys-color-surface-container)] px-4 text-xs font-semibold text-[color:var(--md-sys-color-on-surface)] transition-[background-color,border-color] duration-200 hover:bg-[color:var(--md-sys-color-surface-container-highest)]"
+                  aria-label="Narration voice">
             @for (v of availableVoices(); track v.name) {
               <option [value]="v.name" [selected]="v.name === selectedVoice()">{{ v.name }}</option>
             }
@@ -354,13 +366,15 @@ export interface SlideData {
         }
 
         <!-- Rate selector -->
-        <select (change)="onRateChange($event)"
-                class="rounded-full border border-border/60 bg-card h-10 px-3 text-xs font-mono text-foreground hover:bg-accent transition-colors cursor-pointer"
-                aria-label="Speech rate">
+        <label class="sr-only" for="slide-rate-select">Narration speed</label>
+        <select id="slide-rate-select" (change)="onRateChange($event)"
+                class="md3-focus-ring h-11 cursor-pointer rounded-[var(--md-sys-shape-corner-full)] border border-[color:var(--md-sys-color-outline-variant)] bg-[color:var(--md-sys-color-surface-container)] px-4 text-xs font-semibold text-[color:var(--md-sys-color-on-surface)] transition-[background-color,border-color] duration-200 hover:bg-[color:var(--md-sys-color-surface-container-highest)]"
+                aria-label="Narration speed">
           @for (r of rates; track r) {
             <option [value]="r" [selected]="r === rate()">{{ r }}×</option>
           }
         </select>
+        </div>
       </footer>
     </div>
   `,
@@ -373,6 +387,7 @@ export class SlidePlayerComponent implements OnDestroy {
   idx = signal(0);
   autoAdvance = signal(true);
   speaking = signal(false);
+  narrationPaused = signal(false);
   showScript = signal(false);
   copied = signal(false);
   availableVoices = signal<SpeechSynthesisVoice[]>([]);
@@ -387,9 +402,12 @@ export class SlidePlayerComponent implements OnDestroy {
 
   private synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
   private utterance: SpeechSynthesisUtterance | null = null;
+  private speakTimer: ReturnType<typeof setTimeout> | null = null;
   private userInitiated = false;
 
   currentSlide = computed(() => this.slides()[this.idx()]);
+  mediaButtonLabel = computed(() => this.speaking() ? 'Pause narration' : this.narrationPaused() ? 'Resume narration' : 'Play narration');
+  narrationStatusLabel = computed(() => this.speaking() ? 'Narrating' : this.narrationPaused() ? 'Paused' : 'Ready');
 
   String = String;
 
@@ -473,10 +491,16 @@ export class SlidePlayerComponent implements OnDestroy {
     if (this.speaking()) {
       this.synth?.pause();
       this.speaking.set(false);
-    } else if (this.synth?.paused) {
+      this.narrationPaused.set(true);
+    } else if (this.narrationPaused() || this.synth?.paused) {
+      if (!this.synth) {
+        this.showNarrationUnavailable();
+        return;
+      }
       this.narrationUnlocked.set(true);
       this.synth.resume();
       this.speaking.set(true);
+      this.narrationPaused.set(false);
     } else if (!this.narrationUnlocked()) {
       this.requestNarrationStart();
     } else {
@@ -489,6 +513,7 @@ export class SlidePlayerComponent implements OnDestroy {
     this.userInitiated = false;
     this.cancelActiveUtterance();
     this.speaking.set(false);
+    this.narrationPaused.set(false);
   }
 
   toggleAutoAdvance() {
@@ -517,6 +542,7 @@ export class SlidePlayerComponent implements OnDestroy {
 
     this.audioPrompt.set(false);
     this.narrationUnlocked.set(true);
+    this.narrationPaused.set(false);
     this.userInitiated = true;
     this.synth.resume();
     this.speak();
@@ -528,6 +554,7 @@ export class SlidePlayerComponent implements OnDestroy {
     this.narrationUnlocked.set(false);
     this.cancelActiveUtterance();
     this.speaking.set(false);
+    this.narrationPaused.set(false);
   }
 
   private requestNarrationStart() {
@@ -546,13 +573,18 @@ export class SlidePlayerComponent implements OnDestroy {
     this.audioPromptMessage.set('This browser does not expose speech narration for the slide player. You can still move through the slides manually.');
     this.audioPrompt.set(true);
     this.speaking.set(false);
+    this.narrationPaused.set(false);
   }
 
   private shouldNarrateOnSlideChange() {
-    return this.userInitiated && this.narrationUnlocked() && !this.synth?.paused;
+    return this.userInitiated && this.narrationUnlocked() && !this.narrationPaused() && !this.synth?.paused;
   }
 
   private cancelActiveUtterance() {
+    if (this.speakTimer) {
+      clearTimeout(this.speakTimer);
+      this.speakTimer = null;
+    }
     if (this.utterance) {
       this.utterance.onstart = null;
       this.utterance.onend = null;
@@ -573,30 +605,42 @@ export class SlidePlayerComponent implements OnDestroy {
     }
     this.cancelActiveUtterance();
     const text = this.currentSlide().narration;
-    if (!text) return;
+    if (!text) {
+      this.speaking.set(false);
+      this.narrationPaused.set(false);
+      return;
+    }
     const u = new SpeechSynthesisUtterance(text);
     u.rate = this.rate();
     u.pitch = 1.0;
     u.volume = 1.0;
     const voice = this.availableVoices().find(v => v.name === this.selectedVoice());
     if (voice) u.voice = voice;
-    u.onstart = () => this.speaking.set(true);
+    u.onstart = () => {
+      this.speaking.set(true);
+      this.narrationPaused.set(false);
+    };
     u.onend = () => {
       this.speaking.set(false);
+      this.narrationPaused.set(false);
       if (this.autoAdvance() && this.userInitiated && this.idx() < this.slides().length - 1) {
         setTimeout(() => this.next(), 600);
       }
     };
     u.onerror = () => {
       this.speaking.set(false);
+      this.narrationPaused.set(false);
       this.narrationUnlocked.set(false);
       this.audioPromptTitle.set('Start narration again?');
       this.audioPromptMessage.set('The browser stopped slide narration. Start narration again if you want audio, or continue reading manually.');
       this.audioPrompt.set(true);
     };
     this.utterance = u;
-    setTimeout(() => {
+    this.speakTimer = setTimeout(() => {
+      this.speakTimer = null;
       if (this.utterance === u && this.synth) {
+        this.speaking.set(true);
+        this.narrationPaused.set(false);
         this.synth.speak(u);
       }
     }, 200);
