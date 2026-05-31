@@ -27,7 +27,9 @@ type ActiveContainerTransform = {
       <main id="main-content" class="flex-1 min-h-screen overflow-x-clip">
         <router-outlet />
       </main>
-      <app-footer />
+      @if (!isSlideRoute()) {
+        <app-footer />
+      }
     </div>
 
     <!-- Back to top button -->
