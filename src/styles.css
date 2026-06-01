@@ -6764,7 +6764,7 @@
     color: inherit !important;
   }
 
-  app-blog-post .md3-article-content :where(blockquote, .callout, .md3-callout) {
+  app-blog-post .md3-article-content :where(blockquote, .md3-callout) {
     border: 1px solid var(--md-sys-color-outline-variant) !important;
     border-left: 0.375rem solid var(--md-sys-color-primary) !important;
     border-radius: var(--md-sys-shape-corner-lg) !important;
