@@ -10006,20 +10006,22 @@ a.md3-learning-card:focus-visible .md3-learning-card-action svg {
 .callout {
   position: relative;
   margin: 1.75rem 0;
-  padding: 1rem 1.25rem 1rem 3rem;
+  padding: 1rem 1.25rem 1rem 3.15rem;
   border-radius: 0.75rem;
   border: 1px solid;
   font-size: 0.95rem;
   line-height: 1.6;
+  --callout-accent: var(--md-sys-color-primary);
+  --callout-on-container: var(--md-sys-color-on-primary-container);
 }
 
 .callout > strong:first-child {
   display: block;
   font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 0.95rem;
+  letter-spacing: 0;
   margin-bottom: 0.4rem;
+  color: var(--callout-on-container);
 }
 
 .callout > p {
@@ -10040,33 +10042,52 @@ a.md3-learning-card:focus-visible .md3-learning-card-action svg {
   background: color-mix(in srgb, var(--md-sys-color-primary-container) 36%, var(--md-sys-color-surface));
 }
 .callout-production > strong:first-child { color: var(--md-sys-color-on-primary-container); }
-.callout-production::before { content: "🛠"; }
 
 .callout-security {
   border-color: color-mix(in srgb, var(--md-sys-color-error) 42%, var(--md-sys-color-outline-variant));
   background: color-mix(in srgb, var(--md-sys-color-error-container) 38%, var(--md-sys-color-surface));
 }
 .callout-security > strong:first-child { color: var(--md-sys-color-on-error-container); }
-.callout-security::before { content: "🛡"; }
 
 .callout-performance {
   border-color: color-mix(in srgb, var(--md-sys-color-tertiary) 38%, var(--md-sys-color-outline-variant));
   background: color-mix(in srgb, var(--md-sys-color-tertiary-container) 36%, var(--md-sys-color-surface));
 }
 .callout-performance > strong:first-child { color: var(--md-sys-color-on-tertiary-container); }
-.callout-performance::before { content: "⚡"; }
 
 .callout-mistake {
   border-color: color-mix(in srgb, var(--md-sys-color-error) 42%, var(--md-sys-color-outline-variant));
   background: color-mix(in srgb, var(--md-sys-color-error-container) 38%, var(--md-sys-color-surface));
 }
 .callout-mistake > strong:first-child { color: var(--md-sys-color-on-error-container); }
-.callout-mistake::before { content: "⚠"; }
 
 .callout-troubleshoot {
   border-color: color-mix(in srgb, var(--md-sys-color-secondary) 38%, var(--md-sys-color-outline-variant));
   background: color-mix(in srgb, var(--md-sys-color-secondary-container) 36%, var(--md-sys-color-surface));
 }
 .callout-troubleshoot > strong:first-child { color: var(--md-sys-color-on-secondary-container); }
-.callout-troubleshoot::before { content: "🔍"; }
+
+/* Use shape-based markers instead of emoji glyphs so callouts render consistently across browsers and encodings. */
+.callout-production { --callout-accent: var(--md-sys-color-primary); --callout-on-container: var(--md-sys-color-on-primary-container); }
+.callout-security,
+.callout-mistake { --callout-accent: var(--md-sys-color-error); --callout-on-container: var(--md-sys-color-on-error-container); }
+.callout-performance { --callout-accent: var(--md-sys-color-tertiary); --callout-on-container: var(--md-sys-color-on-tertiary-container); }
+.callout-troubleshoot { --callout-accent: var(--md-sys-color-secondary); --callout-on-container: var(--md-sys-color-on-secondary-container); }
+
+.callout-production::before,
+.callout-security::before,
+.callout-performance::before,
+.callout-mistake::before,
+.callout-troubleshoot::before {
+  content: "";
+  top: 1.12rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 50%, var(--callout-accent) 0 31%, transparent 32%),
+    color-mix(in srgb, var(--callout-accent) 18%, var(--md-sys-color-surface));
+  border: 1px solid color-mix(in srgb, var(--callout-accent) 58%, var(--md-sys-color-outline-variant));
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--callout-accent) 9%, transparent);
+}
 
