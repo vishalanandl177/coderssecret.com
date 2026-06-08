@@ -1,3 +1,5 @@
+import { ENVOY_CENTRALIZED_AUTH_COURSE } from './courses/centralized-auth-envoy.course';
+
 export interface CourseInstructor {
   name: string;
   title: string;
@@ -6189,5 +6191,6 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
       { question: 'How does this course relate to the Mastering SPIFFE & SPIRE course?', answer: 'They are complementary. Mastering SPIFFE & SPIRE goes deep on workload identity. Module 8 of this course introduces SPIFFE/SPIRE and Zero Trust at the level you need to design distributed-systems security. Take the SPIFFE & SPIRE course after Module 8 if you want the full identity-system depth.' },
     ],
   },
+  ENVOY_CENTRALIZED_AUTH_COURSE,
   ANALYTICS_ENGINEERING_COURSE,
 ];

@@ -193,6 +193,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/courses/course-landing/course-landing').then(m => m.CourseLandingComponent),
   },
   {
+    path: 'courses/centralized-authentication-authorization-envoy',
+    loadComponent: () => import('./pages/courses/course-landing/course-landing').then(m => m.CourseLandingComponent),
+  },
+  {
     path: 'courses/mastering-spiffe-spire/:moduleSlug/slides',
     loadComponent: () => import('./pages/courses/course-slides/course-slides').then(m => m.CourseSlidesComponent),
   },
@@ -226,6 +230,14 @@ export const routes: Routes = [
   },
   {
     path: 'courses/production-analytics-engineering-dbt/:moduleSlug',
+    loadComponent: () => import('./pages/courses/course-module/course-module').then(m => m.CourseModuleComponent),
+  },
+  {
+    path: 'courses/centralized-authentication-authorization-envoy/:moduleSlug/slides',
+    loadComponent: () => import('./pages/courses/course-slides/course-slides').then(m => m.CourseSlidesComponent),
+  },
+  {
+    path: 'courses/centralized-authentication-authorization-envoy/:moduleSlug',
     loadComponent: () => import('./pages/courses/course-module/course-module').then(m => m.CourseModuleComponent),
   },
   {

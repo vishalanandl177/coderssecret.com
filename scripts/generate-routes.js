@@ -619,18 +619,61 @@ function loadBlogPostsFromModel(blogContent) {
   }
 }
 
-function loadCoursesFromModel(courseContent) {
+function loadCoursesFromModel(courseContent, sourcePath = path.join(__dirname, '..', 'src', 'app', 'models', 'course.model.ts')) {
   try {
     const ts = require('typescript');
-    const js = ts.transpileModule(courseContent, {
-      compilerOptions: {
-        module: ts.ModuleKind.CommonJS,
-        target: ts.ScriptTarget.ES2020,
-      },
-    }).outputText;
-    const mod = { exports: {} };
-    new Function('exports', 'require', 'module', js)(mod.exports, require, mod);
-    return Array.isArray(mod.exports.COURSES) ? mod.exports.COURSES : [];
+    const moduleCache = new Map();
+
+    function resolveLocalModule(baseDir, request) {
+      const base = path.resolve(baseDir, request);
+      const candidates = [
+        base,
+        `${base}.ts`,
+        `${base}.js`,
+        path.join(base, 'index.ts'),
+        path.join(base, 'index.js'),
+      ];
+      const found = candidates.find(candidate => fs.existsSync(candidate) && fs.statSync(candidate).isFile());
+      if (!found) {
+        throw new Error(`Cannot resolve local module ${request} from ${baseDir}`);
+      }
+      return found;
+    }
+
+    function executeTsModule(filePath, sourceOverride) {
+      const resolvedPath = path.resolve(filePath);
+      if (moduleCache.has(resolvedPath)) {
+        return moduleCache.get(resolvedPath).exports;
+      }
+
+      const sourceText = sourceOverride ?? fs.readFileSync(resolvedPath, 'utf-8');
+      const js = ts.transpileModule(sourceText, {
+        compilerOptions: {
+          module: ts.ModuleKind.CommonJS,
+          target: ts.ScriptTarget.ES2020,
+        },
+      }).outputText;
+      const mod = { exports: {} };
+      moduleCache.set(resolvedPath, mod);
+      const localRequire = (request) => {
+        if (request.startsWith('.')) {
+          return executeTsModule(resolveLocalModule(path.dirname(resolvedPath), request));
+        }
+        return require(request);
+      };
+
+      new Function('exports', 'require', 'module', '__filename', '__dirname', js)(
+        mod.exports,
+        localRequire,
+        mod,
+        resolvedPath,
+        path.dirname(resolvedPath)
+      );
+      return mod.exports;
+    }
+
+    const mod = executeTsModule(sourcePath, courseContent);
+    return Array.isArray(mod.COURSES) ? mod.COURSES : [];
   } catch (err) {
     console.warn(`Could not load course model for rich course hub prerender: ${err.message}`);
     return [];
@@ -1071,6 +1114,7 @@ function courseShortName(course) {
     'production-rag-systems-engineering': 'RAG Systems',
     'distributed-systems-engineering': 'Distributed Sys',
     'production-analytics-engineering-dbt': 'Analytics dbt',
+    'centralized-authentication-authorization-envoy': 'Envoy Auth',
   }[course.slug] || compactSeoTitle(course.title, 24);
 }
 
@@ -1081,6 +1125,7 @@ function courseSeoCourseTitle(course) {
     'production-rag-systems-engineering': 'Production RAG Engineering Course',
     'distributed-systems-engineering': 'Distributed Systems Engineering Course',
     'production-analytics-engineering-dbt': 'Analytics Engineering with dbt Course',
+    'centralized-authentication-authorization-envoy': 'Envoy Authentication and Authorization Course',
   }[course.slug] || compactSeoTitle(`${course.title} Free Course`, 52);
 }
 
@@ -1551,11 +1596,12 @@ const homeContent = `
     <p>${HOME_DESCRIPTION}</p>
     <section>
       <h2>Free Production Engineering Courses</h2>
-      <p>Learn workload identity, Kubernetes security, Zero Trust, DevSecOps, API security, production RAG, distributed systems, and analytics engineering through practical modules, labs, diagrams, and engineering guides.</p>
+      <p>Learn workload identity, Kubernetes security, centralized authentication, Zero Trust, DevSecOps, API security, production RAG, distributed systems, and analytics engineering through practical modules, labs, diagrams, and engineering guides.</p>
       <ul>
         <li><a href="/courses/mastering-spiffe-spire">Master SPIFFE and SPIRE for Workload Identity</a> - deploy SPIRE, issue SVIDs, federate trust domains, and replace long-lived secrets.</li>
         <li><a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> - secure Kubernetes, containers, service mesh, policy-as-code, runtime detection, and CI/CD pipelines.</li>
         <li><a href="/courses/production-rag-systems-engineering">Production RAG Systems Engineering</a> - build reliable retrieval, vector search, AI agent, evaluation, and deployment workflows.</li>
+        <li><a href="/courses/centralized-authentication-authorization-envoy">Centralized Authentication and Authorization with Envoy</a> - design Google-style one-login access for Kubernetes products with plain Envoy, SSO, JWT/JWKS, service tokens, and federated credentials.</li>
         <li><a href="/courses/distributed-systems-engineering">Distributed Systems Engineering</a> - learn CAP, consensus, replication, scalability, reliability, Zero Trust, observability, and Kubernetes-native architecture.</li>
         <li><a href="/courses/production-analytics-engineering-dbt">Production Analytics Engineering with dbt</a> - learn transformations, marts, tests, metrics, semantic layers, lineage, and data quality workflows.</li>
       </ul>
@@ -1564,6 +1610,7 @@ const homeContent = `
       <h2>Popular Engineering Topics</h2>
       <ul>
         <li><a href="/glossary/workload-identity">Workload identity</a>, <a href="/glossary/spiffe">SPIFFE</a>, <a href="/glossary/spire">SPIRE</a>, and <a href="/glossary/mtls">mTLS</a></li>
+        <li><a href="/courses/centralized-authentication-authorization-envoy">Centralized authentication with Envoy</a>, SSO, JWT/JWKS, access tokens, service tokens, federated credentials, and API gateway policy</li>
         <li><a href="/courses/kubernetes-runtime-security">Kubernetes runtime security</a>, supply-chain signing, OPA policy, Falco, and eBPF detection</li>
         <li><a href="/courses/production-analytics-engineering-dbt/semantic-layer-fundamentals">Semantic layers</a>, governed metrics, dbt lineage, and analytics engineering quality gates</li>
         <li><a href="/games">Interactive security simulators</a> and <a href="/cheatsheets">developer cheatsheets</a></li>
@@ -2610,7 +2657,7 @@ if (courseContent) {
   const courses = loadCoursesFromModel(courseContent);
   generatedCourseModelSlugs = new Set(courses.map(course => course.slug));
   const coursesHubTitle = 'Free Production Engineering Courses';
-  const coursesHubDescription = 'Free hands-on courses in cloud native security, distributed systems, SPIFFE/SPIRE, Kubernetes, Zero Trust, production RAG, and analytics engineering. No signup.';
+  const coursesHubDescription = 'Free hands-on courses in cloud native security, centralized authentication, distributed systems, SPIFFE/SPIRE, Kubernetes, Zero Trust, production RAG, and analytics engineering. No signup.';
 
   // Course hub page
   const coursesHubDir = path.join(OUTPUT_DIR, 'courses');
@@ -2636,6 +2683,7 @@ if (courseContent) {
         <li><a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> → <a href="/courses/mastering-spiffe-spire">Mastering SPIFFE & SPIRE</a> → <a href="/games/kubernetes-security-simulator">Kubernetes Security Simulator</a></li>
         <li><a href="/courses/distributed-systems-engineering">Distributed Systems Engineering</a> → <a href="/courses/production-rag-systems-engineering">Production RAG Systems Engineering</a> → <a href="/games/ai-infrastructure-security">AI Infrastructure Security Game</a></li>
         <li><a href="/courses/production-analytics-engineering-dbt">Production Analytics Engineering</a> → <a href="/blog/are-dags-dying-declarative-data-pipelines">Declarative Data Pipelines</a> → <a href="/blog/delta-lake-iceberg-s3-tables-beginner-guide">Lakehouse Table Formats</a></li>
+        <li><a href="/courses/centralized-authentication-authorization-envoy">Centralized Authentication with Envoy</a> - pair cloud-native security with SSO, JWT/JWKS, service tokens, federated credentials, and API gateway policy.</li>
       </ol>
       <h2>Practice Beyond the Courses</h2>
       <ul>

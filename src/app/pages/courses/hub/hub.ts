@@ -24,7 +24,7 @@ import { SeoService } from '../../../services/seo.service';
               <h1>Learn production engineering through practical courses</h1>
               <p class="md3-course-hero-text">
                 Structured, hands-on courses for engineers building secure cloud-native systems,
-                distributed platforms, production AI, and trusted analytics.
+                distributed platforms, centralized authentication, production AI, and trusted analytics.
               </p>
 
               <div class="md3-course-actions" aria-label="Course actions">
@@ -161,6 +161,12 @@ import { SeoService } from '../../../services/seo.service';
             </article>
             <article class="md3-course-path-card">
               <span class="md3-course-path-number">04</span>
+              <h3>Centralized platform auth</h3>
+              <p>Design one Envoy enforcement point for SSO, JWTs, service tokens, federated credentials, and product boundaries.</p>
+              <a routerLink="/courses/centralized-authentication-authorization-envoy">Open auth path</a>
+            </article>
+            <article class="md3-course-path-card">
+              <span class="md3-course-path-number">05</span>
               <h3>Analytics engineering</h3>
               <p>Turn raw warehouse tables into tested dbt models, governed metrics, and trusted dashboards.</p>
               <a routerLink="/courses/production-analytics-engineering-dbt">Open data path</a>
@@ -192,7 +198,7 @@ import { SeoService } from '../../../services/seo.service';
 export class CoursesHubComponent {
   courses = COURSES;
   private seo = inject(SeoService);
-  private readonly coursesDescription = 'Free hands-on courses in cloud native security, distributed systems, SPIFFE/SPIRE, Kubernetes, Zero Trust, production RAG, and analytics engineering. No signup.';
+  private readonly coursesDescription = 'Free hands-on courses in cloud native security, centralized authentication, distributed systems, SPIFFE/SPIRE, Kubernetes, Zero Trust, production RAG, and analytics engineering. No signup.';
 
   totalModules = computed(() =>
     this.courses.reduce((sum, c) => sum + c.modules.length, 0)
@@ -221,6 +227,7 @@ export class CoursesHubComponent {
       'production-rag-systems-engineering': 'RAG',
       'distributed-systems-engineering': 'SYS',
       'production-analytics-engineering-dbt': 'SQL',
+      'centralized-authentication-authorization-envoy': 'SSO',
     };
     return labels[course.slug] ?? 'CS';
   }

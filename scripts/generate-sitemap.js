@@ -818,15 +818,57 @@ function loadCoursesFromModel() {
 
   try {
     const ts = require('typescript');
-    const js = ts.transpileModule(fs.readFileSync(courseModelPath, 'utf-8'), {
-      compilerOptions: {
-        module: ts.ModuleKind.CommonJS,
-        target: ts.ScriptTarget.ES2020,
-      },
-    }).outputText;
-    const mod = { exports: {} };
-    new Function('exports', 'require', 'module', js)(mod.exports, require, mod);
-    return Array.isArray(mod.exports.COURSES) ? mod.exports.COURSES : [];
+    const moduleCache = new Map();
+
+    function resolveLocalModule(baseDir, request) {
+      const base = path.resolve(baseDir, request);
+      const candidates = [
+        base,
+        `${base}.ts`,
+        `${base}.js`,
+        path.join(base, 'index.ts'),
+        path.join(base, 'index.js'),
+      ];
+      const found = candidates.find(candidate => fs.existsSync(candidate) && fs.statSync(candidate).isFile());
+      if (!found) {
+        throw new Error(`Cannot resolve local module ${request} from ${baseDir}`);
+      }
+      return found;
+    }
+
+    function executeTsModule(filePath) {
+      const resolvedPath = path.resolve(filePath);
+      if (moduleCache.has(resolvedPath)) {
+        return moduleCache.get(resolvedPath).exports;
+      }
+
+      const js = ts.transpileModule(fs.readFileSync(resolvedPath, 'utf-8'), {
+        compilerOptions: {
+          module: ts.ModuleKind.CommonJS,
+          target: ts.ScriptTarget.ES2020,
+        },
+      }).outputText;
+      const mod = { exports: {} };
+      moduleCache.set(resolvedPath, mod);
+      const localRequire = (request) => {
+        if (request.startsWith('.')) {
+          return executeTsModule(resolveLocalModule(path.dirname(resolvedPath), request));
+        }
+        return require(request);
+      };
+
+      new Function('exports', 'require', 'module', '__filename', '__dirname', js)(
+        mod.exports,
+        localRequire,
+        mod,
+        resolvedPath,
+        path.dirname(resolvedPath)
+      );
+      return mod.exports;
+    }
+
+    const mod = executeTsModule(courseModelPath);
+    return Array.isArray(mod.COURSES) ? mod.COURSES : [];
   } catch (err) {
     console.warn(`Could not load course model for sitemap: ${err.message}`);
     return [];
