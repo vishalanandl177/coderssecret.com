@@ -35,6 +35,20 @@ export const CATEGORIES = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    id: '101',
+    title: 'OAuth2 Private Key JWT: Build Client Authentication Without Shared Secrets',
+    slug: 'oauth2-private-key-jwt-client-authentication',
+    excerpt: 'Learn how OAuth2 private_key_jwt replaces shared client secrets with signed JWT client assertions, then build and verify the flow end-to-end in Python.',
+    category: 'backend',
+    featured: false,
+    content: '',
+    author: 'Vishal Anand',
+    date: '2026-07-01',
+    readTime: '22 min read',
+    tags: ['OAuth2', 'Private Key JWT', 'JWT', 'Client Authentication', 'Security', 'Python', 'OIDC'],
+    coverImage: '',
+  },
+  {
     id: '100',
     title: 'OIDC Workload Federation: Build Secretless Service Access',
     slug: 'oidc-workload-federation-secretless-service-access',
