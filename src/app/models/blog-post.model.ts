@@ -35,6 +35,20 @@ export const CATEGORIES = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    id: '100',
+    title: 'OIDC Workload Federation: Build Secretless Service Access',
+    slug: 'oidc-workload-federation-secretless-service-access',
+    excerpt: 'Learn how OIDC workload federation replaces static cloud keys with short-lived tokens, then build a Python federation gateway that validates issuer, audience, subject, and JWKS.',
+    category: 'devops',
+    featured: false,
+    content: '',
+    author: 'Vishal Anand',
+    date: '2026-07-01',
+    readTime: '20 min read',
+    tags: ['OIDC', 'Workload Identity', 'Federation', 'Security', 'Kubernetes', 'Cloud IAM', 'Python'],
+    coverImage: '',
+  },
+  {
     id: '99',
     title: 'Modern Data Platforms Compared: Snowflake, Databricks, BigQuery, and e6data',
     slug: 'modern-data-platforms-snowflake-databricks-bigquery-e6data',
