@@ -231,14 +231,14 @@ def rag_answer(question: str) -> str:
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Embeddings convert meaning to numbers</strong> &mdash; similar meanings produce nearby vectors</li>
-        <li><strong>HNSW is the dominant algorithm</strong> for approximate nearest neighbor search &mdash; O(log n) with 95-99% recall</li>
-        <li><strong>Start with pgvector</strong> if you already use PostgreSQL &mdash; it handles millions of vectors well</li>
+        <li><strong>Embeddings convert meaning to numbers</strong> - similar meanings produce nearby vectors</li>
+        <li><strong>HNSW is the dominant algorithm</strong> for approximate nearest neighbor search - O(log n) with 95-99% recall</li>
+        <li><strong>Start with pgvector</strong> if you already use PostgreSQL - it handles millions of vectors well</li>
         <li><strong>Chunk size matters for RAG:</strong> 200-500 tokens with overlap is the sweet spot</li>
-        <li><strong>Use managed services (Pinecone) for production at scale</strong> &mdash; self-hosting vector databases requires tuning</li>
-        <li><strong>You might not need a vector database</strong> &mdash; for small datasets, NumPy cosine similarity works fine</li>
+        <li><strong>Use managed services (Pinecone) for production at scale</strong> - self-hosting vector databases requires tuning</li>
+        <li><strong>You might not need a vector database</strong> - for small datasets, NumPy cosine similarity works fine</li>
         <li><strong>Combine vector search with keyword search</strong> (hybrid search) for best results</li>
       </ul>
 
-      <p>Vector databases are infrastructure, not magic. They store numbers and find nearest neighbors efficiently. The magic is in the embeddings &mdash; how you convert your data into meaningful vectors. Get the embeddings and chunking right, and any vector database will serve you well. Get them wrong, and the fanciest database cannot save your search quality.</p>
+      <p>Vector databases are infrastructure, not magic. They store numbers and find nearest neighbors efficiently. The magic is in the embeddings - how you convert your data into meaningful vectors. Get the embeddings and chunking right, and any vector database will serve you well. Get them wrong, and the fanciest database cannot save your search quality.</p>
     `;

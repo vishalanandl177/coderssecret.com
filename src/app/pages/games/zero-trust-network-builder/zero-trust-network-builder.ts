@@ -31,12 +31,12 @@ spiffe://example.com/marketing-events`,
       question: 'What is the design issue with this naming scheme?',
       choices: [
         {
-          label: 'SPIFFE IDs must use kebab-case only — underscores are invalid.',
+          label: 'SPIFFE IDs must use kebab-case only - underscores are invalid.',
           correct: false,
           feedback: 'SPIFFE IDs are URI paths. Both kebab-case and snake_case are technically valid characters; the spec just requires they be URL-safe.',
         },
         {
-          label: 'Flat workload names share a single namespace across teams — when payments deploys a "events" service it collides with marketing-events, and authorization policies have no team boundary to anchor on.',
+          label: 'Flat workload names share a single namespace across teams - when payments deploys a "events" service it collides with marketing-events, and authorization policies have no team boundary to anchor on.',
           correct: true,
           feedback: 'Correct. SPIFFE IDs should use a hierarchical path that maps to your actual organizational/operational boundaries. Use spiffe://example.com/ns/payments/sa/payments-api so the trust domain itself reflects team scope and you can write team-wide authz policy with prefix matching.',
         },
@@ -48,7 +48,7 @@ spiffe://example.com/marketing-events`,
         {
           label: 'SPIFFE IDs should always include a UUID for uniqueness.',
           correct: false,
-          feedback: 'SPIFFE IDs are deliberately stable, human-readable identifiers. Adding UUIDs defeats the point — selectors and authorization policies cannot bind to them.',
+          feedback: 'SPIFFE IDs are deliberately stable, human-readable identifiers. Adding UUIDs defeats the point - selectors and authorization policies cannot bind to them.',
         },
       ],
       explanation: 'A SPIFFE ID is the primary key your authorization layer indexes on. Flat naming works for ten services and falls apart at a hundred. The healthy production pattern mirrors the deployment graph: spiffe://corp.example.com/cluster/prod/ns/payments/sa/payments-api. Then OPA / authz policy can express rules like `input.peer.spiffe_id starts_with "spiffe://corp.example.com/cluster/prod/ns/payments/"` to grant intra-team access without enumerating every workload.',
@@ -73,15 +73,15 @@ spiffe://example.com/marketing-events`,
         {
           label: 'A single selector "k8s:ns:payments" matches every pod in the payments namespace, so the marketing-cms test pod accidentally deployed there can also receive the payments-api SVID.',
           correct: true,
-          feedback: 'Correct. SPIRE selectors are AND-ed — with only one weak selector, every pod that matches it gets the same identity. A pod that lands in the wrong namespace, an exploited container, or even a compromised init container can request and receive an SVID it should not have.',
+          feedback: 'Correct. SPIRE selectors are AND-ed - with only one weak selector, every pod that matches it gets the same identity. A pod that lands in the wrong namespace, an exploited container, or even a compromised init container can request and receive an SVID it should not have.',
         },
         {
-          label: 'The SPIFFE ID should not contain "api" — that is a reserved suffix.',
+          label: 'The SPIFFE ID should not contain "api" - that is a reserved suffix.',
           correct: false,
           feedback: 'There are no reserved suffixes in SPIFFE IDs.',
         },
         {
-          label: 'k8s:ns:payments is the wrong selector key — it should be k8s:namespace:payments.',
+          label: 'k8s:ns:payments is the wrong selector key - it should be k8s:namespace:payments.',
           correct: false,
           feedback: 'The actual selector key for the Kubernetes Workload Attestor is "k8s:ns:NAME". The spec is fine; the issue is its breadth, not its syntax.',
         },
@@ -115,15 +115,15 @@ data:
         {
           label: 'Kubernetes does not support kubernetes.io/tls Secret type.',
           correct: false,
-          feedback: 'It does — kubernetes.io/tls is a real, supported Secret type. The issue is what you do with the credentials, not the Secret format.',
+          feedback: 'It does - kubernetes.io/tls is a real, supported Secret type. The issue is what you do with the credentials, not the Secret format.',
         },
         {
           label: 'Long-lived (90-day) keys mounted from Secrets create an enormous attack window: any read of the Secret leaks a usable identity for months, and "trust any cert signed by corp CA" is not authentication of the specific peer.',
           correct: true,
-          feedback: 'Correct. Two distinct flaws compound each other. Long-lived keys mean a single Secret read (or a stolen backup, or a leaked etcd snapshot) leaks a usable identity for the rest of its validity period. And "any cert signed by corp CA" means service A cannot distinguish service B from a malicious service C — it just confirms "some workload that corp CA signed." Real mTLS authorization needs identity-aware policy on top of the channel.',
+          feedback: 'Correct. Two distinct flaws compound each other. Long-lived keys mean a single Secret read (or a stolen backup, or a leaked etcd snapshot) leaks a usable identity for the rest of its validity period. And "any cert signed by corp CA" means service A cannot distinguish service B from a malicious service C - it just confirms "some workload that corp CA signed." Real mTLS authorization needs identity-aware policy on top of the channel.',
         },
         {
-          label: 'Mounting tls.key as a Secret violates the Kubernetes API — keys must be in ConfigMaps.',
+          label: 'Mounting tls.key as a Secret violates the Kubernetes API - keys must be in ConfigMaps.',
           correct: false,
           feedback: 'Keys belong in Secrets, not ConfigMaps. The issue is the lifecycle, not the storage type.',
         },
@@ -133,7 +133,7 @@ data:
           feedback: 'mTLS works fine on HTTP/1.1. ALPN is optional.',
         },
       ],
-      explanation: 'Zero Trust mTLS has two parts: (1) short-lived, automatically-rotated credentials so a leaked key has minutes of value, not months, and (2) authorization based on the peer\'s SPIFFE ID, not just "signed by our CA." SPIRE issues SVIDs that are typically valid for an hour and rotated automatically, with each workload getting its own ID. Your TLS layer then authorizes peers by SPIFFE ID — `spiffe://corp.example.com/ns/payments/sa/payments-api` — not by the fact that they hold a corp-CA-signed cert.',
+      explanation: 'Zero Trust mTLS has two parts: (1) short-lived, automatically-rotated credentials so a leaked key has minutes of value, not months, and (2) authorization based on the peer\'s SPIFFE ID, not just "signed by our CA." SPIRE issues SVIDs that are typically valid for an hour and rotated automatically, with each workload getting its own ID. Your TLS layer then authorizes peers by SPIFFE ID - `spiffe://corp.example.com/ns/payments/sa/payments-api` - not by the fact that they hold a corp-CA-signed cert.',
       learnMore: { label: 'Implement mTLS the right way', href: '/courses/mastering-spiffe-spire/spire-integrations-service-mesh' },
     },
     {
@@ -156,14 +156,14 @@ func authorize(peerSpiffeID string) error {
           feedback: 'Performance is not the issue here. The issue is correctness.',
         },
         {
-          label: 'A SPIFFE ID like "spiffe://example.com/marketing-evil-attacker" or even "spiffe://attacker.example/payments-marketing" passes the substring check — authorization should always anchor to the trust domain and a path prefix, never a substring match.',
+          label: 'A SPIFFE ID like "spiffe://example.com/marketing-evil-attacker" or even "spiffe://attacker.example/payments-marketing" passes the substring check - authorization should always anchor to the trust domain and a path prefix, never a substring match.',
           correct: true,
           feedback: 'Correct. Substring matching on identity is a classic auth bypass: an attacker who can register a workload with the substring in any position passes the check. The right check parses the SPIFFE ID, validates the trust domain matches yours exactly, and checks a strict path prefix like "/ns/marketing/".',
         },
         {
           label: 'The check should also verify the SPIFFE ID is signed by the workload\'s own private key.',
           correct: false,
-          feedback: 'SPIFFE IDs are not "signed by the workload" — they are issued in SVIDs by the SPIRE Server and validated as part of the TLS handshake. You don\'t re-verify the signature in the application.',
+          feedback: 'SPIFFE IDs are not "signed by the workload" - they are issued in SVIDs by the SPIRE Server and validated as part of the TLS handshake. You don\'t re-verify the signature in the application.',
         },
         {
           label: 'authorize() should return a *Status, not an error.',
@@ -199,27 +199,27 @@ federation:
         {
           label: 'Static bundle copies become stale: when us-west rotates its CA, every us-east workload that calls us-west fails authentication until someone notices and re-copies the bundle.',
           correct: true,
-          feedback: 'Correct. The whole point of bundle endpoints is to fetch the federated trust bundle dynamically. With static copies you\'re effectively running on an unmaintained cron — and the failure mode is total cross-cluster auth failure when the upstream rotates. Use the bundle endpoint protocol so SPIRE refreshes the bundle automatically.',
+          feedback: 'Correct. The whole point of bundle endpoints is to fetch the federated trust bundle dynamically. With static copies you\'re effectively running on an unmaintained cron - and the failure mode is total cross-cluster auth failure when the upstream rotates. Use the bundle endpoint protocol so SPIRE refreshes the bundle automatically.',
         },
         {
           label: 'SPIRE federation requires the same trust domain name in both clusters.',
           correct: false,
-          feedback: 'It is the opposite — federation is for different trust domains that need to authenticate each other. Same trust domain doesn\'t need federation.',
+          feedback: 'It is the opposite - federation is for different trust domains that need to authenticate each other. Same trust domain doesn\'t need federation.',
         },
         {
-          label: 'us-east and us-west cannot federate over public DNS — they must be peered via VPN.',
+          label: 'us-east and us-west cannot federate over public DNS - they must be peered via VPN.',
           correct: false,
           feedback: 'Federation works over any reachable network as long as the bundle endpoint is reachable. VPN/peering is an availability/security choice, not a SPIRE requirement.',
         },
       ],
-      explanation: 'SPIRE federation is designed to be dynamic. The bundle endpoint protocol lets each SPIRE Server expose its current trust bundle over HTTPS, and federated peers fetch it on a schedule (default every 5 minutes). When the upstream rotates its CA, the new bundle propagates within minutes — no manual ops, no static copies, no certificate-rollover incidents at 3am. Manual bundle copying is acceptable only as a one-time bootstrap.',
+      explanation: 'SPIRE federation is designed to be dynamic. The bundle endpoint protocol lets each SPIRE Server expose its current trust bundle over HTTPS, and federated peers fetch it on a schedule (default every 5 minutes). When the upstream rotates its CA, the new bundle propagates within minutes - no manual ops, no static copies, no certificate-rollover incidents at 3am. Manual bundle copying is acceptable only as a one-time bootstrap.',
       learnMore: { label: 'Configure SPIRE federation correctly', href: '/courses/mastering-spiffe-spire/advanced-spire-architectures' },
     },
     {
       id: 'svid-rotation-cached',
       topic: 'Rotation',
       title: 'A workload that "ignores" its rotated SVID',
-      briefing: 'After a CA compromise, the security team forces SPIRE to rotate all SVIDs immediately and revokes the old trust bundle. Most services pick up the new SVID within a minute. One service — payments-api — keeps presenting the old SVID and failing TLS handshakes for 6 hours until someone restarts the pods.',
+      briefing: 'After a CA compromise, the security team forces SPIRE to rotate all SVIDs immediately and revokes the old trust bundle. Most services pick up the new SVID within a minute. One service - payments-api - keeps presenting the old SVID and failing TLS handshakes for 6 hours until someone restarts the pods.',
       yaml: `// payments-api server bootstrap (Go, simplified):
 func main() {
   source, err := workloadapi.NewX509Source(ctx)
@@ -244,7 +244,7 @@ func main() {
         {
           label: 'GetX509SVID() returns the SVID at call time, then never updates. The TLS config is built once at startup with that snapshot, so every connection uses that frozen cert until the process restarts.',
           correct: true,
-          feedback: 'Correct. The Workload API delivers a stream of SVID updates as they rotate, but you have to consume that stream. The fix is to use the dynamic helpers — tlsconfig.MTLSServerConfig(source, source, authorizer) — which read the current SVID on every connection from the live source. Then SVID rotation is automatic.',
+          feedback: 'Correct. The Workload API delivers a stream of SVID updates as they rotate, but you have to consume that stream. The fix is to use the dynamic helpers - tlsconfig.MTLSServerConfig(source, source, authorizer) - which read the current SVID on every connection from the live source. Then SVID rotation is automatic.',
         },
         {
           label: 'ClientCAs should be a trust domain, not a bundle.',
@@ -252,12 +252,12 @@ func main() {
           feedback: 'ClientCAs requires a CA pool of authorities, which is exactly what Bundles().X509Authorities() provides.',
         },
         {
-          label: 'The Workload API requires polling — by default it never pushes updates.',
+          label: 'The Workload API requires polling - by default it never pushes updates.',
           correct: false,
           feedback: 'The Workload API streams updates; the SDK\'s X509Source consumes that stream. The bug is using a stale snapshot, not the API behavior.',
         },
       ],
-      explanation: 'Short-lived SVIDs only deliver Zero Trust if your app actually re-reads them. Use the SPIFFE Go SDK\'s tlsconfig helpers (MTLSServerConfig, MTLSClientConfig) — they install a GetCertificate / GetClientCertificate callback that the standard library invokes on every handshake. Same pattern in Java (spire-tls), Python (py-spiffe), and Envoy SDS. Treat any code that reads an SVID once at startup as a latent rotation bug.',
+      explanation: 'Short-lived SVIDs only deliver Zero Trust if your app actually re-reads them. Use the SPIFFE Go SDK\'s tlsconfig helpers (MTLSServerConfig, MTLSClientConfig) - they install a GetCertificate / GetClientCertificate callback that the standard library invokes on every handshake. Same pattern in Java (spire-tls), Python (py-spiffe), and Envoy SDS. Treat any code that reads an SVID once at startup as a latent rotation bug.',
       learnMore: { label: 'Run SPIRE on Kubernetes (with rotation)', href: '/courses/mastering-spiffe-spire/running-spire-on-kubernetes' },
     },
   ];

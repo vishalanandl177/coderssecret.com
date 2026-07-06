@@ -20,7 +20,7 @@ export class DrfApiLoggerSlidesComponent {
       title: 'DRF API Logger',
       subtitle: 'A hands-on tutorial for Django developers who want to see every request their API serves.',
       tags: ['~12 MIN', 'BEGINNER FRIENDLY', 'DJANGO · DRF'],
-      narration: "Hey there, and welcome! In this tutorial, we're going to look at DRF API Logger — a package that lets your Django REST Framework project automatically capture every single API request and response, with basically zero effort.",
+      narration: "Hey there, and welcome! In this tutorial, we're going to look at DRF API Logger - a package that lets your Django REST Framework project automatically capture every single API request and response, with basically zero effort.",
     },
     // Slide 2
     {
@@ -70,7 +70,7 @@ export class DrfApiLoggerSlidesComponent {
       type: 'content',
       eyebrow: '01 · Introduction',
       title: 'How it works',
-      body: 'A request comes in, the middleware grabs a snapshot on the way in and another on the way out. That snapshot goes into an in-memory queue — not to the database. Then a background worker thread flushes the queue to the database every 10 seconds, or whenever it hits 50 buffered items.',
+      body: 'A request comes in, the middleware grabs a snapshot on the way in and another on the way out. That snapshot goes into an in-memory queue - not to the database. Then a background worker thread flushes the queue to the database every 10 seconds, or whenever it hits 50 buffered items.',
       bullets: [
         'Middleware reads request, view runs, response serialized',
         'Snapshot pushed to in-memory queue',
@@ -89,7 +89,7 @@ export class DrfApiLoggerSlidesComponent {
         'DRF 3.12+',
         'A project that already uses DRF',
       ],
-      body: "This is a middleware, so it works with any view — function-based, class-based, or ViewSets. You don't touch your view code at all.",
+      body: "This is a middleware, so it works with any view - function-based, class-based, or ViewSets. You don't touch your view code at all.",
       narration: "Before we install, quick prerequisites. Python three point six or newer, Django three point two or newer, and DRF three point twelve or newer.",
     },
     // Slide 7
@@ -97,10 +97,10 @@ export class DrfApiLoggerSlidesComponent {
       type: 'code',
       eyebrow: '02 · Setup · Step 1 of 4',
       title: 'Install the package',
-      body: 'Standard pip install — no system dependencies, no native extensions.',
+      body: 'Standard pip install - no system dependencies, no native extensions.',
       code: '$ pip install drf-api-logger\n\nCollecting drf-api-logger\n  Downloading drf_api_logger-1.1.21-py3-none-any.whl\nInstalling collected packages: drf-api-logger\nSuccessfully installed drf-api-logger-1.1.21',
       lang: 'terminal',
-      narration: "Step one: install the package. It's a standard pip install — one line and you're ready.",
+      narration: "Step one: install the package. It's a standard pip install - one line and you're ready.",
     },
     // Slide 8
     {
@@ -152,16 +152,16 @@ export class DrfApiLoggerSlidesComponent {
       body: 'One setting turns on the whole admin experience.',
       code: "# enable DB storage\nDRF_API_LOGGER_DATABASE = True\n\n# optional: send to a dedicated logs DB\nDRF_API_LOGGER_DEFAULT_DATABASE = 'logs_db'\n\n# optional: mark anything >200ms as slow\nDRF_API_LOGGER_SLOW_API_ABOVE = 200",
       lang: 'settings.py',
-      narration: "Let's look at Mode A — database logging. One setting turns on the whole admin experience.",
+      narration: "Let's look at Mode A - database logging. One setting turns on the whole admin experience.",
     },
     // Slide 13
     {
       type: 'image',
       eyebrow: '03 · Admin dashboard',
       title: 'Analytics overview',
-      caption: 'The admin homepage shows request volume over time — spot trends, traffic spikes, and failure patterns at a glance.',
+      caption: 'The admin homepage shows request volume over time - spot trends, traffic spikes, and failure patterns at a glance.',
       src: '/images/slides/drf-api-logger/graph.png',
-      narration: "Here's the admin dashboard. This is the overview page — request volume over time.",
+      narration: "Here's the admin dashboard. This is the overview page - request volume over time.",
     },
     // Slide 14
     {
@@ -177,7 +177,7 @@ export class DrfApiLoggerSlidesComponent {
       type: 'image',
       eyebrow: '03 · Admin dashboard',
       title: 'Log detail view',
-      caption: 'Full request detail — headers, body, response, client IP, and execution time.',
+      caption: 'Full request detail - headers, body, response, client IP, and execution time.',
       src: '/images/slides/drf-api-logger/details.png',
       narration: "Click into any row and you get the full detail view.",
     },
@@ -189,7 +189,7 @@ export class DrfApiLoggerSlidesComponent {
       body: 'Subscribe a function, get every API call pushed to it. Perfect for shipping logs off-site.',
       code: "from drf_api_logger import API_LOGGER_SIGNAL\n\ndef ship_to_elk(**kwargs):\n    elk.send({\n        'url': kwargs['api'],\n        'method': kwargs['method'],\n        'status': kwargs['status_code'],\n        'took_ms': kwargs['execution_time'],\n    })\n\nAPI_LOGGER_SIGNAL.listen += ship_to_elk",
       lang: 'signals.py',
-      narration: "Now Mode B — signal-based logging. You define a function and subscribe it.",
+      narration: "Now Mode B - signal-based logging. You define a function and subscribe it.",
     },
     // Slide 17
     {
@@ -226,7 +226,7 @@ export class DrfApiLoggerSlidesComponent {
       type: 'code',
       eyebrow: '07 · Advanced',
       title: 'Request tracing',
-      body: 'Stamp every request with a UUID — follow it through microservices, background jobs, and log aggregators.',
+      body: 'Stamp every request with a UUID - follow it through microservices, background jobs, and log aggregators.',
       code: "# in settings.py\nDRF_API_LOGGER_ENABLE_TRACING = True\nDRF_API_LOGGER_TRACING_ID_HEADER_NAME = 'X-Trace-ID'\n\n# in your view\ndef my_view(request):\n    if hasattr(request, 'tracing_id'):\n        logger.info(f\"processing {request.tracing_id}\")\n    return Response({'ok': True})",
       lang: 'python',
       narration: "When you enable tracing, every request gets stamped with a UUID that you can propagate through microservices.",
@@ -236,7 +236,7 @@ export class DrfApiLoggerSlidesComponent {
       type: 'code',
       eyebrow: '07 · Advanced',
       title: 'Querying logs in code',
-      body: 'Logs are a Django model. Any ORM query works — stats dashboards, Slack alerts, scheduled reports.',
+      body: 'Logs are a Django model. Any ORM query works - stats dashboards, Slack alerts, scheduled reports.',
       code: "from drf_api_logger.models import APILogsModel\n\n# slowest APIs in the last hour\nslow = APILogsModel.objects.filter(\n    execution_time__gt=1.0,\n    added_on__gte=timezone.now() - timedelta(hours=1)\n).order_by('-execution_time')\n\n# most-hit endpoints\npopular = APILogsModel.objects.values('api').annotate(\n    count=Count('id')\n).order_by('-count')[:10]",
       lang: 'python',
       narration: "Because logs are just a Django model, you can query them with the ORM.",
@@ -251,10 +251,10 @@ export class DrfApiLoggerSlidesComponent {
         { title: 'Index added_on', desc: 'Every query filters by time. Make it cheap.' },
         { title: 'Archive old data', desc: 'Delete or move logs older than 30–90 days.' },
         { title: 'Cap body sizes', desc: 'Stop one giant upload from filling your disk.' },
-        { title: 'Mask sensitive data', desc: "Auth, PII, card numbers — don't log what you can't store." },
+        { title: 'Mask sensitive data', desc: "Auth, PII, card numbers - don't log what you can't store." },
         { title: 'Tune the queue', desc: 'Higher queue size + interval for less DB pressure.' },
       ],
-      narration: "Before we wrap up — a production checklist.",
+      narration: "Before we wrap up - a production checklist.",
     },
     // Slide 23
     {
@@ -273,18 +273,18 @@ export class DrfApiLoggerSlidesComponent {
     {
       type: 'end',
       title: 'Go log some APIs.',
-      subtitle: 'Thanks for watching. The package is on GitHub — star the repo if it helped.',
+      subtitle: 'Thanks for watching. The package is on GitHub - star the repo if it helped.',
       links: [
         { label: 'GITHUB', value: 'github.com/vishalanandl177/DRF-API-Logger' },
         { label: 'INSTALL', value: '$ pip install drf-api-logger' },
       ],
-      narration: "That's it! The package is on GitHub. Thanks for watching — now go log some APIs.",
+      narration: "That's it! The package is on GitHub. Thanks for watching - now go log some APIs.",
     },
   ];
 
   constructor() {
     this.seo.update({
-      title: 'DRF API Logger Tutorial — Interactive Slides with Narration',
+      title: 'DRF API Logger Tutorial - Interactive Slides with Narration',
       description: 'Learn DRF API Logger through 24 interactive slides with voice narration. Covers installation, database logging, signal mode, admin dashboard, filtering, security masking, and production tuning.',
       url: '/slides/drf-api-logger',
       robots: 'noindex,follow',

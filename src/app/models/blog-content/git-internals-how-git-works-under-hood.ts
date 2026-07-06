@@ -14,7 +14,7 @@ export const CONTENT = `
         <li><strong>Reflogs</strong>: local logs that record updates to refs so you can recover earlier positions.</li>
       </ul>
 
-      <p>Everything else Git does &mdash; branching, merging, rebasing, checkout, reset, garbage collection, fetch, push &mdash; is built on those pieces.</p>
+      <p>Everything else Git does - branching, merging, rebasing, checkout, reset, garbage collection, fetch, push - is built on those pieces.</p>
 
       <h2>Git Is a Content-Addressable Filesystem</h2>
 

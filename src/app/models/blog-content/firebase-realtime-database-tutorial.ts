@@ -1,8 +1,8 @@
 export const CONTENT = `
-      <p><strong>Firebase Realtime Database (RTDB)</strong> was Google's first real-time, cloud-hosted database — and it still powers massive apps today because of its dead-simple API and sub-100ms real-time sync. This guide shows you exactly how to use it with a real chat app project, and gives you the <strong>honest truth about its limitations</strong> so you can choose wisely.</p>
+      <p><strong>Firebase Realtime Database (RTDB)</strong> was Google's first real-time, cloud-hosted database - and it still powers massive apps today because of its dead-simple API and sub-100ms real-time sync. This guide shows you exactly how to use it with a real chat app project, and gives you the <strong>honest truth about its limitations</strong> so you can choose wisely.</p>
 
       <h2>What is Firebase Realtime Database?</h2>
-      <p>Firebase RTDB is a <strong>NoSQL cloud database</strong> that stores data as a giant JSON tree. Unlike traditional databases, changes are pushed to all connected clients in <strong>milliseconds</strong> — no polling, no refresh needed. Perfect for chat apps, collaborative tools, live dashboards, and multiplayer games.</p>
+      <p>Firebase RTDB is a <strong>NoSQL cloud database</strong> that stores data as a giant JSON tree. Unlike traditional databases, changes are pushed to all connected clients in <strong>milliseconds</strong> - no polling, no refresh needed. Perfect for chat apps, collaborative tools, live dashboards, and multiplayer games.</p>
 
       <!-- How It Works -->
       <div class="flow-diagram">
@@ -27,7 +27,7 @@ export const CONTENT = `
             <div class="seq-step">
               <div></div>
               <div></div>
-              <div class="seq-action" style="border-color:#22c55e;color:#4ade80">UI updates instantly — no refresh</div>
+              <div class="seq-action" style="border-color:#22c55e;color:#4ade80">UI updates instantly - no refresh</div>
             </div>
           </div>
         </div>
@@ -139,7 +139,7 @@ await set(newMessageRef, {
 await remove(ref(db, "users/alice"));</code></pre>
 
       <h2>Hands-On Project: Build a Real-Time Chat App</h2>
-      <p>Let's build a working chat app using Firebase RTDB. Multiple users, messages appear instantly across all devices, online presence indicators — all in ~80 lines of code.</p>
+      <p>Let's build a working chat app using Firebase RTDB. Multiple users, messages appear instantly across all devices, online presence indicators - all in ~80 lines of code.</p>
 
       <pre><code>&lt;!-- chat.html --&gt;
 &lt;!DOCTYPE html&gt;
@@ -181,7 +181,7 @@ await remove(ref(db, "users/alice"));</code></pre>
     const userStatusRef = ref(db, \`status/\${userId}\`);
     set(userStatusRef, { username, online: true });
     onDisconnect(userStatusRef).remove();
-    // When tab closes, network drops, etc — Firebase auto-removes this entry!
+    // When tab closes, network drops, etc - Firebase auto-removes this entry!
 
     // Count online users
     onValue(ref(db, "status"), (snapshot) => {
@@ -215,7 +215,7 @@ await remove(ref(db, "users/alice"));</code></pre>
 &lt;/body&gt;
 &lt;/html&gt;</code></pre>
 
-      <p>Open this HTML file in 2 browser tabs. Type a message in one tab — it appears in the other tab <strong>instantly</strong>. Close a tab — the online count updates automatically. This is Firebase's superpower.</p>
+      <p>Open this HTML file in 2 browser tabs. Type a message in one tab - it appears in the other tab <strong>instantly</strong>. Close a tab - the online count updates automatically. This is Firebase's superpower.</p>
 
       <h2>Python Backend (firebase-admin)</h2>
       <pre><code># pip install firebase-admin
@@ -260,7 +260,7 @@ users_ref.child("alice").delete()
 recent = db.reference("messages").order_by_child("timestamp").limit_to_last(50).get()
 # Returns the 50 most recent messages</code></pre>
 
-      <h2>Security Rules (CRITICAL — Don't Skip This!)</h2>
+      <h2>Security Rules (CRITICAL - Don't Skip This!)</h2>
       <p>By default, Firebase "test mode" allows ANYONE on the internet to read and write your database. You MUST set security rules before going live.</p>
       <pre><code>// Firebase Console &#x2192; Realtime Database &#x2192; Rules tab
 
@@ -314,9 +314,9 @@ recent = db.reference("messages").order_by_child("timestamp").limit_to_last(50).
         <li><strong>Zero server code for simple apps:</strong> Client talks directly to the database with security rules enforcing access. No backend needed for many use cases.</li>
         <li><strong>Real-time by default:</strong> Every query is reactive. Changes propagate to all clients in under 100ms.</li>
         <li><strong>Automatic offline support:</strong> SDK caches data locally. Your app works offline and syncs when reconnected. Perfect for mobile.</li>
-        <li><strong>Presence detection:</strong> <code>onDisconnect()</code> handlers fire when a client goes offline — automatic cleanup.</li>
+        <li><strong>Presence detection:</strong> <code>onDisconnect()</code> handlers fire when a client goes offline - automatic cleanup.</li>
         <li><strong>Scales to millions of users:</strong> Google infrastructure handles the hard parts (replication, backups, availability).</li>
-        <li><strong>Generous free tier:</strong> 1 GB storage, 10 GB/month download, 100 simultaneous connections — enough for real prototypes.</li>
+        <li><strong>Generous free tier:</strong> 1 GB storage, 10 GB/month download, 100 simultaneous connections - enough for real prototypes.</li>
         <li><strong>Integrated auth:</strong> Firebase Auth (Google, email, phone, Apple) works seamlessly with RTDB security rules.</li>
       </ul>
 
@@ -373,27 +373,27 @@ recent = db.reference("messages").order_by_child("timestamp").limit_to_last(50).
   }
 }
 # Now each query downloads only what you need.
-# "userPosts" is an INDEX — quick lookup of a user's post IDs.</code></pre>
+# "userPosts" is an INDEX - quick lookup of a user's post IDs.</code></pre>
 
       <h2>When NOT to Use Firebase RTDB</h2>
       <ul>
-        <li><strong>Complex queries needed</strong> — use Firestore or PostgreSQL</li>
-        <li><strong>Financial/transactional data</strong> — lack of true ACID transactions across the tree is risky</li>
-        <li><strong>Large datasets per user</strong> — per-GB pricing punishes data-heavy apps</li>
-        <li><strong>Multi-tenant SaaS with strict isolation</strong> — security rules get complex fast</li>
-        <li><strong>You need SQL</strong> — Firebase is NoSQL; accept that or choose differently</li>
+        <li><strong>Complex queries needed</strong> - use Firestore or PostgreSQL</li>
+        <li><strong>Financial/transactional data</strong> - lack of true ACID transactions across the tree is risky</li>
+        <li><strong>Large datasets per user</strong> - per-GB pricing punishes data-heavy apps</li>
+        <li><strong>Multi-tenant SaaS with strict isolation</strong> - security rules get complex fast</li>
+        <li><strong>You need SQL</strong> - Firebase is NoSQL; accept that or choose differently</li>
       </ul>
 
       <h2>When Firebase RTDB Shines</h2>
       <ul>
-        <li><strong>Real-time chat and messaging</strong> — exactly what it was designed for</li>
-        <li><strong>Collaborative editing (Google Docs style)</strong> — cursors, selections, presence</li>
-        <li><strong>Live dashboards</strong> — metrics that update in real-time</li>
-        <li><strong>Multiplayer games</strong> — game state sync across players</li>
-        <li><strong>Presence and online status</strong> — <code>onDisconnect()</code> is magic</li>
-        <li><strong>MVPs and prototypes</strong> — ship a working app in a weekend</li>
+        <li><strong>Real-time chat and messaging</strong> - exactly what it was designed for</li>
+        <li><strong>Collaborative editing (Google Docs style)</strong> - cursors, selections, presence</li>
+        <li><strong>Live dashboards</strong> - metrics that update in real-time</li>
+        <li><strong>Multiplayer games</strong> - game state sync across players</li>
+        <li><strong>Presence and online status</strong> - <code>onDisconnect()</code> is magic</li>
+        <li><strong>MVPs and prototypes</strong> - ship a working app in a weekend</li>
       </ul>
 
       <h2>The Verdict</h2>
-      <p>Firebase Realtime Database is <strong>excellent for what it's designed for</strong>: small pieces of JSON data that need to sync in real-time across many clients. It's the fastest path to a working real-time app. But it's a specialized tool — not a general-purpose database. Use RTDB for chat, presence, and live state; use Firestore for everything else; use PostgreSQL/MongoDB when you outgrow both. Build fast, but architect with migration in mind.</p>
+      <p>Firebase Realtime Database is <strong>excellent for what it's designed for</strong>: small pieces of JSON data that need to sync in real-time across many clients. It's the fastest path to a working real-time app. But it's a specialized tool - not a general-purpose database. Use RTDB for chat, presence, and live state; use Firestore for everything else; use PostgreSQL/MongoDB when you outgrow both. Build fast, but architect with migration in mind.</p>
     `;

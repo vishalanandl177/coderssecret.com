@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Every API needs rate limiting. Without it, a single misbehaving client can overwhelm your servers, a bot can scrape your entire database, or a billing exploit can cost you thousands. But not all rate limiters are equal &mdash; each algorithm has distinct tradeoffs in accuracy, memory usage, and burst handling.</p>
+      <p>Every API needs rate limiting. Without it, a single misbehaving client can overwhelm your servers, a bot can scrape your entire database, or a billing exploit can cost you thousands. But not all rate limiters are equal - each algorithm has distinct tradeoffs in accuracy, memory usage, and burst handling.</p>
 
       <p>This guide implements three production-grade algorithms from scratch, explains when to use each, and shows how to deploy them with Redis for distributed systems.</p>
 
@@ -106,7 +106,7 @@ def token_bucket_redis(key: str, capacity: int, refill_rate: float) -> bool:
 
       <h3>Key Properties</h3>
       <ul>
-        <li><strong>Exact counting:</strong> No boundary issues &mdash; the window truly slides</li>
+        <li><strong>Exact counting:</strong> No boundary issues - the window truly slides</li>
         <li><strong>No bursts at boundaries:</strong> Unlike fixed windows, you cannot get 2x the limit at a window edge</li>
         <li><strong>Higher memory:</strong> Stores a timestamp per request (O(n) where n is the limit)</li>
       </ul>
@@ -167,7 +167,7 @@ limiter = SlidingWindowLog(max_requests=100, window_seconds=60)</code></pre>
 
       <h3>Key Properties</h3>
       <ul>
-        <li><strong>Constant output rate:</strong> Requests are processed at exactly the configured rate &mdash; no bursts</li>
+        <li><strong>Constant output rate:</strong> Requests are processed at exactly the configured rate - no bursts</li>
         <li><strong>Queue-based:</strong> Excess requests wait in a queue rather than being immediately rejected</li>
         <li><strong>Best for:</strong> APIs that call expensive downstream services at a fixed rate</li>
       </ul>
@@ -306,13 +306,13 @@ class RateLimitMiddleware:
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Token bucket is the default choice</strong> &mdash; simple, efficient, handles bursts gracefully</li>
-        <li><strong>Sliding window log is most accurate</strong> &mdash; use when strict per-client limits matter more than memory</li>
-        <li><strong>Leaky bucket smooths output rate</strong> &mdash; ideal when downstream services need constant throughput</li>
+        <li><strong>Token bucket is the default choice</strong> - simple, efficient, handles bursts gracefully</li>
+        <li><strong>Sliding window log is most accurate</strong> - use when strict per-client limits matter more than memory</li>
+        <li><strong>Leaky bucket smooths output rate</strong> - ideal when downstream services need constant throughput</li>
         <li><strong>Use Redis Lua scripts</strong> for atomic, distributed rate limiting across multiple servers</li>
         <li><strong>Always return rate limit headers</strong> so clients can self-throttle</li>
-        <li><strong>Rate limit by API key first, IP second</strong> &mdash; IP-based limiting breaks behind shared proxies</li>
+        <li><strong>Rate limit by API key first, IP second</strong> - IP-based limiting breaks behind shared proxies</li>
       </ul>
 
-      <p>Rate limiting is not just a security feature &mdash; it is a reliability feature. A well-implemented rate limiter protects your servers, your budget, and your users from each other. Pick the right algorithm for your use case, implement it with Redis for distribution, and always communicate limits clearly to your clients.</p>
+      <p>Rate limiting is not just a security feature - it is a reliability feature. A well-implemented rate limiter protects your servers, your budget, and your users from each other. Pick the right algorithm for your use case, implement it with Redis for distribution, and always communicate limits clearly to your clients.</p>
     `;

@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>REST has been the default for APIs for over a decade, but it wasn't designed for microservices talking to each other millions of times per second. <strong>gRPC</strong> (Google Remote Procedure Call) was built exactly for this — high-throughput, low-latency, strongly-typed communication between services. It's used by Google, Netflix, Slack, Square, and most serious microservice architectures.</p>
+      <p>REST has been the default for APIs for over a decade, but it wasn't designed for microservices talking to each other millions of times per second. <strong>gRPC</strong> (Google Remote Procedure Call) was built exactly for this - high-throughput, low-latency, strongly-typed communication between services. It's used by Google, Netflix, Slack, Square, and most serious microservice architectures.</p>
 
       <h2>What is gRPC?</h2>
       <p>gRPC is an open-source RPC (Remote Procedure Call) framework that uses <strong>HTTP/2</strong> for transport and <strong>Protocol Buffers (protobuf)</strong> for serialization. Instead of sending JSON over HTTP/1.1 like REST, gRPC sends compact binary data over multiplexed HTTP/2 connections.</p>
@@ -53,13 +53,13 @@ export const CONTENT = `
       </div>
 
       <h2>Step 1: Define Your Service (.proto)</h2>
-      <p>Everything in gRPC starts with a <strong>.proto file</strong> — the contract between client and server:</p>
+      <p>Everything in gRPC starts with a <strong>.proto file</strong> - the contract between client and server:</p>
       <pre><code>// user_service.proto
 syntax = "proto3";
 
 package users;
 
-// Service definition — like a REST controller
+// Service definition - like a REST controller
 service UserService {
   // Unary RPC (request-response, like a normal REST call)
   rpc GetUser (GetUserRequest) returns (User);
@@ -76,7 +76,7 @@ service UserService {
   rpc Chat (stream ChatMessage) returns (stream ChatMessage);
 }
 
-// Message definitions — like JSON schemas, but typed and compact
+// Message definitions - like JSON schemas, but typed and compact
 message User {
   string id = 1;
   string name = 2;
@@ -194,7 +194,7 @@ class UserServicer(pb2_grpc.UserServiceServicer):
             total_count=len(all_users),
         )
 
-    # Server streaming — push events to the client
+    # Server streaming - push events to the client
     def WatchUsers(self, request, context):
         import time
         while context.is_active():
@@ -225,7 +225,7 @@ import user_service_pb2_grpc as pb2_grpc
 channel = grpc.insecure_channel("localhost:50051")
 stub = pb2_grpc.UserServiceStub(channel)
 
-# Create a user — feels like calling a local function!
+# Create a user - feels like calling a local function!
 user = stub.CreateUser(pb2.CreateUserRequest(
     name="Alice",
     email="alice@example.com",
@@ -243,7 +243,7 @@ response = stub.ListUsers(pb2.ListUsersRequest(page_size=10))
 for u in response.users:
     print(f"  - {u.name} ({u.email})")
 
-# Server streaming — watch for events
+# Server streaming - watch for events
 for event in stub.WatchUsers(pb2.WatchRequest(departments=["ENGINEERING"])):
     print(f"Event: {event.event_type} - {event.user.name}")
     break  # Stop after first event for demo</code></pre>
@@ -289,8 +289,8 @@ for event in stub.WatchUsers(pb2.WatchRequest(departments=["ENGINEERING"])):
         <li><strong>Binary serialization:</strong> Protobuf is 3-10x smaller than JSON and 5-20x faster to serialize/deserialize.</li>
         <li><strong>HTTP/2 multiplexing:</strong> Multiple RPCs share a single TCP connection. No head-of-line blocking.</li>
         <li><strong>Header compression (HPACK):</strong> HTTP/2 compresses headers, reducing overhead for frequent calls.</li>
-        <li><strong>Streaming:</strong> Long-lived connections for real-time data — no polling, no WebSocket hacks.</li>
-        <li><strong>Code generation:</strong> Generated stubs are optimized for each language — no reflection, no runtime parsing.</li>
+        <li><strong>Streaming:</strong> Long-lived connections for real-time data - no polling, no WebSocket hacks.</li>
+        <li><strong>Code generation:</strong> Generated stubs are optimized for each language - no reflection, no runtime parsing.</li>
       </ul>
 
       <h2>Interceptors (Middleware for gRPC)</h2>
@@ -349,5 +349,5 @@ server = grpc.server(
         </div>
       </div>
 
-      <p>gRPC isn't a replacement for REST — it's a complement. Use REST for public APIs where simplicity and browser compatibility matter. Use gRPC for internal service-to-service communication where performance, type safety, and streaming are critical. Many companies (including Google) use both: REST at the edge, gRPC between services.</p>
+      <p>gRPC isn't a replacement for REST - it's a complement. Use REST for public APIs where simplicity and browser compatibility matter. Use gRPC for internal service-to-service communication where performance, type safety, and streaming are critical. Many companies (including Google) use both: REST at the edge, gRPC between services.</p>
     `;

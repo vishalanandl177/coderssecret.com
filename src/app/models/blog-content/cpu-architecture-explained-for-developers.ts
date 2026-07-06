@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>You write code every day that runs on a CPU, but do you actually know what happens inside that chip when your <code>for</code> loop executes? Understanding CPU architecture doesn't just satisfy curiosity — it explains <em>why</em> certain code patterns are fast and others are slow. This guide gives you a developer-friendly mental model of how modern CPUs work, without requiring an electrical engineering degree.</p>
+      <p>You write code every day that runs on a CPU, but do you actually know what happens inside that chip when your <code>for</code> loop executes? Understanding CPU architecture doesn't just satisfy curiosity - it explains <em>why</em> certain code patterns are fast and others are slow. This guide gives you a developer-friendly mental model of how modern CPUs work, without requiring an electrical engineering degree.</p>
 
       <h2>The Big Picture: What a CPU Does</h2>
       <p>At its core (pun intended), a CPU does exactly three things, billions of times per second:</p>
@@ -18,7 +18,7 @@ export const CONTENT = `
         </div>
       </div>
 
-      <p>That's it. Every program you've ever written — from "Hello World" to a Kubernetes controller — boils down to this cycle running billions of times per second. A modern CPU at 5 GHz does this cycle 5,000,000,000 times per second. Per core.</p>
+      <p>That's it. Every program you've ever written - from "Hello World" to a Kubernetes controller - boils down to this cycle running billions of times per second. A modern CPU at 5 GHz does this cycle 5,000,000,000 times per second. Per core.</p>
 
       <h2>Inside a Modern CPU Core</h2>
 
@@ -35,7 +35,7 @@ export const CONTENT = `
       </div>
 
       <h2>Key Concept 1: Pipelining</h2>
-      <p>Instead of finishing one instruction completely before starting the next, CPUs overlap them — like a factory assembly line. While instruction 1 is being executed, instruction 2 is being decoded, and instruction 3 is being fetched. A modern CPU has 15-20 pipeline stages.</p>
+      <p>Instead of finishing one instruction completely before starting the next, CPUs overlap them - like a factory assembly line. While instruction 1 is being executed, instruction 2 is being decoded, and instruction 3 is being fetched. A modern CPU has 15-20 pipeline stages.</p>
 
       <pre><code>// Without pipelining (1 instruction at a time):
 // Clock 1: Fetch A
@@ -57,7 +57,7 @@ export const CONTENT = `
 // 15-20 stages of work and start over. ~15 wasted cycles.</code></pre>
 
       <h2>Key Concept 2: Branch Prediction</h2>
-      <p>When the CPU hits an <code>if</code> statement, it doesn't wait to evaluate the condition — it <strong>guesses</strong> which branch will be taken and starts executing it speculatively. Modern branch predictors guess correctly <strong>95-99% of the time</strong>.</p>
+      <p>When the CPU hits an <code>if</code> statement, it doesn't wait to evaluate the condition - it <strong>guesses</strong> which branch will be taken and starts executing it speculatively. Modern branch predictors guess correctly <strong>95-99% of the time</strong>.</p>
 
       <pre><code>// Why sorted data is faster to process (famous Stack Overflow question):
 
@@ -73,10 +73,10 @@ export const CONTENT = `
 // In C:
 // Sorted array:   sum loop takes ~2.5s
 // Unsorted array: sum loop takes ~12.0s
-// 5x slower — same data, same algorithm, just unsorted!</code></pre>
+// 5x slower - same data, same algorithm, just unsorted!</code></pre>
 
       <h2>Key Concept 3: Out-of-Order Execution</h2>
-      <p>Modern CPUs don't execute instructions in the order you wrote them. They look at upcoming instructions and execute whichever ones are ready — even if they appear later in the program:</p>
+      <p>Modern CPUs don't execute instructions in the order you wrote them. They look at upcoming instructions and execute whichever ones are ready - even if they appear later in the program:</p>
 
       <pre><code>// Your code:
 a = load(x)      // Takes 300 cycles if x is in RAM
@@ -96,7 +96,7 @@ e = c + d        // Depends on both
 // Cycle 1:   Start loading x
 // Cycle 300: a arrives. Start loading y
 // Cycle 600: b arrives. Compute c, then d, then e
-// Total: ~603 cycles — 2x slower!</code></pre>
+// Total: ~603 cycles - 2x slower!</code></pre>
 
       <h2>Key Concept 4: SIMD (Single Instruction, Multiple Data)</h2>
       <p>Modern CPUs have special registers (128-bit SSE, 256-bit AVX, 512-bit AVX-512) that can process 4, 8, or 16 values in a single instruction:</p>
@@ -115,7 +115,7 @@ __m256 vc = _mm256_add_ps(va, vb);  // 1 cycle for ALL 4!
 _mm256_store_ps(a, vc);
 // Total: ~1 cycle (4x speedup)
 
-// NumPy uses SIMD internally — that's why:
+// NumPy uses SIMD internally - that's why:
 // numpy.add(a, b) is 10-50x faster than a Python for loop
 // It's doing the same math but 8 numbers at a time via AVX</code></pre>
 
@@ -162,5 +162,5 @@ _mm256_store_ps(a, vc);
         </div>
       </div>
 
-      <p>You don't need to think about this for every line of code. But for performance-critical paths — inner loops, data pipelines, real-time systems — understanding your CPU is the difference between "fast enough" and "10x faster than the competition."</p>
+      <p>You don't need to think about this for every line of code. But for performance-critical paths - inner loops, data pipelines, real-time systems - understanding your CPU is the difference between "fast enough" and "10x faster than the competition."</p>
     `;

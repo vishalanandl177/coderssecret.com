@@ -206,7 +206,7 @@ RUN npm ci                    # Cached unless package files change
 COPY . .                      # Only this layer rebuilds on code changes
 RUN npm run build</code></pre>
 
-      <p>This means <code>npm ci</code> only reruns when your dependencies actually change &mdash; not every time you edit a source file. On a project with 500MB of node_modules, this saves minutes per build.</p>
+      <p>This means <code>npm ci</code> only reruns when your dependencies actually change - not every time you edit a source file. On a project with 500MB of node_modules, this saves minutes per build.</p>
 
       <h2>BuildKit Advanced Features</h2>
 
@@ -263,7 +263,7 @@ FROM gcr.io/distroless/nodejs20-debian12
 COPY --from=builder /app/dist /app
 CMD ["app/main.js"]
 
-# Even an attacker with RCE cannot spawn a shell &mdash; there isn't one</code></pre>
+# Even an attacker with RCE cannot spawn a shell - there isn't one</code></pre>
 
       <h3>Scan for Vulnerabilities</h3>
 
@@ -334,15 +334,15 @@ jobs:
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Every production Dockerfile should be multi-stage</strong> &mdash; there is no reason to ship compilers and dev tools</li>
-        <li><strong>Use alpine or slim base images</strong> for runtime stages &mdash; full OS images are rarely needed</li>
-        <li><strong>For Go, use scratch or distroless</strong> &mdash; static binaries need almost nothing</li>
-        <li><strong>Order Dockerfile instructions for cache efficiency</strong> &mdash; dependency files before source code</li>
+        <li><strong>Every production Dockerfile should be multi-stage</strong> - there is no reason to ship compilers and dev tools</li>
+        <li><strong>Use alpine or slim base images</strong> for runtime stages - full OS images are rarely needed</li>
+        <li><strong>For Go, use scratch or distroless</strong> - static binaries need almost nothing</li>
+        <li><strong>Order Dockerfile instructions for cache efficiency</strong> - dependency files before source code</li>
         <li><strong>Use BuildKit cache mounts</strong> for persistent package manager caches across builds</li>
         <li><strong>Always run as non-root</strong> and consider distroless images for maximum security</li>
         <li><strong>Scan your images for vulnerabilities</strong> before deploying to production</li>
-        <li><strong>Write a comprehensive .dockerignore</strong> &mdash; it is as important as the Dockerfile itself</li>
+        <li><strong>Write a comprehensive .dockerignore</strong> - it is as important as the Dockerfile itself</li>
       </ul>
 
-      <p>Smaller images mean faster deployments, lower storage costs, reduced bandwidth, and a smaller attack surface. There is no downside to multi-stage builds &mdash; only upside. If your production image is over 200MB, you almost certainly have optimization opportunities waiting.</p>
+      <p>Smaller images mean faster deployments, lower storage costs, reduced bandwidth, and a smaller attack surface. There is no downside to multi-stage builds - only upside. If your production image is over 200MB, you almost certainly have optimization opportunities waiting.</p>
     `;

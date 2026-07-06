@@ -116,7 +116,7 @@ export class KubernetesSecurityCheatsheetComponent {
         {
           cmd: 'kubectl get clusterrolebinding -o json | jq \'.items[] | select(.roleRef.name=="cluster-admin") | .metadata.name\'',
           desc: 'Find every binding to cluster-admin.',
-          warning: 'A surprising number of clusters have human users bound to cluster-admin. Audit these aggressively — cluster-admin is Kubernetes "root."',
+          warning: 'A surprising number of clusters have human users bound to cluster-admin. Audit these aggressively - cluster-admin is Kubernetes "root."',
         },
         {
           cmd: 'kubectl get rolebinding,clusterrolebinding -A -o wide',
@@ -234,7 +234,7 @@ export class KubernetesSecurityCheatsheetComponent {
         },
         {
           cmd: 'kubectl top pods -A --sort-by=cpu',
-          desc: 'Pods by CPU — finds runaway processes (cryptominers, infinite loops).',
+          desc: 'Pods by CPU - finds runaway processes (cryptominers, infinite loops).',
         },
       ],
     },
@@ -257,7 +257,7 @@ export class KubernetesSecurityCheatsheetComponent {
         {
           cmd: 'trivy image --severity CRITICAL,HIGH IMAGE',
           desc: 'Scan an image for known CVEs.',
-          prodNote: 'Wire this into CI and gate merges. Re-scan on a schedule for already-deployed images — new CVEs are published daily.',
+          prodNote: 'Wire this into CI and gate merges. Re-scan on a schedule for already-deployed images - new CVEs are published daily.',
         },
         {
           cmd: 'kubectl get validatingwebhookconfigurations',
@@ -280,7 +280,7 @@ rules:
 - apiGroups: ["apps"]
   resources: ["deployments"]
   verbs: ["get","list","update","patch"]`,
-      why: 'Bind humans and ServiceAccounts to scoped, namespaced Roles — never to cluster-admin. cluster-admin is "root" of Kubernetes; one compromised credential becomes total cluster takeover.',
+      why: 'Bind humans and ServiceAccounts to scoped, namespaced Roles - never to cluster-admin. cluster-admin is "root" of Kubernetes; one compromised credential becomes total cluster takeover.',
     },
     {
       bad: `# Pod with no securityContext
@@ -328,7 +328,7 @@ env:
       key: password
 # ...and ideally projected via the secrets-store CSI driver
 # pulling from Vault / AWS Secrets Manager.`,
-      why: 'Plaintext secrets in manifests end up in Git history forever. Once leaked, the only fix is rotation — not a revert. Use external secret managers with the secrets-store CSI driver so the credential never touches source control.',
+      why: 'Plaintext secrets in manifests end up in Git history forever. Once leaked, the only fix is rotation - not a revert. Use external secret managers with the secrets-store CSI driver so the credential never touches source control.',
     },
   ];
 

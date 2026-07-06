@@ -254,13 +254,13 @@ jobs:
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Micro-frontends solve organizational problems, not technical ones</strong> &mdash; use them when multiple teams need to deploy independently</li>
-        <li><strong>Module Federation is the current standard</strong> &mdash; runtime integration with shared dependencies</li>
-        <li><strong>Shared singletons prevent bundle duplication</strong> &mdash; React, design system, and state libraries should load once</li>
-        <li><strong>Communication via custom events keeps coupling low</strong> &mdash; micro-apps should not import from each other directly</li>
-        <li><strong>Each micro-app gets its own CI/CD pipeline</strong> &mdash; that is the whole point</li>
-        <li><strong>Do not split too early</strong> &mdash; start with a well-structured monolith and split only when team autonomy demands it</li>
-        <li><strong>The complexity cost is real</strong> &mdash; only worth it with 4+ teams working on the same frontend</li>
+        <li><strong>Micro-frontends solve organizational problems, not technical ones</strong> - use them when multiple teams need to deploy independently</li>
+        <li><strong>Module Federation is the current standard</strong> - runtime integration with shared dependencies</li>
+        <li><strong>Shared singletons prevent bundle duplication</strong> - React, design system, and state libraries should load once</li>
+        <li><strong>Communication via custom events keeps coupling low</strong> - micro-apps should not import from each other directly</li>
+        <li><strong>Each micro-app gets its own CI/CD pipeline</strong> - that is the whole point</li>
+        <li><strong>Do not split too early</strong> - start with a well-structured monolith and split only when team autonomy demands it</li>
+        <li><strong>The complexity cost is real</strong> - only worth it with 4+ teams working on the same frontend</li>
       </ul>
 
       <p>Micro-frontends are a scaling strategy for organizations, not a technical improvement for applications. If you have one team, a monolith with good module boundaries is strictly better. If you have five teams stepping on each other during deployments, micro-frontends give each team their own lane. Match the architecture to the organization, not the other way around.</p>

@@ -6,10 +6,10 @@ export const CONTENT = `
       <p>Do not start with Linux kernel patches. Look for issues explicitly labeled for newcomers:</p>
 
       <ul>
-        <li><strong>good first issue</strong> &mdash; the standard GitHub label for beginner tasks</li>
-        <li><strong>help wanted</strong> &mdash; maintainers actively seeking contributors</li>
-        <li><strong>documentation</strong> &mdash; docs fixes are the easiest entry point</li>
-        <li><strong>bug</strong> (with clear reproduction steps) &mdash; bounded scope, clear success criteria</li>
+        <li><strong>good first issue</strong> - the standard GitHub label for beginner tasks</li>
+        <li><strong>help wanted</strong> - maintainers actively seeking contributors</li>
+        <li><strong>documentation</strong> - docs fixes are the easiest entry point</li>
+        <li><strong>bug</strong> (with clear reproduction steps) - bounded scope, clear success criteria</li>
       </ul>
 
       <h3>Where to Search</h3>
@@ -28,9 +28,9 @@ https://github.com/search?q=label%3A%22good+first+issue%22+language%3ATypeScript
       <h3>Picking the Right Issue</h3>
 
       <ul>
-        <li><strong>Read the issue completely</strong> including all comments &mdash; someone may already be working on it</li>
-        <li><strong>Check if it is assigned</strong> &mdash; if someone claimed it 3 months ago with no PR, comment asking if it is still being worked on</li>
-        <li><strong>Prefer issues with clear acceptance criteria</strong> &mdash; &ldquo;Fix typo in README&rdquo; is better than &ldquo;Improve performance&rdquo;</li>
+        <li><strong>Read the issue completely</strong> including all comments - someone may already be working on it</li>
+        <li><strong>Check if it is assigned</strong> - if someone claimed it 3 months ago with no PR, comment asking if it is still being worked on</li>
+        <li><strong>Prefer issues with clear acceptance criteria</strong> - &ldquo;Fix typo in README&rdquo; is better than &ldquo;Improve performance&rdquo;</li>
         <li><strong>Comment before starting:</strong> &ldquo;I&rsquo;d like to work on this. Is this still available?&rdquo;</li>
       </ul>
 
@@ -77,8 +77,8 @@ npm test
 
       <ul>
         <li><strong>Make the smallest possible change</strong> that solves the issue. Do not refactor surrounding code.</li>
-        <li><strong>Follow the project&rsquo;s code style</strong> &mdash; look at existing code and match it exactly (indentation, naming, imports).</li>
-        <li><strong>Add tests if the project has tests</strong> &mdash; a PR with tests is much more likely to be merged.</li>
+        <li><strong>Follow the project&rsquo;s code style</strong> - look at existing code and match it exactly (indentation, naming, imports).</li>
+        <li><strong>Add tests if the project has tests</strong> - a PR with tests is much more likely to be merged.</li>
         <li><strong>Run the full test suite locally</strong> before pushing.</li>
       </ul>
 
@@ -152,14 +152,14 @@ failures for new users. Fixes #123.
 
       <h2>Step 7: Respond to Review Feedback</h2>
 
-      <p>Maintainer reviews are normal and expected. Most PRs get feedback. This is not criticism &mdash; it is collaboration.</p>
+      <p>Maintainer reviews are normal and expected. Most PRs get feedback. This is not criticism - it is collaboration.</p>
 
       <ul>
-        <li><strong>Respond to every comment</strong> &mdash; even if just &ldquo;Good point, fixed!&rdquo;</li>
+        <li><strong>Respond to every comment</strong> - even if just &ldquo;Good point, fixed!&rdquo;</li>
         <li><strong>Push fixes as new commits</strong> (do not force-push unless asked). This makes it easy for reviewers to see what changed.</li>
-        <li><strong>Ask questions if feedback is unclear</strong> &mdash; &ldquo;Could you clarify what you mean by X?&rdquo;</li>
-        <li><strong>Do not take rejection personally</strong> &mdash; sometimes a PR does not fit the project&rsquo;s direction. That is okay.</li>
-        <li><strong>Be patient</strong> &mdash; maintainers are volunteers. It may take days or weeks to review your PR.</li>
+        <li><strong>Ask questions if feedback is unclear</strong> - &ldquo;Could you clarify what you mean by X?&rdquo;</li>
+        <li><strong>Do not take rejection personally</strong> - sometimes a PR does not fit the project&rsquo;s direction. That is okay.</li>
+        <li><strong>Be patient</strong> - maintainers are volunteers. It may take days or weeks to review your PR.</li>
       </ul>
 
       <pre><code># After receiving review feedback:
@@ -233,36 +233,36 @@ git push --force-with-lease origin fix/typo-in-readme</code></pre>
       <h2>Etiquette Rules</h2>
 
       <ul>
-        <li><strong>Read CONTRIBUTING.md before anything else</strong> &mdash; every project has different expectations</li>
+        <li><strong>Read CONTRIBUTING.md before anything else</strong> - every project has different expectations</li>
         <li><strong>Do not open a PR without an issue</strong> unless it is a trivial fix (typo, broken link)</li>
-        <li><strong>One PR per issue</strong> &mdash; do not bundle unrelated changes</li>
-        <li><strong>Do not @-mention maintainers asking for review</strong> &mdash; they will see your PR</li>
-        <li><strong>Be kind in all interactions</strong> &mdash; open source runs on goodwill</li>
-        <li><strong>Give credit</strong> &mdash; if someone helped you in the issue, mention them in the PR</li>
-        <li><strong>Follow up</strong> &mdash; if CI fails on your PR, fix it. Do not leave broken PRs open.</li>
+        <li><strong>One PR per issue</strong> - do not bundle unrelated changes</li>
+        <li><strong>Do not @-mention maintainers asking for review</strong> - they will see your PR</li>
+        <li><strong>Be kind in all interactions</strong> - open source runs on goodwill</li>
+        <li><strong>Give credit</strong> - if someone helped you in the issue, mention them in the PR</li>
+        <li><strong>Follow up</strong> - if CI fails on your PR, fix it. Do not leave broken PRs open.</li>
       </ul>
 
       <h2>Building a Contribution Habit</h2>
 
       <ol>
-        <li><strong>Start with docs/typo fixes</strong> in projects you use daily &mdash; you already know the product</li>
+        <li><strong>Start with docs/typo fixes</strong> in projects you use daily - you already know the product</li>
         <li><strong>Move to bug fixes</strong> where you have experienced the bug yourself</li>
-        <li><strong>Progress to tests</strong> &mdash; reading test code teaches you the codebase faster than reading source code</li>
-        <li><strong>Eventually tackle features</strong> &mdash; by now you understand the project&rsquo;s patterns and conventions</li>
-        <li><strong>Become a regular contributor</strong> &mdash; consistent small contributions matter more than one big PR</li>
+        <li><strong>Progress to tests</strong> - reading test code teaches you the codebase faster than reading source code</li>
+        <li><strong>Eventually tackle features</strong> - by now you understand the project&rsquo;s patterns and conventions</li>
+        <li><strong>Become a regular contributor</strong> - consistent small contributions matter more than one big PR</li>
       </ol>
 
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Your first PR should be small</strong> &mdash; a typo fix or docs improvement is a perfectly valid contribution</li>
-        <li><strong>Always read CONTRIBUTING.md first</strong> &mdash; projects have specific expectations for branches, commits, and testing</li>
-        <li><strong>Comment on the issue before starting work</strong> &mdash; avoid duplicating effort</li>
-        <li><strong>Never work on the main branch</strong> &mdash; always create a feature branch</li>
-        <li><strong>Write descriptive PR titles and descriptions</strong> &mdash; reference the issue number</li>
-        <li><strong>Review feedback is normal, not personal</strong> &mdash; respond thoughtfully and push fixes</li>
-        <li><strong>Consistency beats size</strong> &mdash; regular small contributions build your reputation and skills faster than one large PR</li>
+        <li><strong>Your first PR should be small</strong> - a typo fix or docs improvement is a perfectly valid contribution</li>
+        <li><strong>Always read CONTRIBUTING.md first</strong> - projects have specific expectations for branches, commits, and testing</li>
+        <li><strong>Comment on the issue before starting work</strong> - avoid duplicating effort</li>
+        <li><strong>Never work on the main branch</strong> - always create a feature branch</li>
+        <li><strong>Write descriptive PR titles and descriptions</strong> - reference the issue number</li>
+        <li><strong>Review feedback is normal, not personal</strong> - respond thoughtfully and push fixes</li>
+        <li><strong>Consistency beats size</strong> - regular small contributions build your reputation and skills faster than one large PR</li>
       </ul>
 
-      <p>The open source community is full of people who started exactly where you are now &mdash; nervous about their first PR. Every maintainer remembers their first contribution. The hardest part is not the code. It is clicking &ldquo;Create Pull Request.&rdquo; Once you do it once, it becomes routine. Start today.</p>
+      <p>The open source community is full of people who started exactly where you are now - nervous about their first PR. Every maintainer remembers their first contribution. The hardest part is not the code. It is clicking &ldquo;Create Pull Request.&rdquo; Once you do it once, it becomes routine. Start today.</p>
     `;

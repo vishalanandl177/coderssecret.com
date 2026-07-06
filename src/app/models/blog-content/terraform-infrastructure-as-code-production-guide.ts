@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Every time you click &ldquo;Create Instance&rdquo; in the AWS console, you are creating infrastructure that cannot be reproduced, reviewed, or rolled back. Terraform replaces console clicking with code &mdash; declarative configuration files that describe your entire infrastructure and can be version-controlled, peer-reviewed, and applied automatically.</p>
+      <p>Every time you click &ldquo;Create Instance&rdquo; in the AWS console, you are creating infrastructure that cannot be reproduced, reviewed, or rolled back. Terraform replaces console clicking with code - declarative configuration files that describe your entire infrastructure and can be version-controlled, peer-reviewed, and applied automatically.</p>
 
       <div class="pipeline-diagram">
         <div class="pipeline-title">Terraform Workflow: Code &rarr; Plan &rarr; Apply</div>
@@ -331,13 +331,13 @@ jobs:
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Infrastructure as Code is not optional</strong> &mdash; if it is not in code, it is not reproducible</li>
-        <li><strong>Always use remote state with locking</strong> &mdash; local state is a disaster waiting to happen</li>
-        <li><strong>Review terraform plan like you review code</strong> &mdash; a careless apply can destroy production</li>
-        <li><strong>Use modules for reusable components</strong> &mdash; same pattern as functions in application code</li>
-        <li><strong>Split state by environment and service</strong> &mdash; blast radius reduction</li>
-        <li><strong>CI/CD should run plan on PRs, apply on merge</strong> &mdash; with mandatory approval for production</li>
-        <li><strong>Never make manual changes</strong> to Terraform-managed resources &mdash; drift is the enemy</li>
+        <li><strong>Infrastructure as Code is not optional</strong> - if it is not in code, it is not reproducible</li>
+        <li><strong>Always use remote state with locking</strong> - local state is a disaster waiting to happen</li>
+        <li><strong>Review terraform plan like you review code</strong> - a careless apply can destroy production</li>
+        <li><strong>Use modules for reusable components</strong> - same pattern as functions in application code</li>
+        <li><strong>Split state by environment and service</strong> - blast radius reduction</li>
+        <li><strong>CI/CD should run plan on PRs, apply on merge</strong> - with mandatory approval for production</li>
+        <li><strong>Never make manual changes</strong> to Terraform-managed resources - drift is the enemy</li>
         <li><strong>Mark sensitive variables</strong> to prevent secrets from appearing in plan output</li>
       </ul>
 

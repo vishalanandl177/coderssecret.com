@@ -1,13 +1,13 @@
 export const CONTENT = `
-      <p>I built this entire blog — 35+ articles, 6 interactive games, 5 cheat sheets, SEO optimization, GitHub Pages deployment, Giscus comments — using Claude Code in a single session. Not by luck. By learning how to prompt it properly. The difference between a vague prompt and a precise one is the difference between "it kind of works" and "ship it to production."</p>
+      <p>I built this entire blog - 35+ articles, 6 interactive games, 5 cheat sheets, SEO optimization, GitHub Pages deployment, Giscus comments - using Claude Code in a single session. Not by luck. By learning how to prompt it properly. The difference between a vague prompt and a precise one is the difference between "it kind of works" and "ship it to production."</p>
 
-      <p>This tutorial teaches you the prompting patterns that actually work, with real examples from building real software. No theory — just what works.</p>
+      <p>This tutorial teaches you the prompting patterns that actually work, with real examples from building real software. No theory - just what works.</p>
 
       <h2>The Fundamental Rule</h2>
 
       <p>Before we get into techniques, understand this one thing:</p>
 
-      <p><strong>Claude Code is not a search engine. It's a junior developer who is incredibly fast, never gets tired, and has read every programming book ever written — but needs clear direction.</strong></p>
+      <p><strong>Claude Code is not a search engine. It's a junior developer who is incredibly fast, never gets tired, and has read every programming book ever written - but needs clear direction.</strong></p>
 
       <p>You wouldn't tell a junior dev "make the app better." You'd say "add a loading spinner to the submit button that appears when the form is submitting and disappears when the response arrives." That's the level of specificity Claude Code needs.</p>
 
@@ -29,11 +29,11 @@ export const CONTENT = `
           <div class="vs-card" style="border-color:#22c55e">
             <div class="vs-card-header" style="background:#22c55e">&#x2705; Precise Prompts</div>
             <div class="vs-card-body">
-              <div class="vs-row"><span class="vs-row-icon">&#x1F44D;</span>"The TOC links redirect to home instead of scrolling — use scrollIntoView"</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F44D;</span>"The TOC links redirect to home instead of scrolling - use scrollIntoView"</div>
               <div class="vs-row"><span class="vs-row-icon">&#x1F44D;</span>"Move TOC to a sticky sidebar on desktop like Android docs"</div>
               <div class="vs-row"><span class="vs-row-icon">&#x1F44D;</span>"Add OG tags, JSON-LD BlogPosting schema, and canonical URLs per page"</div>
-              <div class="vs-row"><span class="vs-row-icon">&#x1F44D;</span>"Write pytest tests for the auth service — cover login, expired tokens, rate limiting"</div>
-              <div class="vs-row"><span class="vs-row-icon">&#x1F44D;</span>"The bar chart bars are empty because Angular sanitizes inline styles — use CSS classes instead"</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F44D;</span>"Write pytest tests for the auth service - cover login, expired tokens, rate limiting"</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F44D;</span>"The bar chart bars are empty because Angular sanitizes inline styles - use CSS classes instead"</div>
             </div>
           </div>
         </div>
@@ -65,7 +65,7 @@ navigating between blog posts so each post gets its own discussion."</code></pre
 
       <h2>Pattern 2: The Screenshot Prompt</h2>
 
-      <p>When something looks wrong visually, <strong>show it</strong>. Claude Code can read screenshots. Instead of trying to describe a layout issue in words, paste a screenshot and say "this card is misaligned — the left column is too narrow and text is wrapping."</p>
+      <p>When something looks wrong visually, <strong>show it</strong>. Claude Code can read screenshots. Instead of trying to describe a layout issue in words, paste a screenshot and say "this card is misaligned - the left column is too narrow and text is wrapping."</p>
 
       <pre><code># &#x274C; BAD: Vague visual description
 "The auth quick reference section looks weird on the page"
@@ -73,7 +73,7 @@ navigating between blog posts so each post gets its own discussion."</code></pre
 # &#x2705; GOOD: Screenshot + specific problem
 [paste screenshot]
 "Auth Quick Reference: Which Auth for Which Scenario UI having
-issues. It's not properly aligned — the left card is too narrow
+issues. It's not properly aligned - the left card is too narrow
 and text is clipping. The VS cards layout doesn't work for this
 content."
 
@@ -100,7 +100,7 @@ that scroll with the page."
 
       <h2>Pattern 4: The Multi-Task Prompt</h2>
 
-      <p>When you need multiple things done, list them explicitly. Claude Code handles numbered lists beautifully — it tracks each item and doesn't skip any.</p>
+      <p>When you need multiple things done, list them explicitly. Claude Code handles numbered lists beautifully - it tracks each item and doesn't skip any.</p>
 
       <pre><code># &#x274C; BAD: Run-on paragraph
 "Add some blog posts about security and also maybe fix the SEO
@@ -108,11 +108,11 @@ and add dark mode support"
 
 # &#x2705; GOOD: Numbered list with specifics
 "Three things:
-1. Add a blog on ethical hacking — make it beginner-friendly,
+1. Add a blog on ethical hacking - make it beginner-friendly,
    include real tool examples, safe lab setup guide
-2. Add a blog on M2M authentication — cover OAuth Client
+2. Add a blog on M2M authentication - cover OAuth Client
    Credentials, mTLS, API keys, JWT validation
-3. Add a blog on SSO (SAML & OIDC) — compare both protocols,
+3. Add a blog on SSO (SAML & OIDC) - compare both protocols,
    include sequence diagrams, Python implementation"
 
 # Claude will create all three posts, each complete and
@@ -142,10 +142,10 @@ Constraints:
 
       <h2>Pattern 6: The Iterative Refinement Prompt</h2>
 
-      <p>Don't try to get everything perfect in one prompt. Build iteratively — the same way you'd code. Ship a v1, test it, then refine.</p>
+      <p>Don't try to get everything perfect in one prompt. Build iteratively - the same way you'd code. Ship a v1, test it, then refine.</p>
 
       <pre><code># Round 1: Get the foundation
-"Add interactive diagrams to the SSO blog post — sequence
+"Add interactive diagrams to the SSO blog post - sequence
 diagrams for SAML and OIDC flows"
 
 # Round 2: After seeing the result
@@ -155,11 +155,11 @@ instead"
 
 # Round 3: After testing in browser
 "The sequence diagrams look great but the SAML vs OIDC
-comparison cards don't render properly on mobile — the
+comparison cards don't render properly on mobile - the
 VS badge should stack above on small screens"
 
 # Each round gets you closer to exactly what you want.
-# Don't try to specify everything upfront — iterate.</code></pre>
+# Don't try to specify everything upfront - iterate.</code></pre>
 
       <h2>Pattern 7: The Debug Prompt</h2>
 
@@ -176,7 +176,7 @@ VS badge should stack above on small screens"
 
 This started after I added the Cron Jobs blog post. The issue
 is likely backticks or dollar signs in PowerShell code examples
-inside the template literal — they're being interpreted as
+inside the template literal - they're being interpreted as
 JavaScript template expressions."
 
 # Claude immediately knows:
@@ -231,7 +231,7 @@ breadcrumbs, links to home and blog"
 
       <h2>Pattern 10: The "Do What I Mean" Prompt</h2>
 
-      <p>Sometimes you know the problem but not the solution. That's fine — describe the problem, let Claude figure out the implementation.</p>
+      <p>Sometimes you know the problem but not the solution. That's fine - describe the problem, let Claude figure out the implementation.</p>
 
       <pre><code># Problem-first (you don't need to know the solution):
 "Google says our pages have a 'Soft 404' error. The pages load
@@ -258,7 +258,7 @@ How do we fix this so Google can actually index our blog posts?"
           <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">Always ask to commit and push</div><div class="timeline-item-desc">End prompts with "commit and push to main" so you don't lose work. Claude tracks git state and writes good commit messages.</div></div>
           <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">Request the build check</div><div class="timeline-item-desc">"Build and verify" at the end catches compile errors immediately. Claude fixes them in the same turn.</div></div>
           <div class="timeline-item" style="--c:#7c3aed"><div class="timeline-item-title" style="color:#7c3aed">Paste error messages directly</div><div class="timeline-item-desc">Don't summarise errors. Copy-paste the exact terminal output. Claude parses error messages faster than you do.</div></div>
-          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Ask "what else should I do?"</div><div class="timeline-item-desc">After completing a feature, ask Claude to audit it. "Analyse what's missing from this blog site" — it catches things you didn't think of.</div></div>
+          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Ask "what else should I do?"</div><div class="timeline-item-desc">After completing a feature, ask Claude to audit it. "Analyse what's missing from this blog site" - it catches things you didn't think of.</div></div>
           <div class="timeline-item" style="--c:#ef4444"><div class="timeline-item-title" style="color:#ef4444">Be honest about what you don't know</div><div class="timeline-item-desc">"I don't understand why the bar chart bars are empty" is better than pretending you know. Claude explains the root cause (Angular innerHTML sanitizer) and the fix.</div></div>
           <div class="timeline-item" style="--c:#ec4899"><div class="timeline-item-title" style="color:#ec4899">Challenge recommendations</div><div class="timeline-item-desc">"Is Firebase really the right choice here?" led to Claude honestly explaining why it's a bad fit for a static blog. Don't accept the first suggestion blindly.</div></div>
           <div class="timeline-item" style="--c:#a855f7"><div class="timeline-item-title" style="color:#a855f7">Use "make it feel human"</div><div class="timeline-item-desc">For content, add tone instructions: "write in Indian English," "make it conversational," "should feel like written by a human." Claude adjusts its writing style dramatically.</div></div>
@@ -326,7 +326,7 @@ Build, commit, and push when done."</code></pre>
         </div>
       </div>
 
-      <p>All of this in one session. Not because Claude Code is magic — because the prompts were specific, contextual, and iterative. The tool does exactly what you tell it. The skill is in the telling.</p>
+      <p>All of this in one session. Not because Claude Code is magic - because the prompts were specific, contextual, and iterative. The tool does exactly what you tell it. The skill is in the telling.</p>
 
-      <p>Start with the Context-First pattern. Master it. Then add constraints and references. Within a week, you'll be shipping features 10x faster than you ever thought possible. The bottleneck is no longer coding speed — it's how clearly you can think about what you want.</p>
+      <p>Start with the Context-First pattern. Master it. Then add constraints and references. Within a week, you'll be shipping features 10x faster than you ever thought possible. The bottleneck is no longer coding speed - it's how clearly you can think about what you want.</p>
     `;

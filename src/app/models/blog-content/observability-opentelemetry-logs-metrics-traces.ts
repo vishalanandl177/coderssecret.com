@@ -300,14 +300,14 @@ services:
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Observability is not monitoring</strong> &mdash; monitoring tells you something is wrong, observability tells you <em>why</em></li>
-        <li><strong>OpenTelemetry is the standard</strong> &mdash; vendor-neutral, CNCF-backed, works with every observability backend</li>
-        <li><strong>Auto-instrumentation covers 80% of needs</strong> &mdash; Flask, Django, Express, database drivers, HTTP clients all have plugins</li>
-        <li><strong>Correlate all three pillars</strong> &mdash; trace IDs in logs let you jump from a log entry to the full request trace</li>
-        <li><strong>Use the Collector as a central pipeline</strong> &mdash; receive from all services, process in one place, export to any backend</li>
-        <li><strong>Histograms over averages</strong> &mdash; P99 latency reveals problems that averages hide</li>
-        <li><strong>Start with auto-instrumentation and traces</strong> &mdash; add custom metrics and structured logging as you identify specific needs</li>
+        <li><strong>Observability is not monitoring</strong> - monitoring tells you something is wrong, observability tells you <em>why</em></li>
+        <li><strong>OpenTelemetry is the standard</strong> - vendor-neutral, CNCF-backed, works with every observability backend</li>
+        <li><strong>Auto-instrumentation covers 80% of needs</strong> - Flask, Django, Express, database drivers, HTTP clients all have plugins</li>
+        <li><strong>Correlate all three pillars</strong> - trace IDs in logs let you jump from a log entry to the full request trace</li>
+        <li><strong>Use the Collector as a central pipeline</strong> - receive from all services, process in one place, export to any backend</li>
+        <li><strong>Histograms over averages</strong> - P99 latency reveals problems that averages hide</li>
+        <li><strong>Start with auto-instrumentation and traces</strong> - add custom metrics and structured logging as you identify specific needs</li>
       </ul>
 
-      <p>The goal of observability is answering questions you did not know you would ask. With traces, metrics, and correlated logs, you can debug any production issue by following the data instead of guessing. Start with OpenTelemetry auto-instrumentation today &mdash; you will wonder how you ever debugged without it.</p>
+      <p>The goal of observability is answering questions you did not know you would ask. With traces, metrics, and correlated logs, you can debug any production issue by following the data instead of guessing. Start with OpenTelemetry auto-instrumentation today - you will wonder how you ever debugged without it.</p>
     `;

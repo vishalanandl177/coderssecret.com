@@ -21,7 +21,7 @@ export const CONTENT = `
 
       <ul>
         <li><strong>DNS-based load balancing:</strong> Route53 (AWS), Cloud DNS (GCP) can return different IPs based on geography, health checks, or weighted distribution</li>
-        <li><strong>CDN (Content Delivery Network):</strong> Static assets (JS, CSS, images) are cached at edge servers worldwide. CloudFront, Cloudflare, or Fastly serve files from the nearest edge &mdash; 20ms instead of 200ms</li>
+        <li><strong>CDN (Content Delivery Network):</strong> Static assets (JS, CSS, images) are cached at edge servers worldwide. CloudFront, Cloudflare, or Fastly serve files from the nearest edge - 20ms instead of 200ms</li>
       </ul>
 
       <pre><code># Typical CDN setup for a web app:
@@ -51,7 +51,7 @@ export const CONTENT = `
       <ul>
         <li><strong>Round Robin:</strong> Each request goes to the next server in sequence. Simple, works when servers are identical.</li>
         <li><strong>Least Connections:</strong> Routes to the server with the fewest active connections. Better for varying request durations.</li>
-        <li><strong>Consistent Hashing:</strong> Routes based on a hash of the request key (user ID, session). Ensures the same user hits the same server &mdash; critical for WebSocket or cache-dependent workloads.</li>
+        <li><strong>Consistent Hashing:</strong> Routes based on a hash of the request key (user ID, session). Ensures the same user hits the same server - critical for WebSocket or cache-dependent workloads.</li>
       </ul>
 
       <pre><code># nginx load balancer configuration
@@ -99,7 +99,7 @@ server {
       <p>Your actual business logic runs here. The key design principle: <strong>stateless servers</strong>.</p>
 
       <ul>
-        <li><strong>Stateless:</strong> No server stores user sessions, uploaded files, or cache locally. Everything goes to external stores (Redis, S3, database). This means any server can handle any request &mdash; enabling horizontal scaling.</li>
+        <li><strong>Stateless:</strong> No server stores user sessions, uploaded files, or cache locally. Everything goes to external stores (Redis, S3, database). This means any server can handle any request - enabling horizontal scaling.</li>
         <li><strong>Horizontal Scaling:</strong> Add more servers behind the load balancer. Kubernetes makes this automatic with Horizontal Pod Autoscaler (HPA).</li>
       </ul>
 
@@ -397,14 +397,14 @@ producer.send('click-events', {
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Start simple, scale when needed</strong> &mdash; a single server with PostgreSQL handles more traffic than most people think</li>
-        <li><strong>Stateless servers enable horizontal scaling</strong> &mdash; store all state in external systems (Redis, database, S3)</li>
-        <li><strong>Caching is your biggest performance lever</strong> &mdash; a Redis cache in front of your database can handle 100x the read throughput</li>
-        <li><strong>Message queues decouple and absorb spikes</strong> &mdash; essential for reliable async processing</li>
-        <li><strong>Always do back-of-envelope math</strong> &mdash; it prevents both over-engineering and under-provisioning</li>
-        <li><strong>Every component adds complexity</strong> &mdash; only add a layer when you have a concrete problem it solves</li>
-        <li><strong>Discuss tradeoffs, not just solutions</strong> &mdash; strong consistency vs. availability, cost vs. performance, simplicity vs. scalability</li>
+        <li><strong>Start simple, scale when needed</strong> - a single server with PostgreSQL handles more traffic than most people think</li>
+        <li><strong>Stateless servers enable horizontal scaling</strong> - store all state in external systems (Redis, database, S3)</li>
+        <li><strong>Caching is your biggest performance lever</strong> - a Redis cache in front of your database can handle 100x the read throughput</li>
+        <li><strong>Message queues decouple and absorb spikes</strong> - essential for reliable async processing</li>
+        <li><strong>Always do back-of-envelope math</strong> - it prevents both over-engineering and under-provisioning</li>
+        <li><strong>Every component adds complexity</strong> - only add a layer when you have a concrete problem it solves</li>
+        <li><strong>Discuss tradeoffs, not just solutions</strong> - strong consistency vs. availability, cost vs. performance, simplicity vs. scalability</li>
       </ul>
 
-      <p>System design is not about memorizing architectures &mdash; it is about understanding the <strong>building blocks</strong>, knowing their tradeoffs, and assembling them to meet specific requirements. Master the layers in this guide and you can design (or discuss) any system with confidence.</p>
+      <p>System design is not about memorizing architectures - it is about understanding the <strong>building blocks</strong>, knowing their tradeoffs, and assembling them to meet specific requirements. Master the layers in this guide and you can design (or discuss) any system with confidence.</p>
     `;

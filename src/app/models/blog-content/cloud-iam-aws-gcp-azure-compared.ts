@@ -1,14 +1,14 @@
 export const CONTENT = `
-      <p>Here's a confession: the first time I switched from AWS to GCP, I spent two hours looking for "IAM Roles" in the GCP console. I found them — but they meant something completely different from what AWS calls a "Role." Same word, different concept entirely. If you've ever felt this confusion, you're not alone. Every cloud uses slightly different terminology for the same fundamental concepts.</p>
+      <p>Here's a confession: the first time I switched from AWS to GCP, I spent two hours looking for "IAM Roles" in the GCP console. I found them - but they meant something completely different from what AWS calls a "Role." Same word, different concept entirely. If you've ever felt this confusion, you're not alone. Every cloud uses slightly different terminology for the same fundamental concepts.</p>
 
-      <p>This guide does three things: (1) explains IAM from the ground up, (2) maps the terminology across all three major clouds, and (3) gives you production-ready examples for each. Whether you're on AWS, GCP, Azure, or all three — you'll walk away knowing exactly what to do.</p>
+      <p>This guide does three things: (1) explains IAM from the ground up, (2) maps the terminology across all three major clouds, and (3) gives you production-ready examples for each. Whether you're on AWS, GCP, Azure, or all three - you'll walk away knowing exactly what to do.</p>
 
       <h2>What is IAM, Really?</h2>
 
       <p>Every single API call to any cloud service starts with two questions:</p>
       <ul>
-        <li><strong>Authentication:</strong> "Who are you?" — prove your identity (certificate, password, token)</li>
-        <li><strong>Authorization:</strong> "What can you do?" — check your permissions against a policy</li>
+        <li><strong>Authentication:</strong> "Who are you?" - prove your identity (certificate, password, token)</li>
+        <li><strong>Authorization:</strong> "What can you do?" - check your permissions against a policy</li>
       </ul>
 
       <p>IAM (Identity and Access Management) is the system that answers both. It's the bouncer at the door of every cloud resource.</p>
@@ -60,15 +60,15 @@ export const CONTENT = `
         </div>
       </div>
 
-      <p><strong>The biggest confusion:</strong> In AWS, a "Role" is a <em>machine identity</em> (what a Lambda or EC2 instance assumes). In GCP, a "Role" is a <em>set of permissions</em> (like <code>roles/storage.objectViewer</code>). Completely different concepts, same word. Keep this in mind — it will save you hours of confusion.</p>
+      <p><strong>The biggest confusion:</strong> In AWS, a "Role" is a <em>machine identity</em> (what a Lambda or EC2 instance assumes). In GCP, a "Role" is a <em>set of permissions</em> (like <code>roles/storage.objectViewer</code>). Completely different concepts, same word. Keep this in mind - it will save you hours of confusion.</p>
 
-      <h2>AWS IAM — The Deepest, Most Granular</h2>
+      <h2>AWS IAM - The Deepest, Most Granular</h2>
 
-      <p>AWS has the most powerful (and most complex) IAM system. You can control permissions at a ridiculously fine level — down to "this Lambda can only read this specific S3 prefix between 9 AM and 5 PM on weekdays."</p>
+      <p>AWS has the most powerful (and most complex) IAM system. You can control permissions at a ridiculously fine level - down to "this Lambda can only read this specific S3 prefix between 9 AM and 5 PM on weekdays."</p>
 
       <h2>AWS Policy Anatomy</h2>
 
-      <pre><code>// AWS IAM Policy — the fundamental building block
+      <pre><code>// AWS IAM Policy - the fundamental building block
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -174,7 +174,7 @@ resource "aws_iam_role_policy" "lambda_s3_access" {
   })
 }</code></pre>
 
-      <h2>GCP IAM — Clean, Project-Centric</h2>
+      <h2>GCP IAM - Clean, Project-Centric</h2>
 
       <p>GCP takes a different approach. Instead of writing JSON policies from scratch, you pick from hundreds of <strong>predefined roles</strong> and grant them to identities at specific resource levels. Much simpler to get started, but less granular than AWS.</p>
 
@@ -195,13 +195,13 @@ gcloud projects add-iam-policy-binding my-app-prod \\
   --role="roles/storage.objectViewer"
 
 # Key GCP roles you'll use most:
-# roles/viewer                     — Read everything in the project
-# roles/editor                     — Read + write (DANGEROUS — avoid!)
-# roles/owner                      — Full control (only for admins)
-# roles/storage.objectViewer       — Read GCS objects
-# roles/cloudsql.client            — Connect to Cloud SQL
-# roles/container.developer        — Deploy to GKE
-# roles/iam.serviceAccountUser     — Impersonate service accounts
+# roles/viewer                     - Read everything in the project
+# roles/editor                     - Read + write (DANGEROUS - avoid!)
+# roles/owner                      - Full control (only for admins)
+# roles/storage.objectViewer       - Read GCS objects
+# roles/cloudsql.client            - Connect to Cloud SQL
+# roles/container.developer        - Deploy to GKE
+# roles/iam.serviceAccountUser     - Impersonate service accounts
 
 # &#x274C; WRONG: Download a JSON key file
 gcloud iam service-accounts keys create key.json \\
@@ -226,7 +226,7 @@ metadata:
 # Pods using this SA automatically get GCP credentials. No JSON keys!
 
 # For external workloads (GitHub Actions, other clouds):
-# Use Workload Identity Federation — exchange an OIDC token for GCP credentials
+# Use Workload Identity Federation - exchange an OIDC token for GCP credentials
 gcloud iam workload-identity-pools create github-pool \\
   --location="global" \\
   --display-name="GitHub Actions"
@@ -264,9 +264,9 @@ resource "google_project_iam_custom_role" "minimal_storage" {
   ]
 }</code></pre>
 
-      <h2>Azure IAM — RBAC with Scope Hierarchy</h2>
+      <h2>Azure IAM - RBAC with Scope Hierarchy</h2>
 
-      <p>Azure uses <strong>Role-Based Access Control (RBAC)</strong> with a clear scope hierarchy. Permissions flow down from Management Group → Subscription → Resource Group → Resource. The key concept is <strong>Managed Identities</strong> — Azure's equivalent of AWS Roles and GCP Service Accounts.</p>
+      <p>Azure uses <strong>Role-Based Access Control (RBAC)</strong> with a clear scope hierarchy. Permissions flow down from Management Group → Subscription → Resource Group → Resource. The key concept is <strong>Managed Identities</strong> - Azure's equivalent of AWS Roles and GCP Service Accounts.</p>
 
       <!-- Azure Model -->
       <div class="flow-diagram">
@@ -292,13 +292,13 @@ az role assignment create \\
   --scope "/subscriptions/SUB_ID/resourceGroups/rg-orders-prod/providers/Microsoft.Storage/storageAccounts/ordersdata"
 
 # Key Azure built-in roles:
-# Reader                          — Read everything
-# Contributor                     — Read + write (no IAM changes)
-# Owner                           — Full control including IAM
-# Storage Blob Data Reader        — Read blobs
-# Storage Blob Data Contributor   — Read + write blobs
-# SQL DB Contributor               — Manage SQL databases
-# AcrPull                          — Pull container images from ACR
+# Reader                          - Read everything
+# Contributor                     - Read + write (no IAM changes)
+# Owner                           - Full control including IAM
+# Storage Blob Data Reader        - Read blobs
+# Storage Blob Data Contributor   - Read + write blobs
+# SQL DB Contributor               - Manage SQL databases
+# AcrPull                          - Pull container images from ACR
 
 # &#x274C; WRONG: Service Principal with client secret
 az ad sp create-for-rbac --name my-app
@@ -370,12 +370,12 @@ resource "azurerm_role_assignment" "sql_access" {
 
       <!-- Best Practices -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">IAM Best Practices — Follow These or Get Hacked</div>
+        <div class="flow-diagram-title">IAM Best Practices - Follow These or Get Hacked</div>
         <div class="timeline">
           <div class="timeline-item" style="--c:#ef4444"><div class="timeline-item-title" style="color:#ef4444">1. Never use long-lived credentials</div><div class="timeline-item-desc">No access keys, no JSON key files, no client secrets stored in env vars. Use Roles (AWS), Service Accounts with Workload Identity (GCP), or Managed Identities (Azure).</div></div>
-          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">2. Least privilege — always</div><div class="timeline-item-desc">If a service only reads from S3, don't give it s3:*. Give it s3:GetObject on the specific bucket. Review quarterly. Remove what's not used.</div></div>
-          <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">3. Separate environments with boundaries</div><div class="timeline-item-desc">Production in a separate AWS Account / GCP Project / Azure Subscription. Cross-environment access requires explicit trust — not just IAM policies.</div></div>
-          <div class="timeline-item" style="--c:#7c3aed"><div class="timeline-item-title" style="color:#7c3aed">4. MFA for all human users — no exceptions</div><div class="timeline-item-desc">Every human console login must require MFA. AWS: virtual MFA or hardware key. GCP: Google 2-Step. Azure: Entra Conditional Access with MFA.</div></div>
+          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">2. Least privilege - always</div><div class="timeline-item-desc">If a service only reads from S3, don't give it s3:*. Give it s3:GetObject on the specific bucket. Review quarterly. Remove what's not used.</div></div>
+          <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">3. Separate environments with boundaries</div><div class="timeline-item-desc">Production in a separate AWS Account / GCP Project / Azure Subscription. Cross-environment access requires explicit trust - not just IAM policies.</div></div>
+          <div class="timeline-item" style="--c:#7c3aed"><div class="timeline-item-title" style="color:#7c3aed">4. MFA for all human users - no exceptions</div><div class="timeline-item-desc">Every human console login must require MFA. AWS: virtual MFA or hardware key. GCP: Google 2-Step. Azure: Entra Conditional Access with MFA.</div></div>
           <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">5. Use Infrastructure as Code for IAM</div><div class="timeline-item-desc">Terraform or Pulumi for all IAM resources. Never click in the console to create roles. IaC = auditable, reviewable, rollbackable.</div></div>
           <div class="timeline-item" style="--c:#ec4899"><div class="timeline-item-title" style="color:#ec4899">6. Monitor and alert on IAM changes</div><div class="timeline-item-desc">Alert on: new admin role grants, policy changes, root/owner usage, unusual API calls. AWS CloudTrail + GuardDuty, GCP Audit Logs + SCC, Azure Activity Log + Defender.</div></div>
           <div class="timeline-item" style="--c:#a855f7"><div class="timeline-item-title" style="color:#a855f7">7. Lock the root/owner account</div><div class="timeline-item-desc">AWS Root Account: enable MFA, delete access keys, never use for daily work. GCP: Super Admin should be break-glass only. Azure: Global Admin same.</div></div>
@@ -460,11 +460,11 @@ resource "azurerm_role_assignment" "sql_access" {
 
       <p><strong>My honest recommendation:</strong></p>
       <ul>
-        <li>If you need maximum control over fine-grained permissions — <strong>AWS</strong></li>
-        <li>If you want the simplest setup with good defaults — <strong>GCP</strong></li>
-        <li>If your company is already on Microsoft 365 / Active Directory — <strong>Azure</strong> (Entra ID integration is unbeatable)</li>
-        <li>If you're multi-cloud — learn the terminology table at the top and apply the same principles everywhere</li>
+        <li>If you need maximum control over fine-grained permissions - <strong>AWS</strong></li>
+        <li>If you want the simplest setup with good defaults - <strong>GCP</strong></li>
+        <li>If your company is already on Microsoft 365 / Active Directory - <strong>Azure</strong> (Entra ID integration is unbeatable)</li>
+        <li>If you're multi-cloud - learn the terminology table at the top and apply the same principles everywhere</li>
       </ul>
 
-      <p>The cloud doesn't matter as much as the practices. Least privilege, machine identities, no long-lived credentials, MFA everywhere, IaC for policies, regular access reviews. Follow these on any cloud and you'll be more secure than 90% of organisations out there. The remaining 10% is about catching the edge cases — and that comes with experience.</p>
+      <p>The cloud doesn't matter as much as the practices. Least privilege, machine identities, no long-lived credentials, MFA everywhere, IaC for policies, regular access reviews. Follow these on any cloud and you'll be more secure than 90% of organisations out there. The remaining 10% is about catching the edge cases - and that comes with experience.</p>
     `;

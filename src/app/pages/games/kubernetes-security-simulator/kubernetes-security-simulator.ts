@@ -38,7 +38,7 @@ roleRef:
           feedback: 'Users are valid RBAC subjects for human operators. The actual issue is the role being granted.',
         },
         {
-          label: 'A ClusterRoleBinding to cluster-admin grants global superuser access — Alice can read every secret and delete every workload across all namespaces.',
+          label: 'A ClusterRoleBinding to cluster-admin grants global superuser access - Alice can read every secret and delete every workload across all namespaces.',
           correct: true,
           feedback: 'Exactly. The intent was scoped namespace deploy access, but cluster-admin is the "root" of Kubernetes. The fix is a namespaced RoleBinding to a Role with only deployment-related verbs.',
         },
@@ -94,10 +94,10 @@ spec:
         {
           label: 'hostNetwork: true blocks the cluster DNS service from resolving names.',
           correct: false,
-          feedback: 'hostNetwork does change DNS resolution for the pod, but DNS is a functional concern — the security risk is the privilege escalation surface.',
+          feedback: 'hostNetwork does change DNS resolution for the pod, but DNS is a functional concern - the security risk is the privilege escalation surface.',
         },
       ],
-      explanation: 'Most modern monitoring agents (Falco, kube-state-metrics, the Prometheus node-exporter) use specific Linux capabilities and read-only host mounts — not full privileged mode. The PodSecurity "restricted" profile rejects this manifest by design. Vendor sprawl is one of the top sources of node-level compromise; treat any pod spec with privileged + hostPID + hostNetwork as a critical change.',
+      explanation: 'Most modern monitoring agents (Falco, kube-state-metrics, the Prometheus node-exporter) use specific Linux capabilities and read-only host mounts - not full privileged mode. The PodSecurity "restricted" profile rejects this manifest by design. Vendor sprawl is one of the top sources of node-level compromise; treat any pod spec with privileged + hostPID + hostNetwork as a critical change.',
       learnMore: { label: 'Master container & workload security', href: '/courses/cloud-native-security-engineering/containers-workload-security' },
     },
     {
@@ -119,7 +119,7 @@ spec:
           feedback: 'kube-dns is reachable by default precisely because there are no NetworkPolicies blocking it. The issue is the opposite.',
         },
         {
-          label: 'Kubernetes networking defaults to allow-all, so a single compromised pod has full east-west reach across every namespace — the lateral-movement attack surface is the entire cluster.',
+          label: 'Kubernetes networking defaults to allow-all, so a single compromised pod has full east-west reach across every namespace - the lateral-movement attack surface is the entire cluster.',
           correct: true,
           feedback: 'Correct. The Kubernetes default is permissive. Without NetworkPolicy, an attacker who lands in any pod can reach every API, every database, every secret-mounting workload across namespaces.',
         },
@@ -165,9 +165,9 @@ spec:
           feedback: 'Image digests are good practice but not the primary risk in this manifest.',
         },
         {
-          label: `The plaintext production database password is now committed to Git history, visible to anyone with repo access, and replicated to every pod environment — rotation is the only remediation.`,
+          label: `The plaintext production database password is now committed to Git history, visible to anyone with repo access, and replicated to every pod environment - rotation is the only remediation.`,
           correct: true,
-          feedback: `Correct. Once a secret is in Git, it is leaked permanently. Even removing the commit doesn't help — you must rotate. Use a Secret + secret CSI driver, or external secret managers (External Secrets Operator, Vault, AWS Secrets Manager).`,
+          feedback: `Correct. Once a secret is in Git, it is leaked permanently. Even removing the commit doesn't help - you must rotate. Use a Secret + secret CSI driver, or external secret managers (External Secrets Operator, Vault, AWS Secrets Manager).`,
         },
         {
           label: 'The deployment is missing a Service so the pods cannot receive traffic.',
@@ -194,7 +194,7 @@ registry.example.com/auth:v1
 registry.example.com/orders:stable
 registry.example.com/web:main
 registry.example.com/admin:prod`,
-      question: 'What is the production risk — beyond the "latest considered harmful" cliché?',
+      question: 'What is the production risk - beyond the "latest considered harmful" cliché?',
       choices: [
         {
           label: 'Mutable tags break the kube-apiserver image cache and cause excessive registry pulls.',
@@ -204,7 +204,7 @@ registry.example.com/admin:prod`,
         {
           label: 'Mutable tags mean different replicas can be running different binaries, supply-chain attestations cannot be verified, and a registry compromise rewrites "production" without any deployment occurring.',
           correct: true,
-          feedback: 'Correct. With a mutable tag, an attacker who pushes to the registry instantly poisons every new pod — no Git history, no CI run, no deployment marker. Pin to a digest (@sha256:...) and verify signatures with cosign / Sigstore.',
+          feedback: 'Correct. With a mutable tag, an attacker who pushes to the registry instantly poisons every new pod - no Git history, no CI run, no deployment marker. Pin to a digest (@sha256:...) and verify signatures with cosign / Sigstore.',
         },
         {
           label: 'Mutable tags are blocked by default in Kubernetes 1.29+.',
@@ -244,7 +244,7 @@ metadata:
           feedback: 'Service-to-service communication works fine within a namespace; that is not the issue.',
         },
         {
-          label: `A namespace is the unit of RBAC, ResourceQuota, NetworkPolicy default, and PodSecurity admission — sharing it means both teams get each other's permissions, secrets are visible across the boundary, and one noisy workload can starve the other.`,
+          label: `A namespace is the unit of RBAC, ResourceQuota, NetworkPolicy default, and PodSecurity admission - sharing it means both teams get each other's permissions, secrets are visible across the boundary, and one noisy workload can starve the other.`,
           correct: true,
           feedback: 'Correct. The namespace is the primary tenant boundary in Kubernetes. Anything bound at namespace level (RoleBinding, NetworkPolicy default, quota) leaks across teams when the namespace is shared. Hard multi-tenancy needs separate namespaces (or separate clusters).',
         },
@@ -259,7 +259,7 @@ metadata:
           feedback: 'PodSecurity Admission operates per-namespace and does not block this configuration.',
         },
       ],
-      explanation: 'The healthy pattern is one namespace per team or per deployable boundary, with ResourceQuotas, NetworkPolicies, RBAC, and PodSecurity profiles attached at the namespace. For stronger isolation (e.g. PCI scope, regulated workloads), separate clusters are still the gold standard — namespaces are a soft tenancy boundary, not a hard one.',
+      explanation: 'The healthy pattern is one namespace per team or per deployable boundary, with ResourceQuotas, NetworkPolicies, RBAC, and PodSecurity profiles attached at the namespace. For stronger isolation (e.g. PCI scope, regulated workloads), separate clusters are still the gold standard - namespaces are a soft tenancy boundary, not a hard one.',
       learnMore: { label: 'Architect secure multi-tenant clusters', href: '/courses/cloud-native-security-engineering/kubernetes-foundations-security' },
     },
   ];

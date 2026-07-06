@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>In a microservices world, services constantly talk to each other — fetching user data, processing payments, sending notifications. But how do you ensure that only <strong>authorized services</strong> can make these calls? That's where <strong>Machine-to-Machine (M2M) authentication</strong> comes in.</p>
+      <p>In a microservices world, services constantly talk to each other - fetching user data, processing payments, sending notifications. But how do you ensure that only <strong>authorized services</strong> can make these calls? That's where <strong>Machine-to-Machine (M2M) authentication</strong> comes in.</p>
 
       <h2>What is M2M Authentication?</h2>
       <p>M2M authentication is the process of verifying the identity of a <strong>service or application</strong> (not a human user) when it communicates with another service. Unlike user authentication where someone types a password, M2M auth happens programmatically, without any human interaction.</p>
@@ -63,7 +63,7 @@ curl -X POST https://auth.example.com/oauth/token \\
 # Step 2: Service uses the token to call the target API
 curl -X GET https://api.example.com/users \\
   -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..."</code></pre>
-      <p>The target API validates the JWT token by checking the signature, expiration, audience, and scopes — all without calling the auth server again.</p>
+      <p>The target API validates the JWT token by checking the signature, expiration, audience, and scopes - all without calling the auth server again.</p>
 
       <h2>Implementing Client Credentials in Python</h2>
       <pre><code>import requests
@@ -125,7 +125,7 @@ response = requests.get(
     cert=('/path/to/client.crt', '/path/to/client.key'),
     verify='/path/to/ca-bundle.crt'
 )</code></pre>
-      <p>With mTLS, both parties verify each other's identity using X.509 certificates. Service meshes like <strong>Istio</strong> and <strong>Linkerd</strong> automate mTLS between all services in your cluster — zero code changes required.</p>
+      <p>With mTLS, both parties verify each other's identity using X.509 certificates. Service meshes like <strong>Istio</strong> and <strong>Linkerd</strong> automate mTLS between all services in your cluster - zero code changes required.</p>
 
       <h2>API Keys</h2>
       <p>API keys are the simplest form of M2M auth. They're easy to implement but come with trade-offs:</p>
@@ -199,5 +199,5 @@ def validate_m2m_token(token):
         <li><strong>Service Accounts + RBAC:</strong> Best for Kubernetes-native services. Use Kubernetes service account tokens with RBAC policies.</li>
       </ul>
 
-      <p>In practice, many organizations use a combination — mTLS for transport security within the mesh, plus JWT-based authorization for fine-grained access control. The key is to never let services talk to each other without authentication, no matter how "internal" the network feels.</p>
+      <p>In practice, many organizations use a combination - mTLS for transport security within the mesh, plus JWT-based authorization for fine-grained access control. The key is to never let services talk to each other without authentication, no matter how "internal" the network feels.</p>
     `;

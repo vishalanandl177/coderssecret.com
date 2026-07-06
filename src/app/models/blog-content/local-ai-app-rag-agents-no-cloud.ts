@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>You've installed Ollama and Gemma 4 from our <a href="/blog/run-gemma-4-locally-windows-macos-linux">previous guide</a>. Now what? A chatbot is fun for 5 minutes, but real AI applications need <strong>access to your data</strong> (RAG), <strong>ability to call tools</strong> (function calling), and <strong>autonomous reasoning</strong> (agents). This guide shows you how to build all three — entirely offline, no cloud APIs, no data leaving your machine.</p>
+      <p>You've installed Ollama and Gemma 4 from our <a href="/blog/run-gemma-4-locally-windows-macos-linux">previous guide</a>. Now what? A chatbot is fun for 5 minutes, but real AI applications need <strong>access to your data</strong> (RAG), <strong>ability to call tools</strong> (function calling), and <strong>autonomous reasoning</strong> (agents). This guide shows you how to build all three - entirely offline, no cloud APIs, no data leaving your machine.</p>
 
       <h2>What We're Building</h2>
 
@@ -7,17 +7,17 @@ export const CONTENT = `
       <div class="flow-diagram">
         <div class="flow-diagram-title">Local AI Application Stack</div>
         <div class="layer-diagram">
-          <div class="layer-item" style="background:#ef4444">Your Application (Python / TypeScript)<span class="layer-item-sub">The app your users interact with — CLI, web UI, API, or IDE extension</span></div>
+          <div class="layer-item" style="background:#ef4444">Your Application (Python / TypeScript)<span class="layer-item-sub">The app your users interact with - CLI, web UI, API, or IDE extension</span></div>
           <div class="layer-item" style="background:#f97316">Agent Framework (LangChain / LlamaIndex / CrewAI)<span class="layer-item-sub">Orchestrates LLM calls, tool use, retrieval, and multi-step reasoning</span></div>
           <div class="layer-item" style="background:#7c3aed">RAG Pipeline (ChromaDB / FAISS + Embeddings)<span class="layer-item-sub">Retrieves relevant context from your documents before asking the LLM</span></div>
-          <div class="layer-item" style="background:#3b82f6">Local LLM (Ollama / llama.cpp)<span class="layer-item-sub">Gemma 4, Llama 3, Mistral — runs on your GPU, no internet needed</span></div>
+          <div class="layer-item" style="background:#3b82f6">Local LLM (Ollama / llama.cpp)<span class="layer-item-sub">Gemma 4, Llama 3, Mistral - runs on your GPU, no internet needed</span></div>
           <div class="layer-item" style="background:#22c55e">Your Data (PDFs, code, databases, Slack exports)<span class="layer-item-sub">Stays on your machine. Never sent to any cloud. Complete privacy.</span></div>
         </div>
       </div>
 
       <h2>Part 1: RAG (Retrieval-Augmented Generation)</h2>
       <p><strong>Problem:</strong> LLMs only know what they were trained on. They don't know your company docs, your codebase, or your private data.</p>
-      <p><strong>Solution:</strong> RAG retrieves relevant documents from your data, adds them to the LLM's prompt as context, and the LLM answers based on <em>your</em> data — not just its training data.</p>
+      <p><strong>Solution:</strong> RAG retrieves relevant documents from your data, adds them to the LLM's prompt as context, and the LLM answers based on <em>your</em> data - not just its training data.</p>
 
       <!-- RAG Flow -->
       <div class="flow-diagram">
@@ -129,7 +129,7 @@ result = qa_chain.invoke({"query": "What was our Q3 revenue?"})
 print(f"Answer: {result['result']}")
 print(f"Sources: {[doc.metadata['source'] for doc in result['source_documents']]}")
 
-# All running locally — PDFs never leave your machine!</code></pre>
+# All running locally - PDFs never leave your machine!</code></pre>
 
       <h2>Part 2: Function Calling (Tool Use)</h2>
       <p><strong>Problem:</strong> LLMs can only generate text. They can't check the weather, query a database, or send emails.</p>
@@ -323,11 +323,11 @@ print(result)
       <h2>Performance Tips</h2>
       <pre><code># 1. Use a dedicated embedding model (smaller, faster)
 ollama pull nomic-embed-text  # 274 MB, very fast embeddings
-# Don't use gemma4:12b for embeddings — it's overkill
+# Don't use gemma4:12b for embeddings - it's overkill
 
 # 2. Persist your vector store
 vectorstore = Chroma(persist_directory="./chroma_db", embedding_function=embeddings)
-# Second run loads instantly — no re-embedding
+# Second run loads instantly - no re-embedding
 
 # 3. Tune chunk size for your data type
 # Code: chunk_size=500, overlap=50 (functions are short)
@@ -342,5 +342,5 @@ from langchain.cache import SQLiteCache
 from langchain.globals import set_llm_cache
 set_llm_cache(SQLiteCache(database_path=".langchain.db"))</code></pre>
 
-      <p>Local AI isn't just for chatbots anymore. With RAG, your LLM answers questions about <em>your</em> data. With function calling, it takes actions in the real world. With agents, it plans and executes multi-step workflows autonomously. All of this runs on your laptop, costs nothing after setup, and keeps your data completely private. The local AI stack is production-ready — start building.</p>
+      <p>Local AI isn't just for chatbots anymore. With RAG, your LLM answers questions about <em>your</em> data. With function calling, it takes actions in the real world. With agents, it plans and executes multi-step workflows autonomously. All of this runs on your laptop, costs nothing after setup, and keeps your data completely private. The local AI stack is production-ready - start building.</p>
     `;

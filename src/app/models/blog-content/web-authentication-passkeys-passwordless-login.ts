@@ -8,7 +8,7 @@ export const CONTENT = `
         <li><strong>Authentication:</strong> Your server sends a random challenge. The device signs it with the private key (after biometric verification). Your server verifies the signature with the stored public key.</li>
       </ol>
 
-      <p>The private key is protected by the device&rsquo;s secure enclave (TPM, Secure Enclave, Android Keystore). Even if your server is breached, attackers get only public keys &mdash; which are useless without the device.</p>
+      <p>The private key is protected by the device&rsquo;s secure enclave (TPM, Secure Enclave, Android Keystore). Even if your server is breached, attackers get only public keys - which are useless without the device.</p>
 
       <h2>WebAuthn API: Registration</h2>
 
@@ -231,14 +231,14 @@ async function hasPlatformAuth(): Promise&lt;boolean&gt; {
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Passkeys are phishing-proof</strong> &mdash; the private key is domain-bound and never transmitted</li>
+        <li><strong>Passkeys are phishing-proof</strong> - the private key is domain-bound and never transmitted</li>
         <li><strong>Passkeys are inherently two-factor:</strong> something you have (device) + something you are (biometric)</li>
-        <li><strong>Use progressive enhancement</strong> &mdash; offer passkeys alongside passwords, do not force them</li>
-        <li><strong>Store only public keys on your server</strong> &mdash; a breach exposes nothing usable</li>
-        <li><strong>Discoverable credentials (resident keys)</strong> enable username-less login &mdash; the user just touches their fingerprint sensor</li>
+        <li><strong>Use progressive enhancement</strong> - offer passkeys alongside passwords, do not force them</li>
+        <li><strong>Store only public keys on your server</strong> - a breach exposes nothing usable</li>
+        <li><strong>Discoverable credentials (resident keys)</strong> enable username-less login - the user just touches their fingerprint sensor</li>
         <li><strong>Major platforms support passkey sync:</strong> iCloud Keychain (Apple), Google Password Manager, Windows Hello</li>
         <li><strong>Libraries handle the crypto:</strong> py_webauthn (Python), SimpleWebAuthn (Node.js), webauthn4j (Java)</li>
       </ul>
 
-      <p>Passkeys are the future of authentication, and the future is already here. Apple, Google, and Microsoft have committed to universal passkey support. Start with progressive enhancement &mdash; add passkey registration alongside existing password auth &mdash; and give your users the option to never type a password again.</p>
+      <p>Passkeys are the future of authentication, and the future is already here. Apple, Google, and Microsoft have committed to universal passkey support. Start with progressive enhancement - add passkey registration alongside existing password auth - and give your users the option to never type a password again.</p>
     `;

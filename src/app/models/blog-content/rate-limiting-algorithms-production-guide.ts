@@ -1,7 +1,7 @@
 export const CONTENT = `
       <p>Rate limiting is one of the few infrastructure controls that simultaneously protects you from <strong>cost overruns</strong>, <strong>abuse</strong>, <strong>cascading failure</strong>, and <strong>noisy neighbours</strong>. Get it right and a single misbehaving client&apos;s burst is absorbed before it touches your application. Get it wrong and you either DDoS yourself with retries or open the door to credential stuffing, scraping, and inference-cost bombs.</p>
 
-      <p>This guide is a production walk through the rate-limiting algorithms used in real API gateways, edge proxies, and service meshes &mdash; what each algorithm gets right, where it falls down, and how distributed systems implement these controls without becoming a coordination bottleneck themselves. Examples are grounded in Redis, Envoy, NGINX, Kubernetes ingress, and the patterns Cloudflare and Fastly publish about their edge networks.</p>
+      <p>This guide is a production walk through the rate-limiting algorithms used in real API gateways, edge proxies, and service meshes - what each algorithm gets right, where it falls down, and how distributed systems implement these controls without becoming a coordination bottleneck themselves. Examples are grounded in Redis, Envoy, NGINX, Kubernetes ingress, and the patterns Cloudflare and Fastly publish about their edge networks.</p>
 
       <h2>Why Rate Limiting Matters in Production</h2>
 
@@ -31,7 +31,7 @@ return 200</code></pre>
 
       <p><strong>Pros:</strong> trivial to implement, O(1) memory per client per window, easy to reason about.</p>
 
-      <p><strong>Cons:</strong> the boundary problem. With a 100-req/min limit, a client can send 100 requests in the last second of one window and 100 more in the first second of the next window &mdash; effectively 200 requests in 2 seconds while still appearing compliant. The denial-of-service surface is real.</p>
+      <p><strong>Cons:</strong> the boundary problem. With a 100-req/min limit, a client can send 100 requests in the last second of one window and 100 more in the first second of the next window - effectively 200 requests in 2 seconds while still appearing compliant. The denial-of-service surface is real.</p>
 
       <h3>Sliding Window Log</h3>
 
@@ -67,7 +67,7 @@ return 200</code></pre>
 
       <p><strong>Pros:</strong> O(1) memory per client (two counters), no boundary problem (within ~1% error from the linear approximation), industry standard at large API gateways including Cloudflare.</p>
 
-      <p><strong>Cons:</strong> the linear interpolation assumes uniform distribution within the previous window &mdash; if the previous window&apos;s requests were all in the last 10 seconds, the estimate is too low. In practice this matters less than the boundary problem of fixed windows.</p>
+      <p><strong>Cons:</strong> the linear interpolation assumes uniform distribution within the previous window - if the previous window&apos;s requests were all in the last 10 seconds, the estimate is too low. In practice this matters less than the boundary problem of fixed windows.</p>
 
       <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sliding window counter showing the linear interpolation between previous and current window">
         <rect width="800" height="320" fill="#0f172a" rx="12"/>
@@ -130,7 +130,7 @@ return 429</code></pre>
 
       <h3>Leaky Bucket</h3>
 
-      <p>The dual of token bucket: requests fill a queue (the &quot;bucket&quot;) and are processed at a fixed rate. Excess requests overflow and are dropped. Leaky bucket smooths a bursty input into a uniform output &mdash; useful when downstream cannot handle bursts.</p>
+      <p>The dual of token bucket: requests fill a queue (the &quot;bucket&quot;) and are processed at a fixed rate. Excess requests overflow and are dropped. Leaky bucket smooths a bursty input into a uniform output - useful when downstream cannot handle bursts.</p>
 
       <p>The classic example is shaping outbound traffic to a third-party API with a strict rate. Token bucket would happily fire all your requests as soon as you have tokens; leaky bucket paces them at exactly the allowed rate. Modern implementations (NGINX <code>limit_req</code>, Envoy local rate limit) are leaky-bucket-based.</p>
 
@@ -147,7 +147,7 @@ return 429</code></pre>
 
       <h2>Distributed Rate Limiting</h2>
 
-      <p>The hard part is not the algorithm &mdash; it is making it work across many gateway nodes without each node maintaining its own private counter. If you have 10 ingress replicas and each enforces a 1000-req/min limit independently, your effective limit is 10,000 req/min, and the limit is not really enforced.</p>
+      <p>The hard part is not the algorithm - it is making it work across many gateway nodes without each node maintaining its own private counter. If you have 10 ingress replicas and each enforces a 1000-req/min limit independently, your effective limit is 10,000 req/min, and the limit is not really enforced.</p>
 
       <p>Three patterns dominate:</p>
 
@@ -180,7 +180,7 @@ redis.call("HMSET", KEYS[1], "tokens", tokens, "ts", now)
 redis.call("EXPIRE", KEYS[1], 600)
 return 1</code></pre>
 
-      <p>The Lua script ensures atomicity &mdash; no two gateways can race on the same client&apos;s bucket. With Redis Cluster, the bucket key&apos;s hash slot determines which Redis node owns it, so each client&apos;s checks are routed to a single node. For multi-region setups, use a per-region Redis with eventual cross-region reconciliation, accepting that limits are enforced regionally.</p>
+      <p>The Lua script ensures atomicity - no two gateways can race on the same client&apos;s bucket. With Redis Cluster, the bucket key&apos;s hash slot determines which Redis node owns it, so each client&apos;s checks are routed to a single node. For multi-region setups, use a per-region Redis with eventual cross-region reconciliation, accepting that limits are enforced regionally.</p>
 
       <h3>Pattern 2: Local Token Buckets with Periodic Reconciliation</h3>
 
@@ -271,7 +271,7 @@ return 1</code></pre>
     filter_enabled: { default_value: { numerator: 100 } }
     filter_enforced: { default_value: { numerator: 100 } }</code></pre>
 
-      <p>The local filter is the right tool for &quot;protect this pod from overload&quot;; the global filter is the right tool for &quot;enforce a per-customer quota across the fleet&quot;. They compose &mdash; you typically run both.</p>
+      <p>The local filter is the right tool for &quot;protect this pod from overload&quot;; the global filter is the right tool for &quot;enforce a per-customer quota across the fleet&quot;. They compose - you typically run both.</p>
 
       <h3>Kubernetes Ingress</h3>
 
@@ -304,7 +304,7 @@ spec:
 
       <h3>Global Aggregation with Regional Caches</h3>
 
-      <p>Each region keeps a local counter. Periodically (every 1&ndash;5 seconds), regions push their deltas to a global aggregator that reconciles a true global count and pushes back per-region quotas based on observed traffic distribution. The model behind Envoy&apos;s global rate-limiting service running in cell-aware mode, and the pattern Cloudflare publishes for their edge fleet. Bounded inconsistency &mdash; an attacker can briefly exceed the global limit in the aggregation window &mdash; but throughput is regional and latency stays sub-millisecond.</p>
+      <p>Each region keeps a local counter. Periodically (every 1&ndash;5 seconds), regions push their deltas to a global aggregator that reconciles a true global count and pushes back per-region quotas based on observed traffic distribution. The model behind Envoy&apos;s global rate-limiting service running in cell-aware mode, and the pattern Cloudflare publishes for their edge fleet. Bounded inconsistency - an attacker can briefly exceed the global limit in the aggregation window - but throughput is regional and latency stays sub-millisecond.</p>
 
       <h3>Globally-Routed Rate-Limit Service</h3>
 
@@ -314,11 +314,11 @@ spec:
 
       <p>The pattern most production teams converge on is layered: <strong>per-region independent limits</strong> for volumetric / DDoS / abuse defense (no cross-region cost), <strong>global aggregation with regional caches</strong> for per-customer business quotas (small consistency window is fine), and <strong>billing-time reconciliation</strong> for hard contractual quotas (after-the-fact ledgers, not request-time enforcement). Each layer enforces what the latency budget allows.</p>
 
-      <p>For globally distributed systems, the choice is the same as the consistency choice covered in the <a href="/blog/distributed-systems-algorithms-production-guide" class="text-primary underline">Distributed Systems Algorithms guide</a> &mdash; you cannot have both global strong consistency and per-region low latency. The rate-limiter design just makes the trade-off explicit.</p>
+      <p>For globally distributed systems, the choice is the same as the consistency choice covered in the <a href="/blog/distributed-systems-algorithms-production-guide" class="text-primary underline">Distributed Systems Algorithms guide</a> - you cannot have both global strong consistency and per-region low latency. The rate-limiter design just makes the trade-off explicit.</p>
 
       <h2>Adaptive Rate Limiting</h2>
 
-      <p>Static rate limits assume you know the right number in advance. Real systems learn it. Adaptive rate limiting (also called &quot;load shedding&quot; in some literatures) adjusts the allowed rate based on observed load &mdash; if the upstream is responding slowly, lower the rate; if everything is healthy, raise it.</p>
+      <p>Static rate limits assume you know the right number in advance. Real systems learn it. Adaptive rate limiting (also called &quot;load shedding&quot; in some literatures) adjusts the allowed rate based on observed load - if the upstream is responding slowly, lower the rate; if everything is healthy, raise it.</p>
 
       <p>The classic algorithm is <strong>AIMD</strong> (Additive Increase Multiplicative Decrease, borrowed from TCP congestion control): on every successful response, increase the limit by a small constant; on every error or timeout, multiply the limit by a small fraction (typically 0.5). The system finds the maximum sustainable rate dynamically.</p>
 
@@ -326,7 +326,7 @@ spec:
 
       <h3>Concurrency-Based Limits (vs Rate-Based)</h3>
 
-      <p>Closely related: instead of rate-limiting requests-per-second, limit <strong>concurrent in-flight requests</strong>. This is more honest about back-pressure &mdash; if your service can handle 100 concurrent requests with acceptable latency, capping concurrency at 100 directly enforces that. Little&apos;s Law connects the two: <code>average_concurrency = arrival_rate &times; average_latency</code>.</p>
+      <p>Closely related: instead of rate-limiting requests-per-second, limit <strong>concurrent in-flight requests</strong>. This is more honest about back-pressure - if your service can handle 100 concurrent requests with acceptable latency, capping concurrency at 100 directly enforces that. Little&apos;s Law connects the two: <code>average_concurrency = arrival_rate &times; average_latency</code>.</p>
 
       <p>Concurrency-based limits adapt naturally to slow upstreams. If the upstream slows from 10ms to 100ms, fewer requests fit in the same concurrency budget, automatically throttling the load. AWS uses concurrency limits extensively in their internal services.</p>
 
@@ -340,7 +340,7 @@ spec:
         <li><strong>Per-IP + per-ASN limits</strong> to detect botnets that span many IPs from a small set of providers.</li>
         <li><strong>Per-User-Agent fingerprint limits</strong> to detect bot fleets that all advertise the same UA.</li>
         <li><strong>JA3 / TLS fingerprint limits</strong> for clients that use the same TLS configuration (often a tell of automated tooling).</li>
-        <li><strong>Behavioural anomaly detection</strong> &mdash; clients that hit endpoints in a non-human pattern (e.g. all 50 product pages in 2 seconds) get flagged regardless of rate.</li>
+        <li><strong>Behavioural anomaly detection</strong> - clients that hit endpoints in a non-human pattern (e.g. all 50 product pages in 2 seconds) get flagged regardless of rate.</li>
       </ul>
 
       <h2>Common Pitfalls</h2>
@@ -356,12 +356,12 @@ spec:
 
       <aside class="callout callout-performance">
         <strong>Performance tip</strong>
-        <p>The Redis Lua script approach is the safest distributed pattern but adds 1&ndash;2ms of network latency per request. For high-throughput hot paths (login, search), front the Redis check with a per-pod local token bucket sized at 1/N of the global rate &mdash; the local bucket absorbs the burst, the Redis check happens only when the local bucket is exhausted.</p>
+        <p>The Redis Lua script approach is the safest distributed pattern but adds 1&ndash;2ms of network latency per request. For high-throughput hot paths (login, search), front the Redis check with a per-pod local token bucket sized at 1/N of the global rate - the local bucket absorbs the burst, the Redis check happens only when the local bucket is exhausted.</p>
       </aside>
 
       <h3>Using Burst as Capacity</h3>
 
-      <p>NGINX&apos;s <code>limit_req</code> with a high burst and <code>nodelay</code> behaves like a fixed window from the user&apos;s perspective &mdash; once the burst is consumed they get rate-limited, and the &quot;average rate&quot; intuition breaks. Tune burst conservatively and prefer separate limit zones for different scopes.</p>
+      <p>NGINX&apos;s <code>limit_req</code> with a high burst and <code>nodelay</code> behaves like a fixed window from the user&apos;s perspective - once the burst is consumed they get rate-limited, and the &quot;average rate&quot; intuition breaks. Tune burst conservatively and prefer separate limit zones for different scopes.</p>
 
       <h3>Counting Failed Requests Toward the Limit</h3>
 
@@ -376,8 +376,8 @@ spec:
       <p>Rate limiting is a security control. Two specific patterns matter:</p>
 
       <ol>
-        <li><strong>Authentication endpoint rate limiting</strong>: enforce strict limits on <code>/login</code>, <code>/forgot-password</code>, <code>/verify-otp</code> &mdash; ideally with separate limits per IP and per username. The classic credential-stuffing defense.</li>
-        <li><strong>Cost-based rate limiting</strong> for paid services: not all requests are equal. An LLM call costs more than a simple GET. Rate limits should reflect cost &mdash; either by varying token cost in the bucket (an LLM call costs 10 tokens, a GET costs 1) or by separate buckets per cost class.</li>
+        <li><strong>Authentication endpoint rate limiting</strong>: enforce strict limits on <code>/login</code>, <code>/forgot-password</code>, <code>/verify-otp</code> - ideally with separate limits per IP and per username. The classic credential-stuffing defense.</li>
+        <li><strong>Cost-based rate limiting</strong> for paid services: not all requests are equal. An LLM call costs more than a simple GET. Rate limits should reflect cost - either by varying token cost in the bucket (an LLM call costs 10 tokens, a GET costs 1) or by separate buckets per cost class.</li>
       </ol>
 
       <p>Walk through the scenarios in the <a href="/games/api-attack-defense" class="text-primary underline">API Attack &amp; Defense Simulator</a> to practice spotting JWT, OAuth, rate-limit, and CORS bypasses against rate-limited endpoints. For the broader API security picture, the <a href="/courses/cloud-native-security-engineering/kubernetes-authentication-authorization" class="text-primary underline">Kubernetes Authentication &amp; Authorization module</a> in the free Cloud Native Security Engineering course covers the full stack.</p>
@@ -397,28 +397,28 @@ spec:
       <h2>Frequently Asked Questions</h2>
 
       <h3>Should I fail open or fail closed if the rate limiter is unavailable?</h3>
-      <p>Depends on what you are protecting. For abuse protection on a hot endpoint (login, payment), fail closed &mdash; better to reject all traffic than let an attack through. For routine product traffic, fail open &mdash; better to let everyone through than block paying customers because of a Redis blip. Make the choice deliberately and document it.</p>
+      <p>Depends on what you are protecting. For abuse protection on a hot endpoint (login, payment), fail closed - better to reject all traffic than let an attack through. For routine product traffic, fail open - better to let everyone through than block paying customers because of a Redis blip. Make the choice deliberately and document it.</p>
 
       <h3>How do I rate-limit by JWT subject without parsing the JWT on every gateway?</h3>
       <p>Either trust the upstream auth proxy to inject a verified header (e.g. <code>X-User-ID</code>) and key off that, or have the gateway verify the JWT once and cache the claims by JTI. The gateway-verifies pattern is more robust under federated auth.</p>
 
       <h3>Is sliding window log ever the right choice in production?</h3>
-      <p>For low-volume strict-limit scenarios, yes &mdash; e.g. enforcing &quot;5 password reset requests per email per hour&quot; where the limit is small and the precision matters. For anything high-volume, sliding window counter or token bucket are better.</p>
+      <p>For low-volume strict-limit scenarios, yes - e.g. enforcing &quot;5 password reset requests per email per hour&quot; where the limit is small and the precision matters. For anything high-volume, sliding window counter or token bucket are better.</p>
 
       <h3>How do I rate-limit websockets / long-lived connections?</h3>
       <p>Limit two distinct things: <strong>connection rate</strong> (new connections per IP / API-key per second) and <strong>per-connection message rate</strong> (messages per connection per second). Token bucket per connection is a clean fit for the second; standard rate limiters for the first.</p>
 
       <h3>How do CDNs implement edge rate limiting at internet scale?</h3>
-      <p>Edge nodes maintain local approximate counters per (IP, rule) and gossip aggregates back to a regional aggregator every few seconds. The aggregator computes the global rate and tells edge nodes to throttle if they cross thresholds. Counts are eventually consistent &mdash; an attacker can briefly exceed the limit before the aggregator catches up &mdash; but the system handles trillions of requests per day.</p>
+      <p>Edge nodes maintain local approximate counters per (IP, rule) and gossip aggregates back to a regional aggregator every few seconds. The aggregator computes the global rate and tells edge nodes to throttle if they cross thresholds. Counts are eventually consistent - an attacker can briefly exceed the limit before the aggregator catches up - but the system handles trillions of requests per day.</p>
 
       <h3>Should rate limits be public or hidden?</h3>
-      <p>Public for legitimate users (so they can build clients that respect the limits). Returns the standard <code>X-RateLimit-Limit</code>, <code>X-RateLimit-Remaining</code>, <code>X-RateLimit-Reset</code> headers. Hidden for abuse-detection rules &mdash; if an attacker knows the threshold for triggering bot-detection, they can stay just under it.</p>
+      <p>Public for legitimate users (so they can build clients that respect the limits). Returns the standard <code>X-RateLimit-Limit</code>, <code>X-RateLimit-Remaining</code>, <code>X-RateLimit-Reset</code> headers. Hidden for abuse-detection rules - if an attacker knows the threshold for triggering bot-detection, they can stay just under it.</p>
 
       <h2>Conclusion</h2>
 
       <p>Rate limiting is the most universally applicable defensive control in modern infrastructure. Get the algorithm right and a misbehaving client&apos;s burst is absorbed before it touches your application. Get it wrong and you DDoS yourself with retries, leak free inference compute, or block legitimate users while attackers rotate IPs and walk past you.</p>
 
-      <p>The high-leverage takeaways: <strong>token bucket for burst-friendly user-facing APIs, leaky bucket for strict downstream pacing, sliding-window counter as the boundary-safe default at scale</strong>; <strong>centralised Redis with a Lua script is the safest distributed pattern; local + reconcile is the lowest-latency one</strong>; <strong>combine layers &mdash; CDN for volumetric, gateway for per-API-key, application for per-action</strong>; <strong>treat authentication endpoints as a special class with stricter limits and dual per-IP / per-username scoping</strong>; <strong>cost-based weighting for paid services so an LLM call costs more bucket capacity than a GET</strong>. Decide deliberately whether the limiter fails open or closed, instrument the actual acceptance rate, and tune from real data, not guesses.</p>
+      <p>The high-leverage takeaways: <strong>token bucket for burst-friendly user-facing APIs, leaky bucket for strict downstream pacing, sliding-window counter as the boundary-safe default at scale</strong>; <strong>centralised Redis with a Lua script is the safest distributed pattern; local + reconcile is the lowest-latency one</strong>; <strong>combine layers - CDN for volumetric, gateway for per-API-key, application for per-action</strong>; <strong>treat authentication endpoints as a special class with stricter limits and dual per-IP / per-username scoping</strong>; <strong>cost-based weighting for paid services so an LLM call costs more bucket capacity than a GET</strong>. Decide deliberately whether the limiter fails open or closed, instrument the actual acceptance rate, and tune from real data, not guesses.</p>
 
       <h2>Where to Go Next</h2>
 

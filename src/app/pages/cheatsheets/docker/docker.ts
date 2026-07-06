@@ -295,7 +295,7 @@ export class DockerCheatsheetComponent {
 
   constructor() {
     this.seo.update({
-      title: 'Docker Cheat Sheet 2026 — Quick Reference for Developers',
+      title: 'Docker Cheat Sheet 2026 - Quick Reference for Developers',
       description: 'Complete Docker cheat sheet: build, run, compose, volumes, networks, multi-stage builds, debugging containers, and image management.',
       url: '/cheatsheets/docker',
       breadcrumbs: [

@@ -342,7 +342,7 @@ export class KubernetesCheatsheetComponent {
 
   constructor() {
     this.seo.update({
-      title: 'Kubernetes (kubectl) Cheat Sheet 2026 — Quick Reference',
+      title: 'Kubernetes (kubectl) Cheat Sheet 2026 - Quick Reference',
       description: 'Complete Kubernetes cheat sheet: kubectl commands, pod management, deployments, services, ConfigMaps, Secrets, debugging, and cluster operations.',
       url: '/cheatsheets/kubernetes',
       breadcrumbs: [

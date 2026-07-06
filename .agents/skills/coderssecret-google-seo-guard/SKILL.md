@@ -135,8 +135,8 @@ Rules:
 - Describe the specific page, not just "CodersSecret".
 - Keep branding concise.
 - Recommended pattern:
-  - Home: `CodersSecret — Practical Engineering Tutorials`
-  - Blog index: `Blog | CodersSecret — Practical Engineering Tutorials`
+  - Home: `CodersSecret - Practical Engineering Tutorials`
+  - Blog index: `Blog | CodersSecret - Practical Engineering Tutorials`
   - Blog detail: `{Article Title} | CodersSecret`
   - Course detail: `{Course Name} | CodersSecret`
   - Topic page: `{Topic} Tutorials | CodersSecret`

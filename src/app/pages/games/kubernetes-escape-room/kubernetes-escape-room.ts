@@ -28,12 +28,12 @@ export class KubernetesEscapeRoomComponent {
     badge: 'Adversarial Lab',
     titlePlain: 'Kubernetes',
     titleGradient: 'Escape Room',
-    description: 'You have shell access in a low-privilege pod. Solve a chain of misconfigurations — secrets leaks, privilege escalation, container escape — to "escape" the cluster. Then identify which defensive control would have stopped each step.',
+    description: 'You have shell access in a low-privilege pod. Solve a chain of misconfigurations - secrets leaks, privilege escalation, container escape - to "escape" the cluster. Then identify which defensive control would have stopped each step.',
     steps: [
-      'Each scenario shows a step in an attack chain — what the attacker has access to and what they need next.',
+      'Each scenario shows a step in an attack chain - what the attacker has access to and what they need next.',
       'Identify the defensive control that would have blocked that step from four plausible options.',
       'Read the production explanation, follow the link to the relevant lesson, and move to the next step.',
-      'Score yourself across all six escape steps — covering SA tokens, host-mounts, kernel exploits, etcd, RBAC escalation, and CVE-class vulnerabilities.',
+      'Score yourself across all six escape steps - covering SA tokens, host-mounts, kernel exploits, etcd, RBAC escalation, and CVE-class vulnerabilities.',
     ],
     practiceTitle: `What You'll Practice`,
     practiceDescription: 'Adversarial reasoning is the strongest skill for defenders. Walk through real container-escape and privilege-escalation chains and identify the single control that closes each one.',
@@ -57,8 +57,8 @@ export class KubernetesEscapeRoomComponent {
   results: QuizResults = {
     perfect: { headline: 'Cluster escape blocked. Flawless run.', emoji: '\u{1F947}', message: 'You think like an attacker AND a defender. The Cloud Native Security Engineering course goes deeper into red-team chained-attack scenarios and the defence-in-depth controls that contain them.' },
     great: { headline: 'You spot escape paths fast.', emoji: '\u{1F511}', message: 'Strong adversarial instincts. Brush up on the few you missed and run through the Kubernetes Security cheatsheet to reinforce the hardening checklist.' },
-    good: { headline: 'Solid foundation — refine the rough edges.', emoji: '\u{1F4DA}', message: 'You know the patterns. The structured curriculum walks through each escape class with the labs to deploy the fixes.' },
-    weak: { headline: 'Time to learn the escape playbook — for defence.', emoji: '\u{1F50D}', message: 'These are the canonical Kubernetes container-escape patterns. Start with the runtime-security and containers-workload-security modules, then come back.' },
+    good: { headline: 'Solid foundation - refine the rough edges.', emoji: '\u{1F4DA}', message: 'You know the patterns. The structured curriculum walks through each escape class with the labs to deploy the fixes.' },
+    weak: { headline: 'Time to learn the escape playbook - for defence.', emoji: '\u{1F50D}', message: 'These are the canonical Kubernetes container-escape patterns. Start with the runtime-security and containers-workload-security modules, then come back.' },
   };
 
   callToActions: QuizCallToActions = {
@@ -79,7 +79,7 @@ $ TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 $ NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 $ curl -k -H "Authorization: Bearer $TOKEN" \\
        https://kubernetes.default.svc/api/v1/namespaces/$NAMESPACE/pods
-# (returns pod list — leaks namespace topology)
+# (returns pod list - leaks namespace topology)
 
 $ kubectl auth can-i --list --token=$TOKEN
 # Reveals every API the SA can call`,
@@ -88,12 +88,12 @@ $ kubectl auth can-i --list --token=$TOKEN
         {
           label: 'Strong NetworkPolicy: pods can only reach kube-dns.',
           correct: false,
-          feedback: 'NetworkPolicy that allows kube-apiserver still allows the SA token reconnaissance. You need to specifically block kube-apiserver access — or remove the SA token from the pod.',
+          feedback: 'NetworkPolicy that allows kube-apiserver still allows the SA token reconnaissance. You need to specifically block kube-apiserver access - or remove the SA token from the pod.',
         },
         {
           label: '`automountServiceAccountToken: false` on the pod spec, AND an explicit RoleBinding that grants only what the workload actually needs (likely nothing). With no token mounted, the curl to kube-apiserver fails immediately.',
           correct: true,
-          feedback: 'Correct. Most workloads do not need to call the Kubernetes API. Setting automountServiceAccountToken: false removes the projected SA token from the pod entirely — the can-i and pod-list calls fail because there\'s no credential. For the workloads that DO need API access (operators, controllers), use a dedicated SA with a tightly-scoped Role. This single setting closes the most common in-cluster reconnaissance vector.',
+          feedback: 'Correct. Most workloads do not need to call the Kubernetes API. Setting automountServiceAccountToken: false removes the projected SA token from the pod entirely - the can-i and pod-list calls fail because there\'s no credential. For the workloads that DO need API access (operators, controllers), use a dedicated SA with a tightly-scoped Role. This single setting closes the most common in-cluster reconnaissance vector.',
         },
         {
           label: 'Falco rule that alerts on /var/run/secrets/kubernetes.io reads.',
@@ -133,7 +133,7 @@ $ curl --unix-socket /var/run/docker.sock \\
         {
           label: 'Run the log shipper as a non-root user.',
           correct: false,
-          feedback: 'Non-root in the container does NOT prevent docker.sock abuse — the docker daemon runs as root, and docker.sock access is effectively root on the node regardless of who calls the API.',
+          feedback: 'Non-root in the container does NOT prevent docker.sock abuse - the docker daemon runs as root, and docker.sock access is effectively root on the node regardless of who calls the API.',
         },
         {
           label: 'PodSecurity admission "restricted" profile (or Kyverno equivalent) that rejects pods with hostPath mounts of sensitive paths like /var/run/docker.sock.',
@@ -143,7 +143,7 @@ $ curl --unix-socket /var/run/docker.sock \\
         {
           label: 'NetworkPolicy that blocks egress from the log shipper.',
           correct: false,
-          feedback: 'docker.sock is a Unix socket on the host — NetworkPolicy applies to TCP/UDP traffic, not to filesystem mounts. Doesn\'t help here.',
+          feedback: 'docker.sock is a Unix socket on the host - NetworkPolicy applies to TCP/UDP traffic, not to filesystem mounts. Doesn\'t help here.',
         },
         {
           label: 'Falco rule for docker.sock writes.',
@@ -151,7 +151,7 @@ $ curl --unix-socket /var/run/docker.sock \\
           feedback: 'Detection after the fact. PodSecurity admission is the prevention layer.',
         },
       ],
-      explanation: 'docker.sock and kubelet socket mounts are the canonical "container escape via misconfiguration" vector. PodSecurity admission (restricted profile) catches it in modern clusters. Older clusters need an explicit Kyverno or OPA policy. The lesson: any pod with hostPath, hostPID, hostNetwork, or privileged should be a tracked, audited exception — not a default. Use eBPF-based logging (Cilium, Tetragon) instead of legacy log-shipper-via-docker.sock patterns.',
+      explanation: 'docker.sock and kubelet socket mounts are the canonical "container escape via misconfiguration" vector. PodSecurity admission (restricted profile) catches it in modern clusters. Older clusters need an explicit Kyverno or OPA policy. The lesson: any pod with hostPath, hostPID, hostNetwork, or privileged should be a tracked, audited exception - not a default. Use eBPF-based logging (Cilium, Tetragon) instead of legacy log-shipper-via-docker.sock patterns.',
       learnMore: { label: 'PodSecurity & host isolation', href: '/courses/cloud-native-security-engineering/containers-workload-security' },
     },
     {
@@ -174,7 +174,7 @@ $ ls /proc/<some-other-pod-pid>/root/
         {
           label: 'Reject hostPID + hostNetwork at admission. Combine with proper monitoring tools (Prometheus node-exporter uses minimal capabilities; eBPF-based monitors don\'t need hostPID at all). Tetragon and modern Falco use the kernel hook layer, not /proc traversal.',
           correct: true,
-          feedback: 'Correct. hostPID + hostNetwork together let a compromised pod see and reach into every other pod on the node. The monitoring use case has moved on: eBPF-based observability (Cilium, Tetragon, Pixie) doesn\'t need hostPID. Reject hostPID/hostNetwork at admission for any pod that doesn\'t demonstrate genuine necessity, and audit those exceptions quarterly. Many vendor-supplied agents request these settings out of habit, not need — push back.',
+          feedback: 'Correct. hostPID + hostNetwork together let a compromised pod see and reach into every other pod on the node. The monitoring use case has moved on: eBPF-based observability (Cilium, Tetragon, Pixie) doesn\'t need hostPID. Reject hostPID/hostNetwork at admission for any pod that doesn\'t demonstrate genuine necessity, and audit those exceptions quarterly. Many vendor-supplied agents request these settings out of habit, not need - push back.',
         },
         {
           label: 'Run the monitoring pod as a non-root user.',
@@ -184,7 +184,7 @@ $ ls /proc/<some-other-pod-pid>/root/
         {
           label: 'Use Cilium NetworkPolicy to restrict egress.',
           correct: false,
-          feedback: 'Network policy doesn\'t affect /proc filesystem traversal — that\'s local kernel access, not network.',
+          feedback: 'Network policy doesn\'t affect /proc filesystem traversal - that\'s local kernel access, not network.',
         },
         {
           label: 'Run Prometheus on a separate node pool.',
@@ -213,14 +213,14 @@ $ aws s3 cp s3://company-eks-backups/etcd-snapshot-2024-09-02.db . --no-sign-req
       question: 'Which control would have made this snapshot worthless to the attacker?',
       choices: [
         {
-          label: 'KMS-based etcd encryption at rest. Etcd Secret values are encrypted with a key that the snapshot does NOT include — the snapshot bytes are useless without the KMS key, which lives in a separate trust domain (AWS KMS, GCP KMS) with its own access controls and audit logs.',
+          label: 'KMS-based etcd encryption at rest. Etcd Secret values are encrypted with a key that the snapshot does NOT include - the snapshot bytes are useless without the KMS key, which lives in a separate trust domain (AWS KMS, GCP KMS) with its own access controls and audit logs.',
           correct: true,
           feedback: 'Correct. KMS-based encryption at rest for etcd (configurable via the apiserver --encryption-provider-config flag, or natively in EKS / GKE) encrypts Secret values with a KMS-managed key. A leaked snapshot is just ciphertext without KMS access. Combine with: bucket policy that denies public access, bucket KMS encryption (separate key), AWS Macie scans for misclassified data, IAM access logging. Defence in depth at every layer.',
         },
         {
           label: 'Make the S3 bucket private.',
           correct: false,
-          feedback: 'Bucket privacy is essential — but it\'s a single layer. KMS encryption protects the data even if the bucket policy is misconfigured (which is how this leaked in the first place).',
+          feedback: 'Bucket privacy is essential - but it\'s a single layer. KMS encryption protects the data even if the bucket policy is misconfigured (which is how this leaked in the first place).',
         },
         {
           label: 'Encrypt etcd Secrets with sealed-secrets.',
@@ -233,14 +233,14 @@ $ aws s3 cp s3://company-eks-backups/etcd-snapshot-2024-09-02.db . --no-sign-req
           feedback: 'Rotation reduces the validity window of leaked secrets but doesn\'t prevent the leak itself. And rotating every Secret in the cluster every 24 hours is operationally expensive.',
         },
       ],
-      explanation: 'KMS-backed etcd encryption at rest is one of the most-skipped Kubernetes hardenings. Self-managed clusters need explicit configuration; managed clusters (EKS, GKE) make it a checkbox but it\'s often left off. Always enable it — Secret leakage from etcd snapshots is a recurring breach vector. Combine with public-access-block on backup buckets, separate KMS keys per cluster, and Macie/CASB scanning of the backup destination.',
+      explanation: 'KMS-backed etcd encryption at rest is one of the most-skipped Kubernetes hardenings. Self-managed clusters need explicit configuration; managed clusters (EKS, GKE) make it a checkbox but it\'s often left off. Always enable it - Secret leakage from etcd snapshots is a recurring breach vector. Combine with public-access-block on backup buckets, separate KMS keys per cluster, and Macie/CASB scanning of the backup destination.',
       learnMore: { label: 'Multi-cluster security architecture', href: '/courses/cloud-native-security-engineering/multi-cluster-multi-cloud-security' },
     },
     {
       id: 'rbac-pod-exec-escalation',
       topic: 'RBAC',
       title: 'Privilege escalation via pod/exec',
-      briefing: 'You\'ve compromised a developer\'s ServiceAccount that has only "list/get/exec on pods in dev namespace". Surprise — that\'s enough to escalate to cluster-admin in many clusters.',
+      briefing: 'You\'ve compromised a developer\'s ServiceAccount that has only "list/get/exec on pods in dev namespace". Surprise - that\'s enough to escalate to cluster-admin in many clusters.',
       yaml: `# What you can do with pods/exec in dev:
 $ kubectl --token=$TOKEN exec -n dev <some-pod> -- cat /var/run/secrets/kubernetes.io/serviceaccount/token
 
@@ -260,7 +260,7 @@ $ kubectl --token=$TOKEN get rolebindings,clusterrolebindings -A | grep <sa-name
         {
           label: 'Strict separation: no privileged ServiceAccounts run in namespaces where developers have pods/exec. Operators and deploy controllers run in dedicated namespaces (e.g. flux-system, argocd, kube-system) where dev SAs cannot exec. Combine with audit-log alerts on ClusterRoleBinding creation and on cross-namespace exec attempts.',
           correct: true,
-          feedback: 'Correct. The pods/exec verb is effectively "be root in any pod in this namespace" — and if any pod in that namespace has a powerful SA, exec\'ing in steals that SA\'s token. The fix is namespace separation: never run cluster-admin-class workloads in namespaces where humans have exec. Plus: an audit-log alert "any new ClusterRoleBinding to cluster-admin not from the platform team" catches the escalation step. Plus: PodSecurity admission restricting pods with privileged SAs to specific namespaces.',
+          feedback: 'Correct. The pods/exec verb is effectively "be root in any pod in this namespace" - and if any pod in that namespace has a powerful SA, exec\'ing in steals that SA\'s token. The fix is namespace separation: never run cluster-admin-class workloads in namespaces where humans have exec. Plus: an audit-log alert "any new ClusterRoleBinding to cluster-admin not from the platform team" catches the escalation step. Plus: PodSecurity admission restricting pods with privileged SAs to specific namespaces.',
         },
         {
           label: 'Disable kubectl exec entirely.',
@@ -270,7 +270,7 @@ $ kubectl --token=$TOKEN get rolebindings,clusterrolebindings -A | grep <sa-name
         {
           label: 'Require MFA on the developer\'s human user.',
           correct: false,
-          feedback: 'MFA protects the human auth — but the attack here is post-auth. The attacker has the developer\'s SA token; MFA doesn\'t apply.',
+          feedback: 'MFA protects the human auth - but the attack here is post-auth. The attacker has the developer\'s SA token; MFA doesn\'t apply.',
         },
         {
           label: 'Network policies between dev and other namespaces.',
@@ -278,7 +278,7 @@ $ kubectl --token=$TOKEN get rolebindings,clusterrolebindings -A | grep <sa-name
           feedback: 'NetworkPolicy controls pod-to-pod traffic; pods/exec is a kube-apiserver verb, not pod-to-pod traffic.',
         },
       ],
-      explanation: 'pods/exec → cluster-admin is one of the most-cited privilege-escalation chains in Kubernetes. The attack works because powerful SAs often run in shared namespaces with developer access. Mitigations: (1) namespace separation between operators and developer workloads; (2) PodSecurity admission to restrict where privileged SAs can run; (3) explicit RBAC audit ("which SAs in this namespace can do X cluster-wide?"); (4) audit-log alerting on ClusterRoleBinding creation. Treat pods/exec as a sensitive verb — equivalent to root on the workloads in that namespace.',
+      explanation: 'pods/exec → cluster-admin is one of the most-cited privilege-escalation chains in Kubernetes. The attack works because powerful SAs often run in shared namespaces with developer access. Mitigations: (1) namespace separation between operators and developer workloads; (2) PodSecurity admission to restrict where privileged SAs can run; (3) explicit RBAC audit ("which SAs in this namespace can do X cluster-wide?"); (4) audit-log alerting on ClusterRoleBinding creation. Treat pods/exec as a sensitive verb - equivalent to root on the workloads in that namespace.',
       learnMore: { label: 'RBAC & authentication module', href: '/courses/cloud-native-security-engineering/kubernetes-authentication-authorization' },
     },
     {
@@ -301,7 +301,7 @@ $ kubectl --token=$TOKEN get rolebindings,clusterrolebindings -A | grep <sa-name
       question: 'Which existing controls limit blast radius BEFORE the patch is applied?',
       choices: [
         {
-          label: 'Image admission policy that requires Sigstore-signed images from your registry. Combined with PodSecurity restricted, NetworkPolicy default-deny, and runtime detection (Falco/Tetragon for unexpected syscalls), the attack surface for an unsigned malicious image is tiny — they have to compromise your CI to get a signed image.',
+          label: 'Image admission policy that requires Sigstore-signed images from your registry. Combined with PodSecurity restricted, NetworkPolicy default-deny, and runtime detection (Falco/Tetragon for unexpected syscalls), the attack surface for an unsigned malicious image is tiny - they have to compromise your CI to get a signed image.',
           correct: true,
           feedback: 'Correct. Most container-escape CVEs require the attacker to run their crafted image. Image admission (cosign + Kyverno verifyImages with identity allowlist) means an attacker needs to compromise your CI to deploy a malicious image. Then PodSecurity rejects malformed pod specs, NetworkPolicy default-deny limits lateral movement, runtime detection catches the actual escape attempt, and node patching applies the structural fix. No single control is enough; the combination contains the worst case while the patch rolls out.',
         },
@@ -329,7 +329,7 @@ $ kubectl --token=$TOKEN get rolebindings,clusterrolebindings -A | grep <sa-name
   constructor() {
     this.seo.update({
       title: 'Kubernetes Escape Room',
-      description: 'Adversarial Kubernetes lab: walk through real container-escape and privilege-escalation chains — SA token recon, docker.sock mounts, hostPID, etcd snapshot leaks, pods/exec → cluster-admin, and CVE defense — and identify the control that breaks each step. Free, no signup.',
+      description: 'Adversarial Kubernetes lab: walk through real container-escape and privilege-escalation chains - SA token recon, docker.sock mounts, hostPID, etcd snapshot leaks, pods/exec → cluster-admin, and CVE defense - and identify the control that breaks each step. Free, no signup.',
       url: '/games/kubernetes-escape-room',
       breadcrumbs: [
         { name: 'Home', url: '/' },

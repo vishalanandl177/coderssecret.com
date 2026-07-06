@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>You open a 500-line Django view function that validates input, queries the database, applies business rules, calls an external API, formats the response, and sends an email. You need to change the email provider. Good luck finding the email code without breaking everything else. This is what happens when you ignore <strong>Separation of Concerns</strong> — the most fundamental architecture principle in software engineering.</p>
+      <p>You open a 500-line Django view function that validates input, queries the database, applies business rules, calls an external API, formats the response, and sends an email. You need to change the email provider. Good luck finding the email code without breaking everything else. This is what happens when you ignore <strong>Separation of Concerns</strong> - the most fundamental architecture principle in software engineering.</p>
 
       <h2>What is Separation of Concerns?</h2>
       <p><strong>Separation of Concerns (SoC)</strong> means organizing code so that each section handles <strong>one distinct responsibility</strong>. The HTTP handler handles HTTP. The business logic handles rules. The database layer handles persistence. They don't know about each other's internals.</p>
@@ -186,14 +186,14 @@ export class OrderComponent {
 }
 
 // &#x2705; GOOD: Each concern separated
-// api.service.ts — HTTP only
+// api.service.ts - HTTP only
 @Injectable({ providedIn: 'root' })
 export class OrderApi {
   private http = inject(HttpClient);
   getOrders() { return this.http.get&lt;Order[]&gt;('/api/orders'); }
 }
 
-// order.service.ts — Business logic only
+// order.service.ts - Business logic only
 @Injectable({ providedIn: 'root' })
 export class OrderService {
   private api = inject(OrderApi);
@@ -205,7 +205,7 @@ export class OrderService {
   }
 }
 
-// order.component.ts — UI rendering only
+// order.component.ts - UI rendering only
 @Component({ template: '...' })
 export class OrderComponent {
   private orderService = inject(OrderService);
@@ -257,7 +257,7 @@ export class OrderComponent {
 
       <h2>SoC Beyond Code: The Software Lifecycle</h2>
 
-      <p>Most articles stop at code-level SoC. But separation of concerns shapes <em>everything</em> in the software lifecycle — from how teams are organised, to how you deploy, to how you handle incidents at 3 AM.</p>
+      <p>Most articles stop at code-level SoC. But separation of concerns shapes <em>everything</em> in the software lifecycle - from how teams are organised, to how you deploy, to how you handle incidents at 3 AM.</p>
 
       <!-- SoC Lifecycle -->
       <div class="flow-diagram">
@@ -428,7 +428,7 @@ S3:          File storage (uploads, exports)
 
       <h2>When SoC Goes Too Far</h2>
 
-      <p>Fair warning — SoC is not "split everything into the smallest possible pieces." Over-separation is just as harmful as no separation:</p>
+      <p>Fair warning - SoC is not "split everything into the smallest possible pieces." Over-separation is just as harmful as no separation:</p>
 
       <ul>
         <li><strong>500 microservices for a 10-person team</strong> = operational nightmare. You've separated concerns to the point where nobody can understand the system.</li>
@@ -438,5 +438,5 @@ S3:          File storage (uploads, exports)
 
       <p>The right level of separation is the one where <strong>each piece can change independently without breaking the others</strong>. If two things always change together, they belong together. If they never change together, they should be separated. That's the real test.</p>
 
-      <p>Separation of Concerns is not about creating more files — it's about creating <strong>boundaries that protect you from change</strong>. When your email provider changes, only the email module changes. When your database changes, only the repository changes. When your UI framework changes, only the components change. And when your deployment breaks, only the deployment pipeline is investigated — not the feature code, the test suite, and the monitoring stack all at once. Build these boundaries from day one — in your code, your tests, your deployment, your team structure, and your incident response — and your software will scale with your organisation instead of against it.</p>
+      <p>Separation of Concerns is not about creating more files - it's about creating <strong>boundaries that protect you from change</strong>. When your email provider changes, only the email module changes. When your database changes, only the repository changes. When your UI framework changes, only the components change. And when your deployment breaks, only the deployment pipeline is investigated - not the feature code, the test suite, and the monitoring stack all at once. Build these boundaries from day one - in your code, your tests, your deployment, your team structure, and your incident response - and your software will scale with your organisation instead of against it.</p>
     `;

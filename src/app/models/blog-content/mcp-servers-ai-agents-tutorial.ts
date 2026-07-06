@@ -1,8 +1,8 @@
 export const CONTENT = `
-      <p>If you've used AI coding assistants like Claude Code, Cursor, or Windsurf, you've probably noticed they can do more than just generate text — they can read files, search the web, query databases, and interact with APIs. But how do these AI agents connect to external tools? The answer is the <strong>Model Context Protocol (MCP)</strong> — an open standard that's quickly becoming the universal plugin system for AI.</p>
+      <p>If you've used AI coding assistants like Claude Code, Cursor, or Windsurf, you've probably noticed they can do more than just generate text - they can read files, search the web, query databases, and interact with APIs. But how do these AI agents connect to external tools? The answer is the <strong>Model Context Protocol (MCP)</strong> - an open standard that's quickly becoming the universal plugin system for AI.</p>
 
       <h2>What is MCP?</h2>
-      <p>The <strong>Model Context Protocol</strong> is an open protocol (created by Anthropic) that standardizes how AI applications connect to external data sources and tools. Think of it as <strong>USB for AI</strong> — a universal interface that lets any AI agent plug into any tool, without custom integrations for each combination.</p>
+      <p>The <strong>Model Context Protocol</strong> is an open protocol (created by Anthropic) that standardizes how AI applications connect to external data sources and tools. Think of it as <strong>USB for AI</strong> - a universal interface that lets any AI agent plug into any tool, without custom integrations for each combination.</p>
 
       <!-- MCP Overview -->
       <div class="flow-diagram">
@@ -10,7 +10,7 @@ export const CONTENT = `
         <div class="hub-diagram">
           <div class="hub-center">
             MCP Protocol
-            <span class="hub-center-sub">Open standard — JSON-RPC over stdio/HTTP</span>
+            <span class="hub-center-sub">Open standard - JSON-RPC over stdio/HTTP</span>
           </div>
           <div class="hub-arrow-label">
             <span class="arrow-animated">&#x2B06;</span> AI Clients connect here
@@ -29,7 +29,7 @@ export const CONTENT = `
       </div>
 
       <h2>Why MCP Matters</h2>
-      <p>Before MCP, every AI tool had to build custom integrations for every data source. If you wanted Claude to access your database, Slack, and GitHub, you'd need three separate integrations — each with its own protocol, auth, and error handling. MCP solves this with a single standard:</p>
+      <p>Before MCP, every AI tool had to build custom integrations for every data source. If you wanted Claude to access your database, Slack, and GitHub, you'd need three separate integrations - each with its own protocol, auth, and error handling. MCP solves this with a single standard:</p>
       <ul>
         <li><strong>For AI developers:</strong> Build one MCP client, connect to any MCP server. No custom integration per tool.</li>
         <li><strong>For tool developers:</strong> Build one MCP server, and every AI agent can use it. Write once, work everywhere.</li>
@@ -69,18 +69,18 @@ export const CONTENT = `
       <div class="flow-diagram">
         <div class="flow-diagram-title">MCP Architecture</div>
         <div class="layer-diagram">
-          <div class="layer-item" style="background:#3b82f6">MCP Host (AI Application)<span class="layer-item-sub">Claude Desktop, Claude Code, Cursor, Windsurf — the app the user interacts with</span></div>
-          <div class="layer-item" style="background:#7c3aed">MCP Client<span class="layer-item-sub">Built into the host — manages connections to MCP servers, routes tool calls</span></div>
+          <div class="layer-item" style="background:#3b82f6">MCP Host (AI Application)<span class="layer-item-sub">Claude Desktop, Claude Code, Cursor, Windsurf - the app the user interacts with</span></div>
+          <div class="layer-item" style="background:#7c3aed">MCP Client<span class="layer-item-sub">Built into the host - manages connections to MCP servers, routes tool calls</span></div>
           <div class="layer-item" style="background:#f97316">MCP Server<span class="layer-item-sub">Lightweight process that exposes tools, resources, and prompts via the MCP protocol</span></div>
-          <div class="layer-item" style="background:#22c55e">External Systems<span class="layer-item-sub">Databases, APIs, file systems, browsers — whatever the server connects to</span></div>
+          <div class="layer-item" style="background:#22c55e">External Systems<span class="layer-item-sub">Databases, APIs, file systems, browsers - whatever the server connects to</span></div>
         </div>
       </div>
 
       <h2>What Can an MCP Server Expose?</h2>
       <p>MCP servers can provide three types of capabilities:</p>
       <ul>
-        <li><strong>Tools:</strong> Functions the AI can call — like querying a database, sending a Slack message, or creating a GitHub issue. The AI decides when to use them.</li>
-        <li><strong>Resources:</strong> Data the AI can read — like files, database records, or API responses. Similar to GET endpoints in REST.</li>
+        <li><strong>Tools:</strong> Functions the AI can call - like querying a database, sending a Slack message, or creating a GitHub issue. The AI decides when to use them.</li>
+        <li><strong>Resources:</strong> Data the AI can read - like files, database records, or API responses. Similar to GET endpoints in REST.</li>
         <li><strong>Prompts:</strong> Reusable prompt templates that the AI or user can invoke. Useful for standardized workflows.</li>
       </ul>
 
@@ -95,7 +95,7 @@ my-db-server/
   server.py        # MCP server implementation
   database.db      # SQLite database</code></pre>
 
-      <pre><code># server.py — A complete MCP server for SQLite
+      <pre><code># server.py - A complete MCP server for SQLite
 import sqlite3
 import json
 from mcp.server import Server
@@ -149,7 +149,7 @@ async def describe_table(table_name: str) -> list[TextContent]:
 async def query(sql: str) -> list[TextContent]:
     """Execute a read-only SQL query and return results.
     Only SELECT statements are allowed for safety."""
-    # Safety check — only allow SELECT queries
+    # Safety check - only allow SELECT queries
     if not sql.strip().upper().startswith("SELECT"):
         return [TextContent(
             type="text",
@@ -180,7 +180,7 @@ if __name__ == "__main__":
 
       <h2>Connecting Your MCP Server to Claude</h2>
       <p>To use your MCP server with Claude Desktop or Claude Code, add it to your configuration:</p>
-      <pre><code># For Claude Desktop — edit ~/Library/Application Support/Claude/claude_desktop_config.json (macOS)
+      <pre><code># For Claude Desktop - edit ~/Library/Application Support/Claude/claude_desktop_config.json (macOS)
 # or %APPDATA%/Claude/claude_desktop_config.json (Windows)
 
 {
@@ -195,7 +195,7 @@ if __name__ == "__main__":
   }
 }
 
-# For Claude Code — edit ~/.claude/settings.json or project .mcp.json
+# For Claude Code - edit ~/.claude/settings.json or project .mcp.json
 {
   "mcpServers": {
     "sqlite-explorer": {
@@ -205,14 +205,14 @@ if __name__ == "__main__":
     }
   }
 }</code></pre>
-      <p>Once configured, Claude can now use your tools naturally: "Show me all the tables in the database" or "Find all users who signed up this week" — and it will call your MCP server functions automatically.</p>
+      <p>Once configured, Claude can now use your tools naturally: "Show me all the tables in the database" or "Find all users who signed up this week" - and it will call your MCP server functions automatically.</p>
 
       <h2>Building an MCP Server (TypeScript / Node.js)</h2>
       <p>The TypeScript SDK is equally powerful. Here's a GitHub MCP server that lets AI agents interact with repositories:</p>
       <pre><code># Install the MCP TypeScript SDK
 npm install @modelcontextprotocol/sdk</code></pre>
 
-      <pre><code>// github-server.ts — MCP server for GitHub
+      <pre><code>// github-server.ts - MCP server for GitHub
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
@@ -475,7 +475,7 @@ server.connect(transport);</code></pre>
         <li><strong>Scoping:</strong> Use environment variables or config files to control what the server can access. Don't hardcode database URLs or API keys.</li>
       </ul>
 
-      <h2>Building MCP Servers — Best Practices</h2>
+      <h2>Building MCP Servers - Best Practices</h2>
 
       <!-- Best Practices -->
       <div class="flow-diagram">
@@ -484,18 +484,18 @@ server.connect(transport);</code></pre>
           <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">Write clear tool descriptions</div><div class="timeline-item-desc">The AI reads your description to decide when to use the tool. Be specific, include examples.</div></div>
           <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">Define strict input schemas</div><div class="timeline-item-desc">Use JSON Schema with required fields, types, and enums. The tighter the schema, the fewer errors.</div></div>
           <div class="timeline-item" style="--c:#a855f7"><div class="timeline-item-title" style="color:#a855f7">Return structured data</div><div class="timeline-item-desc">Return JSON, not prose. The AI can reason about structured data much better than paragraphs.</div></div>
-          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Handle errors gracefully</div><div class="timeline-item-desc">Return error messages the AI can understand and act on. Don't crash — return a helpful error response.</div></div>
+          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Handle errors gracefully</div><div class="timeline-item-desc">Return error messages the AI can understand and act on. Don't crash - return a helpful error response.</div></div>
           <div class="timeline-item" style="--c:#ef4444"><div class="timeline-item-title" style="color:#ef4444">Test with real AI agents</div><div class="timeline-item-desc">Connect your server to Claude Desktop and test with natural language. The AI will find edge cases you didn't think of.</div></div>
         </div>
       </div>
 
       <h2>The Future of MCP</h2>
-      <p>MCP is still young, but adoption is accelerating. Every major AI coding tool — Claude Code, Cursor, Windsurf, Cline — now supports MCP. The protocol is becoming what HTTP was for the web: the standard that makes everything interoperable.</p>
+      <p>MCP is still young, but adoption is accelerating. Every major AI coding tool - Claude Code, Cursor, Windsurf, Cline - now supports MCP. The protocol is becoming what HTTP was for the web: the standard that makes everything interoperable.</p>
       <ul>
         <li><strong>For developers:</strong> Learning to build MCP servers is one of the highest-leverage skills in AI right now. You're building the tools that AI agents use.</li>
-        <li><strong>For companies:</strong> MCP lets you give AI agents controlled access to internal systems — databases, APIs, documentation — without exposing raw credentials or building custom integrations.</li>
+        <li><strong>For companies:</strong> MCP lets you give AI agents controlled access to internal systems - databases, APIs, documentation - without exposing raw credentials or building custom integrations.</li>
         <li><strong>For the ecosystem:</strong> As more MCP servers are published, AI agents become more capable. A single MCP server for Jira means every AI tool can manage Jira tickets.</li>
       </ul>
 
-      <p>MCP is to AI agents what REST was to web services — a universal language that unlocks an ecosystem. Start building your MCP server today, and you'll be ahead of the curve when every application needs an AI-compatible interface.</p>
+      <p>MCP is to AI agents what REST was to web services - a universal language that unlocks an ecosystem. Start building your MCP server today, and you'll be ahead of the curve when every application needs an AI-compatible interface.</p>
     `;

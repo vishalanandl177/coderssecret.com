@@ -1,13 +1,13 @@
 export const CONTENT = `
-      <p>If you've ever onboarded a new employee and had to create their accounts across 15 different SaaS tools — Slack, Jira, GitHub, AWS, Google Workspace — you know the pain. Now imagine doing that for 500 employees. And then deprovisioning them when they leave. <strong>SCIM</strong> (System for Cross-domain Identity Management) solves this by automating user provisioning and deprovisioning across all your applications from a single identity provider.</p>
+      <p>If you've ever onboarded a new employee and had to create their accounts across 15 different SaaS tools - Slack, Jira, GitHub, AWS, Google Workspace - you know the pain. Now imagine doing that for 500 employees. And then deprovisioning them when they leave. <strong>SCIM</strong> (System for Cross-domain Identity Management) solves this by automating user provisioning and deprovisioning across all your applications from a single identity provider.</p>
 
       <h2>What is SCIM?</h2>
       <p>SCIM is an <strong>open standard protocol</strong> (RFC 7642, 7643, 7644) that defines a REST API for managing user identities across systems. When an identity provider (like Okta, Azure AD, or OneLogin) supports SCIM, it can automatically:</p>
       <ul>
         <li><strong>Create</strong> user accounts in your app when someone joins the organization</li>
         <li><strong>Update</strong> user profiles when their details change (name, email, department, role)</li>
-        <li><strong>Deactivate/Delete</strong> accounts when someone leaves — instantly, across all connected apps</li>
-        <li><strong>Manage groups</strong> — add/remove users from teams, departments, or permission groups</li>
+        <li><strong>Deactivate/Delete</strong> accounts when someone leaves - instantly, across all connected apps</li>
+        <li><strong>Manage groups</strong> - add/remove users from teams, departments, or permission groups</li>
       </ul>
       <p>Think of SCIM as the <strong>CRUD API for user management</strong> that every SaaS app agrees to speak.</p>
 
@@ -50,7 +50,7 @@ export const CONTENT = `
               <div class="seq-arrow right-23" style="--arrow-color:#ef4444"><span class="seq-num" style="background:#ef4444">5</span> UPDATE active=false</div>
             </div>
             <div class="seq-step">
-              <div class="seq-arrow left" style="--arrow-color:#22c55e"><span class="seq-num green">6</span> 200 OK &#x2014; user deactivated &#x1F512;</div>
+              <div class="seq-arrow left" style="--arrow-color:#22c55e"><span class="seq-num green">6</span> 200 OK - user deactivated &#x1F512;</div>
             </div>
           </div>
         </div>
@@ -72,7 +72,7 @@ export const CONTENT = `
         </div>
       </div>
 
-      <h2>How SCIM Works — The Flow</h2>
+      <h2>How SCIM Works - The Flow</h2>
       <pre><code>1. Admin adds a new user "Jane" in the Identity Provider (Okta, Azure AD)
 2. IdP sends a SCIM POST request to each connected app:
    POST https://your-app.com/scim/v2/Users
@@ -153,7 +153,7 @@ GET      /scim/v2/ServiceProviderConfig   Advertise supported features
 GET      /scim/v2/Schemas                 Return supported schemas
 GET      /scim/v2/ResourceTypes           Return supported resource types</code></pre>
 
-      <h2>Building a SCIM Server — Python Example</h2>
+      <h2>Building a SCIM Server - Python Example</h2>
       <p>Let's build a minimal SCIM 2.0 server using Flask. This handles user provisioning from any SCIM-compatible IdP:</p>
       <pre><code>from flask import Flask, request, jsonify
 import uuid
@@ -284,7 +284,7 @@ def delete_user(user_id):
     return "", 204</code></pre>
 
       <h2>Securing Your SCIM Endpoint</h2>
-      <p>SCIM endpoints must be secured — they can create and delete users in your system. Common approaches:</p>
+      <p>SCIM endpoints must be secured - they can create and delete users in your system. Common approaches:</p>
       <pre><code># Bearer token authentication (most common with IdPs)
 @app.before_request
 def authenticate():
@@ -298,7 +298,7 @@ def authenticate():
 
       <h2>Real-World Use Cases</h2>
       <ul>
-        <li><strong>Employee onboarding:</strong> HR adds a new hire in Okta. SCIM automatically creates their account in Slack, Jira, GitHub, AWS IAM, your internal dashboard — all within seconds.</li>
+        <li><strong>Employee onboarding:</strong> HR adds a new hire in Okta. SCIM automatically creates their account in Slack, Jira, GitHub, AWS IAM, your internal dashboard - all within seconds.</li>
         <li><strong>Employee offboarding:</strong> When someone leaves, IT deactivates them in the IdP. SCIM instantly deactivates their access across every connected app. No orphaned accounts, no security gaps.</li>
         <li><strong>Role changes:</strong> An engineer moves to the security team. Their IdP group membership changes, and SCIM propagates the new group to all connected apps, updating permissions automatically.</li>
         <li><strong>License management:</strong> Automatically deprovision users from paid tools when they leave, freeing up license seats.</li>
@@ -323,12 +323,12 @@ def authenticate():
 
       <h2>Common Pitfalls</h2>
       <ul>
-        <li><strong>Filter parsing:</strong> IdPs send SCIM filter expressions like <code>userName eq "jane@co.com"</code>. You must parse and handle these — IdPs rely on filters to check for existing users before creating duplicates.</li>
+        <li><strong>Filter parsing:</strong> IdPs send SCIM filter expressions like <code>userName eq "jane@co.com"</code>. You must parse and handle these - IdPs rely on filters to check for existing users before creating duplicates.</li>
         <li><strong>Case sensitivity:</strong> SCIM attribute names are case-sensitive per the spec, but some IdPs send them inconsistently. Be lenient in what you accept.</li>
         <li><strong>PATCH operations:</strong> Different IdPs send PATCH operations differently. Okta prefers <code>replace</code>, Azure AD sometimes uses <code>add</code> and <code>remove</code>. Test with your target IdPs.</li>
         <li><strong>Rate limiting:</strong> Large organizations might push thousands of users during initial sync. Make sure your endpoint can handle bulk operations.</li>
         <li><strong>Idempotency:</strong> If the IdP retries a failed request, creating a duplicate user is wrong. Always check for existing users by <code>userName</code> or <code>externalId</code> before creating.</li>
       </ul>
 
-      <p>SCIM is a must-have for any B2B SaaS product targeting enterprise customers. It's the difference between "we support SSO" and "we support automated lifecycle management" — and the latter is what enterprise IT teams actually need. Implement it once, and you'll unlock integrations with every major identity provider out of the box.</p>
+      <p>SCIM is a must-have for any B2B SaaS product targeting enterprise customers. It's the difference between "we support SSO" and "we support automated lifecycle management" - and the latter is what enterprise IT teams actually need. Implement it once, and you'll unlock integrations with every major identity provider out of the box.</p>
     `;

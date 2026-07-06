@@ -268,13 +268,13 @@ Always cite the documentation section you referenced."""
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Always start with prompt engineering</strong> &mdash; it is free, fast, and often sufficient</li>
-        <li><strong>Add RAG when you need large or dynamic knowledge</strong> &mdash; documents, knowledge bases, code repos</li>
-        <li><strong>Fine-tune when you need consistent style or format</strong> &mdash; not for adding factual knowledge (use RAG for that)</li>
-        <li><strong>RAG reduces hallucination better than fine-tuning</strong> &mdash; the model cites retrieved documents, not memorized patterns</li>
-        <li><strong>Fine-tuning freezes knowledge at training time</strong> &mdash; your data from January is stale by March</li>
-        <li><strong>The hybrid approach wins in production</strong> &mdash; fine-tuned format + RAG for facts + prompt guardrails</li>
-        <li><strong>Measure before you optimize</strong> &mdash; if prompt engineering gives 95% accuracy, the extra 3% from fine-tuning may not justify the cost</li>
+        <li><strong>Always start with prompt engineering</strong> - it is free, fast, and often sufficient</li>
+        <li><strong>Add RAG when you need large or dynamic knowledge</strong> - documents, knowledge bases, code repos</li>
+        <li><strong>Fine-tune when you need consistent style or format</strong> - not for adding factual knowledge (use RAG for that)</li>
+        <li><strong>RAG reduces hallucination better than fine-tuning</strong> - the model cites retrieved documents, not memorized patterns</li>
+        <li><strong>Fine-tuning freezes knowledge at training time</strong> - your data from January is stale by March</li>
+        <li><strong>The hybrid approach wins in production</strong> - fine-tuned format + RAG for facts + prompt guardrails</li>
+        <li><strong>Measure before you optimize</strong> - if prompt engineering gives 95% accuracy, the extra 3% from fine-tuning may not justify the cost</li>
       </ul>
 
       <p>The biggest mistake in AI engineering is reaching for fine-tuning first. It is the most expensive, slowest to iterate, and hardest to maintain approach. Start with prompts, add RAG when you outgrow the context window, and fine-tune only when you have proven that the other approaches cannot achieve the quality you need. Most production systems never need fine-tuning at all.</p>

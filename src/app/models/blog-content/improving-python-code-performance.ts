@@ -70,11 +70,11 @@ result = sum(x for x in numbers if x > 0)</code></pre>
 
       <h2>Choose the Right Data Structure</h2>
       <p>Data structure choice can make or break performance:</p>
-      <pre><code># SLOW: Checking membership in a list — O(n)
+      <pre><code># SLOW: Checking membership in a list - O(n)
 if item in large_list:  # Scans every element
     pass
 
-# FAST: Checking membership in a set — O(1)
+# FAST: Checking membership in a set - O(1)
 large_set = set(large_list)
 if item in large_set:  # Hash lookup, instant
     pass
@@ -119,12 +119,12 @@ class Point:
 
       <h2>String Concatenation</h2>
       <p>String handling is a common performance trap:</p>
-      <pre><code># SLOW: String concatenation in a loop — O(n^2)
+      <pre><code># SLOW: String concatenation in a loop - O(n^2)
 result = ""
 for chunk in chunks:
     result += chunk  # Creates a new string every iteration
 
-# FAST: Join — O(n)
+# FAST: Join - O(n)
 result = "".join(chunks)
 
 # SLOW: Format string in a loop
@@ -139,10 +139,10 @@ lines = [f"Name: {name}, Score: {score}" for name, score in data]</code></pre>
       <p>For numerical computation, NumPy's vectorized operations are 50-100x faster than pure Python loops:</p>
       <pre><code>import numpy as np
 
-# SLOW: Pure Python — ~2 seconds for 10M elements
+# SLOW: Pure Python - ~2 seconds for 10M elements
 result = [x ** 2 + 2 * x + 1 for x in range(10_000_000)]
 
-# FAST: NumPy vectorized — ~0.03 seconds (60x faster)
+# FAST: NumPy vectorized - ~0.03 seconds (60x faster)
 arr = np.arange(10_000_000)
 result = arr ** 2 + 2 * arr + 1</code></pre>
 
@@ -171,17 +171,17 @@ with Pool(processes=8) as pool:
         <li><strong>Move invariants out of loops:</strong> Don't recompute values that don't change inside a loop.</li>
         <li><strong>Use local variables:</strong> Local variable lookup is faster than global. Assign frequently used globals to local names.</li>
         <li><strong>Avoid <code>*args/**kwargs</code> overhead:</strong> Use explicit parameters when you know the signature.</li>
-        <li><strong>Use <code>itertools</code>:</strong> <code>chain</code>, <code>islice</code>, <code>groupby</code> — all implemented in C, all faster than hand-rolled equivalents.</li>
+        <li><strong>Use <code>itertools</code>:</strong> <code>chain</code>, <code>islice</code>, <code>groupby</code> - all implemented in C, all faster than hand-rolled equivalents.</li>
         <li><strong>Upgrade Python:</strong> Python 3.11 is 25% faster than 3.10. Python 3.12+ has even more improvements. Free performance just by upgrading.</li>
         <li><strong>Consider Numba, Cython, or PyPy:</strong> For true hot paths, these tools can give you C-level speed. See the sections below for details.</li>
       </ul>
 
-      <h2>Numba — JIT Compilation for Numerical Code</h2>
-      <p><strong>Numba</strong> is a just-in-time (JIT) compiler that translates Python functions into optimized machine code at runtime using LLVM. The best part? You just add a decorator — no new syntax, no separate compilation step.</p>
+      <h2>Numba - JIT Compilation for Numerical Code</h2>
+      <p><strong>Numba</strong> is a just-in-time (JIT) compiler that translates Python functions into optimized machine code at runtime using LLVM. The best part? You just add a decorator - no new syntax, no separate compilation step.</p>
       <pre><code>from numba import njit
 import numpy as np
 
-# SLOW: Pure Python — ~4 seconds
+# SLOW: Pure Python - ~4 seconds
 def monte_carlo_pi_python(n):
     inside = 0
     for i in range(n):
@@ -191,7 +191,7 @@ def monte_carlo_pi_python(n):
             inside += 1
     return 4.0 * inside / n
 
-# FAST: Numba JIT — ~0.05 seconds (80x faster)
+# FAST: Numba JIT - ~0.05 seconds (80x faster)
 @njit
 def monte_carlo_pi_numba(n):
     inside = 0
@@ -215,9 +215,9 @@ def vector_add_gpu(a, b, result):
         result[idx] = a[idx] + b[idx]</code></pre>
       <p><strong>When to use Numba:</strong> Numerical loops, math-heavy functions, Monte Carlo simulations, array operations. It works best with NumPy arrays and scalar types. It does <em>not</em> support arbitrary Python objects, classes, or most of the standard library.</p>
 
-      <h2>Cython — Write Python, Get C Speed</h2>
+      <h2>Cython - Write Python, Get C Speed</h2>
       <p><strong>Cython</strong> is a superset of Python that compiles to C extension modules. You can gradually add type annotations to existing Python code and watch the performance improve dramatically.</p>
-      <pre><code># fibonacci.pyx — Cython source file
+      <pre><code># fibonacci.pyx - Cython source file
 
 # Pure Python version (slow)
 def fib_python(n):
@@ -257,12 +257,12 @@ def matrix_multiply(cnp.ndarray[double, ndim=2] a,
     return result</code></pre>
       <p><strong>When to use Cython:</strong> CPU-bound hot paths where you need maximum control, wrapping existing C/C++ libraries, or when you want a gradual migration path from Python to C-speed code. It's used by major projects like NumPy, pandas, and scikit-learn internally.</p>
 
-      <h2>Python with C — ctypes, cffi, and C Extensions</h2>
+      <h2>Python with C - ctypes, cffi, and C Extensions</h2>
       <p>Sometimes you need to call existing C code from Python, or you want to write a performance-critical function in pure C. Python offers several ways to do this.</p>
 
-      <h2>ctypes — Call C Libraries Directly</h2>
+      <h2>ctypes - Call C Libraries Directly</h2>
       <p><code>ctypes</code> is part of Python's standard library. It lets you load shared libraries (.so / .dll) and call their functions with zero dependencies:</p>
-      <pre><code>// fast_math.c — compile with: gcc -shared -O2 -o fast_math.so fast_math.c
+      <pre><code>// fast_math.c - compile with: gcc -shared -O2 -o fast_math.so fast_math.c
 #include &lt;math.h&gt;
 
 double sum_squares(double* arr, int n) {
@@ -280,7 +280,7 @@ int is_prime(long n) {
     }
     return 1;
 }</code></pre>
-      <pre><code># Python — using ctypes to call the C library
+      <pre><code># Python - using ctypes to call the C library
 import ctypes
 import numpy as np
 
@@ -301,7 +301,7 @@ print(f"Sum of squares: {result}")  # 55.0
 
 print(f"Is 997 prime? {bool(lib.is_prime(997))}")  # True</code></pre>
 
-      <h2>cffi — A Cleaner C Interface</h2>
+      <h2>cffi - A Cleaner C Interface</h2>
       <p><code>cffi</code> is a third-party library that provides a cleaner, more Pythonic way to call C code. It can parse C header declarations directly:</p>
       <pre><code>from cffi import FFI
 
@@ -321,7 +321,7 @@ arr = ffi.new("double[]", [1.0, 2.0, 3.0, 4.0, 5.0])
 result = lib.sum_squares(arr, 5)
 print(result)  # 55.0</code></pre>
 
-      <h2>CPython C Extensions — Maximum Performance</h2>
+      <h2>CPython C Extensions - Maximum Performance</h2>
       <p>For the ultimate performance, you can write a native CPython extension module in C. This is what NumPy, pandas, and most high-performance Python libraries do internally:</p>
       <pre><code>// fast_module.c
 #include &lt;Python.h&gt;
@@ -385,7 +385,7 @@ ctypes            Low            50-100x      Calling existing C libraries
 cffi              Low            50-100x      Cleaner C library interface
 C Extension       High           100-500x     Maximum perf, library core
 PyPy              Very Low       5-10x        General Python speedup</code></pre>
-      <p><strong>Start with Numba</strong> if you're doing numerical work — it's the lowest-effort, highest-reward option. <strong>Use Cython</strong> when you need more control or are building a library. <strong>Use ctypes/cffi</strong> when you're integrating with existing C code. <strong>Write a C extension</strong> only when you're building performance-critical infrastructure that will be used millions of times.</p>
+      <p><strong>Start with Numba</strong> if you're doing numerical work - it's the lowest-effort, highest-reward option. <strong>Use Cython</strong> when you need more control or are building a library. <strong>Use ctypes/cffi</strong> when you're integrating with existing C code. <strong>Write a C extension</strong> only when you're building performance-critical infrastructure that will be used millions of times.</p>
 
-      <p>Performance optimization is a skill that compounds. Start with profiling, pick the lowest-hanging fruit, and work your way up. Most of the time, you don't need to rewrite anything in C — you just need to write better Python. But when you do need that last mile of performance, Python gives you a clear path all the way down to bare metal.</p>
+      <p>Performance optimization is a skill that compounds. Start with profiling, pick the lowest-hanging fruit, and work your way up. Most of the time, you don't need to rewrite anything in C - you just need to write better Python. But when you do need that last mile of performance, Python gives you a clear path all the way down to bare metal.</p>
     `;

@@ -251,13 +251,13 @@ def callback(request):
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>OAuth 2.0 = authorization, OIDC = authentication</strong> &mdash; do not use OAuth alone for login</li>
-        <li><strong>Always use Authorization Code flow + PKCE</strong> &mdash; implicit flow is deprecated</li>
+        <li><strong>OAuth 2.0 = authorization, OIDC = authentication</strong> - do not use OAuth alone for login</li>
+        <li><strong>Always use Authorization Code flow + PKCE</strong> - implicit flow is deprecated</li>
         <li><strong>Validate everything:</strong> state parameter, id_token signature, issuer, audience, expiration</li>
         <li><strong>Store tokens securely:</strong> httpOnly cookies for web, secure storage for mobile, never localStorage</li>
         <li><strong>Use short-lived access tokens + refresh token rotation</strong> to limit blast radius of token theft</li>
-        <li><strong>The token exchange must happen server-side</strong> &mdash; never expose client_secret to the browser</li>
+        <li><strong>The token exchange must happen server-side</strong> - never expose client_secret to the browser</li>
       </ul>
 
-      <p>OAuth 2.0 and OIDC are not complicated once you understand the roles and flows. The protocol itself is sound &mdash; the vulnerabilities come from implementation shortcuts. Follow this guide, avoid the security mistakes, and your auth implementation will be solid.</p>
+      <p>OAuth 2.0 and OIDC are not complicated once you understand the roles and flows. The protocol itself is sound - the vulnerabilities come from implementation shortcuts. Follow this guide, avoid the security mistakes, and your auth implementation will be solid.</p>
     `;

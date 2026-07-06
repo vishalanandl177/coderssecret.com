@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Kubernetes has become the de facto standard for container orchestration, but managing complex stateful applications on Kubernetes often requires more than just Deployments and Services. That's where <strong>Kubernetes Operators</strong> come in — they encode human operational knowledge into software that extends the Kubernetes API itself.</p>
+      <p>Kubernetes has become the de facto standard for container orchestration, but managing complex stateful applications on Kubernetes often requires more than just Deployments and Services. That's where <strong>Kubernetes Operators</strong> come in - they encode human operational knowledge into software that extends the Kubernetes API itself.</p>
 
       <h2>What is a Kubernetes Operator?</h2>
       <p>A Kubernetes Operator is a method of packaging, deploying, and managing a Kubernetes application using <strong>custom resources</strong> (CRs) and <strong>custom controllers</strong>. Think of it as a robot SRE that watches your cluster and takes actions to reconcile the actual state with the desired state you've declared.</p>
@@ -44,7 +44,7 @@ operator-sdk version</code></pre>
       <p>You'll also need Go 1.21+, Docker, kubectl, and access to a Kubernetes cluster (minikube or kind works great for development).</p>
 
       <h2>Scaffolding Your Operator Project</h2>
-      <p>Let's build an operator that manages a custom <code>AppService</code> resource — a simplified application deployment manager.</p>
+      <p>Let's build an operator that manages a custom <code>AppService</code> resource - a simplified application deployment manager.</p>
       <pre><code># Create a new project
 mkdir appservice-operator && cd appservice-operator
 operator-sdk init --domain example.com --repo github.com/yourname/appservice-operator
@@ -101,7 +101,7 @@ make manifests</code></pre>
     appService := &appsv1alpha1.AppService{}
     if err := r.Get(ctx, req.NamespacedName, appService); err != nil {
         if apierrors.IsNotFound(err) {
-            log.Info("AppService resource not found — probably deleted")
+            log.Info("AppService resource not found - probably deleted")
             return ctrl.Result{}, nil
         }
         return ctrl.Result{}, err

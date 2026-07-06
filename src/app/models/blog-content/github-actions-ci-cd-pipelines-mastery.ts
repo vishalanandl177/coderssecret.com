@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>GitHub Actions is the most popular CI/CD platform for open source and increasingly for enterprise. But most teams use it like a simple script runner &mdash; one workflow, no caching, no parallelism, 20-minute builds. This guide shows you the patterns that make CI/CD fast, reliable, and maintainable.</p>
+      <p>GitHub Actions is the most popular CI/CD platform for open source and increasingly for enterprise. But most teams use it like a simple script runner - one workflow, no caching, no parallelism, 20-minute builds. This guide shows you the patterns that make CI/CD fast, reliable, and maintainable.</p>
 
       <div class="pipeline-diagram">
         <div class="pipeline-title">Optimized CI/CD Pipeline Architecture</div>
@@ -293,13 +293,13 @@ jobs:
 
       <ul>
         <li><strong>Use concurrency groups</strong> to cancel outdated CI runs and save compute</li>
-        <li><strong>Cache aggressively:</strong> node_modules, build caches, Docker layers &mdash; cache everything that does not change often</li>
-        <li><strong>Matrix builds test across versions in parallel</strong> &mdash; catch compatibility issues early</li>
-        <li><strong>Reusable workflows eliminate duplication</strong> &mdash; define once, call from multiple workflows</li>
-        <li><strong>Use OIDC for cloud authentication</strong> &mdash; no static credentials to rotate or leak</li>
-        <li><strong>Path filters in monorepos</strong> save massive CI time &mdash; only test what changed</li>
+        <li><strong>Cache aggressively:</strong> node_modules, build caches, Docker layers - cache everything that does not change often</li>
+        <li><strong>Matrix builds test across versions in parallel</strong> - catch compatibility issues early</li>
+        <li><strong>Reusable workflows eliminate duplication</strong> - define once, call from multiple workflows</li>
+        <li><strong>Use OIDC for cloud authentication</strong> - no static credentials to rotate or leak</li>
+        <li><strong>Path filters in monorepos</strong> save massive CI time - only test what changed</li>
         <li><strong>Build once, deploy many:</strong> upload artifacts from build, download in deploy jobs</li>
       </ul>
 
-      <p>Fast CI/CD is a competitive advantage. A 3-minute pipeline means developers merge multiple times per day. A 20-minute pipeline means they batch changes and merge once. The patterns in this guide &mdash; caching, parallelism, path filters, reusable workflows &mdash; can cut your build time by 80% with a few hours of investment.</p>
+      <p>Fast CI/CD is a competitive advantage. A 3-minute pipeline means developers merge multiple times per day. A 20-minute pipeline means they batch changes and merge once. The patterns in this guide - caching, parallelism, path filters, reusable workflows - can cut your build time by 80% with a few hours of investment.</p>
     `;

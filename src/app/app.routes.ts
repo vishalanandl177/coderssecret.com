@@ -41,7 +41,7 @@ export const routes: Routes = [
     path: 'consultation',
     loadComponent: () => import('./pages/consultation/consultation').then(m => m.ConsultationComponent),
   },
-  // Games — all lazy-loaded (each route is a separate chunk)
+  // Games - all lazy-loaded (each route is a separate chunk)
   {
     path: 'games',
     loadComponent: () => import('./pages/games/hub/hub').then(m => m.GamesHubComponent),
@@ -110,7 +110,7 @@ export const routes: Routes = [
     path: 'games/linux-challenge',
     loadComponent: () => import('./pages/games/linux-challenge/linux-challenge').then(m => m.LinuxChallengeComponent),
   },
-  // Cheat Sheets — all lazy-loaded
+  // Cheat Sheets - all lazy-loaded
   {
     path: 'cheatsheets',
     loadComponent: () => import('./pages/cheatsheets/hub/hub').then(m => m.CheatsheetsHubComponent),
@@ -167,7 +167,7 @@ export const routes: Routes = [
     path: 'cheatsheets/devsecops',
     loadComponent: () => import('./pages/cheatsheets/devsecops/devsecops').then(m => m.DevSecOpsCheatsheetComponent),
   },
-  // Courses — all lazy-loaded
+  // Courses - all lazy-loaded
   {
     path: 'courses',
     loadComponent: () => import('./pages/courses/hub/hub').then(m => m.CoursesHubComponent),

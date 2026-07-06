@@ -1,7 +1,7 @@
 export const CONTENT = `
       <p>You need to rename a column, add a NOT NULL constraint, or change a data type. In development, you run the migration and it takes 200 milliseconds. In production with 50 million rows, that same migration locks the table for 45 minutes and your app goes down.</p>
 
-      <p>This guide teaches the <strong>expand-contract pattern</strong> &mdash; the industry-standard approach to zero-downtime schema changes used by companies like GitHub, Shopify, and Stripe.</p>
+      <p>This guide teaches the <strong>expand-contract pattern</strong> - the industry-standard approach to zero-downtime schema changes used by companies like GitHub, Shopify, and Stripe.</p>
 
       <h2>Why Migrations Cause Downtime</h2>
 
@@ -230,14 +230,14 @@ class Migration(migrations.Migration):
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Never run ALTER TABLE on large tables without checking lock behavior</strong> &mdash; test migrations against production-sized data first</li>
+        <li><strong>Never run ALTER TABLE on large tables without checking lock behavior</strong> - test migrations against production-sized data first</li>
         <li><strong>Use the expand-contract pattern</strong> for any schema change that could break running code</li>
-        <li><strong>Backfill in batches</strong> &mdash; never update millions of rows in a single transaction</li>
+        <li><strong>Backfill in batches</strong> - never update millions of rows in a single transaction</li>
         <li><strong>Always use CONCURRENTLY</strong> for index creation in production</li>
         <li><strong>Add constraints as NOT VALID first</strong>, then validate separately to avoid full table locks</li>
         <li><strong>Deploy in the right order:</strong> migration before code that needs it, code change before migration that removes something</li>
-        <li><strong>PostgreSQL 11+ is your friend</strong> &mdash; many operations that used to be dangerous are now safe, but always verify</li>
+        <li><strong>PostgreSQL 11+ is your friend</strong> - many operations that used to be dangerous are now safe, but always verify</li>
       </ul>
 
-      <p>Zero-downtime migrations require more steps than a simple ALTER TABLE, but the alternative is explaining to your users why the app was down for 45 minutes during a &ldquo;routine update.&rdquo; The expand-contract pattern is not complex &mdash; it is disciplined. And discipline beats downtime every time.</p>
+      <p>Zero-downtime migrations require more steps than a simple ALTER TABLE, but the alternative is explaining to your users why the app was down for 45 minutes during a &ldquo;routine update.&rdquo; The expand-contract pattern is not complex - it is disciplined. And discipline beats downtime every time.</p>
     `;

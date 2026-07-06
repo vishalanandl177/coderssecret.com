@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Every time you move data between systems — from a database to pandas, from Spark to your ML model, from one microservice to another — you pay a <strong>serialization tax</strong>. The data gets converted from one format to another, copied into new memory layouts, and reassembled on the other side. For large datasets, this overhead can dominate your processing time. <strong>Apache Arrow</strong> eliminates this tax entirely.</p>
+      <p>Every time you move data between systems - from a database to pandas, from Spark to your ML model, from one microservice to another - you pay a <strong>serialization tax</strong>. The data gets converted from one format to another, copied into new memory layouts, and reassembled on the other side. For large datasets, this overhead can dominate your processing time. <strong>Apache Arrow</strong> eliminates this tax entirely.</p>
 
       <h2>What is Apache Arrow?</h2>
       <p>Apache Arrow is a <strong>language-independent columnar memory format</strong> for flat and hierarchical data. It defines a standardized way to represent data in memory so that different systems, languages, and libraries can share data with <strong>zero serialization overhead</strong>. Instead of each tool having its own internal format (and paying conversion costs), everyone speaks Arrow.</p>
@@ -58,8 +58,8 @@ export const CONTENT = `
               </tr>
               <tr style="border-bottom:1px solid var(--border)">
                 <td style="padding:0.5rem 0.6rem;color:var(--foreground);font-weight:600">SUM(age)</td>
-                <td style="padding:0.5rem 0.6rem;text-align:center;color:#ef4444">Slow — reads entire rows to get one column</td>
-                <td style="padding:0.5rem 0.6rem;text-align:center;color:#22c55e;font-weight:700">Fast — reads only the age column</td>
+                <td style="padding:0.5rem 0.6rem;text-align:center;color:#ef4444">Slow - reads entire rows to get one column</td>
+                <td style="padding:0.5rem 0.6rem;text-align:center;color:#22c55e;font-weight:700">Fast - reads only the age column</td>
               </tr>
               <tr style="border-bottom:1px solid var(--border)">
                 <td style="padding:0.5rem 0.6rem;color:var(--foreground);font-weight:600">CPU cache</td>
@@ -69,7 +69,7 @@ export const CONTENT = `
               <tr style="border-bottom:1px solid var(--border)">
                 <td style="padding:0.5rem 0.6rem;color:var(--foreground);font-weight:600">SIMD vectorization</td>
                 <td style="padding:0.5rem 0.6rem;text-align:center;color:#ef4444">Not possible (mixed types)</td>
-                <td style="padding:0.5rem 0.6rem;text-align:center;color:#22c55e;font-weight:700">Yes — process 4-8 values per CPU cycle</td>
+                <td style="padding:0.5rem 0.6rem;text-align:center;color:#22c55e;font-weight:700">Yes - process 4-8 values per CPU cycle</td>
               </tr>
               <tr>
                 <td style="padding:0.5rem 0.6rem;color:var(--foreground);font-weight:600">Compression</td>
@@ -109,10 +109,10 @@ export const CONTENT = `
       <div class="flow-diagram">
         <div class="flow-diagram-title">Arrow Columnar Memory Layout</div>
         <div class="layer-diagram">
-          <div class="layer-item" style="background:#3b82f6">Schema (metadata)<span class="layer-item-sub">Column names, types, nullability — describes the structure</span></div>
-          <div class="layer-item" style="background:#a855f7">Validity Bitmaps<span class="layer-item-sub">One bit per value — 0 = null, 1 = valid. Handles nulls with zero overhead.</span></div>
-          <div class="layer-item" style="background:#f97316">Offset Buffers (variable-length types)<span class="layer-item-sub">For strings and lists — stores start/end positions in the data buffer</span></div>
-          <div class="layer-item" style="background:#22c55e">Data Buffers<span class="layer-item-sub">Contiguous, typed, aligned memory — the actual values, cache-friendly and SIMD-ready</span></div>
+          <div class="layer-item" style="background:#3b82f6">Schema (metadata)<span class="layer-item-sub">Column names, types, nullability - describes the structure</span></div>
+          <div class="layer-item" style="background:#a855f7">Validity Bitmaps<span class="layer-item-sub">One bit per value - 0 = null, 1 = valid. Handles nulls with zero overhead.</span></div>
+          <div class="layer-item" style="background:#f97316">Offset Buffers (variable-length types)<span class="layer-item-sub">For strings and lists - stores start/end positions in the data buffer</span></div>
+          <div class="layer-item" style="background:#22c55e">Data Buffers<span class="layer-item-sub">Contiguous, typed, aligned memory - the actual values, cache-friendly and SIMD-ready</span></div>
         </div>
       </div>
 
@@ -159,7 +159,7 @@ print(f"Rows: {table.num_rows}, Columns: {table.num_columns}")
 print(f"Memory: {table.nbytes} bytes")  # Exact memory usage</code></pre>
 
       <h2>Arrow Compute Functions</h2>
-      <p>Arrow provides 200+ vectorized compute functions that operate directly on columnar data — no Python loops, no conversion overhead:</p>
+      <p>Arrow provides 200+ vectorized compute functions that operate directly on columnar data - no Python loops, no conversion overhead:</p>
       <pre><code>import pyarrow.compute as pc
 
 # ── Filtering ──────────────────────────────────
@@ -209,12 +209,12 @@ print(grouped.to_pandas())
 # 2       Sales      95000.0             1       28</code></pre>
 
       <h2>Arrow IPC: Zero-Copy Data Sharing</h2>
-      <p>Arrow's IPC (Inter-Process Communication) format lets you send data between processes, languages, and machines with <strong>zero serialization</strong>. The data is already in Arrow format — just send the bytes.</p>
+      <p>Arrow's IPC (Inter-Process Communication) format lets you send data between processes, languages, and machines with <strong>zero serialization</strong>. The data is already in Arrow format - just send the bytes.</p>
       <pre><code>import pyarrow as pa
 import pyarrow.ipc as ipc
 
 # ── Write Arrow IPC (Feather format) ──────────
-# Feather is Arrow's on-disk format — binary, columnar, fast
+# Feather is Arrow's on-disk format - binary, columnar, fast
 table = pa.table({
     "id": range(1_000_000),
     "value": [f"item_{i}" for i in range(1_000_000)],
@@ -225,8 +225,8 @@ table = pa.table({
 import pyarrow.feather as feather
 feather.write_feather(table, "data.arrow")  # ~15ms for 1M rows
 
-# Read back — memory-mapped, near-instant
-table_back = feather.read_table("data.arrow")  # ~2ms — zero-copy!
+# Read back - memory-mapped, near-instant
+table_back = feather.read_table("data.arrow")  # ~2ms - zero-copy!
 
 # Compare with CSV:
 # CSV write: ~2000ms, CSV read: ~1500ms (100x slower!)
@@ -238,15 +238,15 @@ sink = pa.BufferOutputStream()
 writer = ipc.new_stream(sink, table.schema)
 writer.write_table(table)
 writer.close()
-buf = sink.getvalue()  # Arrow IPC bytes — send this anywhere
+buf = sink.getvalue()  # Arrow IPC bytes - send this anywhere
 
 # Read from bytes (receiver side)
 reader = ipc.open_stream(buf)
 received_table = reader.read_all()
-# Same table, zero deserialization — just pointer assignment!</code></pre>
+# Same table, zero deserialization - just pointer assignment!</code></pre>
 
       <h2>Arrow Flight: High-Performance Data Transport</h2>
-      <p><strong>Arrow Flight</strong> is a gRPC-based protocol for transferring Arrow data over the network. It's designed for bulk data transfer — think "Arrow-native API for data services."</p>
+      <p><strong>Arrow Flight</strong> is a gRPC-based protocol for transferring Arrow data over the network. It's designed for bulk data transfer - think "Arrow-native API for data services."</p>
       <pre><code>import pyarrow.flight as flight
 
 # ── Flight Server (serves Arrow data) ─────────
@@ -280,13 +280,13 @@ client = flight.connect("grpc://localhost:8815")
 for f in client.list_flights():
     print(f.descriptor.path, f.total_records, "rows")
 
-# Fetch a dataset — arrives as Arrow RecordBatches
+# Fetch a dataset - arrives as Arrow RecordBatches
 ticket = flight.Ticket(b"users")
 reader = client.do_get(ticket)
-table = reader.read_all()  # Arrow Table — zero deserialization!
+table = reader.read_all()  # Arrow Table - zero deserialization!
 print(table.to_pandas())
 
-# Flight transfers data at memory speed — 10-100x faster than
+# Flight transfers data at memory speed - 10-100x faster than
 # REST + JSON. No serialization, no parsing, just Arrow bytes.</code></pre>
 
       <!-- Performance Pipeline -->
@@ -327,10 +327,10 @@ print(df.dtypes)
 # 4. Faster I/O (Arrow-native read/write)</code></pre>
 
       <h2>Arrow + Polars</h2>
-      <p><strong>Polars</strong> is built entirely on Arrow. It's the fastest DataFrame library available — often 10-50x faster than pandas:</p>
+      <p><strong>Polars</strong> is built entirely on Arrow. It's the fastest DataFrame library available - often 10-50x faster than pandas:</p>
       <pre><code>import polars as pl
 
-# Polars is Arrow-native — everything is Arrow under the hood
+# Polars is Arrow-native - everything is Arrow under the hood
 df = pl.DataFrame({
     "name": ["Alice", "Bob", "Charlie", "Diana"],
     "department": ["Eng", "Mkt", "Eng", "Sales"],
@@ -363,7 +363,7 @@ arrow_table = df.to_arrow()    # Polars → Arrow (instant, zero-copy)
 df_back = pl.from_arrow(arrow_table)  # Arrow → Polars (instant)</code></pre>
 
       <h2>Arrow + DuckDB</h2>
-      <p><strong>DuckDB</strong> is an in-process analytical database that speaks Arrow natively. You can query Arrow tables with SQL — no data copying:</p>
+      <p><strong>DuckDB</strong> is an in-process analytical database that speaks Arrow natively. You can query Arrow tables with SQL - no data copying:</p>
       <pre><code>import duckdb
 import pyarrow as pa
 
@@ -375,7 +375,7 @@ table = pa.table({
     "quarter": ["Q1", "Q1", "Q1", "Q2", "Q2"],
 })
 
-# Query Arrow data with SQL — zero copy, no import step
+# Query Arrow data with SQL - zero copy, no import step
 result = duckdb.sql("""
     SELECT
         product,
@@ -385,7 +385,7 @@ result = duckdb.sql("""
     FROM table
     GROUP BY product, region
     ORDER BY total_revenue DESC
-""").arrow()  # Returns Arrow Table — stays in Arrow format!
+""").arrow()  # Returns Arrow Table - stays in Arrow format!
 
 print(result.to_pandas())
 #   product region  total_revenue  transactions
@@ -401,11 +401,11 @@ result = duckdb.sql("""
 """).arrow()</code></pre>
 
       <h2>Cross-Language Zero-Copy</h2>
-      <p>Arrow's killer feature is cross-language interoperability. Data created in Python can be consumed by Rust, Java, Go, C++, or JavaScript — with <strong>zero conversion cost</strong>.</p>
+      <p>Arrow's killer feature is cross-language interoperability. Data created in Python can be consumed by Rust, Java, Go, C++, or JavaScript - with <strong>zero conversion cost</strong>.</p>
 
       <!-- Ecosystem -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">Arrow Ecosystem — Same Data, Any Language</div>
+        <div class="flow-diagram-title">Arrow Ecosystem - Same Data, Any Language</div>
         <div class="hub-diagram">
           <div class="hub-center" style="background:#f97316;box-shadow:0 0 30px rgba(249,115,22,0.3)">
             Apache Arrow Format
@@ -459,5 +459,5 @@ result = duckdb.sql("""
         <li><strong>As a pandas backend:</strong> Use <code>dtype_backend="pyarrow"</code> for better null handling, faster strings, and lower memory.</li>
       </ul>
 
-      <p>Apache Arrow is one of the most impactful infrastructure projects in the data ecosystem. It's invisible to most users — you don't "install Arrow" and use it directly. Instead, it powers the tools you already use: pandas, Polars, DuckDB, Spark, Snowflake, BigQuery, and dozens more. Understanding Arrow helps you make better architectural decisions and squeeze maximum performance out of your data pipelines.</p>
+      <p>Apache Arrow is one of the most impactful infrastructure projects in the data ecosystem. It's invisible to most users - you don't "install Arrow" and use it directly. Instead, it powers the tools you already use: pandas, Polars, DuckDB, Spark, Snowflake, BigQuery, and dozens more. Understanding Arrow helps you make better architectural decisions and squeeze maximum performance out of your data pipelines.</p>
     `;

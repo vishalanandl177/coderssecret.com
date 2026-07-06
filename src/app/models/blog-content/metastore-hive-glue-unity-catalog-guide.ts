@@ -1,7 +1,7 @@
 export const CONTENT = `
-      <p>Let me tell you a story. You're a data engineer at a growing startup. Your team dumps CSV files into S3 — sales reports, user events, transaction logs. Fifty files. Then five hundred. Then five thousand. One morning, a data analyst asks you: "Where's the Q3 revenue data?" And you realise... you have no idea. Is it in <code>s3://data/reports/revenue_q3.csv</code> or <code>s3://analytics/sales/2025-q3/</code> or <code>s3://data-lake-prod/revenue/year=2025/quarter=3/</code>?</p>
+      <p>Let me tell you a story. You're a data engineer at a growing startup. Your team dumps CSV files into S3 - sales reports, user events, transaction logs. Fifty files. Then five hundred. Then five thousand. One morning, a data analyst asks you: "Where's the Q3 revenue data?" And you realise... you have no idea. Is it in <code>s3://data/reports/revenue_q3.csv</code> or <code>s3://analytics/sales/2025-q3/</code> or <code>s3://data-lake-prod/revenue/year=2025/quarter=3/</code>?</p>
 
-      <p>Nobody knows which files have which columns. Nobody knows what data type "revenue" is — is it a float? An integer? A string with a dollar sign? Nobody knows when the data was last updated, who created it, or whether it's even valid anymore.</p>
+      <p>Nobody knows which files have which columns. Nobody knows what data type "revenue" is - is it a float? An integer? A string with a dollar sign? Nobody knows when the data was last updated, who created it, or whether it's even valid anymore.</p>
 
       <p>You have a data swamp, not a data lake.</p>
 
@@ -9,17 +9,17 @@ export const CONTENT = `
 
       <h2>What is a Metastore?</h2>
 
-      <p>A metastore is a <strong>catalogue of metadata</strong> — it stores information <em>about</em> your data, not the data itself. Think of it as the card catalogue in a library. The books (data files) are on the shelves (S3, ADLS, GCS). The catalogue tells you: which shelf, what topic, how many pages, when it was published, and who wrote it.</p>
+      <p>A metastore is a <strong>catalogue of metadata</strong> - it stores information <em>about</em> your data, not the data itself. Think of it as the card catalogue in a library. The books (data files) are on the shelves (S3, ADLS, GCS). The catalogue tells you: which shelf, what topic, how many pages, when it was published, and who wrote it.</p>
 
       <!-- What a Metastore Stores -->
       <div class="flow-diagram">
         <div class="flow-diagram-title">What a Metastore Actually Stores</div>
         <div class="layer-diagram">
-          <div class="layer-item" style="background:#3b82f6">Table Definitions (Schema)<span class="layer-item-sub">Column names, data types, partitioning scheme — "revenue is a DECIMAL(10,2), partitioned by year"</span></div>
-          <div class="layer-item" style="background:#7c3aed">Location Mapping<span class="layer-item-sub">Where the data files live — "this table's data is at s3://lake/sales/revenue/"</span></div>
-          <div class="layer-item" style="background:#f97316">Partition Information<span class="layer-item-sub">Which partitions exist and where — "year=2025/quarter=3 has 47 Parquet files"</span></div>
-          <div class="layer-item" style="background:#22c55e">Statistics &amp; Metadata<span class="layer-item-sub">Row counts, file sizes, column min/max — used by query optimizers to run queries faster</span></div>
-          <div class="layer-item" style="background:#ef4444">Access Control &amp; Governance<span class="layer-item-sub">Who can read which tables, column-level masking, audit logs — "analysts can see revenue but not PII"</span></div>
+          <div class="layer-item" style="background:#3b82f6">Table Definitions (Schema)<span class="layer-item-sub">Column names, data types, partitioning scheme - "revenue is a DECIMAL(10,2), partitioned by year"</span></div>
+          <div class="layer-item" style="background:#7c3aed">Location Mapping<span class="layer-item-sub">Where the data files live - "this table's data is at s3://lake/sales/revenue/"</span></div>
+          <div class="layer-item" style="background:#f97316">Partition Information<span class="layer-item-sub">Which partitions exist and where - "year=2025/quarter=3 has 47 Parquet files"</span></div>
+          <div class="layer-item" style="background:#22c55e">Statistics &amp; Metadata<span class="layer-item-sub">Row counts, file sizes, column min/max - used by query optimizers to run queries faster</span></div>
+          <div class="layer-item" style="background:#ef4444">Access Control &amp; Governance<span class="layer-item-sub">Who can read which tables, column-level masking, audit logs - "analysts can see revenue but not PII"</span></div>
         </div>
       </div>
 
@@ -41,7 +41,7 @@ export const CONTENT = `
         </div>
       </div>
 
-      <h2>Apache Hive Metastore — The Original</h2>
+      <h2>Apache Hive Metastore - The Original</h2>
 
       <p>The Hive Metastore (HMS) was built by Facebook in 2010 as part of Apache Hive. It became the <strong>de facto standard</strong> that every data tool speaks. Even today, Spark, Presto, Trino, Flink, and dozens of other engines can talk to a Hive Metastore.</p>
 
@@ -97,7 +97,7 @@ LOCATION 's3://data-lake-prod/sales/revenue/year=2025/quarter=3/';
 
 -- Now ANY engine connected to this metastore can query:
 SELECT SUM(amount) FROM sales.revenue WHERE year=2025 AND quarter=3;
--- Spark, Presto, Trino, Athena — they all understand this schema</code></pre>
+-- Spark, Presto, Trino, Athena - they all understand this schema</code></pre>
 
       <pre><code># Running Hive Metastore standalone (no Hive needed!)
 # Most teams run HMS as a standalone service
@@ -140,27 +140,27 @@ volumes:
           <div class="vs-card" style="border-color:#22c55e">
             <div class="vs-card-header" style="background:#22c55e">&#x2705; Strengths</div>
             <div class="vs-card-body">
-              <div class="vs-row"><span class="vs-row-icon">&#x1F310;</span>Universal — every engine speaks Hive protocol</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F310;</span>Universal - every engine speaks Hive protocol</div>
               <div class="vs-row"><span class="vs-row-icon">&#x1F4E6;</span>Open source (Apache 2.0)</div>
               <div class="vs-row"><span class="vs-row-icon">&#x1F504;</span>Battle-tested at petabyte scale</div>
-              <div class="vs-row"><span class="vs-row-icon">&#x1F512;</span>Self-hosted — full control over your metadata</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F512;</span>Self-hosted - full control over your metadata</div>
             </div>
           </div>
           <div class="vs-card" style="border-color:#ef4444">
             <div class="vs-card-header" style="background:#ef4444">&#x274C; Weaknesses</div>
             <div class="vs-card-body">
-              <div class="vs-row"><span class="vs-row-icon">&#x1F6E0;</span>Operational burden — you manage the DB, backups, upgrades</div>
-              <div class="vs-row"><span class="vs-row-icon">&#x1F422;</span>Single-threaded Thrift server — bottleneck at scale</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F6E0;</span>Operational burden - you manage the DB, backups, upgrades</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F422;</span>Single-threaded Thrift server - bottleneck at scale</div>
               <div class="vs-row"><span class="vs-row-icon">&#x1F6AB;</span>No built-in access control (anyone who connects can see everything)</div>
-              <div class="vs-row"><span class="vs-row-icon">&#x1F4C5;</span>Old architecture — designed for Hadoop, not modern lakehouse</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4C5;</span>Old architecture - designed for Hadoop, not modern lakehouse</div>
             </div>
           </div>
         </div>
       </div>
 
-      <h2>AWS Glue Data Catalog — Managed Hive Metastore</h2>
+      <h2>AWS Glue Data Catalog - Managed Hive Metastore</h2>
 
-      <p>AWS Glue Data Catalog is essentially a <strong>managed Hive Metastore</strong> hosted by AWS. You don't run any servers, don't manage a database, don't worry about backups. AWS handles everything. And it's deeply integrated with the AWS ecosystem — Athena, Redshift Spectrum, EMR, Lake Formation, and Glue ETL all share the same catalogue.</p>
+      <p>AWS Glue Data Catalog is essentially a <strong>managed Hive Metastore</strong> hosted by AWS. You don't run any servers, don't manage a database, don't worry about backups. AWS handles everything. And it's deeply integrated with the AWS ecosystem - Athena, Redshift Spectrum, EMR, Lake Formation, and Glue ETL all share the same catalogue.</p>
 
       <pre><code># AWS Glue: Creating a table via AWS CLI
 aws glue create-table \\
@@ -189,7 +189,7 @@ aws glue create-table \\
     "TableType": "EXTERNAL_TABLE"
   }'
 
-# Now query via Athena (SQL over S3 — serverless):
+# Now query via Athena (SQL over S3 - serverless):
 # SELECT SUM(amount) FROM sales.revenue WHERE year=2025;
 # No servers to manage. Pay per query.</code></pre>
 
@@ -249,7 +249,7 @@ resource "aws_glue_catalog_table" "revenue" {
   }
 }</code></pre>
 
-      <h2>AWS Lake Formation — Governance on Top of Glue</h2>
+      <h2>AWS Lake Formation - Governance on Top of Glue</h2>
 
       <p>Glue Data Catalog tells you <em>what</em> data exists. <strong>Lake Formation</strong> adds <em>who can access it</em>. It provides fine-grained access control: table-level, column-level, even row-level filtering. This is how enterprises manage data lakes at scale.</p>
 
@@ -267,7 +267,7 @@ aws lakeformation grant-permissions \\
   --permissions '["SELECT"]'
 # Analysts can see name and city, but NOT email, phone, or SSN</code></pre>
 
-      <h2>Databricks Unity Catalog — The Governance-First Approach</h2>
+      <h2>Databricks Unity Catalog - The Governance-First Approach</h2>
 
       <p>Databricks Unity Catalog takes a fundamentally different approach. Instead of bolting governance onto an existing catalogue (like Lake Formation does with Glue), Unity Catalog was <strong>built from the ground up for governance</strong>. It provides a three-level namespace, centralised access control, data lineage, and cross-workspace sharing.</p>
 
@@ -317,7 +317,7 @@ ALTER TABLE production.sales.customers
 ALTER COLUMN email SET MASK mask_email;
 -- Analysts see: j***@example.com instead of john@example.com</code></pre>
 
-      <h2>Apache Polaris (Iceberg REST Catalog) — The Open Future</h2>
+      <h2>Apache Polaris (Iceberg REST Catalog) - The Open Future</h2>
 
       <p>Apache Polaris (originally Snowflake's Polaris Catalog, donated to Apache in 2024) is the newest entrant. It's built specifically for <strong>Apache Iceberg</strong> tables and provides a vendor-neutral REST API. If you believe the future is open table formats (Iceberg), Polaris is worth watching closely.</p>
 
@@ -416,10 +416,10 @@ spark.sql("SELECT * FROM polaris.sales.revenue WHERE year = 2025")</code></pre>
       <div class="flow-diagram">
         <div class="flow-diagram-title">Modern Lakehouse Architecture</div>
         <div class="layer-diagram">
-          <div class="layer-item" style="background:#ef4444">Consumers (BI Tools, ML Pipelines, Applications)<span class="layer-item-sub">Tableau, Power BI, MLflow, dbt, custom apps — all query through the metastore</span></div>
-          <div class="layer-item" style="background:#f97316">Query Engines (Spark, Trino, Athena, Redshift Spectrum)<span class="layer-item-sub">SQL and distributed compute — connect to the metastore for table definitions</span></div>
-          <div class="layer-item" style="background:#7c3aed">Metastore (Glue / Unity Catalog / Hive / Polaris)<span class="layer-item-sub">The catalogue — knows every table, column, partition, and who can access what</span></div>
-          <div class="layer-item" style="background:#3b82f6">Table Format (Delta Lake / Apache Iceberg / Apache Hudi)<span class="layer-item-sub">ACID transactions, schema evolution, time travel, partition pruning — on files</span></div>
+          <div class="layer-item" style="background:#ef4444">Consumers (BI Tools, ML Pipelines, Applications)<span class="layer-item-sub">Tableau, Power BI, MLflow, dbt, custom apps - all query through the metastore</span></div>
+          <div class="layer-item" style="background:#f97316">Query Engines (Spark, Trino, Athena, Redshift Spectrum)<span class="layer-item-sub">SQL and distributed compute - connect to the metastore for table definitions</span></div>
+          <div class="layer-item" style="background:#7c3aed">Metastore (Glue / Unity Catalog / Hive / Polaris)<span class="layer-item-sub">The catalogue - knows every table, column, partition, and who can access what</span></div>
+          <div class="layer-item" style="background:#3b82f6">Table Format (Delta Lake / Apache Iceberg / Apache Hudi)<span class="layer-item-sub">ACID transactions, schema evolution, time travel, partition pruning - on files</span></div>
           <div class="layer-item" style="background:#22c55e">Object Storage (S3 / ADLS / GCS)<span class="layer-item-sub">The actual Parquet/ORC files live here. Cheap, durable, infinite scale.</span></div>
         </div>
       </div>

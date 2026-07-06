@@ -1,9 +1,9 @@
 export const CONTENT = `
-      <p>The monorepo vs polyrepo debate is one of the longest-running arguments in software engineering. Monorepo advocates point to Google, Meta, and Microsoft. Polyrepo advocates point to Netflix, Amazon, and Spotify. The truth is that both approaches work &mdash; for different organizational structures and different trade-offs.</p>
+      <p>The monorepo vs polyrepo debate is one of the longest-running arguments in software engineering. Monorepo advocates point to Google, Meta, and Microsoft. Polyrepo advocates point to Netflix, Amazon, and Spotify. The truth is that both approaches work - for different organizational structures and different trade-offs.</p>
 
       <h2>What Is a Monorepo?</h2>
 
-      <p>A monorepo stores all projects, services, and libraries in a <strong>single Git repository</strong>. This does not mean a monolith &mdash; the code is still modular, but lives in one repository with shared tooling.</p>
+      <p>A monorepo stores all projects, services, and libraries in a <strong>single Git repository</strong>. This does not mean a monolith - the code is still modular, but lives in one repository with shared tooling.</p>
 
       <pre><code># Monorepo structure
 mycompany/
@@ -263,14 +263,14 @@ git commit -m "chore: migrate web app into monorepo"</code></pre>
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Monorepo is not a monolith</strong> &mdash; code is modular, but lives in one repository</li>
-        <li><strong>Smart caching makes monorepos fast</strong> &mdash; without Nx or Turborepo, CI crawls at scale</li>
+        <li><strong>Monorepo is not a monolith</strong> - code is modular, but lives in one repository</li>
+        <li><strong>Smart caching makes monorepos fast</strong> - without Nx or Turborepo, CI crawls at scale</li>
         <li><strong>Polyrepo gives team autonomy</strong> at the cost of harder code sharing and cross-project changes</li>
         <li><strong>Monorepo gives consistency</strong> at the cost of shared tooling complexity and Git performance</li>
         <li><strong>Use pnpm workspaces</strong> for dependency management in JavaScript/TypeScript monorepos</li>
-        <li><strong>affected commands are essential</strong> &mdash; only build and test what changed, not everything</li>
+        <li><strong>affected commands are essential</strong> - only build and test what changed, not everything</li>
         <li><strong>Match the structure to your organization:</strong> one team = monorepo; many autonomous teams = polyrepo</li>
-        <li><strong>You can start monorepo and split later</strong> (or vice versa) &mdash; neither choice is permanent</li>
+        <li><strong>You can start monorepo and split later</strong> (or vice versa) - neither choice is permanent</li>
       </ul>
 
       <p>The monorepo vs polyrepo decision is fundamentally about your organization, not your code. If your teams share code and coordinate releases, a monorepo reduces friction. If your teams are autonomous and deploy independently, polyrepo gives them freedom. Choose the structure that matches how your teams actually work, not how you wish they worked.</p>

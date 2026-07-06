@@ -37,12 +37,12 @@ function checkIndexHtml() {
 
   // Performance hints
   if (!/rel=["']preconnect["']/.test(content)) {
-    warnings.push('index.html: No preconnect links found — consider adding for external domains');
+    warnings.push('index.html: No preconnect links found - consider adding for external domains');
   }
 
   // PWA
   if (!/rel=["']manifest["']/.test(content)) {
-    warnings.push('index.html: Missing manifest link — PWA not configured');
+    warnings.push('index.html: Missing manifest link - PWA not configured');
   }
   if (!/apple-mobile-web-app-capable/.test(content)) {
     warnings.push('index.html: Missing apple-mobile-web-app-capable meta tag');
@@ -70,7 +70,7 @@ function checkStaticFiles() {
   // robots.txt
   const robotsPath = path.join(publicDir, 'robots.txt');
   if (!fs.existsSync(robotsPath)) {
-    errors.push('public/robots.txt not found — search engines need this');
+    errors.push('public/robots.txt not found - search engines need this');
   } else {
     const robots = fs.readFileSync(robotsPath, 'utf-8');
     if (!/Sitemap:/i.test(robots)) {
@@ -80,31 +80,31 @@ function checkStaticFiles() {
 
   // 404.html for SPA redirect
   if (!fs.existsSync(path.join(publicDir, '404.html'))) {
-    errors.push('public/404.html not found — SPA routing will break on GitHub Pages');
+    errors.push('public/404.html not found - SPA routing will break on GitHub Pages');
   }
 
   // manifest.json
   if (!fs.existsSync(path.join(publicDir, 'manifest.json'))) {
-    warnings.push('public/manifest.json not found — PWA not configured');
+    warnings.push('public/manifest.json not found - PWA not configured');
   }
 
   // OG image
   const hasOgImage = fs.existsSync(path.join(publicDir, 'og-image.svg'))
     || fs.existsSync(path.join(publicDir, 'og-image.png'));
   if (!hasOgImage) {
-    warnings.push('No OG image found (og-image.svg or og-image.png) — social sharing will lack preview');
+    warnings.push('No OG image found (og-image.svg or og-image.png) - social sharing will lack preview');
   }
 
   // Sitemap generator
   if (!fs.existsSync(path.join(__dirname, 'generate-sitemap.js'))) {
-    errors.push('scripts/generate-sitemap.js not found — sitemap won\'t be generated in CI');
+    errors.push('scripts/generate-sitemap.js not found - sitemap won\'t be generated in CI');
   }
 }
 
 function checkSeoService() {
   const seoPath = path.join(__dirname, '..', 'src', 'app', 'services', 'seo.service.ts');
   if (!fs.existsSync(seoPath)) {
-    errors.push('seo.service.ts not found — dynamic SEO management missing');
+    errors.push('seo.service.ts not found - dynamic SEO management missing');
     return;
   }
 
@@ -121,7 +121,7 @@ function checkSeoService() {
   if (!/twitter:creator/.test(content)) warnings.push('seo.service.ts: Missing twitter:creator tag');
 
   // OG image dimensions
-  if (!/og:image:width/.test(content)) warnings.push('seo.service.ts: Missing og:image:width — social cards may render incorrectly');
+  if (!/og:image:width/.test(content)) warnings.push('seo.service.ts: Missing og:image:width - social cards may render incorrectly');
   if (!/og:image:height/.test(content)) warnings.push('seo.service.ts: Missing og:image:height');
 
   // Canonical
@@ -134,7 +134,7 @@ function checkSeoService() {
   if (!/BreadcrumbList/.test(content)) warnings.push('seo.service.ts: Missing BreadcrumbList schema');
   if (!/['"]ItemList['"]/.test(content)) errors.push('seo.service.ts: Missing ItemList schema for blog list / category pages (required for collection SEO)');
   if (!/['"]CollectionPage['"]/.test(content)) warnings.push('seo.service.ts: Missing CollectionPage schema (pairs with ItemList)');
-  if (!/SearchAction/.test(content)) warnings.push('seo.service.ts: Missing SearchAction schema — site search box in Google disabled');
+  if (!/SearchAction/.test(content)) warnings.push('seo.service.ts: Missing SearchAction schema - site search box in Google disabled');
 
   // Article metadata
   if (!/article:section/.test(content)) warnings.push('seo.service.ts: Missing article:section OG tag');
@@ -148,15 +148,15 @@ function checkEEATSignals() {
 
   const aboutPath = path.join(__dirname, '..', 'src', 'app', 'pages', 'about', 'about.ts');
   if (!fs.existsSync(aboutPath)) {
-    errors.push('Missing /about page — required for E-E-A-T signals (author credibility)');
+    errors.push('Missing /about page - required for E-E-A-T signals (author credibility)');
   }
 
   // Check footer for legal pages (trust signals)
   const footerPath = path.join(__dirname, '..', 'src', 'app', 'components', 'footer', 'footer.ts');
   if (fs.existsSync(footerPath)) {
     const footer = fs.readFileSync(footerPath, 'utf-8');
-    if (!/\/privacy/.test(footer)) warnings.push('footer: Missing link to /privacy — trust signal for Google');
-    if (!/\/terms/.test(footer)) warnings.push('footer: Missing link to /terms — trust signal for Google');
+    if (!/\/privacy/.test(footer)) warnings.push('footer: Missing link to /privacy - trust signal for Google');
+    if (!/\/terms/.test(footer)) warnings.push('footer: Missing link to /terms - trust signal for Google');
   }
 
   // Check legal pages exist
@@ -164,7 +164,7 @@ function checkEEATSignals() {
   const pagesDir = path.join(__dirname, '..', 'src', 'app', 'pages');
   for (const page of legalPages) {
     if (!fs.existsSync(path.join(pagesDir, page))) {
-      warnings.push(`Missing /${page} page — expected legal/trust page`);
+      warnings.push(`Missing /${page} page - expected legal/trust page`);
     }
   }
 }
@@ -173,7 +173,7 @@ function checkContentQuality() {
   // Validates pre-rendered content has real SEO value, not just empty shell
   const genRoutesPath = path.join(__dirname, '..', 'scripts', 'generate-routes.js');
   if (!fs.existsSync(genRoutesPath)) {
-    errors.push('scripts/generate-routes.js not found — pre-rendering disabled, Google sees empty <app-root>');
+    errors.push('scripts/generate-routes.js not found - pre-rendering disabled, Google sees empty <app-root>');
     return;
   }
 
@@ -181,16 +181,16 @@ function checkContentQuality() {
 
   // Check for enriched pre-rendered content (not just title + excerpt)
   if (!/Breadcrumb/.test(content)) {
-    warnings.push('generate-routes.js: Pre-rendered pages missing breadcrumb nav — weaker SEO signal');
+    warnings.push('generate-routes.js: Pre-rendered pages missing breadcrumb nav - weaker SEO signal');
   }
   if (!/Related Articles|relatedPosts|related/.test(content)) {
-    warnings.push('generate-routes.js: Pre-rendered pages missing related post links — internal linking weaker');
+    warnings.push('generate-routes.js: Pre-rendered pages missing related post links - internal linking weaker');
   }
   if (/(?:href|routerLink|url|item)\s*[:=]\s*['"`][^'"`]*\/blog\/?\?tag=/.test(content)) {
     errors.push('generate-routes.js: Pre-rendered pages expose /blog?tag= query URLs; use canonical category/tag hubs instead');
   }
   if (!/canonical/.test(content)) {
-    errors.push('generate-routes.js: Pre-rendered pages missing canonical URLs — duplicate content risk');
+    errors.push('generate-routes.js: Pre-rendered pages missing canonical URLs - duplicate content risk');
   }
 }
 
@@ -214,10 +214,10 @@ function checkKeywordTargeting() {
       if (descMatch) {
         const desc = descMatch[1];
         if (desc.length < 80) {
-          warnings.push(`${page}/${file}: Meta description too short (${desc.length} chars) — aim for 120-160 chars`);
+          warnings.push(`${page}/${file}: Meta description too short (${desc.length} chars) - aim for 120-160 chars`);
         }
         if (desc.length > 200) {
-          warnings.push(`${page}/${file}: Meta description too long (${desc.length} chars) — Google truncates after 160`);
+          warnings.push(`${page}/${file}: Meta description too long (${desc.length} chars) - Google truncates after 160`);
         }
         // Check for weak/generic phrases
         const weakPatterns = [
@@ -227,7 +227,7 @@ function checkKeywordTargeting() {
         ];
         for (const pattern of weakPatterns) {
           if (pattern.test(desc)) {
-            warnings.push(`${page}/${file}: Meta description is generic — add specific keywords`);
+            warnings.push(`${page}/${file}: Meta description is generic - add specific keywords`);
             break;
           }
         }
@@ -249,12 +249,12 @@ function checkBlogPostQuality() {
   // Check for required fields pattern
   const missingExcerpts = (content.match(/excerpt:\s*''/g) || []).length;
   if (missingExcerpts > 0) {
-    errors.push(`blog-post.model.ts: ${missingExcerpts} posts with empty excerpts — meta description will be missing`);
+    errors.push(`blog-post.model.ts: ${missingExcerpts} posts with empty excerpts - meta description will be missing`);
   }
 
   const missingTags = (content.match(/tags:\s*\[\s*\]/g) || []).length;
   if (missingTags > 0) {
-    warnings.push(`blog-post.model.ts: ${missingTags} posts with empty tags — no topic clustering for these`);
+    warnings.push(`blog-post.model.ts: ${missingTags} posts with empty tags - no topic clustering for these`);
   }
 
   // Check for short excerpts (bad for meta description)
@@ -264,7 +264,7 @@ function checkBlogPostQuality() {
     if (m[1].length < 80) shortCount++;
   }
   if (shortCount > 0) {
-    warnings.push(`blog-post.model.ts: ${shortCount} posts have short excerpts (<80 chars) — weak meta descriptions`);
+    warnings.push(`blog-post.model.ts: ${shortCount} posts have short excerpts (<80 chars) - weak meta descriptions`);
   }
 }
 
@@ -286,7 +286,7 @@ function checkPageComponents() {
 
       // Check SEO service usage
       if (!/SeoService/.test(content) && !/seo\.update/.test(content)) {
-        errors.push(`${relative}: Page component doesn't use SeoService — missing dynamic title/meta`);
+        errors.push(`${relative}: Page component doesn't use SeoService - missing dynamic title/meta`);
       }
 
       // Check for images without alt
@@ -304,7 +304,7 @@ function checkPageComponents() {
       if (timeMatches) {
         for (const time of timeMatches) {
           if (!/datetime/.test(time)) {
-            warnings.push(`${relative}: <time> tag missing datetime attribute — bad for structured data`);
+            warnings.push(`${relative}: <time> tag missing datetime attribute - bad for structured data`);
           }
         }
       }
@@ -312,13 +312,13 @@ function checkPageComponents() {
       // Check for multiple h1 tags
       const h1Matches = content.match(/<h1[\s>]/g);
       if (h1Matches && h1Matches.length > 1) {
-        warnings.push(`${relative}: Multiple <h1> tags found — prefer a single <h1> per page`);
+        warnings.push(`${relative}: Multiple <h1> tags found - prefer a single <h1> per page`);
       }
 
       // Check for empty links
       const emptyLinks = content.match(/<a\s[^>]*>\s*<\/a>/g);
       if (emptyLinks) {
-        warnings.push(`${relative}: Found empty <a> tag(s) — bad for SEO and accessibility`);
+        warnings.push(`${relative}: Found empty <a> tag(s) - bad for SEO and accessibility`);
       }
     }
   }
@@ -335,14 +335,14 @@ function checkRoutes() {
 
   // Check for 404 catch-all route
   if (!/path:\s*['"]?\*\*['"]?/.test(content)) {
-    errors.push('app.routes.ts: Missing catch-all (**) route — unknown URLs will show blank page');
+    errors.push('app.routes.ts: Missing catch-all (**) route - unknown URLs will show blank page');
   }
 }
 
 function checkDeployWorkflow() {
   const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'deploy.yml');
   if (!fs.existsSync(workflowPath)) {
-    warnings.push('.github/workflows/deploy.yml not found — no CI/CD configured');
+    warnings.push('.github/workflows/deploy.yml not found - no CI/CD configured');
     return;
   }
 

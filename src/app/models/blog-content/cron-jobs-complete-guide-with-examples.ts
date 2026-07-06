@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>If you've ever wanted your computer to automatically run a task — like backing up a database every night, sending a report every Monday, or clearing temp files every hour — <strong>cron jobs</strong> are how you do it. Cron is one of the most powerful and widely-used scheduling tools in the Linux/Unix world, and once you understand it, you'll wonder how you ever lived without it.</p>
+      <p>If you've ever wanted your computer to automatically run a task - like backing up a database every night, sending a report every Monday, or clearing temp files every hour - <strong>cron jobs</strong> are how you do it. Cron is one of the most powerful and widely-used scheduling tools in the Linux/Unix world, and once you understand it, you'll wonder how you ever lived without it.</p>
 
       <h2>What is a Cron Job?</h2>
       <p>A <strong>cron job</strong> is a scheduled task that runs automatically at specified times or intervals on Unix-based systems (Linux, macOS). The word "cron" comes from the Greek word <em>chronos</em>, meaning time. The cron daemon (<code>crond</code>) runs in the background and checks every minute if there's a job to execute.</p>
@@ -19,7 +19,7 @@ export const CONTENT = `
         </div>
       </div>
 
-      <h2>The Cron Syntax — 5 Fields</h2>
+      <h2>The Cron Syntax - 5 Fields</h2>
       <p>Every cron expression has exactly <strong>5 time fields</strong> followed by the command to run:</p>
       <pre><code>┌───────────── minute (0 - 59)
 │ ┌───────────── hour (0 - 23)
@@ -28,18 +28,18 @@ export const CONTENT = `
 │ │ │ │ ┌───────────── day of week (0 - 7, where 0 and 7 = Sunday)
 │ │ │ │ │
 * * * * * command_to_run</code></pre>
-      <p>The <code>*</code> (asterisk) means <strong>"every"</strong> — so <code>* * * * *</code> means "every minute of every hour of every day of every month on every day of the week."</p>
+      <p>The <code>*</code> (asterisk) means <strong>"every"</strong> - so <code>* * * * *</code> means "every minute of every hour of every day of every month on every day of the week."</p>
 
       <h2>Special Characters</h2>
       <p>Before we dive into examples, here are the special characters you'll use:</p>
       <ul>
-        <li><code>*</code> — Every possible value (wildcard)</li>
-        <li><code>,</code> — List separator (e.g., <code>1,3,5</code> means 1 and 3 and 5)</li>
-        <li><code>-</code> — Range (e.g., <code>1-5</code> means 1 through 5)</li>
-        <li><code>/</code> — Step value (e.g., <code>*/10</code> means every 10th unit)</li>
+        <li><code>*</code> - Every possible value (wildcard)</li>
+        <li><code>,</code> - List separator (e.g., <code>1,3,5</code> means 1 and 3 and 5)</li>
+        <li><code>-</code> - Range (e.g., <code>1-5</code> means 1 through 5)</li>
+        <li><code>/</code> - Step value (e.g., <code>*/10</code> means every 10th unit)</li>
       </ul>
 
-      <h2>Basic Examples — Getting Started</h2>
+      <h2>Basic Examples - Getting Started</h2>
 
       <p><strong>Example 1: Run every minute</strong></p>
       <pre><code>* * * * * /home/user/scripts/check-health.sh</code></pre>
@@ -73,9 +73,9 @@ export const CONTENT = `
 
       <p><strong>Example 8: Run on the 1st and 15th of every month</strong></p>
       <pre><code>0 0 1,15 * * /home/user/scripts/bimonthly-task.sh</code></pre>
-      <p>The comma lets you specify multiple days. This runs twice a month — on the 1st and 15th.</p>
+      <p>The comma lets you specify multiple days. This runs twice a month - on the 1st and 15th.</p>
 
-      <h2>Interval Examples — Every N Minutes/Hours</h2>
+      <h2>Interval Examples - Every N Minutes/Hours</h2>
 
       <p><strong>Example 9: Run every 5 minutes</strong></p>
       <pre><code>*/5 * * * * /home/user/scripts/check-queue.sh</code></pre>
@@ -87,7 +87,7 @@ export const CONTENT = `
 
       <p><strong>Example 11: Run every 2 hours</strong></p>
       <pre><code>0 */2 * * * /home/user/scripts/cache-refresh.sh</code></pre>
-      <p>Runs at 00:00, 02:00, 04:00, 06:00, etc. Note the <code>0</code> in the minute field — without it, the job would run every minute during those hours!</p>
+      <p>Runs at 00:00, 02:00, 04:00, 06:00, etc. Note the <code>0</code> in the minute field - without it, the job would run every minute during those hours!</p>
 
       <p><strong>Example 12: Run every 30 minutes during business hours (9 AM - 6 PM)</strong></p>
       <pre><code>*/30 9-18 * * * /home/user/scripts/business-check.sh</code></pre>
@@ -105,7 +105,7 @@ export const CONTENT = `
 
       <p><strong>Example 15: Run at 3:15 AM on the first Monday of each month</strong></p>
       <pre><code>15 3 1-7 * 1 /home/user/scripts/first-monday.sh</code></pre>
-      <p>This is a clever trick: it targets days 1-7 (first week of the month) AND Mondays. The job only fires when both conditions overlap — the first Monday.</p>
+      <p>This is a clever trick: it targets days 1-7 (first week of the month) AND Mondays. The job only fires when both conditions overlap - the first Monday.</p>
 
       <h2>Real-World Use Cases</h2>
 
@@ -132,12 +132,12 @@ export const CONTENT = `
       <h2>Shortcut Strings</h2>
       <p>Most cron implementations support these convenient shortcuts:</p>
       <ul>
-        <li><code>@reboot</code> — Run once at startup</li>
-        <li><code>@yearly</code> or <code>@annually</code> — Same as <code>0 0 1 1 *</code> (Jan 1st, midnight)</li>
-        <li><code>@monthly</code> — Same as <code>0 0 1 * *</code> (1st of month, midnight)</li>
-        <li><code>@weekly</code> — Same as <code>0 0 * * 0</code> (Sunday, midnight)</li>
-        <li><code>@daily</code> or <code>@midnight</code> — Same as <code>0 0 * * *</code></li>
-        <li><code>@hourly</code> — Same as <code>0 * * * *</code></li>
+        <li><code>@reboot</code> - Run once at startup</li>
+        <li><code>@yearly</code> or <code>@annually</code> - Same as <code>0 0 1 1 *</code> (Jan 1st, midnight)</li>
+        <li><code>@monthly</code> - Same as <code>0 0 1 * *</code> (1st of month, midnight)</li>
+        <li><code>@weekly</code> - Same as <code>0 0 * * 0</code> (Sunday, midnight)</li>
+        <li><code>@daily</code> or <code>@midnight</code> - Same as <code>0 0 * * *</code></li>
+        <li><code>@hourly</code> - Same as <code>0 * * * *</code></li>
       </ul>
 
       <p><strong>Example 21: Run a script at system boot</strong></p>
@@ -186,7 +186,7 @@ sudo systemctl enable cron
 # Edit your crontab
 crontab -e
 
-# Add your jobs — e.g., backup every night at 2 AM
+# Add your jobs - e.g., backup every night at 2 AM
 0 2 * * * /home/deploy/scripts/backup.sh >> /var/log/backup.log 2>&1
 
 # System-wide cron jobs go in /etc/crontab or /etc/cron.d/
@@ -195,20 +195,20 @@ crontab -e
 0 3 * * * root /usr/local/bin/cleanup.sh
 
 # You can also drop scripts into these directories:
-# /etc/cron.daily/    — runs once a day
-# /etc/cron.hourly/   — runs once an hour
-# /etc/cron.weekly/   — runs once a week
-# /etc/cron.monthly/  — runs once a month
+# /etc/cron.daily/    - runs once a day
+# /etc/cron.hourly/   - runs once an hour
+# /etc/cron.weekly/   - runs once a week
+# /etc/cron.monthly/  - runs once a month
 sudo cp my-script.sh /etc/cron.daily/
 sudo chmod +x /etc/cron.daily/my-script.sh</code></pre>
 
       <h2>macOS</h2>
-      <p>macOS has cron built-in, but Apple recommends <code>launchd</code> for modern scheduling. Both work — here's how to use each.</p>
+      <p>macOS has cron built-in, but Apple recommends <code>launchd</code> for modern scheduling. Both work - here's how to use each.</p>
       <pre><code># Option 1: crontab (works exactly like Linux)
 crontab -e
 # Add: 0 9 * * 1-5 /Users/you/scripts/morning-report.sh
 
-# ⚠️ macOS may prompt for "Full Disk Access" — grant it in:
+# ⚠️ macOS may prompt for "Full Disk Access" - grant it in:
 # System Settings → Privacy & Security → Full Disk Access → cron
 
 # Option 2: launchd (Apple's recommended approach)
@@ -302,7 +302,7 @@ RUN touch /var/log/cron.log
 # Start cron in the foreground + tail logs
 CMD cron && tail -f /var/log/cron.log</code></pre>
       <pre><code># crontab file (placed at project root)
-# Note: cron in Docker doesn't inherit ENV vars — pass them explicitly
+# Note: cron in Docker doesn't inherit ENV vars - pass them explicitly
 
 SHELL=/bin/bash
 PATH=/usr/local/bin:/usr/bin:/bin
@@ -334,7 +334,7 @@ services:
       - app</code></pre>
 
       <h2>Kubernetes CronJob</h2>
-      <p>Kubernetes has a first-class <strong>CronJob</strong> resource that runs Jobs on a cron schedule. This is the production-grade way to run scheduled tasks in a cluster — no need to install cron in your containers.</p>
+      <p>Kubernetes has a first-class <strong>CronJob</strong> resource that runs Jobs on a cron schedule. This is the production-grade way to run scheduled tasks in a cluster - no need to install cron in your containers.</p>
 
       <!-- K8s CronJob Architecture -->
       <div class="flow-diagram">
@@ -347,7 +347,7 @@ services:
         </div>
       </div>
 
-      <pre><code># cronjob.yaml — Kubernetes CronJob manifest
+      <pre><code># cronjob.yaml - Kubernetes CronJob manifest
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -419,7 +419,7 @@ kubectl patch cronjob database-backup -n production -p '{"spec":{"suspend":false
 # Delete
 kubectl delete cronjob database-backup -n production</code></pre>
 
-      <h2>Kubernetes CronJob — Advanced Patterns</h2>
+      <h2>Kubernetes CronJob - Advanced Patterns</h2>
       <pre><code># Pattern 1: CronJob with resource limits and monitoring
 apiVersion: batch/v1
 kind: CronJob
@@ -481,7 +481,7 @@ spec:
   schedule: "*/5 * * * *"    # Every 5 minutes
   jobTemplate:
     spec:
-      backoffLimit: 0        # Don't retry — alert immediately
+      backoffLimit: 0        # Don't retry - alert immediately
       template:
         spec:
           restartPolicy: Never
@@ -506,7 +506,7 @@ spec:
                   name: slack-config
                   key: webhook-url</code></pre>
 
-      <h2>Cron vs Kubernetes CronJob — When to Use Which</h2>
+      <h2>Cron vs Kubernetes CronJob - When to Use Which</h2>
 
       <!-- Cron vs K8s Decision -->
       <div class="flow-diagram">
@@ -568,5 +568,5 @@ spec:
 0 6,18 * * *        At 6 AM and 6 PM
 0 0 1,15 * *        1st and 15th of each month</code></pre>
 
-      <p>Cron jobs are one of those tools that, once mastered, become an essential part of your DevOps toolkit. Whether you're automating backups, scheduling reports, managing deployments, or monitoring systems, cron has been doing it reliably for over 40 years — and it's not going anywhere.</p>
+      <p>Cron jobs are one of those tools that, once mastered, become an essential part of your DevOps toolkit. Whether you're automating backups, scheduling reports, managing deployments, or monitoring systems, cron has been doing it reliably for over 40 years - and it's not going anywhere.</p>
     `;

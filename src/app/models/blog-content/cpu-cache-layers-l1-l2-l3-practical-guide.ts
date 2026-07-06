@@ -1,23 +1,23 @@
 export const CONTENT = `
-      <p>So you wrote a program. It works fine. But when you try to scale it up, suddenly it becomes slow like anything. You check the algorithm, it's O(n) only. You check the database, nothing wrong there. Then what is happening, yaar? Most of the time, the answer is one simple thing — <strong>your code is fighting with the CPU cache</strong>, and the cache is winning.</p>
+      <p>So you wrote a program. It works fine. But when you try to scale it up, suddenly it becomes slow like anything. You check the algorithm, it's O(n) only. You check the database, nothing wrong there. Then what is happening, yaar? Most of the time, the answer is one simple thing - <strong>your code is fighting with the CPU cache</strong>, and the cache is winning.</p>
 
-      <p>Let me tell you something that most tutorials don't emphasize enough: the difference between a program that uses cache properly and one that doesn't is not 10% or 20%. It can be <strong>100x or more</strong>. Same algorithm, same CPU, same language — just different memory access patterns. That's how important cache is.</p>
+      <p>Let me tell you something that most tutorials don't emphasize enough: the difference between a program that uses cache properly and one that doesn't is not 10% or 20%. It can be <strong>100x or more</strong>. Same algorithm, same CPU, same language - just different memory access patterns. That's how important cache is.</p>
 
       <h2>First, Why Does Cache Even Exist?</h2>
 
-      <p>Here's the simple truth: CPUs became very fast over the years. Memory (RAM), unfortunately, did not keep up at the same speed. Today's CPU can do billions of operations per second, but fetching a single byte from RAM takes around 100 nanoseconds — which feels like forever to the CPU.</p>
+      <p>Here's the simple truth: CPUs became very fast over the years. Memory (RAM), unfortunately, did not keep up at the same speed. Today's CPU can do billions of operations per second, but fetching a single byte from RAM takes around 100 nanoseconds - which feels like forever to the CPU.</p>
 
-      <p>Think of it like this — imagine you are a chef cooking in a restaurant. The kitchen is your CPU (fast). The main pantry is far away in the basement (RAM — slow). If you had to walk down to the basement every time you needed salt, you would make one dish per hour only. So what do chefs do? They keep frequently used items near the stove (cache!). Salt, pepper, oil — all within arm's reach. That's exactly what CPU cache is doing.</p>
+      <p>Think of it like this - imagine you are a chef cooking in a restaurant. The kitchen is your CPU (fast). The main pantry is far away in the basement (RAM - slow). If you had to walk down to the basement every time you needed salt, you would make one dish per hour only. So what do chefs do? They keep frequently used items near the stove (cache!). Salt, pepper, oil - all within arm's reach. That's exactly what CPU cache is doing.</p>
 
       <!-- The Memory Hierarchy -->
       <div class="flow-diagram">
         <div class="flow-diagram-title">The Memory Hierarchy (The Chef's Kitchen Analogy)</div>
         <div class="layer-diagram">
-          <div class="layer-item" style="background:#22c55e">CPU Registers — On the cutting board<span class="layer-item-sub">Smallest, fastest. Holds the ingredients you are literally using right now. ~1 CPU cycle.</span></div>
-          <div class="layer-item" style="background:#3b82f6">L1 Cache — Spice rack next to stove<span class="layer-item-sub">32-64 KB per core. Access in ~4 cycles. Split into L1d (data) and L1i (instructions).</span></div>
-          <div class="layer-item" style="background:#a855f7">L2 Cache — Counter near the stove<span class="layer-item-sub">256 KB - 1 MB per core. Access in ~12 cycles. Bigger but slightly slower.</span></div>
-          <div class="layer-item" style="background:#f97316">L3 Cache — Shared shelf in the kitchen<span class="layer-item-sub">8-32 MB shared across all cores. Access in ~40 cycles. Last stop before going to RAM.</span></div>
-          <div class="layer-item" style="background:#ef4444">RAM — The basement pantry<span class="layer-item-sub">8-128 GB. Access in ~100 nanoseconds (~300 cycles). Slow like anything compared to cache!</span></div>
+          <div class="layer-item" style="background:#22c55e">CPU Registers - On the cutting board<span class="layer-item-sub">Smallest, fastest. Holds the ingredients you are literally using right now. ~1 CPU cycle.</span></div>
+          <div class="layer-item" style="background:#3b82f6">L1 Cache - Spice rack next to stove<span class="layer-item-sub">32-64 KB per core. Access in ~4 cycles. Split into L1d (data) and L1i (instructions).</span></div>
+          <div class="layer-item" style="background:#a855f7">L2 Cache - Counter near the stove<span class="layer-item-sub">256 KB - 1 MB per core. Access in ~12 cycles. Bigger but slightly slower.</span></div>
+          <div class="layer-item" style="background:#f97316">L3 Cache - Shared shelf in the kitchen<span class="layer-item-sub">8-32 MB shared across all cores. Access in ~40 cycles. Last stop before going to RAM.</span></div>
+          <div class="layer-item" style="background:#ef4444">RAM - The basement pantry<span class="layer-item-sub">8-128 GB. Access in ~100 nanoseconds (~300 cycles). Slow like anything compared to cache!</span></div>
         </div>
       </div>
 
@@ -27,7 +27,7 @@ export const CONTENT = `
 
       <!-- Latency Bar Chart -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">Memory Access Latency (lower is faster — notice the huge jumps!)</div>
+        <div class="flow-diagram-title">Memory Access Latency (lower is faster - notice the huge jumps!)</div>
         <div class="bar-chart">
           <div class="bar-chart-item"><div class="bar-chart-bar bar-h-5 bar-green" data-value="~1ns"></div><div class="bar-chart-label">L1 Cache</div></div>
           <div class="bar-chart-item"><div class="bar-chart-bar bar-h-10 bar-blue" data-value="~3ns"></div><div class="bar-chart-label">L2 Cache</div></div>
@@ -37,13 +37,13 @@ export const CONTENT = `
         </div>
       </div>
 
-      <p>Notice one thing — RAM is <strong>100 times slower</strong> than L1. So if your program is fetching data from RAM instead of cache, you are paying a 100x penalty for every access. That's why the same algorithm on the same CPU can give you very different performance depending on how cache-friendly your code is.</p>
+      <p>Notice one thing - RAM is <strong>100 times slower</strong> than L1. So if your program is fetching data from RAM instead of cache, you are paying a 100x penalty for every access. That's why the same algorithm on the same CPU can give you very different performance depending on how cache-friendly your code is.</p>
 
-      <h2>How Cache Actually Works — The Cache Line</h2>
+      <h2>How Cache Actually Works - The Cache Line</h2>
 
       <p>Here is something most people don't know, but it changes everything once you understand it. When the CPU fetches data from RAM, it does <strong>not</strong> fetch just one byte. It fetches an entire <strong>cache line</strong>, which is typically 64 bytes on modern x86 CPUs.</p>
 
-      <p>Why 64 bytes, you are asking? Because of something called <strong>spatial locality</strong> — if you accessed byte N, there is a very high chance you will access bytes N+1, N+2, N+3 soon. So CPU says "let me be smart, let me bring all 64 bytes together, maybe I will save some trips later." And most of the time, this gamble pays off beautifully.</p>
+      <p>Why 64 bytes, you are asking? Because of something called <strong>spatial locality</strong> - if you accessed byte N, there is a very high chance you will access bytes N+1, N+2, N+3 soon. So CPU says "let me be smart, let me bring all 64 bytes together, maybe I will save some trips later." And most of the time, this gamble pays off beautifully.</p>
 
       <pre><code># Let's prove this with actual Python code
 # Create a list of 10 million integers
@@ -52,7 +52,7 @@ import time
 SIZE = 10_000_000
 arr = list(range(SIZE))
 
-# Sequential access — cache-friendly
+# Sequential access - cache-friendly
 start = time.perf_counter()
 total = 0
 for i in range(SIZE):
@@ -60,7 +60,7 @@ for i in range(SIZE):
 sequential_time = time.perf_counter() - start
 print(f"Sequential access:  {sequential_time:.3f}s")
 
-# Random access — cache-hostile
+# Random access - cache-hostile
 import random
 indices = list(range(SIZE))
 random.shuffle(indices)
@@ -87,7 +87,7 @@ print(f"Slowdown factor:    {random_time / sequential_time:.1f}x")
 
       <p>In C (and in most languages, actually), 2D arrays are stored in <strong>row-major order</strong> in memory. That means <code>arr[0][0]</code>, <code>arr[0][1]</code>, <code>arr[0][2]</code>... are all in consecutive memory locations. Then <code>arr[1][0]</code> comes after <code>arr[0][N-1]</code>.</p>
 
-      <pre><code>// C code — the most famous cache benchmark
+      <pre><code>// C code - the most famous cache benchmark
 #include &lt;stdio.h&gt;
 #include &lt;time.h&gt;
 #include &lt;stdlib.h&gt;
@@ -180,15 +180,15 @@ int main() {
         </div>
       </div>
 
-      <h2>False Sharing — The Sneaky Killer</h2>
+      <h2>False Sharing - The Sneaky Killer</h2>
 
       <p>Now I will tell you about a problem that will make you pull your hair out if you don't know about it. It's called <strong>false sharing</strong>, and it only happens in multi-threaded code.</p>
 
-      <p>Remember I said cache lines are 64 bytes? Here's the thing — when multiple CPU cores want to work on the same cache line, they have to coordinate. If Core 1 writes to one part of the line and Core 2 writes to another part, the cache lines have to be invalidated and synchronized between cores. This is called "cache coherence protocol" (MESI protocol, if you want to look it up).</p>
+      <p>Remember I said cache lines are 64 bytes? Here's the thing - when multiple CPU cores want to work on the same cache line, they have to coordinate. If Core 1 writes to one part of the line and Core 2 writes to another part, the cache lines have to be invalidated and synchronized between cores. This is called "cache coherence protocol" (MESI protocol, if you want to look it up).</p>
 
-      <p>The tricky part is — even if Core 1 and Core 2 are working on <em>different variables</em>, if those variables happen to be in the same cache line, the cores will be constantly fighting over that line. The result? Your multi-threaded program becomes slower than single-threaded.</p>
+      <p>The tricky part is - even if Core 1 and Core 2 are working on <em>different variables</em>, if those variables happen to be in the same cache line, the cores will be constantly fighting over that line. The result? Your multi-threaded program becomes slower than single-threaded.</p>
 
-      <pre><code>// C example — false sharing in action
+      <pre><code>// C example - false sharing in action
 #include &lt;pthread.h&gt;
 #include &lt;stdio.h&gt;
 #include &lt;time.h&gt;
@@ -227,7 +227,7 @@ struct {
 
       <h2>How to Check Your Cache Usage</h2>
 
-      <p>Don't guess what cache is doing — measure it. On Linux, there is a beautiful tool called <code>perf</code> that will tell you exactly what is happening.</p>
+      <p>Don't guess what cache is doing - measure it. On Linux, there is a beautiful tool called <code>perf</code> that will tell you exactly what is happening.</p>
 
       <pre><code># Install perf (Ubuntu/Debian)
 sudo apt install linux-tools-generic linux-tools-\\$(uname -r)
@@ -271,7 +271,7 @@ perf report   # Shows which functions have most cache misses
 
       <pre><code># Python example showing the difference
 
-# Array of Structs (AoS) — traditional OOP style
+# Array of Structs (AoS) - traditional OOP style
 class Particle:
     def __init__(self):
         self.x = 0.0
@@ -286,7 +286,7 @@ particles_aos = [Particle() for _ in range(1_000_000)]
 for p in particles_aos:
     p.x += 1.0  # Each access pulls in x, y, z, mass, charge... only x is needed!
 
-# Struct of Arrays (SoA) — data-oriented style
+# Struct of Arrays (SoA) - data-oriented style
 class ParticleSystem:
     def __init__(self, n):
         self.x = [0.0] * n
@@ -303,7 +303,7 @@ for i in range(1_000_000):
 
 # For this particular operation, SoA can be 3-5x faster because
 # you only touch the memory you actually need.
-# NumPy works exactly this way &#x2014; that's one reason it's so fast.</code></pre>
+# NumPy works exactly this way - that's one reason it's so fast.</code></pre>
 
       <h2>When You Should Not Worry About Cache</h2>
 
@@ -316,7 +316,7 @@ for i in range(1_000_000):
         <li>You have hot paths that run millions of times per second</li>
       </ul>
 
-      <p>For normal web applications, database queries, or scripts that run once in a while — algorithm choice matters way more than cache optimization. Premature optimization is the root of all evil, na?</p>
+      <p>For normal web applications, database queries, or scripts that run once in a while - algorithm choice matters way more than cache optimization. Premature optimization is the root of all evil, na?</p>
 
       <h2>Languages and Their Cache Behavior</h2>
 
@@ -346,9 +346,9 @@ for i in range(1_000_000):
 
       <h2>The Bottom Line</h2>
 
-      <p>Cache is not some dark magic. It's just a very fast memory sitting close to the CPU, bringing data in 64-byte chunks, shared across cores. Once you understand this simple model, you will start seeing cache issues everywhere — and more importantly, you will know how to fix them.</p>
+      <p>Cache is not some dark magic. It's just a very fast memory sitting close to the CPU, bringing data in 64-byte chunks, shared across cores. Once you understand this simple model, you will start seeing cache issues everywhere - and more importantly, you will know how to fix them.</p>
 
       <p>My honest advice to you, my friend: don't obsess over cache in every piece of code you write. But when you hit a performance wall and the profiler says you are CPU-bound, cache is usually the first place to look. Simple changes like switching loop order, using arrays instead of linked lists, or adding padding to avoid false sharing can give you 5x, 10x, even 100x speedups. No joke.</p>
 
-      <p>And most importantly — <strong>measure, don't guess</strong>. Use <code>perf</code> on Linux, Instruments on macOS, VTune on Windows. The numbers don't lie. Cache wants to be your friend. Treat it well, and it will pay you back handsomely. All the best!</p>
+      <p>And most importantly - <strong>measure, don't guess</strong>. Use <code>perf</code> on Linux, Instruments on macOS, VTune on Windows. The numbers don't lie. Cache wants to be your friend. Treat it well, and it will pay you back handsomely. All the best!</p>
     `;

@@ -1,12 +1,12 @@
 export const CONTENT = `
-      <p>Single Sign-On (SSO) lets users log in once and access multiple applications without re-entering credentials. If you've ever clicked "Sign in with Google" or logged into your company's dashboard and had access to Slack, Jira, and Gmail automatically — that's SSO in action. Two protocols dominate the SSO landscape: <strong>SAML 2.0</strong> and <strong>OpenID Connect (OIDC)</strong>.</p>
+      <p>Single Sign-On (SSO) lets users log in once and access multiple applications without re-entering credentials. If you've ever clicked "Sign in with Google" or logged into your company's dashboard and had access to Slack, Jira, and Gmail automatically - that's SSO in action. Two protocols dominate the SSO landscape: <strong>SAML 2.0</strong> and <strong>OpenID Connect (OIDC)</strong>.</p>
 
       <h2>How SSO Works (The Big Picture)</h2>
       <p>Regardless of the protocol, SSO follows a common pattern:</p>
       <ul>
         <li><strong>Identity Provider (IdP):</strong> The central authority that authenticates users (e.g., Okta, Azure AD, Auth0, Google Workspace).</li>
         <li><strong>Service Provider (SP) / Relying Party (RP):</strong> The application the user wants to access (your app).</li>
-        <li><strong>Trust Relationship:</strong> The SP and IdP have a pre-configured trust — they've exchanged certificates or secrets ahead of time.</li>
+        <li><strong>Trust Relationship:</strong> The SP and IdP have a pre-configured trust - they've exchanged certificates or secrets ahead of time.</li>
       </ul>
       <p>The user visits your app, gets redirected to the IdP, authenticates, and gets sent back with proof of identity. Your app trusts this proof because it trusts the IdP.</p>
 
@@ -39,7 +39,7 @@ export const CONTENT = `
       </div>
 
 
-      <h2>SAML 2.0 — The Enterprise Veteran</h2>
+      <h2>SAML 2.0 - The Enterprise Veteran</h2>
       <p>SAML (Security Assertion Markup Language) has been the backbone of enterprise SSO since 2005. It uses XML-based assertions passed between the IdP and SP.</p>
 
       <h2>SAML Authentication Flow</h2>
@@ -52,7 +52,7 @@ export const CONTENT = `
    - The entire Response is digitally signed with IdP's private key
 6. User's browser POSTs the SAML Response back to the SP's ACS URL
 7. SP validates the signature, checks conditions, extracts user info
-8. SP creates a session — user is logged in</code></pre>
+8. SP creates a session - user is logged in</code></pre>
 
       <!-- SAML Flow (Interactive) -->
       <div class="flow-diagram">
@@ -95,7 +95,7 @@ export const CONTENT = `
               <div class="seq-action" style="border-color:#22c55e;color:#4ade80">Verify signature &amp; extract user</div>
             </div>
             <div class="seq-step">
-              <div class="seq-arrow left" style="--arrow-color:#22c55e"><span class="seq-num green">8</span> Session created &#x2014; logged in! &#x2705;</div>
+              <div class="seq-arrow left" style="--arrow-color:#22c55e"><span class="seq-num green">8</span> Session created - logged in! &#x2705;</div>
             </div>
           </div>
         </div>
@@ -135,7 +135,7 @@ def saml_login(request):
     return redirect(auth.login())
 
 def saml_acs(request):
-    """Assertion Consumer Service — receives the SAML Response"""
+    """Assertion Consumer Service - receives the SAML Response"""
     auth = OneLogin_Saml2_Auth(request, custom_base_path=settings.SAML_FOLDER)
     auth.process_response()
     errors = auth.get_errors()
@@ -152,7 +152,7 @@ def saml_acs(request):
     else:
         return HttpResponse(f'SAML Error: {errors}', status=400)</code></pre>
 
-      <h2>OpenID Connect (OIDC) — The Modern Standard</h2>
+      <h2>OpenID Connect (OIDC) - The Modern Standard</h2>
       <p>OIDC is built on top of OAuth 2.0 and uses JSON/JWT instead of XML. It was designed in 2014 as a simpler, more developer-friendly alternative to SAML.</p>
 
       <h2>OIDC Authorization Code Flow</h2>
@@ -237,7 +237,7 @@ def saml_acs(request):
               <div class="seq-action" style="border-color:#22c55e;color:#4ade80">Validate JWT &amp; extract user info</div>
             </div>
             <div class="seq-step">
-              <div class="seq-arrow left" style="--arrow-color:#22c55e"><span class="seq-num green">10</span> Session created &#x2014; logged in! &#x2705;</div>
+              <div class="seq-arrow left" style="--arrow-color:#22c55e"><span class="seq-num green">10</span> Session created - logged in! &#x2705;</div>
             </div>
           </div>
         </div>
@@ -245,11 +245,11 @@ def saml_acs(request):
 
 
       <h2>The ID Token</h2>
-      <p>The key differentiator of OIDC is the <strong>ID Token</strong> — a JWT containing the authenticated user's identity:</p>
+      <p>The key differentiator of OIDC is the <strong>ID Token</strong> - a JWT containing the authenticated user's identity:</p>
 
       <!-- JWT Anatomy (Interactive) -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">JSON Web Token (JWT) Structure — Hover to Explore</div>
+        <div class="flow-diagram-title">JSON Web Token (JWT) Structure - Hover to Explore</div>
         <div class="jwt-diagram">
           <div class="jwt-parts">
             <div class="jwt-part header">
@@ -290,7 +290,7 @@ def saml_acs(request):
   "email_verified": true
 }</code></pre>
 
-      <h2>SAML vs OIDC — When to Use Which</h2>
+      <h2>SAML vs OIDC - When to Use Which</h2>
       <ul>
         <li><strong>Use SAML when:</strong> Integrating with enterprise IdPs (Okta, Azure AD, ADFS), legacy systems require it, or your customers' IT teams expect SAML support. Most enterprise B2B SaaS products need SAML.</li>
         <li><strong>Use OIDC when:</strong> Building modern web/mobile apps, using social login (Google, GitHub, Apple), building consumer-facing products, or when you want simpler implementation with JWTs.</li>
@@ -312,7 +312,7 @@ Standard Body        OASIS                 OpenID Foundation</code></pre>
 
       <!-- SAML vs OIDC (Interactive Cards) -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">SAML 2.0 vs OpenID Connect — At a Glance</div>
+        <div class="flow-diagram-title">SAML 2.0 vs OpenID Connect - At a Glance</div>
         <div class="vs-cards">
           <div class="vs-card saml">
             <div class="vs-card-header">SAML 2.0</div>

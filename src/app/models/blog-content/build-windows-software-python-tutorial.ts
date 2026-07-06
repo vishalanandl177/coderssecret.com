@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Windows still powers 70%+ of desktop computers worldwide. Whether you want to build a productivity tool for yourself, ship software to millions of users, or automate tasks at your company — knowing how to build Windows software is a superpower. This guide shows you the <strong>practical options</strong>, when to use each, and includes a complete Python project you can build in 30 minutes.</p>
+      <p>Windows still powers 70%+ of desktop computers worldwide. Whether you want to build a productivity tool for yourself, ship software to millions of users, or automate tasks at your company - knowing how to build Windows software is a superpower. This guide shows you the <strong>practical options</strong>, when to use each, and includes a complete Python project you can build in 30 minutes.</p>
 
       <h2>Language Options for Windows Development</h2>
       <p>Windows supports almost every programming language ever made. Here are the practical choices in 2026:</p>
@@ -58,7 +58,7 @@ export const CONTENT = `
       </div>
 
       <h2>Hands-On Project: File Organizer (Python)</h2>
-      <p>Let's build a real Windows app — a <strong>File Organizer</strong> with a GUI that sorts files into folders by type. We'll use <code>tkinter</code> (built into Python, no extra install) for the GUI and then package it as a standalone <code>.exe</code> using PyInstaller.</p>
+      <p>Let's build a real Windows app - a <strong>File Organizer</strong> with a GUI that sorts files into folders by type. We'll use <code>tkinter</code> (built into Python, no extra install) for the GUI and then package it as a standalone <code>.exe</code> using PyInstaller.</p>
 
       <!-- Project Pipeline -->
       <div class="flow-diagram">
@@ -96,7 +96,7 @@ pip install pyinstaller pillow</code></pre>
       <h2>Step 2: Build the File Organizer</h2>
       <p>Create <code>organizer.py</code> with the complete application:</p>
       <pre><code>"""
-File Organizer — a Windows GUI app that sorts files by type.
+File Organizer - a Windows GUI app that sorts files by type.
 """
 import os
 import shutil
@@ -255,7 +255,7 @@ venv\\Scripts\\activate
 python organizer.py
 
 # A window opens! Click "Choose Folder", select a messy folder,
-# click "Organize Files" — all files get sorted into subfolders by type.</code></pre>
+# click "Organize Files" - all files get sorted into subfolders by type.</code></pre>
 
       <h2>Step 4: Package as a Standalone .exe</h2>
       <p>Your Python script requires Python installed on the user's machine. Let's package it as a <strong>single .exe file</strong> that works on any Windows machine without Python:</p>
@@ -275,7 +275,7 @@ pyinstaller --onefile --windowed --name "FileOrganizer" organizer.py
 # No Python needed, no dependencies to install</code></pre>
 
       <h2>Step 5: Create a Professional Installer</h2>
-      <p>A .exe is good, but a real Windows app needs an installer (MSI or setup .exe). Use <strong>Inno Setup</strong> — the free, industry-standard Windows installer builder.</p>
+      <p>A .exe is good, but a real Windows app needs an installer (MSI or setup .exe). Use <strong>Inno Setup</strong> - the free, industry-standard Windows installer builder.</p>
       <pre><code># 1. Download Inno Setup: https://jrsoftware.org/isdl.php
 
 # 2. Create installer.iss:

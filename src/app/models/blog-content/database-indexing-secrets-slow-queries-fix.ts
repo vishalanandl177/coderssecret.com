@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>You added an index. The query is still slow. Sound familiar? Most developers treat indexes like magic &mdash; add one and hope for the best. But indexes are data structures with specific rules, and violating those rules means your &ldquo;indexed&rdquo; query is still doing a full table scan.</p>
+      <p>You added an index. The query is still slow. Sound familiar? Most developers treat indexes like magic - add one and hope for the best. But indexes are data structures with specific rules, and violating those rules means your &ldquo;indexed&rdquo; query is still doing a full table scan.</p>
 
       <p>This guide covers what your senior dev never explained: how indexes actually work internally, why column order in composite indexes matters more than you think, and how to read EXPLAIN ANALYZE output like a database engineer.</p>
 
@@ -91,7 +91,7 @@ ORDER BY email                       -- No (sorting)</code></pre>
 
       <h2>Composite Indexes: Column Order Is Everything</h2>
 
-      <p>A composite index indexes multiple columns together. The column order determines which queries can use the index. This is the <strong>leftmost prefix rule</strong> &mdash; the most misunderstood concept in database indexing.</p>
+      <p>A composite index indexes multiple columns together. The column order determines which queries can use the index. This is the <strong>leftmost prefix rule</strong> - the most misunderstood concept in database indexing.</p>
 
       <pre><code>CREATE INDEX idx_orders_composite ON orders(customer_id, status, created_at);</code></pre>
 
@@ -112,7 +112,7 @@ WHERE status = 'shipped'                        -- Skips customer_id!
 -- CANNOT use index (skips middle column):
 WHERE customer_id = 42 AND created_at > '2026-01-01'  -- Only uses customer_id part</code></pre>
 
-      <p>Think of it like a phone book sorted by <strong>last name, then first name, then city</strong>. You can look up everyone named &ldquo;Smith&rdquo; (last name). You can look up &ldquo;Smith, John&rdquo; (last + first). But you cannot efficiently look up everyone named &ldquo;John&rdquo; without a last name &mdash; the book is not sorted that way.</p>
+      <p>Think of it like a phone book sorted by <strong>last name, then first name, then city</strong>. You can look up everyone named &ldquo;Smith&rdquo; (last name). You can look up &ldquo;Smith, John&rdquo; (last + first). But you cannot efficiently look up everyone named &ldquo;John&rdquo; without a last name - the book is not sorted that way.</p>
 
       <h3>Ordering Strategy</h3>
 
@@ -140,7 +140,7 @@ CREATE INDEX idx_orders_cust_status ON orders(customer_id, status);
 CREATE INDEX idx_orders_covering ON orders(customer_id, status)
   INCLUDE (total_amount);</code></pre>
 
-      <p>In EXPLAIN output, a covering index shows <strong>&ldquo;Index Only Scan&rdquo;</strong> instead of &ldquo;Index Scan&rdquo; &mdash; this is significantly faster because it avoids random I/O to the heap.</p>
+      <p>In EXPLAIN output, a covering index shows <strong>&ldquo;Index Only Scan&rdquo;</strong> instead of &ldquo;Index Scan&rdquo; - this is significantly faster because it avoids random I/O to the heap.</p>
 
       <pre><code>EXPLAIN ANALYZE SELECT customer_id, status, total_amount
 FROM orders WHERE customer_id = 42 AND status = 'shipped';
@@ -171,7 +171,7 @@ SELECT * FROM orders WHERE status = 'shipped' ORDER BY created_at;</code></pre>
 
       <h2>Index Bloat and Maintenance</h2>
 
-      <p>PostgreSQL uses MVCC (Multi-Version Concurrency Control), which means UPDATE and DELETE operations leave dead tuples in indexes. Over time, indexes bloat &mdash; they grow larger without holding more useful data.</p>
+      <p>PostgreSQL uses MVCC (Multi-Version Concurrency Control), which means UPDATE and DELETE operations leave dead tuples in indexes. Over time, indexes bloat - they grow larger without holding more useful data.</p>
 
       <pre><code>-- Check index bloat using pg_stat_user_indexes:
 SELECT
@@ -255,7 +255,7 @@ LIMIT 20;
 -- Planning Time: 0.234 ms
 -- Execution Time: 892.456 ms</code></pre>
 
-      <p>The bottleneck is the <strong>Seq Scan on orders</strong> &mdash; examining 10 million rows. Let us fix it:</p>
+      <p>The bottleneck is the <strong>Seq Scan on orders</strong> - examining 10 million rows. Let us fix it:</p>
 
       <pre><code>-- Create a targeted composite index:
 CREATE INDEX idx_orders_status_created ON orders(status, created_at DESC)
@@ -272,7 +272,7 @@ CREATE INDEX idx_orders_status_created ON orders(status, created_at DESC)
 -- Planning Time: 0.187 ms
 -- Execution Time: 0.342 ms</code></pre>
 
-      <p>From <strong>892ms to 0.3ms</strong> &mdash; a 2,600x improvement. The key changes: the composite index matches the WHERE + ORDER BY, and the INCLUDE clause makes it a covering index (Index Only Scan, zero heap fetches).</p>
+      <p>From <strong>892ms to 0.3ms</strong> - a 2,600x improvement. The key changes: the composite index matches the WHERE + ORDER BY, and the INCLUDE clause makes it a covering index (Index Only Scan, zero heap fetches).</p>
 
       <h2>Index Type Cheat Sheet</h2>
 
@@ -342,14 +342,14 @@ CREATE INDEX idx_orders_status_created ON orders(status, created_at DESC)
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Always check EXPLAIN ANALYZE</strong> before and after adding indexes &mdash; do not guess</li>
-        <li><strong>Column order in composite indexes matters</strong> &mdash; equality columns first, range columns last</li>
-        <li><strong>Covering indexes eliminate heap fetches</strong> &mdash; use INCLUDE for frequently selected columns</li>
-        <li><strong>Partial indexes save space and speed</strong> &mdash; index only the rows you actually query</li>
-        <li><strong>Audit unused indexes regularly</strong> &mdash; every index has a write cost</li>
-        <li><strong>Never apply functions to indexed columns</strong> in WHERE clauses &mdash; use expression indexes instead</li>
-        <li><strong>B-tree is the right choice 95% of the time</strong> &mdash; only reach for specialized types when you have a specific need</li>
+        <li><strong>Always check EXPLAIN ANALYZE</strong> before and after adding indexes - do not guess</li>
+        <li><strong>Column order in composite indexes matters</strong> - equality columns first, range columns last</li>
+        <li><strong>Covering indexes eliminate heap fetches</strong> - use INCLUDE for frequently selected columns</li>
+        <li><strong>Partial indexes save space and speed</strong> - index only the rows you actually query</li>
+        <li><strong>Audit unused indexes regularly</strong> - every index has a write cost</li>
+        <li><strong>Never apply functions to indexed columns</strong> in WHERE clauses - use expression indexes instead</li>
+        <li><strong>B-tree is the right choice 95% of the time</strong> - only reach for specialized types when you have a specific need</li>
       </ul>
 
-      <p>The difference between a junior and senior database engineer is not knowing that indexes exist &mdash; it is knowing <strong>which</strong> index to create, in <strong>what order</strong>, with <strong>which columns included</strong>. Master these fundamentals and you will never fear a slow query again.</p>
+      <p>The difference between a junior and senior database engineer is not knowing that indexes exist - it is knowing <strong>which</strong> index to create, in <strong>what order</strong>, with <strong>which columns included</strong>. Master these fundamentals and you will never fear a slow query again.</p>
     `;

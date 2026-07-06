@@ -227,7 +227,7 @@ ORDER BY orders DESC;`,
 
   constructor() {
     this.seo.update({
-      title: 'Code Typing Speed Test — Real Code Snippets',
+      title: 'Code Typing Speed Test - Real Code Snippets',
       description: 'Test your typing speed with real code from Python, JavaScript, Go, Rust, TypeScript, and SQL. Measure WPM and accuracy on production code.',
       url: '/games/typing-test',
       breadcrumbs: [

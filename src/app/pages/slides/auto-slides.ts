@@ -46,7 +46,7 @@ export class AutoSlidesComponent {
       const categoryName = category?.name ?? post.category;
 
       this.seo.update({
-        title: `${post.title} — Interactive Slides`,
+        title: `${post.title} - Interactive Slides`,
         description: `Learn "${post.title}" through interactive slides with voice narration. ${post.excerpt}`,
         url: `/slides/${post.slug}`,
         robots: 'noindex,follow',
@@ -76,8 +76,8 @@ export class AutoSlidesComponent {
     const cleanTitle = this.cleanForNarration(title);
     const cleanExcerpt = this.cleanForNarration(excerpt);
 
-    // Title narration — welcoming, sets expectations
-    const titleNarration = `Welcome to this walkthrough on ${cleanTitle}. ${cleanExcerpt} In the next few minutes, we'll cover the key concepts, the practical how-to, and the trade-offs you should know about. Keep an ear on the narration — the slides highlight the essentials, but the narration walks you through the details. Let's get started.`;
+    // Title narration - welcoming, sets expectations
+    const titleNarration = `Welcome to this walkthrough on ${cleanTitle}. ${cleanExcerpt} In the next few minutes, we'll cover the key concepts, the practical how-to, and the trade-offs you should know about. Keep an ear on the narration - the slides highlight the essentials, but the narration walks you through the details. Let's get started.`;
 
     slides.push({
       type: 'title',
@@ -93,7 +93,7 @@ export class AutoSlidesComponent {
       "Let's start with",
       "Moving on,",
       "Next up is",
-      "Here's where it gets interesting —",
+      "Here's where it gets interesting -",
       "Now we come to",
       "This next bit covers",
       "Let's walk through",
@@ -153,7 +153,7 @@ export class AutoSlidesComponent {
           narration,
         });
       } else if (paragraphs.length > 0) {
-        // Pure content slide — show only a short teaser + key phrases
+        // Pure content slide - show only a short teaser + key phrases
         const keyPhrases = this.extractKeyPhrases(paragraphs, 3);
         if (keyPhrases.length >= 2) {
           slides.push({
@@ -176,12 +176,12 @@ export class AutoSlidesComponent {
       }
     }
 
-    // End narration — conversational closing, points back to article
+    // End narration - conversational closing, points back to article
     slides.push({
       type: 'end',
       title: 'Thanks for watching.',
       subtitle: `You now know the essentials of ${title}. Head back to the full article for code examples, diagrams, and deeper discussions.`,
-      narration: `And that wraps up our walkthrough on ${cleanTitle}. Hopefully the key ideas feel a bit clearer now — the what, the why, and the how. If you want to go deeper, head back to the full article where you'll find the complete code examples, the diagrams, and comments from other engineers who've implemented this. Thanks so much for watching — I'll see you in the next one.`,
+      narration: `And that wraps up our walkthrough on ${cleanTitle}. Hopefully the key ideas feel a bit clearer now - the what, the why, and the how. If you want to go deeper, head back to the full article where you'll find the complete code examples, the diagrams, and comments from other engineers who've implemented this. Thanks so much for watching - I'll see you in the next one.`,
     });
 
     return slides;
@@ -189,7 +189,7 @@ export class AutoSlidesComponent {
 
   /**
    * Build detailed conversational narration that goes BEYOND what's on the slide.
-   * The narration should explain, contextualize, and add value — not just read the slide.
+   * The narration should explain, contextualize, and add value - not just read the slide.
    */
   private buildNarration(opts: {
     transition: string;
@@ -207,7 +207,7 @@ export class AutoSlidesComponent {
 
     // Conceptual intro based on content shape
     if (hasCode) {
-      parts.push(`You'll see some code on screen — let me walk you through what it's actually doing.`);
+      parts.push(`You'll see some code on screen - let me walk you through what it's actually doing.`);
     } else if (hasBullets) {
       parts.push(`There are a few key points here worth unpacking.`);
     }
@@ -222,10 +222,10 @@ export class AutoSlidesComponent {
 
     // Closing framing if content is short
     if (parts.join(' ').length < 250) {
-      parts.push(`Keep this in mind as we move on — it'll come up again.`);
+      parts.push(`Keep this in mind as we move on - it'll come up again.`);
     }
 
-    // Final safety pass — ensure narration is TTS-friendly
+    // Final safety pass - ensure narration is TTS-friendly
     return this.cleanForNarration(parts.join(' '));
   }
 
@@ -235,7 +235,7 @@ export class AutoSlidesComponent {
       `Let's look at one more example for ${heading}.`,
       `And here's a related pattern in the same space.`,
     ];
-    return `${intros[idx % intros.length]} Read through it — the shape should feel familiar now. The key thing to notice is how this piece connects to what we just covered.`;
+    return `${intros[idx % intros.length]} Read through it - the shape should feel familiar now. The key thing to notice is how this piece connects to what we just covered.`;
   }
 
   /** First sentence of text, truncated to max length */
@@ -372,7 +372,7 @@ export class AutoSlidesComponent {
   private cleanForNarration(s: string): string {
     let out = s;
 
-    // Decode hex entities (&#xABCD;) — keep only if in a readable range, otherwise drop
+    // Decode hex entities (&#xABCD;) - keep only if in a readable range, otherwise drop
     out = out.replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => {
       const code = parseInt(hex, 16);
       return this.codepointToReadable(code);
@@ -384,12 +384,12 @@ export class AutoSlidesComponent {
       return this.codepointToReadable(code);
     });
 
-    // Named entities — map common ones, drop the rest
+    // Named entities - map common ones, drop the rest
     const namedEntities: Record<string, string> = {
       '&nbsp;': ' ', '&amp;': 'and', '&lt;': 'less than', '&gt;': 'greater than',
       '&quot;': '"', '&apos;': "'",
       '&ldquo;': '"', '&rdquo;': '"', '&lsquo;': "'", '&rsquo;': "'",
-      '&mdash;': ' — ', '&ndash;': ' – ', '&hellip;': '...',
+      '-': ' - ', '&ndash;': ' – ', '&hellip;': '...',
       '&times;': 'x', '&divide;': '/', '&deg;': ' degrees',
       '&copy;': '', '&reg;': '', '&trade;': '',
       '&middot;': ', ', '&bull;': ', ',
@@ -412,11 +412,11 @@ export class AutoSlidesComponent {
     out = out
       .replace(/[‘’]/g, "'")
       .replace(/[“”]/g, '"')
-      .replace(/[–—]/g, ' — ')
+      .replace(/[–-]/g, ' - ')
       .replace(/…/g, '...')
       .replace(/ /g, ' ');
 
-    // Remove backticks (TTS says "back-tick") — replace with neutral phrasing
+    // Remove backticks (TTS says "back-tick") - replace with neutral phrasing
     out = out.replace(/`([^`]+)`/g, '$1');
 
     // Collapse whitespace
@@ -438,13 +438,13 @@ export class AutoSlidesComponent {
     // Common typographic characters
     if (code === 0x2018 || code === 0x2019) return "'";
     if (code === 0x201C || code === 0x201D) return '"';
-    if (code === 0x2013 || code === 0x2014) return ' — ';
+    if (code === 0x2013 || code === 0x2014) return ' - ';
     if (code === 0x2026) return '...';
     if (code === 0x00A0) return ' ';
     if (code === 0x00AB || code === 0x00BB) return '"';
     // Accented Latin letters (Latin-1 Supplement + Extended)
     if (code >= 0x00C0 && code <= 0x024F) return String.fromCharCode(code);
-    // Everything else (emoji, symbols, math operators, etc.) — drop
+    // Everything else (emoji, symbols, math operators, etc.) - drop
     return ' ';
   }
 }

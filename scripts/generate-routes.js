@@ -768,7 +768,7 @@ function stripHtml(html) {
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&')
-    .replace(/&mdash;/g, '-')
+    .replace(/-/g, '-')
     .replace(/&ndash;/g, '-')
     .replace(/&rarr;/g, '->')
     .replace(/&larr;/g, '<-')
@@ -1993,7 +1993,7 @@ for (const cat of categories) {
     <section>
       <h2>All ${escapeHtml(catName)} Guides</h2>
     <ul>
-      ${catPosts.map(p => `<li><a href="/blog/${p.slug}">${escapeHtml(p.title)}</a> — ${escapeHtml(p.excerpt)}</li>`).join('\n      ')}
+      ${catPosts.map(p => `<li><a href="/blog/${p.slug}">${escapeHtml(p.title)}</a> - ${escapeHtml(p.excerpt)}</li>`).join('\n      ')}
     </ul>
     </section>
   `;
@@ -2013,118 +2013,118 @@ const games = [
   {
     slug: '',
     title: 'Cloud Native Security Simulators & Labs',
-    description: 'Interactive Kubernetes security labs, Zero Trust simulations, threat-modeling challenges, and infrastructure-engineering drills. Learn cloud-native security by playing — free and ad-free.',
+    description: 'Interactive Kubernetes security labs, Zero Trust simulations, threat-modeling challenges, and infrastructure-engineering drills. Learn cloud-native security by playing - free and ad-free.',
     heading: 'Cloud Native Security Simulators & Labs',
     content: 'Interactive cloud-native security simulators and engineering drills: Kubernetes Security Simulator, Zero Trust Network Builder, API Attack & Defense, Incident Response Simulator, Supply Chain Defense, Service Mesh Routing, Threat Modeling Challenge, Secure Architecture Builder, Kubernetes Escape Room, AI Infrastructure Security, plus DevOps Scenario, Linux Command Challenge, Spot the Bug, Guess the Output, Code Typing Speed Test, and Tech Salary Calculator.',
   },
   {
     slug: 'kubernetes-security-simulator',
-    title: 'Kubernetes Security Simulator — Interactive Lab',
+    title: 'Kubernetes Security Simulator - Interactive Lab',
     description: 'Interactive Kubernetes security lab: spot RBAC misconfigurations, network policy gaps, privileged pods, leaked secrets, and supply-chain risks across 6 production scenarios. Free, no signup.',
     heading: 'Kubernetes Security Simulator',
-    content: 'Interactive Kubernetes security lab. Six production scenarios cover RBAC misconfigurations, missing NetworkPolicies, privileged pods, leaked secrets, image security, and shared-namespace tenancy — with explanations grounded in real CVEs and post-mortems.',
+    content: 'Interactive Kubernetes security lab. Six production scenarios cover RBAC misconfigurations, missing NetworkPolicies, privileged pods, leaked secrets, image security, and shared-namespace tenancy - with explanations grounded in real CVEs and post-mortems.',
   },
   {
     slug: 'zero-trust-network-builder',
-    title: 'Zero Trust Network Builder — SPIFFE/SPIRE Workload Identity Lab',
+    title: 'Zero Trust Network Builder - SPIFFE/SPIRE Workload Identity Lab',
     description: 'Interactive Zero Trust simulator. Design SPIFFE ID schemes, configure SPIRE attestation, bootstrap mTLS, federate trust domains, and rotate SVIDs across 6 production scenarios. Free, no signup.',
     heading: 'Zero Trust Network Builder',
     content: 'Interactive workload-identity lab. Six production scenarios cover SPIFFE ID design, SPIRE registration entries and selectors, mTLS bootstrap with short-lived SVIDs, SPIFFE-based authorization policy, federation trust bundle exchange across clusters, and SVID rotation pitfalls in real Go code.',
   },
   {
     slug: 'api-attack-defense',
-    title: 'API Attack & Defense — Interactive API Security Lab',
+    title: 'API Attack & Defense - Interactive API Security Lab',
     description: 'Interactive API security simulator: spot JWT verification bypasses, OAuth redirect_uri exploits, mass assignment, rate-limit bypasses, CORS misconfigurations, and webhook timing attacks across 6 production scenarios. Free, no signup.',
     heading: 'API Attack & Defense',
     content: 'Interactive API security lab. Six scenarios cover JWT algorithm confusion (RS256/HS256), OAuth redirect_uri startsWith bypasses, mass assignment / overposting via spread operators, rate-limit bypasses through X-Forwarded-For spoofing, CORS wildcard + credentials misconfigurations, and webhook signature timing side-channels.',
   },
   {
     slug: 'incident-response-simulator',
-    title: 'Incident Response Simulator — Runtime Defense Lab',
+    title: 'Incident Response Simulator - Runtime Defense Lab',
     description: 'Interactive runtime-security incident response simulator: triage Falco alerts, lateral movement, crypto-miners, container drift, audit-log compromise, and eBPF-detected fileless attacks across 6 production scenarios. Free, no signup.',
     heading: 'Incident Response Simulator',
     content: 'Interactive runtime-defense lab. Six scenarios drop you into the first 60 seconds of an incident: a Falco "shell in container" alert, lateral movement via stolen ServiceAccount tokens, crypto-miner indicators, Tetragon-detected container drift, audit-log triage of privilege escalation, and eBPF detection of fileless memfd-based attacks.',
   },
   {
     slug: 'supply-chain-defense',
-    title: 'Supply Chain Defense Simulator — CI/CD & Sigstore',
+    title: 'Supply Chain Defense Simulator - CI/CD & Sigstore',
     description: 'Interactive supply-chain security simulator: spot Sigstore identity gaps, SBOM blind spots, SLSA L2 vs L3 confusion, dependency confusion attacks, GitHub Actions secret leaks, and admission policy scope gaps across 6 production scenarios. Free, no signup.',
     heading: 'Supply Chain Defense Simulator',
     content: 'Interactive supply-chain security lab. Six scenarios cover cosign verify without certificate-identity, syft SBOMs missing Go modules under -ldflags strip, SLSA L2 vs L3 provenance, Python dependency confusion via --extra-index-url, GitHub Actions pull_request_target with secrets exposed to fork checkouts, and Kyverno verifyImages namespace-scope gaps.',
   },
   {
     slug: 'service-mesh-routing',
-    title: 'Service Mesh Routing Game — Istio / Envoy Lab',
+    title: 'Service Mesh Routing Game - Istio / Envoy Lab',
     description: 'Interactive Istio/Envoy service mesh simulator: spot mTLS rollout flaws, AuthorizationPolicy semantics, JWT validation gaps, traffic-shift ordering bugs, retry-storm patterns, and Envoy diagnostic flows across 6 production scenarios. Free, no signup.',
     heading: 'Service Mesh Routing Game',
     content: 'Interactive Istio service mesh lab. Six scenarios cover mesh-wide STRICT mTLS rollout failures (PERMISSIVE-first migration), AuthorizationPolicy ALLOW-with-empty-rules anti-pattern, RequestAuthentication that does not actually require JWTs, VirtualService route ordering and broken canaries, retry-storm amplification of brownouts, and istioctl proxy-config diagnostics for missing endpoints.',
   },
   {
     slug: 'threat-modeling-challenge',
-    title: 'Threat Modeling Challenge — STRIDE & Attack Trees',
+    title: 'Threat Modeling Challenge - STRIDE & Attack Trees',
     description: 'Interactive threat modeling simulator: classify threats with STRIDE, identify trust boundaries, classify PII, build attack trees, prioritise by severity, and rank mitigations across 6 production scenarios. Free, no signup.',
     heading: 'Threat Modeling Challenge',
     content: 'Interactive threat modeling lab. Six scenarios cover STRIDE classification of token-enumeration as spoofing, identifying the API-to-database trust boundary as the highest-stakes, GDPR PII classification of hashed device fingerprints, attack tree analysis prioritising CI/CD compromise over RCE, severity prioritisation by impact-times-likelihood, and mitigation ranking by blast-radius reduction.',
   },
   {
     slug: 'secure-architecture-builder',
-    title: 'Secure Architecture Builder — VPC, WAF & Multi-region',
+    title: 'Secure Architecture Builder - VPC, WAF & Multi-region',
     description: 'Interactive cloud architecture simulator: design VPC layouts, place WAFs, choose between bastions and IAM-managed access, pick secret stores, authenticate CDN-to-origin, and design multi-region resilience across 6 production scenarios. Free, no signup.',
     heading: 'Secure Architecture Builder',
     content: 'Interactive architecture-design lab. Six scenarios cover three-tier VPC layout (public/private/isolated), WAF placement at both CloudFront and ALB with origin verification, AWS SSM Session Manager + IAM database auth replacing SSH bastions, AWS Secrets Manager + Secrets Store CSI Driver as the right baseline, CloudFront-to-origin authentication via custom headers and OAC, and active-active multi-region split-brain risk on payment workloads.',
   },
   {
     slug: 'kubernetes-escape-room',
-    title: 'Kubernetes Escape Room — Adversarial Cluster Lab',
-    description: 'Adversarial Kubernetes lab: walk through real container-escape and privilege-escalation chains — SA token recon, docker.sock mounts, hostPID, etcd snapshot leaks, pods/exec → cluster-admin, and CVE defense — and identify the control that breaks each step. Free, no signup.',
+    title: 'Kubernetes Escape Room - Adversarial Cluster Lab',
+    description: 'Adversarial Kubernetes lab: walk through real container-escape and privilege-escalation chains - SA token recon, docker.sock mounts, hostPID, etcd snapshot leaks, pods/exec → cluster-admin, and CVE defense - and identify the control that breaks each step. Free, no signup.',
     heading: 'Kubernetes Escape Room',
     content: 'Adversarial Kubernetes lab. Six scenarios walk through real cluster-compromise chains: ServiceAccount token reconnaissance closed by automountServiceAccountToken: false, docker.sock host-mount escapes blocked by PodSecurity restricted, hostPID/hostNetwork process traversal, etcd snapshot leaks defeated by KMS encryption-at-rest, pods/exec → cluster-admin via stolen privileged SA tokens, and defence-in-depth posture against container-runtime CVEs.',
   },
   {
     slug: 'ai-infrastructure-security',
-    title: 'AI Infrastructure Security Game — Agents & Inference Lab',
+    title: 'AI Infrastructure Security Game - Agents & Inference Lab',
     description: 'Interactive AI infrastructure security simulator: identify indirect prompt injection, model extraction, vector-DB tenant leakage, agent tool over-scoping, inference cost abuse, and MCP server identity gaps across 6 production scenarios. Free, no signup.',
     heading: 'AI Infrastructure Security Game',
     content: 'Interactive AI security lab. Six scenarios cover indirect prompt injection in support agents and tool-layer capability scoping, model extraction via high-volume diverse queries and the multi-layer defence stack, multi-tenant vector DB isolation in shared indexes, agent tool over-scoping and capability-based decomposition, free-tier inference API abuse with disposable email farming, and MCP server identity propagation via SPIFFE workload identity.',
   },
   {
     slug: 'guess-output',
-    title: 'Guess the Output — Python & JavaScript Code Quiz',
+    title: 'Guess the Output - Python & JavaScript Code Quiz',
     description: 'Test your knowledge with tricky Python and JavaScript code snippets. Can you predict the output? 10 questions covering classic language quirks.',
     heading: 'Guess the Output',
     content: 'Predict what Python and JavaScript code snippets will print. Covers classic language quirks: mutable defaults, closure captures, floating-point math, type coercion, and more.',
   },
   {
     slug: 'spot-the-bug',
-    title: 'Spot the Bug — Code Review Challenge Game',
-    description: 'Find bugs in real code snippets — race conditions, off-by-one errors, N+1 queries, and more. Test your code review skills.',
+    title: 'Spot the Bug - Code Review Challenge Game',
+    description: 'Find bugs in real code snippets - race conditions, off-by-one errors, N+1 queries, and more. Test your code review skills.',
     heading: 'Spot the Bug',
     content: 'Find the bug in each code snippet. Tests your code review skills on real-world issues: off-by-one errors, race conditions, N+1 queries, memory leaks, and more.',
   },
   {
     slug: 'devops-scenario',
-    title: 'DevOps Scenario Simulator — Production Incident Game',
-    description: 'Practice production incident response. Kubernetes crashes, database outages, TLS expiry, memory leaks — what would you do? Interactive SRE training.',
+    title: 'DevOps Scenario Simulator - Production Incident Game',
+    description: 'Practice production incident response. Kubernetes crashes, database outages, TLS expiry, memory leaks - what would you do? Interactive SRE training.',
     heading: 'DevOps Scenario Simulator',
     content: 'Practice real production incident response. Debug Kubernetes CrashLoopBackOff, database outages, TLS certificate expiry, memory leaks, and slow CI pipelines. Interactive SRE training.',
   },
   {
     slug: 'typing-test',
-    title: 'Code Typing Speed Test — Real Code Snippets',
+    title: 'Code Typing Speed Test - Real Code Snippets',
     description: 'Test your typing speed with real code from Python, JavaScript, Go, Rust, TypeScript, and SQL. Measure WPM and accuracy on production code.',
     heading: 'Code Typing Speed Test',
     content: 'Test your typing speed on real code snippets in Python, JavaScript, Go, Rust, TypeScript, and SQL. Measures words per minute and accuracy.',
   },
   {
     slug: 'salary-calculator',
-    title: 'Tech Salary Calculator — Software Engineer Compensation',
+    title: 'Tech Salary Calculator - Software Engineer Compensation',
     description: 'Estimate software engineer salaries by role, experience, location, and company type. Data from Levels.fyi, Glassdoor, and industry reports.',
     heading: 'Tech Salary Calculator',
     content: 'Estimate software engineer compensation by role (SWE, SRE, ML engineer, etc.), experience level, location (SF, NYC, London, Bangalore, etc.), and company type.',
   },
   {
     slug: 'linux-challenge',
-    title: 'Linux Command Challenge — Test Your Shell Skills',
+    title: 'Linux Command Challenge - Test Your Shell Skills',
     description: 'Interactive Linux command-line challenges. Find files, kill processes, manage permissions, and more. Practice real sysadmin tasks.',
     heading: 'Linux Command Challenge',
     content: 'Interactive Linux command-line challenges covering real sysadmin tasks: finding files, killing processes on ports, managing permissions, grep, sed, watch, and more.',
@@ -2150,7 +2150,7 @@ const gameDetailsBySlug = new Map(games
   ]));
 
 function gameSeoTitle(game) {
-  return compactSeoTitle(game.title.replace(/\s+—\s+(Interactive Lab|SPIFFE\/SPIRE Workload Identity Lab)$/i, ''), 52);
+  return compactSeoTitle(game.title.replace(/\s+-\s+(Interactive Lab|SPIFFE\/SPIRE Workload Identity Lab)$/i, ''), 52);
 }
 
 function gameDescription(game) {
@@ -2878,7 +2878,7 @@ if (courseContent) {
   const cnsDir = path.join(OUTPUT_DIR, 'courses', 'cloud-native-security-engineering');
   fs.mkdirSync(cnsDir, { recursive: true });
   fs.writeFileSync(path.join(cnsDir, 'index.html'), makeHtml({
-    title: 'Cloud Native Security Engineering — Free Course',
+    title: 'Cloud Native Security Engineering - Free Course',
     description: 'The most practical cloud-native security course. 16 modules covering Kubernetes security, Zero Trust, SPIFFE/SPIRE, OPA, Falco, eBPF, Sigstore, Vault, and AI infrastructure security. 50+ hands-on labs, 100% free.',
     url: '/courses/cloud-native-security-engineering',
     content: `<h1>Cloud Native Security Engineering</h1>
@@ -2912,11 +2912,11 @@ if (courseContent) {
     { slug: 'kubernetes-authentication-authorization', title: 'Kubernetes Authentication & Authorization', desc: 'Service accounts, OIDC, RBAC deep dive, and identity in distributed systems.' },
     { slug: 'zero-trust-security-fundamentals', title: 'Zero Trust Security Fundamentals', desc: 'Identity-based security, mTLS, microsegmentation, and east-west security for Kubernetes.' },
     { slug: 'spiffe-spire-deep-dive', title: 'SPIFFE & SPIRE Deep Dive', desc: 'Production workload identity with SPIFFE/SPIRE on Kubernetes. SVIDs, attestation, federation.' },
-    { slug: 'service-mesh-security', title: 'Service Mesh Security', desc: 'Envoy, Istio, Linkerd — transparent mTLS, identity propagation, and authorization policies.' },
+    { slug: 'service-mesh-security', title: 'Service Mesh Security', desc: 'Envoy, Istio, Linkerd - transparent mTLS, identity propagation, and authorization policies.' },
     { slug: 'policy-as-code-security', title: 'Policy-as-Code Security', desc: 'OPA Gatekeeper, Kyverno, admission controllers, and automated compliance enforcement.' },
     { slug: 'secrets-management-machine-identity', title: 'Secrets Management & Machine Identity', desc: 'HashiCorp Vault, dynamic secrets, certificate rotation, and replacing secret sprawl with workload identity.' },
-    { slug: 'runtime-security-threat-detection', title: 'Runtime Security & Threat Detection', desc: 'Falco, Tetragon, eBPF — detecting container escapes, unauthorized access, and runtime threats.' },
-    { slug: 'supply-chain-security', title: 'Supply Chain Security', desc: 'Sigstore, Cosign, SLSA, SBOM — image signing, provenance verification, and vulnerability tracking.' },
+    { slug: 'runtime-security-threat-detection', title: 'Runtime Security & Threat Detection', desc: 'Falco, Tetragon, eBPF - detecting container escapes, unauthorized access, and runtime threats.' },
+    { slug: 'supply-chain-security', title: 'Supply Chain Security', desc: 'Sigstore, Cosign, SLSA, SBOM - image signing, provenance verification, and vulnerability tracking.' },
     { slug: 'secure-cicd-pipelines', title: 'Secure CI/CD Pipelines', desc: 'GitHub Actions hardening, secret scanning, OIDC deployment, and secure artifact signing.' },
     { slug: 'observability-security-monitoring', title: 'Observability & Security Monitoring', desc: 'OpenTelemetry, Kubernetes audit logs, security dashboards, and threat telemetry.' },
     { slug: 'multi-cluster-multi-cloud-security', title: 'Multi-Cluster & Multi-Cloud Security', desc: 'Federation, cross-cloud identity, hybrid infrastructure, and trust boundaries at scale.' },
@@ -2927,7 +2927,7 @@ if (courseContent) {
     const modDir = path.join(OUTPUT_DIR, 'courses', 'cloud-native-security-engineering', mod.slug);
     fs.mkdirSync(modDir, { recursive: true });
     fs.writeFileSync(path.join(modDir, 'index.html'), makeHtml({
-      title: `Module ${i + 1}: ${mod.title} — Cloud Native Security Engineering`,
+      title: `Module ${i + 1}: ${mod.title} - Cloud Native Security Engineering`,
       description: mod.desc,
       url: `/courses/cloud-native-security-engineering/${mod.slug}`,
       content: `<h1>Module ${i + 1}: ${mod.title}</h1><p>${mod.desc}</p><p><a href="/courses/cloud-native-security-engineering">← Back to course curriculum</a></p>`,
@@ -2946,7 +2946,7 @@ if (courseContent) {
     const seoDir = path.join(OUTPUT_DIR, 'courses', seo.slug);
     fs.mkdirSync(seoDir, { recursive: true });
     fs.writeFileSync(path.join(seoDir, 'index.html'), makeHtml({
-      title: `${seo.title} — CodersSecret`,
+      title: `${seo.title} - CodersSecret`,
       description: seo.desc,
       url: `/courses/${seo.slug}`,
       content: `<h1>${seo.title}</h1><p>${seo.desc}</p><p>Start the free <a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> course.</p>`,
@@ -2956,7 +2956,7 @@ if (courseContent) {
   }
 }
 
-// ── Slides pages (/slides/{slug}) — pre-render for every blog post ──
+// ── Slides pages (/slides/{slug}) - pre-render for every blog post ──
 for (const post of posts) {
   const slideDir = path.join(OUTPUT_DIR, 'slides', post.slug);
   fs.mkdirSync(slideDir, { recursive: true });
@@ -3116,7 +3116,7 @@ created++;
   const ragDir = path.join(OUTPUT_DIR, 'courses', 'production-rag-systems-engineering');
   fs.mkdirSync(ragDir, { recursive: true });
   fs.writeFileSync(path.join(ragDir, 'index.html'), makeHtml({
-    title: 'Production-Grade RAG Systems Engineering — Free Course',
+    title: 'Production-Grade RAG Systems Engineering - Free Course',
     description: 'Build scalable, reliable RAG systems. Embeddings, vector databases, hybrid retrieval, reranking, AI agents, evaluation, security, and Kubernetes deployment. 16 modules, 31 labs, free.',
     url: '/courses/production-rag-systems-engineering',
     content: '<h1>Production-Grade RAG Systems Engineering</h1><p>16 modules, 31 hands-on labs, completely free.</p>',
@@ -3145,7 +3145,7 @@ created++;
     const modDir = path.join(OUTPUT_DIR, 'courses', 'production-rag-systems-engineering', mod.slug);
     fs.mkdirSync(modDir, { recursive: true });
     fs.writeFileSync(path.join(modDir, 'index.html'), makeHtml({
-      title: `Module ${i + 1}: ${mod.title} — Production RAG Engineering`,
+      title: `Module ${i + 1}: ${mod.title} - Production RAG Engineering`,
       description: `Module ${i + 1} of the Production-Grade RAG Systems Engineering course.`,
       url: `/courses/production-rag-systems-engineering/${mod.slug}`,
       content: `<h1>Module ${i + 1}: ${mod.title}</h1><p><a href="/courses/production-rag-systems-engineering">← Back to course</a></p>`,
@@ -3164,7 +3164,7 @@ created++;
     const seoDir = path.join(OUTPUT_DIR, 'courses', seo.slug);
     fs.mkdirSync(seoDir, { recursive: true });
     fs.writeFileSync(path.join(seoDir, 'index.html'), makeHtml({
-      title: `${seo.title} — CodersSecret`,
+      title: `${seo.title} - CodersSecret`,
       description: seo.title,
       url: `/courses/${seo.slug}`,
       content: `<h1>${seo.title}</h1><p><a href="/courses/production-rag-systems-engineering">Start the free RAG course</a></p>`,
@@ -3179,7 +3179,7 @@ created++;
   const dseDir = path.join(OUTPUT_DIR, 'courses', 'distributed-systems-engineering');
   fs.mkdirSync(dseDir, { recursive: true });
   fs.writeFileSync(path.join(dseDir, 'index.html'), makeHtml({
-    title: 'Distributed Systems Engineering: Building Scalable, Reliable & Secure Systems — Free Course',
+    title: 'Distributed Systems Engineering: Building Scalable, Reliable & Secure Systems - Free Course',
     description: 'Production-grade, beginner-friendly but deeply practical course on distributed systems. CAP, consensus (Raft/Paxos), distributed data, scalability, reliability, Zero Trust, observability, Kubernetes. 12 modules, hands-on labs, free.',
     url: '/courses/distributed-systems-engineering',
     content: '<h1>Distributed Systems Engineering</h1><p>12 modules, hands-on labs every module, completely free. CAP, consensus, replication, scalability, reliability, Zero Trust security, observability, Kubernetes-native architecture, real failure scenarios, and production system design.</p>',
@@ -3204,7 +3204,7 @@ created++;
     const modDir = path.join(OUTPUT_DIR, 'courses', 'distributed-systems-engineering', mod.slug);
     fs.mkdirSync(modDir, { recursive: true });
     fs.writeFileSync(path.join(modDir, 'index.html'), makeHtml({
-      title: `Module ${i + 1}: ${mod.title} — Distributed Systems Engineering`,
+      title: `Module ${i + 1}: ${mod.title} - Distributed Systems Engineering`,
       description: `Module ${i + 1} of the Distributed Systems Engineering course.`,
       url: `/courses/distributed-systems-engineering/${mod.slug}`,
       content: `<h1>Module ${i + 1}: ${mod.title}</h1><p><a href="/courses/distributed-systems-engineering">← Back to course</a></p>`,
@@ -3216,14 +3216,14 @@ created++;
 }
 
 const glossaryTerms = [
-  { slug: 'spiffe', term: 'SPIFFE', desc: 'Secure Production Identity Framework For Everyone — CNCF standard for workload identity.' },
-  { slug: 'spire', term: 'SPIRE', desc: 'SPIFFE Runtime Environment — production implementation that issues and manages workload identities.' },
+  { slug: 'spiffe', term: 'SPIFFE', desc: 'Secure Production Identity Framework For Everyone - CNCF standard for workload identity.' },
+  { slug: 'spire', term: 'SPIRE', desc: 'SPIFFE Runtime Environment - production implementation that issues and manages workload identities.' },
   { slug: 'zero-trust', term: 'Zero Trust', desc: 'Security architecture: never trust, always verify. Every request authenticated regardless of network location.' },
-  { slug: 'workload-identity', term: 'Workload Identity', desc: 'Cryptographic identity for services and containers — replaces shared secrets and API keys.' },
-  { slug: 'mtls', term: 'mTLS', desc: 'Mutual TLS — both client and server verify certificates. Foundation of Zero Trust communication.' },
-  { slug: 'svid', term: 'SVID', desc: 'SPIFFE Verifiable Identity Document — X.509 certificate or JWT proving workload identity.' },
-  { slug: 'opa', term: 'OPA', desc: 'Open Policy Agent — CNCF policy engine for policy-as-code with Rego language.' },
-  { slug: 'falco', term: 'Falco', desc: 'CNCF runtime security tool — monitors syscalls and alerts on suspicious container behavior.' },
+  { slug: 'workload-identity', term: 'Workload Identity', desc: 'Cryptographic identity for services and containers - replaces shared secrets and API keys.' },
+  { slug: 'mtls', term: 'mTLS', desc: 'Mutual TLS - both client and server verify certificates. Foundation of Zero Trust communication.' },
+  { slug: 'svid', term: 'SVID', desc: 'SPIFFE Verifiable Identity Document - X.509 certificate or JWT proving workload identity.' },
+  { slug: 'opa', term: 'OPA', desc: 'Open Policy Agent - CNCF policy engine for policy-as-code with Rego language.' },
+  { slug: 'falco', term: 'Falco', desc: 'CNCF runtime security tool - monitors syscalls and alerts on suspicious container behavior.' },
   { slug: 'service-mesh', term: 'Service Mesh', desc: 'Infrastructure layer of sidecar proxies handling mTLS, load balancing, and observability.' },
   { slug: 'sigstore', term: 'Sigstore', desc: 'Keyless container image signing and verification for supply chain security.' },
 ];
@@ -3292,7 +3292,7 @@ function glossaryJsonLd(t) {
 const glossaryHubDir = path.join(OUTPUT_DIR, 'glossary');
 fs.mkdirSync(glossaryHubDir, { recursive: true });
 fs.writeFileSync(path.join(glossaryHubDir, 'index.html'), makeHtml({
-  title: 'Cloud Native Security Glossary — CodersSecret',
+  title: 'Cloud Native Security Glossary - CodersSecret',
   description: 'Definitions for SPIFFE, SPIRE, Zero Trust, workload identity, mTLS, OPA, Falco, and more cloud-native security terms.',
   url: '/glossary',
   content: renderGlossaryHubContent(glossaryTerms),
@@ -3302,7 +3302,7 @@ glossaryTerms.forEach(t => {
   const termDir = path.join(OUTPUT_DIR, 'glossary', t.slug);
   fs.mkdirSync(termDir, { recursive: true });
   fs.writeFileSync(path.join(termDir, 'index.html'), makeHtml({
-    title: `What is ${t.term}? — CodersSecret Glossary`,
+    title: `What is ${t.term}? - CodersSecret Glossary`,
     description: glossaryDescription(t),
     url: `/glossary/${t.slug}`,
     content: renderGlossaryTermContent(t),
@@ -3315,12 +3315,12 @@ glossaryTerms.forEach(t => {
 const aboutDir = path.join(OUTPUT_DIR, 'about');
 fs.mkdirSync(aboutDir, { recursive: true });
 fs.writeFileSync(path.join(aboutDir, 'index.html'), makeHtml({
-  title: 'About CodersSecret — Vishal Anand',
+  title: 'About CodersSecret - Vishal Anand',
   description: 'CodersSecret is a technical blog by Vishal Anand, Senior Product Engineer and Tech Lead, covering Python, Kubernetes, security, and system design with production-grade tutorials.',
   url: '/about',
   content: `
     <h1>About CodersSecret</h1>
-    <p>CodersSecret is written by Vishal Anand — a Senior Product Engineer and Tech Lead with experience building production systems at scale. The blog covers backend architecture, DevOps, security, Kubernetes, Python, and system design with practical, production-grade tutorials.</p>
+    <p>CodersSecret is written by Vishal Anand - a Senior Product Engineer and Tech Lead with experience building production systems at scale. The blog covers backend architecture, DevOps, security, Kubernetes, Python, and system design with practical, production-grade tutorials.</p>
     <p>The <a href="${SPOTIFY_PODCAST_URL}">CodersSecret Podcast on Spotify</a> turns the same production engineering topics into audio-first explainers for screen-free learning.</p>
     <p>The site focuses on systems that engineers actually operate: API gateways, workload identity, distributed systems, RAG infrastructure, analytics engineering, observability, platform security, and production debugging.</p>
     <p>Every guide aims to connect the concept, the implementation path, the failure mode, and the operational tradeoff so readers can use the material in real projects instead of only memorizing definitions.</p>
@@ -3385,7 +3385,7 @@ for (const page of legalPages) {
   created++;
 }
 
-// ── Generate 404.html — FULL Angular app with noindex ──
+// ── Generate 404.html - FULL Angular app with noindex ──
 // GitHub Pages serves this for any path without a pre-rendered index.html.
 // Angular Router then takes over and shows the correct page (SPA routing).
 // This prevents "Redirect error" from Google because the page actually renders.

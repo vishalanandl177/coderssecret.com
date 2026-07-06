@@ -68,7 +68,7 @@ GET    /api/posts?status=published&sort=-created_at&page=2&limit=20</code></pre>
 
       <h2>GraphQL: Ask for Exactly What You Need</h2>
 
-      <p>GraphQL lets clients specify exactly which fields they want in a single request. The server returns precisely that shape &mdash; nothing more, nothing less.</p>
+      <p>GraphQL lets clients specify exactly which fields they want in a single request. The server returns precisely that shape - nothing more, nothing less.</p>
 
       <h3>Schema Definition</h3>
 
@@ -364,13 +364,13 @@ package blog.v2;     # Breaking changes</code></pre>
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>REST is the right default</strong> for most web APIs &mdash; simple, cacheable, universally supported</li>
-        <li><strong>GraphQL shines when clients have varied data needs</strong> &mdash; mobile vs. desktop, different pages needing different fields</li>
-        <li><strong>gRPC is for service-to-service</strong> &mdash; when performance and type safety matter more than human readability</li>
+        <li><strong>REST is the right default</strong> for most web APIs - simple, cacheable, universally supported</li>
+        <li><strong>GraphQL shines when clients have varied data needs</strong> - mobile vs. desktop, different pages needing different fields</li>
+        <li><strong>gRPC is for service-to-service</strong> - when performance and type safety matter more than human readability</li>
         <li><strong>You can mix protocols:</strong> REST for public API, gRPC between microservices, GraphQL for your mobile app</li>
-        <li><strong>Do not pick based on hype</strong> &mdash; pick based on your actual constraints (client diversity, performance needs, team expertise)</li>
-        <li><strong>Good API design matters more than protocol choice</strong> &mdash; a well-designed REST API beats a poorly designed GraphQL API every time</li>
+        <li><strong>Do not pick based on hype</strong> - pick based on your actual constraints (client diversity, performance needs, team expertise)</li>
+        <li><strong>Good API design matters more than protocol choice</strong> - a well-designed REST API beats a poorly designed GraphQL API every time</li>
       </ul>
 
-      <p>The best API is the one your consumers can understand and use efficiently. For most teams building web applications, REST gets you 90% of the way. Add GraphQL or gRPC when you have a specific problem they solve better &mdash; not because they are trendy.</p>
+      <p>The best API is the one your consumers can understand and use efficiently. For most teams building web applications, REST gets you 90% of the way. Add GraphQL or gRPC when you have a specific problem they solve better - not because they are trendy.</p>
     `;

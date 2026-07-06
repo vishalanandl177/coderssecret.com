@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Most developers learn just enough Flexbox to center a div and just enough Grid to feel confused. Then they reach for a CSS framework. But Flexbox and Grid together handle every layout you will ever need &mdash; sidebars, card grids, holy grail layouts, responsive navigation &mdash; without a single framework dependency.</p>
+      <p>Most developers learn just enough Flexbox to center a div and just enough Grid to feel confused. Then they reach for a CSS framework. But Flexbox and Grid together handle every layout you will ever need - sidebars, card grids, holy grail layouts, responsive navigation - without a single framework dependency.</p>
 
       <h2>The One Rule: Grid for Layout, Flexbox for Alignment</h2>
 
@@ -298,15 +298,15 @@ export const CONTENT = `
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Grid for two dimensions, Flexbox for one</strong> &mdash; this rule alone solves 90% of layout decisions</li>
+        <li><strong>Grid for two dimensions, Flexbox for one</strong> - this rule alone solves 90% of layout decisions</li>
         <li><strong>Use grid-template-areas</strong> for readable, maintainable page layouts</li>
         <li><strong>repeat(auto-fit, minmax(300px, 1fr))</strong> creates responsive grids without media queries</li>
         <li><strong>Combine Grid and Flexbox:</strong> Grid for structure, Flexbox for alignment within cells</li>
-        <li><strong>flex: 1 on a child</strong> makes it grow to fill available space &mdash; perfect for push-to-bottom patterns</li>
-        <li><strong>gap works in both Grid and Flexbox</strong> &mdash; no more margin hacks</li>
-        <li><strong>Subgrid aligns nested content</strong> across sibling elements &mdash; use it for card lists</li>
-        <li><strong>You probably do not need a CSS framework</strong> &mdash; Grid + Flexbox + custom properties handle everything</li>
+        <li><strong>flex: 1 on a child</strong> makes it grow to fill available space - perfect for push-to-bottom patterns</li>
+        <li><strong>gap works in both Grid and Flexbox</strong> - no more margin hacks</li>
+        <li><strong>Subgrid aligns nested content</strong> across sibling elements - use it for card lists</li>
+        <li><strong>You probably do not need a CSS framework</strong> - Grid + Flexbox + custom properties handle everything</li>
       </ul>
 
-      <p>The secret to CSS layout is not memorizing properties &mdash; it is understanding the mental model. Grid thinks in tracks (rows and columns). Flexbox thinks in flow (main axis and cross axis). Once you internalize these two mental models, layout stops being a guessing game and becomes intentional design.</p>
+      <p>The secret to CSS layout is not memorizing properties - it is understanding the mental model. Grid thinks in tracks (rows and columns). Flexbox thinks in flow (main axis and cross axis). Once you internalize these two mental models, layout stops being a guessing game and becomes intentional design.</p>
     `;

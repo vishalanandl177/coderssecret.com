@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Every database query needs a connection. Opening a connection takes 50-100ms (TCP handshake, SSL negotiation, authentication). Without pooling, your app opens and closes a connection for every single request. At 100 concurrent users, that is 100 simultaneous connections &mdash; and PostgreSQL defaults to a maximum of 100. Connection number 101 gets rejected, your app crashes, and your users see a 500 error.</p>
+      <p>Every database query needs a connection. Opening a connection takes 50-100ms (TCP handshake, SSL negotiation, authentication). Without pooling, your app opens and closes a connection for every single request. At 100 concurrent users, that is 100 simultaneous connections - and PostgreSQL defaults to a maximum of 100. Connection number 101 gets rejected, your app crashes, and your users see a 500 error.</p>
 
       <h2>How Connection Pooling Works</h2>
 
@@ -204,19 +204,19 @@ SELECT state, count(*) FROM pg_stat_activity GROUP BY state;</code></pre>
         <li><strong>Setting pool_size too high:</strong> 100 connections is almost never better than 20. More connections means more CPU context switching and lock contention inside PostgreSQL.</li>
         <li><strong>Forgetting Celery workers:</strong> Each Celery worker opens its own database connections. 20 Celery workers with pool_size=10 = 200 connections.</li>
         <li><strong>Not using pool_pre_ping:</strong> After a network blip or database restart, pooled connections go stale. The next query fails with &ldquo;connection reset.&rdquo;</li>
-        <li><strong>Using session mode with web apps:</strong> Session mode holds connections for the entire client session. Web requests are short &mdash; use transaction mode.</li>
+        <li><strong>Using session mode with web apps:</strong> Session mode holds connections for the entire client session. Web requests are short - use transaction mode.</li>
         <li><strong>Leaking connections:</strong> Opening connections in a try block without ensuring they are returned in a finally block. Always use context managers.</li>
       </ul>
 
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Connection pooling is not optional in production</strong> &mdash; without it, your app crashes at modest concurrency</li>
+        <li><strong>Connection pooling is not optional in production</strong> - without it, your app crashes at modest concurrency</li>
         <li><strong>Optimal pool size is small:</strong> (CPU cores * 2) + 1, not hundreds</li>
-        <li><strong>Use PgBouncer in transaction mode</strong> for web applications &mdash; it is the production standard</li>
+        <li><strong>Use PgBouncer in transaction mode</strong> for web applications - it is the production standard</li>
         <li><strong>Django CONN_MAX_AGE=600</strong> gives you basic pooling with zero infrastructure changes</li>
         <li><strong>Always enable health checks</strong> (pool_pre_ping / CONN_HEALTH_CHECKS) to catch stale connections</li>
-        <li><strong>Monitor cl_waiting in PgBouncer</strong> &mdash; if clients are waiting, increase pool size or optimize query duration</li>
+        <li><strong>Monitor cl_waiting in PgBouncer</strong> - if clients are waiting, increase pool size or optimize query duration</li>
         <li><strong>Count ALL connection sources:</strong> app servers + Celery + cron jobs + admin tools + monitoring</li>
       </ul>
 

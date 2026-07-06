@@ -5,7 +5,7 @@ export const CONTENT = `
 
       <h2>Why HTTP Request-Response Falls Short</h2>
 
-      <p>Standard HTTP is a pull model &mdash; the client asks, the server responds. For real-time features, this means the client must keep asking &ldquo;anything new?&rdquo; repeatedly.</p>
+      <p>Standard HTTP is a pull model - the client asks, the server responds. For real-time features, this means the client must keep asking &ldquo;anything new?&rdquo; repeatedly.</p>
 
       <pre><code>// Naive polling: wasteful and laggy
 setInterval(async () => {
@@ -139,16 +139,16 @@ export class NotificationService {
       <h3>SSE Advantages</h3>
       <ul>
         <li><strong>Automatic reconnection</strong> with configurable retry interval (built into EventSource)</li>
-        <li><strong>Event ID tracking</strong> &mdash; resume from where you left off via <code>Last-Event-ID</code> header</li>
-        <li><strong>Works over HTTP/2</strong> &mdash; multiplexed connections, no head-of-line blocking</li>
-        <li><strong>Firewall and proxy friendly</strong> &mdash; standard HTTP, no upgrade needed</li>
-        <li><strong>Native browser API</strong> &mdash; no library required</li>
+        <li><strong>Event ID tracking</strong> - resume from where you left off via <code>Last-Event-ID</code> header</li>
+        <li><strong>Works over HTTP/2</strong> - multiplexed connections, no head-of-line blocking</li>
+        <li><strong>Firewall and proxy friendly</strong> - standard HTTP, no upgrade needed</li>
+        <li><strong>Native browser API</strong> - no library required</li>
       </ul>
 
       <h3>SSE Limitations</h3>
       <ul>
-        <li>Unidirectional &mdash; server to client only (client uses regular HTTP for sending)</li>
-        <li>Text only &mdash; no binary data (must base64 encode)</li>
+        <li>Unidirectional - server to client only (client uses regular HTTP for sending)</li>
+        <li>Text only - no binary data (must base64 encode)</li>
         <li>Maximum 6 connections per domain in HTTP/1.1 (solved by HTTP/2)</li>
       </ul>
 
@@ -359,12 +359,12 @@ redisSub.on('message', (channel, data) => {
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>SSE is the right default</strong> for most real-time features &mdash; notifications, feeds, dashboards</li>
-        <li><strong>WebSocket is for bidirectional needs</strong> &mdash; chat, gaming, collaboration</li>
-        <li><strong>Long Polling still has its place</strong> &mdash; maximum compatibility, simple infrastructure</li>
+        <li><strong>SSE is the right default</strong> for most real-time features - notifications, feeds, dashboards</li>
+        <li><strong>WebSocket is for bidirectional needs</strong> - chat, gaming, collaboration</li>
+        <li><strong>Long Polling still has its place</strong> - maximum compatibility, simple infrastructure</li>
         <li><strong>Always implement heartbeats and reconnection</strong> regardless of which approach you choose</li>
         <li><strong>Use Redis Pub/Sub for horizontal scaling</strong> to distribute events across server instances</li>
-        <li><strong>Start with SSE, upgrade to WebSocket only when you hit its limitations</strong> &mdash; premature WebSocket is a common source of unnecessary complexity</li>
+        <li><strong>Start with SSE, upgrade to WebSocket only when you hit its limitations</strong> - premature WebSocket is a common source of unnecessary complexity</li>
       </ul>
 
       <p>The best real-time architecture is the simplest one that meets your requirements. Do not let the appeal of WebSocket trick you into over-engineering a notification bell.</p>

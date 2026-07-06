@@ -30,7 +30,7 @@ export const CONTENT = `
         </div>
       </div>
 
-      <p>This guide focuses on <strong>lossless compression</strong> — the type used in web servers, databases, log files, and data pipelines.</p>
+      <p>This guide focuses on <strong>lossless compression</strong> - the type used in web servers, databases, log files, and data pipelines.</p>
 
       <h2>The Core Techniques</h2>
       <p>Almost every compression algorithm uses a combination of these three techniques:</p>
@@ -85,17 +85,17 @@ assert original == data
 # gzip -9 file.txt       # Maximum compression
 # gzip -1 file.txt       # Fastest compression</code></pre>
 
-      <h2>Zstandard (zstd) — The Modern Champion</h2>
-      <p><strong>Born:</strong> 2016 (Facebook). <strong>Algorithm:</strong> LZ77 variant + Finite State Entropy + Huffman. <strong>Faster than gzip at every compression level while achieving better ratios.</strong> It's replacing gzip across the industry — used by Linux kernel, Facebook, Cloudflare, and many databases.</p>
+      <h2>Zstandard (zstd) - The Modern Champion</h2>
+      <p><strong>Born:</strong> 2016 (Facebook). <strong>Algorithm:</strong> LZ77 variant + Finite State Entropy + Huffman. <strong>Faster than gzip at every compression level while achieving better ratios.</strong> It's replacing gzip across the industry - used by Linux kernel, Facebook, Cloudflare, and many databases.</p>
       <pre><code># pip install zstandard
 import zstandard as zstd
 
-# Compress (default level 3 — balanced speed/ratio)
+# Compress (default level 3 - balanced speed/ratio)
 compressor = zstd.ZstdCompressor(level=3)
 compressed = compressor.compress(data)
 print(f"zstd (lvl 3): {len(compressed):,} bytes, {len(data)/len(compressed):.1f}x")
 
-# Compress (maximum — level 22)
+# Compress (maximum - level 22)
 compressor = zstd.ZstdCompressor(level=22)
 compressed_max = compressor.compress(data)
 print(f"zstd (lvl 22): {len(compressed_max):,} bytes, {len(data)/len(compressed_max):.1f}x")
@@ -104,7 +104,7 @@ print(f"zstd (lvl 22): {len(compressed_max):,} bytes, {len(data)/len(compressed_
 decompressor = zstd.ZstdDecompressor()
 original = decompressor.decompress(compressed)
 
-# Dictionary compression — for small, similar data (like JSON APIs)
+# Dictionary compression - for small, similar data (like JSON APIs)
 # Train a dictionary on sample data, then compress new data using it
 # Achieves 2-5x better ratio on small payloads (< 4KB)
 samples = [b'{"user_id":1,"name":"Alice"}', b'{"user_id":2,"name":"Bob"}']
@@ -118,8 +118,8 @@ compressor = zstd.ZstdCompressor(dict_data=dict_data)
 # zstd -T0 file.txt       # Use all CPU cores (parallel!)
 # zstd --train *.json -o dict  # Train dictionary</code></pre>
 
-      <h2>Brotli — The Web Optimization King</h2>
-      <p><strong>Born:</strong> 2015 (Google). <strong>Algorithm:</strong> LZ77 + Huffman + 2nd-order context modeling + static dictionary of common web strings. <strong>Designed specifically for web content.</strong> Built-in dictionary includes common HTML, CSS, JS, and JSON patterns — compresses web assets 15-25% better than gzip.</p>
+      <h2>Brotli - The Web Optimization King</h2>
+      <p><strong>Born:</strong> 2015 (Google). <strong>Algorithm:</strong> LZ77 + Huffman + 2nd-order context modeling + static dictionary of common web strings. <strong>Designed specifically for web content.</strong> Built-in dictionary includes common HTML, CSS, JS, and JSON patterns - compresses web assets 15-25% better than gzip.</p>
       <pre><code># pip install brotli
 import brotli
 
@@ -140,8 +140,8 @@ print(f"Brotli (q1):  {len(compressed_fast):,} bytes")
 # Request:  Accept-Encoding: gzip, deflate, br
 # Response: Content-Encoding: br</code></pre>
 
-      <h2>LZ4 — The Speed Demon</h2>
-      <p><strong>Born:</strong> 2011. <strong>Algorithm:</strong> LZ77 variant optimized for speed. <strong>The fastest compression algorithm available.</strong> Compresses at 500+ MB/s and decompresses at 3+ GB/s. Used when speed matters more than ratio — real-time logging, in-memory caches, network protocols.</p>
+      <h2>LZ4 - The Speed Demon</h2>
+      <p><strong>Born:</strong> 2011. <strong>Algorithm:</strong> LZ77 variant optimized for speed. <strong>The fastest compression algorithm available.</strong> Compresses at 500+ MB/s and decompresses at 3+ GB/s. Used when speed matters more than ratio - real-time logging, in-memory caches, network protocols.</p>
       <pre><code># pip install lz4
 import lz4.frame
 
@@ -152,7 +152,7 @@ print(f"LZ4: {len(compressed):,} bytes, {len(data)/len(compressed):.1f}x")
 # Decompress (even faster!)
 original = lz4.frame.decompress(compressed)
 
-# LZ4 HC (High Compression) — slower but better ratio
+# LZ4 HC (High Compression) - slower but better ratio
 compressed_hc = lz4.frame.compress(data, compression_level=lz4.frame.COMPRESSIONLEVEL_MAX)
 print(f"LZ4 HC: {len(compressed_hc):,} bytes")
 
@@ -161,8 +161,8 @@ print(f"LZ4 HC: {len(compressed_hc):,} bytes")
 # lz4 -d file.txt.lz4     # Decompress
 # lz4 -9 file.txt         # High compression mode</code></pre>
 
-      <h2>Snappy — Google's Fast Compressor</h2>
-      <p><strong>Born:</strong> 2011 (Google). Similar goals to LZ4 — extremely fast compression/decompression. Used internally by Google, and in many databases (Cassandra, MongoDB, Kafka, Parquet files).</p>
+      <h2>Snappy - Google's Fast Compressor</h2>
+      <p><strong>Born:</strong> 2011 (Google). Similar goals to LZ4 - extremely fast compression/decompression. Used internally by Google, and in many databases (Cassandra, MongoDB, Kafka, Parquet files).</p>
       <pre><code># pip install python-snappy
 import snappy
 
@@ -170,7 +170,7 @@ compressed = snappy.compress(data)
 print(f"Snappy: {len(compressed):,} bytes, {len(data)/len(compressed):.1f}x")
 original = snappy.decompress(compressed)</code></pre>
 
-      <h2>bzip2 — Maximum Compression (Legacy)</h2>
+      <h2>bzip2 - Maximum Compression (Legacy)</h2>
       <p><strong>Born:</strong> 1996. <strong>Algorithm:</strong> Burrows-Wheeler Transform + Huffman. Better compression than gzip but <strong>much slower</strong>. Mostly replaced by zstd and xz.</p>
       <pre><code>import bz2
 
@@ -179,7 +179,7 @@ print(f"bzip2: {len(compressed):,} bytes, {len(data)/len(compressed):.1f}x")
 
 # Command line: bzip2 file.txt / bunzip2 file.txt.bz2</code></pre>
 
-      <h2>xz / LZMA — Maximum Compression</h2>
+      <h2>xz / LZMA - Maximum Compression</h2>
       <p><strong>Born:</strong> 2001 (LZMA), 2009 (xz). <strong>The highest compression ratio of any general-purpose algorithm.</strong> Used for software distribution (.tar.xz), where small download size matters more than compression speed.</p>
       <pre><code>import lzma
 
@@ -302,7 +302,7 @@ brotli_types text/html text/css application/javascript application/json
 
       <h2>Database &amp; Storage Compression</h2>
       <pre><code># PostgreSQL: enable compression on TOAST (large values)
-# Automatic — values > 2KB are compressed with pglz (LZ-family)
+# Automatic - values > 2KB are compressed with pglz (LZ-family)
 
 # PostgreSQL 16+: zstd compression for WAL and backups
 pg_basebackup --compress=zstd:3 -D /backups/latest
@@ -368,8 +368,8 @@ pq.write_table(table, "data.parquet", compression="zstd")
         <li><strong>Web assets:</strong> Use <strong>Brotli</strong> for static files (pre-compressed at build time) and <strong>gzip</strong> as a fallback for old browsers.</li>
         <li><strong>Need maximum speed:</strong> Use <strong>lz4</strong>. Nothing else comes close for latency-sensitive workloads.</li>
         <li><strong>Need smallest file:</strong> Use <strong>xz</strong> or <strong>zstd -19</strong>. Compression is slow but the result is tiny.</li>
-        <li><strong>Stop using bzip2.</strong> zstd is better in every dimension — faster compression, faster decompression, and comparable ratio.</li>
+        <li><strong>Stop using bzip2.</strong> zstd is better in every dimension - faster compression, faster decompression, and comparable ratio.</li>
       </ul>
 
-      <p>Compression is one of the highest-leverage optimizations in software engineering. Choosing the right algorithm for your workload can cut storage costs by 70%, reduce network transfer times by 80%, and speed up data pipelines by 10x. The benchmarks above give you the data — now pick the right tool for your specific use case.</p>
+      <p>Compression is one of the highest-leverage optimizations in software engineering. Choosing the right algorithm for your workload can cut storage costs by 70%, reduce network transfer times by 80%, and speed up data pipelines by 10x. The benchmarks above give you the data - now pick the right tool for your specific use case.</p>
     `;

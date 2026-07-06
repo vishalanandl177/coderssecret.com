@@ -355,7 +355,7 @@ type HeroTrack = {
             Learn <span class="bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 bg-clip-text text-transparent">Cloud Native Security</span> Through Practical Engineering
           </h2>
           <p class="text-base md:text-lg text-muted-foreground leading-relaxed">
-            Understand production security systems through <strong class="text-foreground">hands-on labs</strong>, annotated <strong class="text-foreground">architecture diagrams</strong>, real infrastructure examples, and step-by-step deployments &mdash; not abstract theory or marketing copy. Every concept you learn here is built, broken, and rebuilt against the same systems used by teams running Kubernetes in production today.
+            Understand production security systems through <strong class="text-foreground">hands-on labs</strong>, annotated <strong class="text-foreground">architecture diagrams</strong>, real infrastructure examples, and step-by-step deployments - not abstract theory or marketing copy. Every concept you learn here is built, broken, and rebuilt against the same systems used by teams running Kubernetes in production today.
           </p>
         </div>
 
@@ -366,7 +366,7 @@ type HeroTrack = {
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500" aria-hidden="true"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>
             </div>
             <h3 class="md3-info-title text-xl font-bold mb-2 tracking-tight">Hands-On Kubernetes Security Labs</h3>
-            <p class="md3-info-copy text-sm text-muted-foreground leading-relaxed">Spin up real clusters, deploy SPIRE agents, federate trust domains, write Rego policies, and break workload identity yourself. Every lab ships with manifests, troubleshooting steps, and verified outputs &mdash; so you can reproduce production behavior on a laptop.</p>
+            <p class="md3-info-copy text-sm text-muted-foreground leading-relaxed">Spin up real clusters, deploy SPIRE agents, federate trust domains, write Rego policies, and break workload identity yourself. Every lab ships with manifests, troubleshooting steps, and verified outputs - so you can reproduce production behavior on a laptop.</p>
             <a routerLink="/courses/mastering-spiffe-spire" class="md3-info-action mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-500 hover:text-blue-400 transition-colors">
               Try the SPIFFE/SPIRE labs
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
@@ -582,7 +582,7 @@ type HeroTrack = {
             Cloud Native Security Topics You&apos;ll Learn
           </h2>
           <p class="text-base md:text-lg text-muted-foreground leading-relaxed">
-            A curated map of the security disciplines that define modern infrastructure engineering &mdash; covered in depth across courses, articles, diagrams, and labs. Each topic is taught from first principles, then connected to the production systems and CNCF projects that implement it.
+            A curated map of the security disciplines that define modern infrastructure engineering - covered in depth across courses, articles, diagrams, and labs. Each topic is taught from first principles, then connected to the production systems and CNCF projects that implement it.
           </p>
         </div>
 
@@ -593,7 +593,7 @@ type HeroTrack = {
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-500" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </div>
             <h3 class="md3-topic-title text-lg font-bold mb-2 tracking-tight">Kubernetes Security &amp; Runtime Protection</h3>
-            <p class="md3-topic-copy text-sm text-muted-foreground leading-relaxed mb-4">Lock down PodSecurity standards, enforce least-privilege RBAC, isolate workloads with network policies, and detect compromise in real time using Falco and eBPF. Understand the attack surface of the API server, kubelet, and etcd &mdash; then close it.</p>
+            <p class="md3-topic-copy text-sm text-muted-foreground leading-relaxed mb-4">Lock down PodSecurity standards, enforce least-privilege RBAC, isolate workloads with network policies, and detect compromise in real time using Falco and eBPF. Understand the attack surface of the API server, kubelet, and etcd - then close it.</p>
             <a routerLink="/courses/kubernetes-runtime-security" class="md3-topic-action inline-flex items-center gap-1.5 text-sm font-semibold text-orange-500 hover:text-orange-400 transition-colors">
               Explore runtime security
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
@@ -676,7 +676,7 @@ type HeroTrack = {
             Beginner-Friendly Learning Paths for Modern Infrastructure Security
           </h2>
           <p class="text-base md:text-lg text-muted-foreground leading-relaxed">
-            Start with first principles, progress to production. Whether you&apos;re new to Kubernetes or refining your cloud-native security expertise, every learning path on CodersSecret is structured around <strong class="text-foreground">visual explanations, annotated diagrams, and reproducible labs</strong> &mdash; so each concept lands before the next one builds on it.
+            Start with first principles, progress to production. Whether you&apos;re new to Kubernetes or refining your cloud-native security expertise, every learning path on CodersSecret is structured around <strong class="text-foreground">visual explanations, annotated diagrams, and reproducible labs</strong> - so each concept lands before the next one builds on it.
           </p>
         </div>
 
@@ -687,21 +687,21 @@ type HeroTrack = {
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-violet-500" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
             </div>
             <h3 class="md3-info-title text-lg font-bold mb-2 tracking-tight">Step-by-Step Visual Explanations</h3>
-            <p class="md3-info-copy text-sm text-muted-foreground leading-relaxed">Every complex concept &mdash; from SVID rotation to admission webhooks &mdash; is broken into ordered, visual steps. No assumed prerequisites. No paragraphs of dense theory before you see a single diagram.</p>
+            <p class="md3-info-copy text-sm text-muted-foreground leading-relaxed">Every complex concept - from SVID rotation to admission webhooks - is broken into ordered, visual steps. No assumed prerequisites. No paragraphs of dense theory before you see a single diagram.</p>
           </article>
           <article class="md3-info-card md3-info-card-secondary rounded-2xl border border-border/60 bg-card p-6 hover:border-blue-500/40 hover:-translate-y-1 transition-all">
             <div class="md3-info-icon inline-flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             </div>
             <h3 class="md3-info-title text-lg font-bold mb-2 tracking-tight">Architecture Diagrams &amp; Security Flows</h3>
-            <p class="md3-info-copy text-sm text-muted-foreground leading-relaxed">SVG architecture diagrams showing exactly how the kube-apiserver authenticates a workload, how SPIRE issues an SVID, how an mTLS handshake completes &mdash; rendered fast, scaled crisply, designed for engineers who think in components.</p>
+            <p class="md3-info-copy text-sm text-muted-foreground leading-relaxed">SVG architecture diagrams showing exactly how the kube-apiserver authenticates a workload, how SPIRE issues an SVID, how an mTLS handshake completes - rendered fast, scaled crisply, designed for engineers who think in components.</p>
           </article>
           <article class="md3-info-card md3-info-card-tertiary rounded-2xl border border-border/60 bg-card p-6 hover:border-cyan-500/40 hover:-translate-y-1 transition-all">
             <div class="md3-info-icon inline-flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500/20 to-teal-500/20 mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-500" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             </div>
             <h3 class="md3-info-title text-lg font-bold mb-2 tracking-tight">Hands-On Labs &amp; Real Deployment Examples</h3>
-            <p class="md3-info-copy text-sm text-muted-foreground leading-relaxed">Reproducible labs with full YAML, kubectl commands, expected outputs, and rollback steps. You won&apos;t just watch concepts &mdash; you&apos;ll deploy them, break them, and rebuild them on a real cluster.</p>
+            <p class="md3-info-copy text-sm text-muted-foreground leading-relaxed">Reproducible labs with full YAML, kubectl commands, expected outputs, and rollback steps. You won&apos;t just watch concepts - you&apos;ll deploy them, break them, and rebuild them on a real cluster.</p>
           </article>
         </div>
 
@@ -764,7 +764,7 @@ type HeroTrack = {
       </div>
     </section>
 
-    <!-- Most Popular — Ranked by traffic -->
+    <!-- Most Popular - Ranked by traffic -->
     @if (popularPosts().length > 0) {
       <section class="md3-home-posts-section md3-home-popular-section py-16 animate-in fade-in duration-700">
         <div class="container max-w-7xl mx-auto px-6">
@@ -829,7 +829,7 @@ type HeroTrack = {
       </section>
     }
 
-    <!-- Latest Posts — Modern card grid -->
+    <!-- Latest Posts - Modern card grid -->
     <section class="md3-home-posts-section md3-home-latest-section py-16 animate-in fade-in duration-700">
       <div class="container max-w-7xl mx-auto px-6">
         <div class="flex items-end justify-between mb-10">
@@ -948,7 +948,7 @@ type HeroTrack = {
             Designed for <span class="bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">Backend Engineers</span>, <span class="bg-gradient-to-r from-cyan-500 to-teal-500 bg-clip-text text-transparent">Platform Engineers</span> &amp; <span class="bg-gradient-to-r from-teal-500 to-green-500 bg-clip-text text-transparent">DevOps Teams</span>
           </h2>
           <p class="text-base md:text-lg text-muted-foreground leading-relaxed">
-            CodersSecret is built for the engineers who own production: the people writing the services, running the clusters, and on the pager when something breaks. Every course, lab, and architecture diagram is designed to be immediately useful in real systems &mdash; not just academic.
+            CodersSecret is built for the engineers who own production: the people writing the services, running the clusters, and on the pager when something breaks. Every course, lab, and architecture diagram is designed to be immediately useful in real systems - not just academic.
           </p>
         </div>
 
@@ -956,7 +956,7 @@ type HeroTrack = {
         <div class="md3-info-grid grid md:grid-cols-3 gap-5 mb-10">
           <div class="md3-info-card md3-info-card-secondary rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-6 hover:border-blue-500/40 transition-all">
             <h3 class="text-lg font-bold mb-2 tracking-tight">Production Security for Modern Applications</h3>
-            <p class="text-sm text-muted-foreground leading-relaxed">From REST APIs and gRPC services to event-driven systems and ML pipelines &mdash; ship them with workload identity, mTLS, and policy enforcement baked in from day one.</p>
+            <p class="text-sm text-muted-foreground leading-relaxed">From REST APIs and gRPC services to event-driven systems and ML pipelines - ship them with workload identity, mTLS, and policy enforcement baked in from day one.</p>
           </div>
           <div class="md3-info-card md3-info-card-primary rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-6 hover:border-cyan-500/40 transition-all">
             <h3 class="text-lg font-bold mb-2 tracking-tight">Secure Service-to-Service Communication</h3>
@@ -964,7 +964,7 @@ type HeroTrack = {
           </div>
           <div class="md3-info-card md3-info-card-tertiary rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-6 hover:border-teal-500/40 transition-all">
             <h3 class="text-lg font-bold mb-2 tracking-tight">Identity-First Cloud Native Systems</h3>
-            <p class="text-sm text-muted-foreground leading-relaxed">Treat identity as the foundational primitive &mdash; ahead of network, ahead of permissions &mdash; so every authorization decision has a verifiable subject behind it.</p>
+            <p class="text-sm text-muted-foreground leading-relaxed">Treat identity as the foundational primitive - ahead of network, ahead of permissions - so every authorization decision has a verifiable subject behind it.</p>
           </div>
         </div>
 
@@ -1028,21 +1028,21 @@ type HeroTrack = {
           <article class="md3-why-card">
             <h3 class="text-xl md:text-2xl font-bold tracking-tight mb-3">Traditional Security No Longer Works</h3>
             <p class="text-base text-muted-foreground leading-relaxed">
-              The classic security model was built around a perimeter: a corporate network, a DMZ, a handful of servers, and a firewall in front of all of it. Cloud native infrastructure has dissolved that perimeter. Workloads spin up and down in seconds, run across clouds and clusters, talk to each other over the public internet, and frequently belong to ephemeral identities that didn&apos;t exist five minutes ago. <strong class="text-foreground">Network location is no longer a meaningful security signal</strong> &mdash; and any system still relying on &quot;trust the IP range&quot; is structurally broken in this environment.
+              The classic security model was built around a perimeter: a corporate network, a DMZ, a handful of servers, and a firewall in front of all of it. Cloud native infrastructure has dissolved that perimeter. Workloads spin up and down in seconds, run across clouds and clusters, talk to each other over the public internet, and frequently belong to ephemeral identities that didn&apos;t exist five minutes ago. <strong class="text-foreground">Network location is no longer a meaningful security signal</strong> - and any system still relying on &quot;trust the IP range&quot; is structurally broken in this environment.
             </p>
           </article>
 
           <article class="md3-why-card">
             <h3 class="text-xl md:text-2xl font-bold tracking-tight mb-3">The Rise of Workload Identity &amp; Zero Trust</h3>
             <p class="text-base text-muted-foreground leading-relaxed">
-              The replacement for network-based trust is <a routerLink="/glossary/workload-identity" class="text-primary underline underline-offset-4 decoration-primary/40 hover:decoration-primary">workload identity</a>: every service, container, and function gets a cryptographically verifiable identity, refreshed continuously, attested by the underlying platform. Combined with <a routerLink="/glossary/zero-trust" class="text-primary underline underline-offset-4 decoration-primary/40 hover:decoration-primary">Zero Trust</a> principles &mdash; never trust, always verify, assume breach &mdash; this lets us build distributed systems where every authorization decision is based on who the workload <em>is</em>, not where it sits on the network. CNCF projects like <a routerLink="/glossary/spiffe" class="text-primary underline underline-offset-4 decoration-primary/40 hover:decoration-primary">SPIFFE</a> and <a routerLink="/glossary/spire" class="text-primary underline underline-offset-4 decoration-primary/40 hover:decoration-primary">SPIRE</a> make this practical and portable across clouds.
+              The replacement for network-based trust is <a routerLink="/glossary/workload-identity" class="text-primary underline underline-offset-4 decoration-primary/40 hover:decoration-primary">workload identity</a>: every service, container, and function gets a cryptographically verifiable identity, refreshed continuously, attested by the underlying platform. Combined with <a routerLink="/glossary/zero-trust" class="text-primary underline underline-offset-4 decoration-primary/40 hover:decoration-primary">Zero Trust</a> principles - never trust, always verify, assume breach - this lets us build distributed systems where every authorization decision is based on who the workload <em>is</em>, not where it sits on the network. CNCF projects like <a routerLink="/glossary/spiffe" class="text-primary underline underline-offset-4 decoration-primary/40 hover:decoration-primary">SPIFFE</a> and <a routerLink="/glossary/spire" class="text-primary underline underline-offset-4 decoration-primary/40 hover:decoration-primary">SPIRE</a> make this practical and portable across clouds.
             </p>
           </article>
 
           <article class="md3-why-card">
             <h3 class="text-xl md:text-2xl font-bold tracking-tight mb-3">Securing Kubernetes &amp; Distributed Systems at Scale</h3>
             <p class="text-base text-muted-foreground leading-relaxed">
-              Kubernetes is now the substrate that runs most modern infrastructure, which means its attack surface &mdash; the API server, kubelet, etcd, container runtime, networking, supply chain &mdash; is the attack surface of the modern software industry. Securing it requires fluency in admission control, RBAC, runtime detection, mTLS, signed artifacts, and policy-as-code. CodersSecret exists to teach those disciplines together, with the same depth that production engineering teams need to actually deploy them &mdash; not as isolated tools, but as a coherent <strong class="text-foreground">cloud native security architecture</strong>.
+              Kubernetes is now the substrate that runs most modern infrastructure, which means its attack surface - the API server, kubelet, etcd, container runtime, networking, supply chain - is the attack surface of the modern software industry. Securing it requires fluency in admission control, RBAC, runtime detection, mTLS, signed artifacts, and policy-as-code. CodersSecret exists to teach those disciplines together, with the same depth that production engineering teams need to actually deploy them - not as isolated tools, but as a coherent <strong class="text-foreground">cloud native security architecture</strong>.
             </p>
           </article>
         </div>
@@ -1108,7 +1108,7 @@ type HeroTrack = {
                 </div>
                 <h2 id="home-author-heading" class="md3-home-author-heading text-2xl font-extrabold tracking-tight transition-colors duration-300 group-hover:text-primary">Vishal Anand</h2>
                 <p class="mt-2 text-muted-foreground leading-relaxed max-w-2xl">
-                  Senior Product Engineer and Tech Lead with hands-on experience building production systems at scale. Writing about backend architecture, DevOps, security, Kubernetes, and the Python ecosystem &mdash; the kind of practical knowledge you only get from years on the job.
+                  Senior Product Engineer and Tech Lead with hands-on experience building production systems at scale. Writing about backend architecture, DevOps, security, Kubernetes, and the Python ecosystem - the kind of practical knowledge you only get from years on the job.
                 </p>
                 <div class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
                   Learn more about CodersSecret
@@ -1283,7 +1283,7 @@ type HeroTrack = {
               Support the Knowledge Base
             </h2>
             <p class="text-base md:text-lg text-muted-foreground leading-relaxed mb-2">
-              CodersSecret is <strong class="text-foreground">100% free and ad-free</strong> &mdash; no paywalls, no signup walls, no tracking beyond anonymous analytics.
+              CodersSecret is <strong class="text-foreground">100% free and ad-free</strong> - no paywalls, no signup walls, no tracking beyond anonymous analytics.
             </p>
             <p class="text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
               If these courses, labs, and engineering guides help you ship better systems, a small contribution keeps the platform running and supports deeper production-focused content.
@@ -1401,7 +1401,7 @@ export class HomeComponent implements OnInit {
   private categoryCountsMap = signal<Record<string, number>>({});
 
   async ngOnInit() {
-    // Only load blog metadata (48KB) — NOT the course model (418KB)
+    // Only load blog metadata (48KB) - NOT the course model (418KB)
     const { BLOG_POSTS, CATEGORIES } = await import('../../models/blog-post.model');
 
     this.popularPosts.set(
@@ -1447,23 +1447,23 @@ export class HomeComponent implements OnInit {
   faqs = [
     {
       q: 'What is cloud native security?',
-      a: 'Cloud native security is the discipline of securing applications and infrastructure that are designed to run in dynamic, containerized, distributed environments &mdash; primarily on Kubernetes and across multiple clouds. It replaces perimeter-based controls with identity-based controls, defense-in-depth across the whole stack (image &rarr; container &rarr; pod &rarr; cluster &rarr; mesh), and policy that travels with the workload. Core building blocks include <a href="/glossary/workload-identity" class="text-primary underline">workload identity</a>, <a href="/glossary/mtls" class="text-primary underline">mTLS</a>, <a href="/glossary/opa" class="text-primary underline">OPA policy enforcement</a>, supply-chain signing, and runtime detection. Learn it end-to-end in the <a href="/courses/cloud-native-security-engineering" class="text-primary underline">Cloud Native Security Engineering course</a>.',
+      a: 'Cloud native security is the discipline of securing applications and infrastructure that are designed to run in dynamic, containerized, distributed environments - primarily on Kubernetes and across multiple clouds. It replaces perimeter-based controls with identity-based controls, defense-in-depth across the whole stack (image &rarr; container &rarr; pod &rarr; cluster &rarr; mesh), and policy that travels with the workload. Core building blocks include <a href="/glossary/workload-identity" class="text-primary underline">workload identity</a>, <a href="/glossary/mtls" class="text-primary underline">mTLS</a>, <a href="/glossary/opa" class="text-primary underline">OPA policy enforcement</a>, supply-chain signing, and runtime detection. Learn it end-to-end in the <a href="/courses/cloud-native-security-engineering" class="text-primary underline">Cloud Native Security Engineering course</a>.',
     },
     {
       q: 'What is workload identity?',
-      a: 'Workload identity is a cryptographically verifiable identifier that names a piece of software &mdash; a container, a Pod, a Lambda, a VM &mdash; instead of a human or an IP address. Instead of long-lived API keys or shared secrets, the workload presents a short-lived, attested credential (such as a SPIFFE SVID) that other services can verify. This eliminates secret-sprawl, makes auto-rotation trivial, and is the foundation of Zero Trust service-to-service authentication. See the <a href="/glossary/workload-identity" class="text-primary underline">workload identity glossary entry</a> for a deeper definition.',
+      a: 'Workload identity is a cryptographically verifiable identifier that names a piece of software - a container, a Pod, a Lambda, a VM - instead of a human or an IP address. Instead of long-lived API keys or shared secrets, the workload presents a short-lived, attested credential (such as a SPIFFE SVID) that other services can verify. This eliminates secret-sprawl, makes auto-rotation trivial, and is the foundation of Zero Trust service-to-service authentication. See the <a href="/glossary/workload-identity" class="text-primary underline">workload identity glossary entry</a> for a deeper definition.',
     },
     {
       q: 'What is SPIFFE and SPIRE?',
-      a: 'SPIFFE (Secure Production Identity Framework For Everyone) is a CNCF specification that defines a universal format for workload identity &mdash; the SPIFFE ID and the SVID (SPIFFE Verifiable Identity Document, in either X.509 or JWT form). SPIRE is the reference implementation: a SPIRE Server issues SVIDs after a SPIRE Agent attests the workload using node and workload selectors. Together they let services prove who they are across clusters and clouds without relying on shared secrets. The <a href="/courses/mastering-spiffe-spire" class="text-primary underline">Mastering SPIFFE &amp; SPIRE</a> course walks through deploying both on Kubernetes from scratch.',
+      a: 'SPIFFE (Secure Production Identity Framework For Everyone) is a CNCF specification that defines a universal format for workload identity - the SPIFFE ID and the SVID (SPIFFE Verifiable Identity Document, in either X.509 or JWT form). SPIRE is the reference implementation: a SPIRE Server issues SVIDs after a SPIRE Agent attests the workload using node and workload selectors. Together they let services prove who they are across clusters and clouds without relying on shared secrets. The <a href="/courses/mastering-spiffe-spire" class="text-primary underline">Mastering SPIFFE &amp; SPIRE</a> course walks through deploying both on Kubernetes from scratch.',
     },
     {
       q: 'Why is Kubernetes security important?',
-      a: 'Kubernetes is the substrate that runs most modern infrastructure, which makes its attack surface &mdash; the API server, kubelet, etcd, container runtime, network plugins, and the supply chain feeding all of them &mdash; the attack surface of the modern software industry. A misconfigured RBAC binding, an unsigned container image, or a privileged sidecar can all turn into full cluster compromise. Securing Kubernetes requires fluency in admission control, PodSecurity standards, network policies, runtime detection (Falco / eBPF), and policy-as-code (OPA). The <a href="/courses/kubernetes-runtime-security" class="text-primary underline">Kubernetes Runtime Security</a> guide covers the full picture.',
+      a: 'Kubernetes is the substrate that runs most modern infrastructure, which makes its attack surface - the API server, kubelet, etcd, container runtime, network plugins, and the supply chain feeding all of them - the attack surface of the modern software industry. A misconfigured RBAC binding, an unsigned container image, or a privileged sidecar can all turn into full cluster compromise. Securing Kubernetes requires fluency in admission control, PodSecurity standards, network policies, runtime detection (Falco / eBPF), and policy-as-code (OPA). The <a href="/courses/kubernetes-runtime-security" class="text-primary underline">Kubernetes Runtime Security</a> guide covers the full picture.',
     },
     {
       q: 'What is Zero Trust architecture?',
-      a: 'Zero Trust is a security model that drops the assumption of a trusted internal network. Instead of granting access based on network location, every request is authenticated, authorized, and encrypted &mdash; with policy decisions made at request time using the workload&apos;s identity, posture, and context. In cloud native systems this typically means SPIFFE-issued workload identity for the &quot;who,&quot; mTLS for the channel, and OPA / Rego for the &quot;what they&apos;re allowed to do.&quot; See the <a href="/glossary/zero-trust" class="text-primary underline">Zero Trust glossary entry</a> and the <a href="/courses/zero-trust-kubernetes" class="text-primary underline">Zero Trust for Kubernetes</a> guide.',
+      a: 'Zero Trust is a security model that drops the assumption of a trusted internal network. Instead of granting access based on network location, every request is authenticated, authorized, and encrypted - with policy decisions made at request time using the workload&apos;s identity, posture, and context. In cloud native systems this typically means SPIFFE-issued workload identity for the &quot;who,&quot; mTLS for the channel, and OPA / Rego for the &quot;what they&apos;re allowed to do.&quot; See the <a href="/glossary/zero-trust" class="text-primary underline">Zero Trust glossary entry</a> and the <a href="/courses/zero-trust-kubernetes" class="text-primary underline">Zero Trust for Kubernetes</a> guide.',
     },
     {
       q: 'How do service-to-service authentication systems work?',
@@ -1479,7 +1479,7 @@ export class HomeComponent implements OnInit {
     },
     {
       q: 'What is the "Watch as Slides" feature?',
-      a: 'Every tutorial on CodersSecret can be watched as an auto-narrated slide presentation &mdash; like a YouTube video, but 20&times; lighter on bandwidth. Each slide focuses on the key visual, while a narrator explains the details. You can pick your preferred voice, adjust speed (0.75&times;&ndash;1.5&times;), toggle auto-advance, and read the full narrator script. Perfect for learners who prefer watching over reading or who need a distraction-free focus mode. Try the <a href="/slides/drf-api-logger" class="text-primary underline">slide demo</a>.',
+      a: 'Every tutorial on CodersSecret can be watched as an auto-narrated slide presentation - like a YouTube video, but 20&times; lighter on bandwidth. Each slide focuses on the key visual, while a narrator explains the details. You can pick your preferred voice, adjust speed (0.75&times;&ndash;1.5&times;), toggle auto-advance, and read the full narrator script. Perfect for learners who prefer watching over reading or who need a distraction-free focus mode. Try the <a href="/slides/drf-api-logger" class="text-primary underline">slide demo</a>.',
     },
     {
       q: 'How do you handle privacy and tracking?',

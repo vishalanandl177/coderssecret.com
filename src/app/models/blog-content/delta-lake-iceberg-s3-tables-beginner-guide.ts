@@ -7,7 +7,7 @@ export const CONTENT = `
 
       <p>That CSV is going to have a bad day.</p>
 
-      <p>This is the problem that table formats solve. They take dumb files sitting on storage and give them <strong>superpowers</strong> — like a database, but without an actual database server.</p>
+      <p>This is the problem that table formats solve. They take dumb files sitting on storage and give them <strong>superpowers</strong> - like a database, but without an actual database server.</p>
 
       <h2>Let's Start Simple: What is a File? What is a Table?</h2>
 
@@ -21,10 +21,10 @@ export const CONTENT = `
             <div class="vs-card-header" style="background:#ef4444">&#x1F4C4; Raw Files (CSV, Parquet, JSON)</div>
             <div class="vs-card-body">
               <div class="vs-row"><span class="vs-row-icon">&#x1F4C1;</span>Just files in a folder on S3</div>
-              <div class="vs-row"><span class="vs-row-icon">&#x274C;</span>No schema enforcement — columns can be anything</div>
-              <div class="vs-row"><span class="vs-row-icon">&#x274C;</span>No transactions — partial writes can corrupt data</div>
-              <div class="vs-row"><span class="vs-row-icon">&#x274C;</span>No time travel — once overwritten, old data is gone</div>
-              <div class="vs-row"><span class="vs-row-icon">&#x274C;</span>No updates/deletes — only append or full rewrite</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x274C;</span>No schema enforcement - columns can be anything</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x274C;</span>No transactions - partial writes can corrupt data</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x274C;</span>No time travel - once overwritten, old data is gone</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x274C;</span>No updates/deletes - only append or full rewrite</div>
             </div>
           </div>
           <div class="vs-badge">VS</div>
@@ -32,20 +32,20 @@ export const CONTENT = `
             <div class="vs-card-header" style="background:#22c55e">&#x1F4CA; Table Format (Delta, Iceberg, Hudi)</div>
             <div class="vs-card-body">
               <div class="vs-row"><span class="vs-row-icon">&#x1F4CA;</span>A "table" abstraction over files on S3</div>
-              <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>Schema enforced — rejects bad data automatically</div>
-              <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>ACID transactions — writes are all-or-nothing</div>
-              <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>Time travel — query data as it was 3 days ago</div>
-              <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>Updates &amp; deletes — just like a regular database</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>Schema enforced - rejects bad data automatically</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>ACID transactions - writes are all-or-nothing</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>Time travel - query data as it was 3 days ago</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>Updates &amp; deletes - just like a regular database</div>
             </div>
           </div>
         </div>
       </div>
 
-      <p>Think of it this way: <strong>a table format is a layer of intelligence that sits on top of files</strong>. The files are still Parquet files on S3 — but the table format adds a transaction log, schema tracking, and metadata that makes these files behave like a database table.</p>
+      <p>Think of it this way: <strong>a table format is a layer of intelligence that sits on top of files</strong>. The files are still Parquet files on S3 - but the table format adds a transaction log, schema tracking, and metadata that makes these files behave like a database table.</p>
 
       <h2>Why Can't We Just Use a Database?</h2>
 
-      <p>Fair question. If you want transactions, schema, and updates — why not just use PostgreSQL or MySQL?</p>
+      <p>Fair question. If you want transactions, schema, and updates - why not just use PostgreSQL or MySQL?</p>
 
       <p>The answer is <strong>scale and cost</strong>. When you have 10 TB of data, a traditional database costs a fortune and is slow. Cloud object storage (S3) is 10-100x cheaper and can hold petabytes. But raw S3 has none of the nice features of a database. Table formats give you the best of both worlds:</p>
 
@@ -76,7 +76,7 @@ export const CONTENT = `
 
       <h2>How Table Formats Actually Work (Under the Hood)</h2>
 
-      <p>Every table format works the same basic way. Instead of just dumping files, they maintain a <strong>metadata layer</strong> — usually a log file or a set of manifest files — that tracks which data files belong to the table, what the schema is, and what version of the data you're looking at.</p>
+      <p>Every table format works the same basic way. Instead of just dumping files, they maintain a <strong>metadata layer</strong> - usually a log file or a set of manifest files - that tracks which data files belong to the table, what the schema is, and what version of the data you're looking at.</p>
 
       <!-- How It Works -->
       <div class="flow-diagram">
@@ -114,7 +114,7 @@ s3://my-lake/sales/revenue/
 # The key insight: the DATA FILES are the same (Parquet).
 # The METADATA LAYER is what makes Delta vs Iceberg different.</code></pre>
 
-      <h2>Delta Lake — The Databricks Standard</h2>
+      <h2>Delta Lake - The Databricks Standard</h2>
 
       <p>Delta Lake was created by Databricks and is the default table format on their platform. It's the most mature table format and the most widely used in the Spark ecosystem.</p>
 
@@ -174,11 +174,11 @@ new_data.write.format("delta") \\
     .mode("append") \\
     .option("mergeSchema", "true") \\
     .save("s3://my-lake/employees")
-# The table now has a "hire_date" column — old rows have NULL</code></pre>
+# The table now has a "hire_date" column - old rows have NULL</code></pre>
 
-      <h2>Apache Iceberg — The Open Standard</h2>
+      <h2>Apache Iceberg - The Open Standard</h2>
 
-      <p>Iceberg was created by Netflix and donated to Apache. It's designed to be <strong>engine-agnostic</strong> — it works with Spark, Trino, Flink, Dremio, Athena, BigQuery, Snowflake, and many more. If you want maximum portability across engines and clouds, Iceberg is your best bet.</p>
+      <p>Iceberg was created by Netflix and donated to Apache. It's designed to be <strong>engine-agnostic</strong> - it works with Spark, Trino, Flink, Dremio, Athena, BigQuery, Snowflake, and many more. If you want maximum portability across engines and clouds, Iceberg is your best bet.</p>
 
       <p><strong>Key difference from Delta:</strong> Iceberg uses a tree of metadata files (snapshot → manifest list → manifest → data files) instead of a linear transaction log. This makes it faster for tables with millions of files because it doesn't need to read every log entry from the beginning.</p>
 
@@ -203,7 +203,7 @@ spark.sql("""
     USING iceberg
     PARTITIONED BY (days(created_at))
 """)
-# Notice: PARTITIONED BY days(created_at) — Iceberg supports
+# Notice: PARTITIONED BY days(created_at) - Iceberg supports
 # partition TRANSFORMS (days, months, hours, bucket, truncate).
 # No need to create extra partition columns!
 
@@ -226,7 +226,7 @@ spark.sql("""
     TIMESTAMP AS OF '2025-07-14 00:00:00'
 """)
 
-# Schema evolution (add a column — no rewrite needed!)
+# Schema evolution (add a column - no rewrite needed!)
 spark.sql("""
     ALTER TABLE my_catalog.sales.revenue
     ADD COLUMN payment_method STRING
@@ -240,7 +240,7 @@ spark.sql("""
 # Old data stays partitioned by day. New data partitioned by month.
 # Both are queryable seamlessly. This is Iceberg's killer feature.</code></pre>
 
-      <h2>AWS S3 Tables — The New Kid (2024)</h2>
+      <h2>AWS S3 Tables - The New Kid (2024)</h2>
 
       <p><strong>S3 Tables</strong> is Amazon's newest offering (announced re:Invent 2024). It builds Apache Iceberg support <em>directly into S3 itself</em>. Instead of managing Iceberg metadata files yourself, S3 handles it natively. You interact with "table buckets" instead of regular buckets.</p>
 
@@ -266,15 +266,15 @@ aws s3tables create-table \\
 # 2. S3 handles snapshot management and garbage collection
 # 3. Up to 3x faster queries vs self-managed Iceberg on S3
 # 4. Up to 10x more transactions/second vs regular S3
-# 5. Works with Athena, EMR, Redshift, Glue — any Iceberg client
+# 5. Works with Athena, EMR, Redshift, Glue - any Iceberg client
 
 # Query via Athena:
 # SELECT SUM(amount) FROM sales.revenue WHERE created_at > '2025-01-01';
 # S3 Tables + Athena = serverless data warehouse</code></pre>
 
-      <h2>Apache Hudi — The Streaming-First Format</h2>
+      <h2>Apache Hudi - The Streaming-First Format</h2>
 
-      <p>Apache Hudi (Hadoop Upserts Deletes and Incrementals) was created by Uber. Its superpower is <strong>incremental processing</strong> — efficiently processing only the rows that changed since the last read. This makes it great for near-real-time data pipelines.</p>
+      <p>Apache Hudi (Hadoop Upserts Deletes and Incrementals) was created by Uber. Its superpower is <strong>incremental processing</strong> - efficiently processing only the rows that changed since the last read. This makes it great for near-real-time data pipelines.</p>
 
       <pre><code># Hudi is great for streaming use cases like:
 # - CDC (Change Data Capture) from databases
@@ -297,7 +297,7 @@ spark.read.format("hudi") \\
     .load("s3://my-lake/orders") \\
     .show()
 # Returns ONLY rows that changed after July 15, 10:00 AM
-# Instead of re-reading the entire table — massive efficiency gain</code></pre>
+# Instead of re-reading the entire table - massive efficiency gain</code></pre>
 
       <h2>The Big Comparison</h2>
 
@@ -368,12 +368,12 @@ spark.read.format("hudi") \\
         <li><strong>Google BigQuery</strong> supports Iceberg tables natively.</li>
         <li><strong>Databricks</strong> now supports reading/writing Iceberg tables alongside Delta Lake, and announced Delta-Iceberg interoperability.</li>
         <li><strong>Confluent</strong> (Kafka) chose Iceberg for their Tableflow product.</li>
-        <li><strong>Dremio, Starburst, Cloudera</strong> — all Iceberg-first.</li>
+        <li><strong>Dremio, Starburst, Cloudera</strong> - all Iceberg-first.</li>
       </ul>
 
       <p>If you're starting fresh in 2026 and don't have an existing Delta Lake investment, <strong>Iceberg is the safest bet</strong>. It has the broadest engine support, the most open governance, and the strongest industry momentum.</p>
 
-      <p>That said — if you're on Databricks, use Delta Lake. It's excellent, deeply integrated, and Databricks is working on Iceberg compatibility. Don't fight your platform.</p>
+      <p>That said - if you're on Databricks, use Delta Lake. It's excellent, deeply integrated, and Databricks is working on Iceberg compatibility. Don't fight your platform.</p>
 
       <h2>Getting Started: Your First Table in 5 Minutes</h2>
 
@@ -389,7 +389,7 @@ pip install pyspark
 
 # ── S3 Tables (via AWS CLI) ──────────────────
 aws s3tables create-table-bucket --name my-bucket
-# Then query via Athena — serverless, no Spark needed
+# Then query via Athena - serverless, no Spark needed
 
 # ── Hudi (via PySpark) ───────────────────────
 pip install pyspark
@@ -404,5 +404,5 @@ pip install pyspark
         <li>A <strong>metastore</strong> (Hive, Glue, Unity Catalog) is the library catalogue system that tells you which bookshelf to go to.</li>
       </ul>
 
-      <p>Together, they turn a chaotic storage bucket into something that feels like a proper database — but at data lake prices and data lake scale. That's the lakehouse revolution, and now you understand what's actually happening under the hood.</p>
+      <p>Together, they turn a chaotic storage bucket into something that feels like a proper database - but at data lake prices and data lake scale. That's the lakehouse revolution, and now you understand what's actually happening under the hood.</p>
     `;

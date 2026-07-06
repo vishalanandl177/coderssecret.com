@@ -15,31 +15,31 @@ export class PythonCExtSlidesComponent {
   slides: SlideData[] = [
     {
       type: 'title',
-      title: 'Python C Extensions — a workshop',
+      title: 'Python C Extensions - a workshop',
       subtitle:
         'How to make Python 50x faster without leaving Python. A hands-on tour, from the first hotspot to a shipped module.',
       tags: ['python 3.12+', 'cpython c api', 'setuptools', 'beginners & intermediate'],
       narration:
-        "Welcome everyone. Today we're going to take a hands-on journey into one of Python's most powerful but least-understood superpowers — C extensions.",
+        "Welcome everyone. Today we're going to take a hands-on journey into one of Python's most powerful but least-understood superpowers - C extensions.",
     },
     {
       type: 'content',
       eyebrow: '01 · The Problem',
       title: 'When Python hits the wall.',
-      body: "You've written a beautiful Python service. It reads data, crunches numbers, returns results. Life is good — until production traffic hits, and suddenly a single request takes two seconds instead of twenty milliseconds.",
+      body: "You've written a beautiful Python service. It reads data, crunches numbers, returns results. Life is good - until production traffic hits, and suddenly a single request takes two seconds instead of twenty milliseconds.",
       bullets: [
         'Profile shows one tight loop eating 90% of CPU',
-        "You rewrite, tune, cache — but Python just won't go faster",
+        "You rewrite, tune, cache - but Python just won't go faster",
         "That's the wall we're going to tear down today",
       ],
       narration:
-        "Let's start with a story. You've written a beautiful Python service. Life is good — until production traffic hits, and suddenly a single request takes two seconds.",
+        "Let's start with a story. You've written a beautiful Python service. Life is good - until production traffic hits, and suddenly a single request takes two seconds.",
     },
     {
       type: 'content',
       eyebrow: '02 · Why',
       title: 'Why Python is slow in tight loops',
-      body: 'Python is interpreted — every line gets translated on the fly. Every integer, every list access, every addition carries overhead.',
+      body: 'Python is interpreted - every line gets translated on the fly. Every integer, every list access, every addition carries overhead.',
       bullets: [
         'Interpreter constantly checks types',
         'Reference counting on every operation',
@@ -53,7 +53,7 @@ export class PythonCExtSlidesComponent {
       type: 'content',
       eyebrow: '03 · The Idea',
       title: 'Drop down to C, come right back up.',
-      body: "What if, just for the hot parts, we could drop down a level — into C — and then come right back up to Python for the rest? That's exactly what a C extension is.",
+      body: "What if, just for the hot parts, we could drop down a level - into C - and then come right back up to Python for the rest? That's exactly what a C extension is.",
       bullets: [
         'Write the performance-critical function in C',
         'Python calls it like any other function',
@@ -67,7 +67,7 @@ export class PythonCExtSlidesComponent {
       type: 'content',
       eyebrow: '04 · Mental Model',
       title: 'The two-floor building.',
-      body: 'Picture two floors. The top floor is your Python code — comfortable, dynamic, expressive. The bottom floor is C — fast, strict, close to the metal. A C extension is the staircase between them.',
+      body: 'Picture two floors. The top floor is your Python code - comfortable, dynamic, expressive. The bottom floor is C - fast, strict, close to the metal. A C extension is the staircase between them.',
       bullets: [
         'Python hands arguments down the stairs',
         'C does the heavy work',
@@ -93,26 +93,26 @@ export class PythonCExtSlidesComponent {
       title: 'The numbers speak.',
       items: [
         { title: 'Pure Python', desc: '~900ms on 10M iterations' },
-        { title: 'C Extension', desc: '~12ms — same logic, 75x faster' },
+        { title: 'C Extension', desc: '~12ms - same logic, 75x faster' },
         { title: 'Zero change for callers', desc: "Your code doesn't know it's calling C" },
         { title: 'Same correctness', desc: 'Identical results, verified by tests' },
       ],
       narration:
-        "Let's look at the numbers. Pure Python on ten million iterations — about nine hundred milliseconds. The C extension — around twelve milliseconds. Seventy-five times faster.",
+        "Let's look at the numbers. Pure Python on ten million iterations - about nine hundred milliseconds. The C extension - around twelve milliseconds. Seventy-five times faster.",
     },
     {
       type: 'content',
       eyebrow: '06 · Under the Hood',
       title: 'The Python C API',
-      body: "Python ships with a C API — a set of headers and functions that let C code speak Python's language.",
+      body: "Python ships with a C API - a set of headers and functions that let C code speak Python's language.",
       bullets: [
         'PyArg_ParseTuple: parse incoming arguments',
         'Py_BuildValue: build return values',
         'Method table: register functions for Python import',
-        'A small set of primitives — but all you need',
+        'A small set of primitives - but all you need',
       ],
       narration:
-        "Now let's peek under the hood. Python ships with a C API — a set of headers and functions that let C code speak Python's language.",
+        "Now let's peek under the hood. Python ships with a C API - a set of headers and functions that let C code speak Python's language.",
     },
     {
       type: 'content',
@@ -134,7 +134,7 @@ export class PythonCExtSlidesComponent {
       title: 'Surgery, not a rewrite.',
       body: 'You are NOT rewriting your application in C. You are surgically replacing the 1-2% of code that runs 90% of the time.',
       bullets: [
-        'Profile first — find the hotspot',
+        'Profile first - find the hotspot',
         'Extract just that function',
         'Leave everything else in Python',
         'This is how real teams ship performance',
@@ -146,7 +146,7 @@ export class PythonCExtSlidesComponent {
       type: 'content',
       eyebrow: '09 · Ecosystem',
       title: "They're everywhere.",
-      body: "C extensions aren't exotic — they're everywhere you already use.",
+      body: "C extensions aren't exotic - they're everywhere you already use.",
       bullets: [
         'NumPy, pandas, Pillow, lxml, cryptography',
         'Parts of the standard library',
@@ -154,7 +154,7 @@ export class PythonCExtSlidesComponent {
         "You've been using C extensions for years",
       ],
       narration:
-        "C extensions aren't some exotic corner of the ecosystem — they're everywhere you already use. NumPy, pandas, Pillow, lxml — all backed by C.",
+        "C extensions aren't some exotic corner of the ecosystem - they're everywhere you already use. NumPy, pandas, Pillow, lxml - all backed by C.",
     },
     {
       type: 'grid',
@@ -164,7 +164,7 @@ export class PythonCExtSlidesComponent {
         { title: 'Complexity', desc: 'You now maintain two languages.' },
         {
           title: 'Memory',
-          desc: "Python's GC doesn't know about your C allocations — manage reference counts yourself.",
+          desc: "Python's GC doesn't know about your C allocations - manage reference counts yourself.",
         },
         {
           title: 'Debugging',
@@ -179,22 +179,22 @@ export class PythonCExtSlidesComponent {
       eyebrow: '11 · Pitfalls',
       title: 'Common mistakes to avoid.',
       bullets: [
-        'Forgetting Py_INCREF / Py_DECREF — silent memory leaks',
+        'Forgetting Py_INCREF / Py_DECREF - silent memory leaks',
         'Returning a borrowed reference as if you owned it',
         'Not releasing the GIL on long-running C code',
         'Skipping error checks on Python API calls',
       ],
       narration:
-        'A few common mistakes to avoid. Forgetting reference counting — that causes silent memory leaks or crashes much later.',
+        'A few common mistakes to avoid. Forgetting reference counting - that causes silent memory leaks or crashes much later.',
     },
     {
       type: 'content',
       eyebrow: '12 · When NOT to use',
       title: 'When C extensions are wrong.',
       bullets: [
-        "Bottleneck is I/O (disk, network, database) — C won't help",
-        "You haven't profiled yet — you're guessing at what's slow",
-        "The code runs once a day — a 200ms function doesn't need a C rewrite",
+        "Bottleneck is I/O (disk, network, database) - C won't help",
+        "You haven't profiled yet - you're guessing at what's slow",
+        "The code runs once a day - a 200ms function doesn't need a C rewrite",
       ],
       narration:
         "When should you not reach for C? When your bottleneck is I/O. When you haven't profiled. And when the code runs once a day.",
@@ -220,7 +220,7 @@ export class PythonCExtSlidesComponent {
         { title: 'Numba', desc: 'JIT compile Python functions with a decorator.' },
       ],
       narration:
-        "The raw C API isn't your only option. Cython, CFFI, ctypes, PyO3, Numba — pick the tool that matches your team.",
+        "The raw C API isn't your only option. Cython, CFFI, ctypes, PyO3, Numba - pick the tool that matches your team.",
     },
     {
       type: 'content',
@@ -231,7 +231,7 @@ export class PythonCExtSlidesComponent {
         'Target hotspots, not whole systems',
         'Respect the trade-offs',
         'Most of the time, use Cython or NumPy',
-        'When you need raw speed and full control — now you know how',
+        'When you need raw speed and full control - now you know how',
       ],
       narration:
         "C extensions are a scalpel, not a hammer. Profile before you cut. Target hotspots. And remember that the right answer is usually a higher-level tool.",
@@ -251,7 +251,7 @@ export class PythonCExtSlidesComponent {
 
   constructor() {
     this.seo.update({
-      title: 'Python C Extensions Workshop — Interactive Slides with Narration',
+      title: 'Python C Extensions Workshop - Interactive Slides with Narration',
       description:
         'Learn Python C extensions through 18 interactive slides with voice narration. Covers when to use C, the Python C API, setuptools workflow, benchmarks, trade-offs, and alternatives like Cython and PyO3.',
       url: '/slides/python-c-extensions',

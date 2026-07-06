@@ -28,12 +28,12 @@ export class IncidentResponseSimulatorComponent {
     badge: 'Runtime Defense Lab',
     titlePlain: 'Incident Response',
     titleGradient: 'Simulator',
-    description: 'You are on call. Falco fires, Tetragon blocks a syscall, an audit log raises a flag. Each scenario drops you into the first 60 seconds of an incident — the moment between "alert" and "decision". Triage well, contain fast, write the post-mortem.',
+    description: 'You are on call. Falco fires, Tetragon blocks a syscall, an audit log raises a flag. Each scenario drops you into the first 60 seconds of an incident - the moment between "alert" and "decision". Triage well, contain fast, write the post-mortem.',
     steps: [
       'Each scenario shows a Falco rule firing, an audit-log line, or a runtime telemetry event from a real cluster.',
-      'Choose the right next action — the wrong answers explain why they look reasonable but waste critical time.',
+      'Choose the right next action - the wrong answers explain why they look reasonable but waste critical time.',
       'Read the production explanation, follow the link to the deeper lesson, and move to the next scenario.',
-      'Score yourself across all six rounds — covering shell-in-container, lateral movement, crypto-mining, container drift, audit-log triage, and eBPF-detected fileless attacks.',
+      'Score yourself across all six rounds - covering shell-in-container, lateral movement, crypto-mining, container drift, audit-log triage, and eBPF-detected fileless attacks.',
     ],
     practiceTitle: `What You'll Practice`,
     practiceDescription: 'The simulator covers the runtime-detection scenarios that show up on every real-world security on-call rotation. Each maps to a real CVE class or post-mortem.',
@@ -57,7 +57,7 @@ export class IncidentResponseSimulatorComponent {
   results: QuizResults = {
     perfect: { headline: 'Cluster contained. Flawless triage.', emoji: '\u{1F947}', message: 'You triaged every event correctly. The Cloud Native Security Engineering course goes deeper into multi-cluster forensics, IR runbooks, and the alert-pipeline design that actually works.' },
     great: { headline: 'On-call instincts are real.', emoji: '\u{1F6A8}', message: 'Strong triage decisions. Brush up on the few you missed, then practice the runtime-security cheatsheet to reinforce the syscall-level detection alphabet.' },
-    good: { headline: 'Solid foundation — sharpen the response.', emoji: '\u{1F4DA}', message: 'You know the patterns. The structured curriculum walks through each scenario class with end-to-end labs.' },
+    good: { headline: 'Solid foundation - sharpen the response.', emoji: '\u{1F4DA}', message: 'You know the patterns. The structured curriculum walks through each scenario class with end-to-end labs.' },
     weak: { headline: 'Practice the runbooks before the next page.', emoji: '\u{1F50D}', message: 'These are textbook runtime-security incidents. Start with the Runtime Security cheatsheet and the Kubernetes Runtime Security course, then come back.' },
   };
 
@@ -88,9 +88,9 @@ priority=WARNING`,
           feedback: 'Adding another shell session to the pod adds noise to the timeline and may interfere with attacker activity. Capture state first; do not interact.',
         },
         {
-          label: 'Cordon the node, scale the deployment to isolate the affected replica via pod-level NetworkPolicy block, snapshot the filesystem if possible, and capture process tree + open sockets — then preserve and analyse.',
+          label: 'Cordon the node, scale the deployment to isolate the affected replica via pod-level NetworkPolicy block, snapshot the filesystem if possible, and capture process tree + open sockets - then preserve and analyse.',
           correct: true,
-          feedback: 'Correct. The IR pattern: contain (NetworkPolicy isolation, optionally cordon), preserve (snapshot, process state, sockets), then analyse. Killing the pod first destroys evidence; exec-ing first contaminates evidence. proc.tty=0 + proc.pname=node strongly suggests the API process spawned the shell — likely an injection or template-execution flaw.',
+          feedback: 'Correct. The IR pattern: contain (NetworkPolicy isolation, optionally cordon), preserve (snapshot, process state, sockets), then analyse. Killing the pod first destroys evidence; exec-ing first contaminates evidence. proc.tty=0 + proc.pname=node strongly suggests the API process spawned the shell - likely an injection or template-execution flaw.',
         },
         {
           label: 'kubectl delete pod immediately to stop the attacker.',
@@ -98,12 +98,12 @@ priority=WARNING`,
           feedback: 'Deleting the pod loses all forensic evidence and tells the attacker they\'ve been spotted. Containment first, then preservation, then eviction.',
         },
         {
-          label: 'Wait 10 minutes — Falco has high false-positive rates, see if the alert recurs.',
+          label: 'Wait 10 minutes - Falco has high false-positive rates, see if the alert recurs.',
           correct: false,
           feedback: 'A "shell in container" alert with proc.pname=node (the application spawned the shell) and `whoami; id; uname -a` (canonical reconnaissance) is high-signal. Don\'t wait.',
         },
       ],
-      explanation: 'The contain → preserve → analyse pattern is the SANS / NIST IR baseline applied to cloud-native runtime alerts. Tools that automate the containment step (Tetragon\'s Sigkill action, or K8s NetworkPolicy applied via Kyverno) buy minutes. The reconnaissance command pattern (`whoami; id; uname -a`) is universal post-exploit footprinting — when you see it spawned by an application process, treat it as confirmed compromise until proven otherwise.',
+      explanation: 'The contain → preserve → analyse pattern is the SANS / NIST IR baseline applied to cloud-native runtime alerts. Tools that automate the containment step (Tetragon\'s Sigkill action, or K8s NetworkPolicy applied via Kyverno) buy minutes. The reconnaissance command pattern (`whoami; id; uname -a`) is universal post-exploit footprinting - when you see it spawned by an application process, treat it as confirmed compromise until proven otherwise.',
       learnMore: { label: 'Practice runtime triage', href: '/courses/kubernetes-runtime-security' },
     },
     {
@@ -122,27 +122,27 @@ Recent egress (Hubble):
       question: 'What does this telemetry indicate?',
       choices: [
         {
-          label: 'Routine token rotation — sidecars read tokens every 6 hours.',
+          label: 'Routine token rotation - sidecars read tokens every 6 hours.',
           correct: false,
-          feedback: 'Projected SA tokens auto-rotate behind the scenes; the application typically reads them once at startup. A first read 6 hours into the pod\'s life — followed by an API call to list secrets and an unknown egress — is not routine.',
+          feedback: 'Projected SA tokens auto-rotate behind the scenes; the application typically reads them once at startup. A first read 6 hours into the pod\'s life - followed by an API call to list secrets and an unknown egress - is not routine.',
         },
         {
-          label: 'A compromised log-shipper using its SA token to enumerate secrets in the payments namespace and exfiltrate to an unknown destination — classic lateral movement via supply-chain compromise.',
+          label: 'A compromised log-shipper using its SA token to enumerate secrets in the payments namespace and exfiltrate to an unknown destination - classic lateral movement via supply-chain compromise.',
           correct: true,
           feedback: 'Correct. The pattern is: exec to read the token (an app rarely curls its own token file), API call to list secrets, then egress to an unknown destination. The third-party sidecar likely got compromised upstream. Immediate response: revoke the SA, isolate the pod with a deny-all NetworkPolicy, and audit which secrets exist in the namespace.',
         },
         {
-          label: 'Misconfiguration — log-shipper should not have access to the SA token.',
+          label: 'Misconfiguration - log-shipper should not have access to the SA token.',
           correct: false,
-          feedback: 'Every pod by default has the projected SA token mounted. The fact that the sidecar can read it isn\'t a misconfig — it\'s the active use of the token to enumerate secrets that\'s the problem. (You can disable automount with `automountServiceAccountToken: false` for sidecars that don\'t need it — recommended hardening.)',
+          feedback: 'Every pod by default has the projected SA token mounted. The fact that the sidecar can read it isn\'t a misconfig - it\'s the active use of the token to enumerate secrets that\'s the problem. (You can disable automount with `automountServiceAccountToken: false` for sidecars that don\'t need it - recommended hardening.)',
         },
         {
-          label: 'Falco false positive — curl is part of the log-shipper\'s health probe.',
+          label: 'Falco false positive - curl is part of the log-shipper\'s health probe.',
           correct: false,
           feedback: 'Health probes call internal endpoints, not /api/v1/namespaces/.../secrets. The API path is the smoking gun.',
         },
       ],
-      explanation: 'Third-party sidecars are a common lateral-movement vector — a compromised npm package, base image, or build pipeline can ship a malicious binary that uses the pod\'s SA token to scope creep. Hardening: set `automountServiceAccountToken: false` on every workload that doesn\'t call the K8s API, and restrict API access via NetworkPolicy. Detection: combine Falco file-read events with eBPF/Hubble flow data — neither alone tells the full story.',
+      explanation: 'Third-party sidecars are a common lateral-movement vector - a compromised npm package, base image, or build pipeline can ship a malicious binary that uses the pod\'s SA token to scope creep. Hardening: set `automountServiceAccountToken: false` on every workload that doesn\'t call the K8s API, and restrict API access via NetworkPolicy. Detection: combine Falco file-read events with eBPF/Hubble flow data - neither alone tells the full story.',
       learnMore: { label: 'Lock down service accounts', href: '/courses/cloud-native-security-engineering/secrets-management-machine-identity' },
     },
     {
@@ -161,14 +161,14 @@ Egress connections:
       question: 'What is the right immediate response?',
       choices: [
         {
-          label: 'Scale the deployment to 0 replicas — kills the miner and stops the cost bleed.',
+          label: 'Scale the deployment to 0 replicas - kills the miner and stops the cost bleed.',
           correct: false,
           feedback: 'Scaling to 0 destroys evidence and tells the attacker they\'ve been detected. Worse, the persistence (likely a scheduled job, sidecar, or a build artefact) will reactivate when the deployment scales back up. Containment first, eviction second.',
         },
         {
           label: 'Apply a default-deny NetworkPolicy + cordon affected nodes, snapshot pod filesystems for forensics, then identify the persistence point (image, init script, scheduled job) before redeploying clean replicas.',
           correct: true,
-          feedback: 'Correct. The pattern: (1) deny network egress immediately to stop active mining and C2; (2) preserve evidence; (3) identify persistence (this miner came from somewhere — check the image, init containers, ConfigMaps, scheduled jobs); (4) redeploy clean only after persistence is identified, otherwise the next deploy reintroduces the miner.',
+          feedback: 'Correct. The pattern: (1) deny network egress immediately to stop active mining and C2; (2) preserve evidence; (3) identify persistence (this miner came from somewhere - check the image, init containers, ConfigMaps, scheduled jobs); (4) redeploy clean only after persistence is identified, otherwise the next deploy reintroduces the miner.',
         },
         {
           label: 'Create a CronJob to kill xmrig every minute via kubectl exec.',
@@ -176,7 +176,7 @@ Egress connections:
           feedback: 'Whack-a-mole. Doesn\'t address persistence, doesn\'t contain egress, and turns into a perpetual runaway problem. Treat the root cause (where xmrig came from), not the symptom.',
         },
         {
-          label: 'Increase node CPU limits — this is just a misconfigured workload.',
+          label: 'Increase node CPU limits - this is just a misconfigured workload.',
           correct: false,
           feedback: 'xmrig with the minexmr.com pool URL is unambiguously a Monero miner. This is not a config issue.',
         },
@@ -203,9 +203,9 @@ Pod spec (current):
       question: 'What is the actual problem here?',
       choices: [
         {
-          label: 'Tetragon is too aggressive — /usr/bin writes are normal for application updates.',
+          label: 'Tetragon is too aggressive - /usr/bin writes are normal for application updates.',
           correct: false,
-          feedback: 'Production workloads should never write to /usr/bin at runtime. This is a textbook persistence attempt — replacing or planting a system binary so the attacker survives pod restarts on this image.',
+          feedback: 'Production workloads should never write to /usr/bin at runtime. This is a textbook persistence attempt - replacing or planting a system binary so the attacker survives pod restarts on this image.',
         },
         {
           label: 'The pod was deployed without `readOnlyRootFilesystem: true`, so the standard wasn\'t enforced. The attacker exploited that to plant a binary at /usr/bin/sshd. The Tetragon policy was set to Audit instead of Sigkill, so the write succeeded.',
@@ -213,12 +213,12 @@ Pod spec (current):
           feedback: 'Correct. Two layers failed: (1) admission (PodSecurity / Kyverno should have rejected the pod for not having readOnlyRootFilesystem: true), and (2) runtime (Tetragon was in Audit mode rather than enforcement). Either layer would have stopped the persistence. Both layers failing means a compromised binary is now part of this pod\'s image at runtime.',
         },
         {
-          label: 'A legitimate application update — log it but don\'t alert.',
+          label: 'A legitimate application update - log it but don\'t alert.',
           correct: false,
           feedback: 'Pods should never modify their own /usr/bin. Application updates happen by deploying a new image, not by writing to the running pod\'s root filesystem.',
         },
         {
-          label: 'False positive — sshd-impersonator is a sandbox tool, not malicious.',
+          label: 'False positive - sshd-impersonator is a sandbox tool, not malicious.',
           correct: false,
           feedback: 'The name itself is a red flag. Real sandboxing tools have known signatures and don\'t rename themselves to impersonate system binaries.',
         },
@@ -248,7 +248,7 @@ Pod spec (current):
       question: 'What sequence of events is this audit log telling you?',
       choices: [
         {
-          label: 'Routine deployment — the ci-deploy ServiceAccount is used by CI for production rollouts.',
+          label: 'Routine deployment - the ci-deploy ServiceAccount is used by CI for production rollouts.',
           correct: false,
           feedback: 'Bind to cluster-admin → list every secret → schedule a hostNetwork pod in kube-system is not a deployment pattern. CI deploys apply specific manifests; they don\'t self-elevate.',
         },
@@ -258,7 +258,7 @@ Pod spec (current):
           feedback: 'Correct. The audit log tells the entire chain: privilege escalation, secret enumeration, host pivot. The most common entry point for this pattern is a leaked token in a build log, container image layer, or compromised CI runner. Response: revoke the token, rotate every secret enumerated, audit who had access to it, and add Falco/audit-log alerts for ClusterRoleBinding creation by non-platform actors.',
         },
         {
-          label: 'A rebound test — the user is verifying their RBAC role.',
+          label: 'A rebound test - the user is verifying their RBAC role.',
           correct: false,
           feedback: 'Verifying RBAC is `kubectl auth can-i`, not creating a ClusterRoleBinding. And listing every secret in every namespace is not a verification step.',
         },
@@ -289,7 +289,7 @@ parent_proc.name=node
       question: 'Why does this technique evade traditional file-based detection?',
       choices: [
         {
-          label: 'memfd_create() lets a process create a file in RAM that has no on-disk presence. The attacker downloads or writes a binary into the memfd and exec\'s it — file-write and image-scan-based detection see nothing because nothing was ever written to disk.',
+          label: 'memfd_create() lets a process create a file in RAM that has no on-disk presence. The attacker downloads or writes a binary into the memfd and exec\'s it - file-write and image-scan-based detection see nothing because nothing was ever written to disk.',
           correct: true,
           feedback: 'Correct. memfd is a Linux primitive originally designed for IPC and dynamic libraries. Attackers use it to evade file-integrity monitoring and disk-based AV. eBPF / Tetragon / Falco modern eBPF can detect it because the syscall layer (execve from anonymous fd) is observable even when the filesystem layer is not. This pattern is documented in MITRE ATT&CK T1620 (Reflective Code Loading).',
         },
@@ -299,7 +299,7 @@ parent_proc.name=node
           feedback: 'memfd_create() is a Linux kernel call, not Kubernetes-specific. Container isolation works the same regardless. The detection challenge is on the security tooling side, not the runtime.',
         },
         {
-          label: 'The Linux kernel doesn\'t track memfd processes — they\'re invisible to the OS.',
+          label: 'The Linux kernel doesn\'t track memfd processes - they\'re invisible to the OS.',
           correct: false,
           feedback: 'They\'re absolutely tracked. The kernel provides them and tools (eBPF/Tetragon) can observe them. The reason they evade detection is that *some* detection tools only watch on-disk file events.',
         },
@@ -309,7 +309,7 @@ parent_proc.name=node
           feedback: 'No info in the event indicates hostPID/hostNetwork. The technique works in a fully-isolated container.',
         },
       ],
-      explanation: 'Fileless attacks via memfd are the canonical example of why "image scanning + file-write detection" is necessary but not sufficient. Modern runtime security needs syscall-level visibility (eBPF / Tetragon / Falco modern eBPF driver) to catch in-memory execution, reflective loading, and process injection. Build a baseline rule: "exec from anonymous memory in production workloads is always alert-worthy" — legitimate applications almost never do it.',
+      explanation: 'Fileless attacks via memfd are the canonical example of why "image scanning + file-write detection" is necessary but not sufficient. Modern runtime security needs syscall-level visibility (eBPF / Tetragon / Falco modern eBPF driver) to catch in-memory execution, reflective loading, and process injection. Build a baseline rule: "exec from anonymous memory in production workloads is always alert-worthy" - legitimate applications almost never do it.',
       learnMore: { label: 'eBPF-era detection engineering', href: '/courses/kubernetes-runtime-security' },
     },
   ];

@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>A chatbot answers questions. An agent <strong>takes actions</strong>. It reads databases, calls APIs, writes files, makes decisions, and executes multi-step plans &mdash; all autonomously. The difference is not the model. It is the architecture around it.</p>
+      <p>A chatbot answers questions. An agent <strong>takes actions</strong>. It reads databases, calls APIs, writes files, makes decisions, and executes multi-step plans - all autonomously. The difference is not the model. It is the architecture around it.</p>
 
       <p>This guide builds an AI agent from scratch using Claude, starting with a simple tool-calling loop and progressively adding memory, error recovery, and multi-step orchestration.</p>
 
@@ -56,7 +56,7 @@ def agent_loop(user_message: str, tools: list, system: str) -> str:
 
       <h2>Defining Tools</h2>
 
-      <p>Tools are functions the agent can call. Define them with clear descriptions &mdash; the model uses these descriptions to decide when and how to call each tool.</p>
+      <p>Tools are functions the agent can call. Define them with clear descriptions - the model uses these descriptions to decide when and how to call each tool.</p>
 
       <pre><code>tools = [
     {
@@ -185,7 +185,7 @@ class AgentMemory:
 
       <h2>Error Recovery: Making Agents Robust</h2>
 
-      <p>Production agents must handle failures gracefully &mdash; tool errors, API timeouts, unexpected model responses, and infinite loops.</p>
+      <p>Production agents must handle failures gracefully - tool errors, API timeouts, unexpected model responses, and infinite loops.</p>
 
       <pre><code>def robust_agent_loop(user_message: str, tools: list, system: str,
                        max_iterations: int = 20) -> str:
@@ -381,13 +381,13 @@ print(result)</code></pre>
 
       <ul>
         <li><strong>The agent loop is simple:</strong> think &rarr; act &rarr; observe &rarr; repeat. Everything else is refinement.</li>
-        <li><strong>Tool descriptions matter more than tool code</strong> &mdash; the model decides when and how to use tools based on descriptions alone</li>
-        <li><strong>Always add iteration limits</strong> &mdash; agents without guardrails can loop forever and cost hundreds of dollars</li>
-        <li><strong>Return errors as tool results, not exceptions</strong> &mdash; let the model decide how to recover</li>
-        <li><strong>Memory turns a chatbot into a colleague</strong> &mdash; it remembers preferences, past decisions, and project context</li>
+        <li><strong>Tool descriptions matter more than tool code</strong> - the model decides when and how to use tools based on descriptions alone</li>
+        <li><strong>Always add iteration limits</strong> - agents without guardrails can loop forever and cost hundreds of dollars</li>
+        <li><strong>Return errors as tool results, not exceptions</strong> - let the model decide how to recover</li>
+        <li><strong>Memory turns a chatbot into a colleague</strong> - it remembers preferences, past decisions, and project context</li>
         <li><strong>Start with a simple tool loop</strong>, add planning only when tasks genuinely require multi-step orchestration</li>
-        <li><strong>Guardrails are not optional</strong> &mdash; file access controls, SQL query filtering, and cost limits are day-one requirements</li>
+        <li><strong>Guardrails are not optional</strong> - file access controls, SQL query filtering, and cost limits are day-one requirements</li>
       </ul>
 
-      <p>AI agents are not magic &mdash; they are well-structured programs with an LLM as the decision engine. The architecture matters more than the model. A well-designed agent with Claude Sonnet will outperform a poorly designed agent with Opus every time. Start simple, add complexity only when needed, and always, always add guardrails.</p>
+      <p>AI agents are not magic - they are well-structured programs with an LLM as the decision engine. The architecture matters more than the model. A well-designed agent with Claude Sonnet will outperform a poorly designed agent with Opus every time. Start simple, add complexity only when needed, and always, always add guardrails.</p>
     `;

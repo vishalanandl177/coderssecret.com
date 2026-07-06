@@ -208,7 +208,7 @@ export class LinuxChallengeComponent implements AfterViewInit {
     {
       task: 'Watch the output of "kubectl get pods" updating every 2 seconds.',
       acceptedAnswers: ['watch kubectl get pods', 'watch -n 2 kubectl get pods', 'watch -n2 kubectl get pods'],
-      hint: 'The watch command does this — default interval is 2 seconds.',
+      hint: 'The watch command does this - default interval is 2 seconds.',
     },
     {
       task: 'Show the 5 largest directories under /var sorted by size.',
@@ -270,7 +270,7 @@ export class LinuxChallengeComponent implements AfterViewInit {
 
   constructor() {
     this.seo.update({
-      title: 'Linux Command Challenge — Test Your Shell Skills',
+      title: 'Linux Command Challenge - Test Your Shell Skills',
       description: 'Interactive Linux command-line challenges. Find files, kill processes, manage permissions, and more. Practice real sysadmin tasks.',
       url: '/games/linux-challenge',
       breadcrumbs: [

@@ -7,7 +7,7 @@ export const CONTENT = `
 
       <p>Every scheduler is solving the same shape of problem: <em>given a set of pending tasks and a set of available resources, decide which task runs on which resource, in what order, with what priority</em>. The variations are in what counts as a &quot;task&quot; (a Kubernetes pod, an Airflow operator, a Spark stage), what counts as a &quot;resource&quot; (a node, a worker pool, an executor slot), and what counts as &quot;optimal&quot; (lowest latency, highest packing, fairest distribution).</p>
 
-      <p>Scheduling is hard because the problem is inherently combinatorial &mdash; bin packing is NP-hard &mdash; and because the inputs change continuously. New work arrives, nodes fail, priorities shift, resource limits get hit. Real schedulers make local greedy decisions that approximate the global optimum and re-evaluate continuously.</p>
+      <p>Scheduling is hard because the problem is inherently combinatorial - bin packing is NP-hard - and because the inputs change continuously. New work arrives, nodes fail, priorities shift, resource limits get hit. Real schedulers make local greedy decisions that approximate the global optimum and re-evaluate continuously.</p>
 
       <h2>The Kubernetes Scheduler in Depth</h2>
 
@@ -33,7 +33,7 @@ export const CONTENT = `
         <li><strong>NodeResourcesFit (score)</strong>: prefers nodes with the right balance of utilization. Two strategies: <em>LeastAllocated</em> (spread) and <em>MostAllocated</em> (pack). The default is a balanced score that prefers nodes where CPU and memory utilisation are similar.</li>
         <li><strong>InterPodAffinity</strong>: prefers nodes that satisfy preferred pod affinity (vs required, which is a filter).</li>
         <li><strong>NodeAffinity</strong>: prefers nodes matching preferredDuringScheduling node affinity.</li>
-        <li><strong>ImageLocality</strong>: prefers nodes that already have the container image cached &mdash; saves pull time.</li>
+        <li><strong>ImageLocality</strong>: prefers nodes that already have the container image cached - saves pull time.</li>
         <li><strong>PodTopologySpread</strong>: prefers nodes that spread pods across topology domains (zones, hosts).</li>
         <li><strong>TaintToleration (score)</strong>: prefers nodes with fewer PreferNoSchedule taints that the pod tolerates.</li>
       </ul>
@@ -95,11 +95,11 @@ export const CONTENT = `
 
       <p>If no node fits the pod after filtering, the scheduler may <strong>preempt</strong> lower-priority pods to make room. Each pod can have a <code>priorityClassName</code> referencing a PriorityClass with an integer priority. When scheduling fails, the scheduler considers evicting lower-priority pods on candidate nodes such that the new pod fits.</p>
 
-      <p>Preemption is gated by PodDisruptionBudgets (the scheduler tries to respect them but may violate them as a last resort), graceful termination periods, and explicit non-preempting policies. Critical system pods (kube-system) typically use the <code>system-cluster-critical</code> and <code>system-node-critical</code> PriorityClasses with very high priorities &mdash; they almost never get preempted.</p>
+      <p>Preemption is gated by PodDisruptionBudgets (the scheduler tries to respect them but may violate them as a last resort), graceful termination periods, and explicit non-preempting policies. Critical system pods (kube-system) typically use the <code>system-cluster-critical</code> and <code>system-node-critical</code> PriorityClasses with very high priorities - they almost never get preempted.</p>
 
       <h3>Pod Topology Spread</h3>
 
-      <p>One of the most consequential scheduler features for production reliability. Topology spread constraints tell the scheduler to distribute pods evenly across topology domains (typically AZs). Without it, the scheduler might pack three replicas of a critical service onto one zone &mdash; an AZ outage takes them all down.</p>
+      <p>One of the most consequential scheduler features for production reliability. Topology spread constraints tell the scheduler to distribute pods evenly across topology domains (typically AZs). Without it, the scheduler might pack three replicas of a critical service onto one zone - an AZ outage takes them all down.</p>
 
       <pre><code>spec:
   topologySpreadConstraints:
@@ -115,7 +115,7 @@ export const CONTENT = `
 
       <p>The Kubernetes Scheduling Framework (KEP-624, GA in 1.19) lets you write plugins that hook into specific extension points (PreFilter, Filter, PostFilter, PreScore, Score, PreBind, Bind) without forking the scheduler. Used for: GPU-aware scheduling, gang scheduling for ML workloads, custom anti-affinity logic, cost-aware scheduling.</p>
 
-      <p>Real custom schedulers in production: Volcano (gang scheduling for batch ML), Yunikorn (Apache, multi-tenant resource fairness), Karmada (cross-cluster scheduling), and the GCP / Azure cost-optimised schedulers. Most teams stick with the default scheduler and tune via priorities, affinities, and taints &mdash; custom schedulers carry significant operational cost.</p>
+      <p>Real custom schedulers in production: Volcano (gang scheduling for batch ML), Yunikorn (Apache, multi-tenant resource fairness), Karmada (cross-cluster scheduling), and the GCP / Azure cost-optimised schedulers. Most teams stick with the default scheduler and tune via priorities, affinities, and taints - custom schedulers carry significant operational cost.</p>
 
       <h2>Bin Packing and Resource Allocation</h2>
 
@@ -124,17 +124,17 @@ export const CONTENT = `
       <ul>
         <li><strong>First-fit</strong>: place each item in the first bin it fits. Fast, decent packing.</li>
         <li><strong>Best-fit</strong>: place each item in the bin with the least remaining capacity that still fits. Better packing, more compute.</li>
-        <li><strong>First-fit decreasing</strong>: sort items by size descending, then first-fit. Within ~22% of optimal in the worst case &mdash; the standard production heuristic.</li>
+        <li><strong>First-fit decreasing</strong>: sort items by size descending, then first-fit. Within ~22% of optimal in the worst case - the standard production heuristic.</li>
         <li><strong>Worst-fit</strong>: place each item in the bin with the most remaining capacity. Spreads load; useful when you want utilisation balance over packing density.</li>
       </ul>
 
-      <p>Kubernetes&apos; default <code>NodeResourcesFit</code> score is balanced &mdash; it prefers nodes where CPU and memory utilisation are similar (balanced allocation) but does not aggressively pack. The opt-in <code>MostAllocated</code> strategy approximates first-fit-decreasing, packing pods onto nodes to leave others empty for autoscaler scale-down.</p>
+      <p>Kubernetes&apos; default <code>NodeResourcesFit</code> score is balanced - it prefers nodes where CPU and memory utilisation are similar (balanced allocation) but does not aggressively pack. The opt-in <code>MostAllocated</code> strategy approximates first-fit-decreasing, packing pods onto nodes to leave others empty for autoscaler scale-down.</p>
 
-      <p>Real production lesson: pure bin packing fights against resilience. Tightly packed nodes have no headroom for the next pod or for memory spikes. Spread-out nodes are robust but waste money. The right answer depends on whether your cluster autoscaler is aggressive enough to recover the &quot;waste&quot; nodes &mdash; if it is, packing wins; if it is not, spreading wins.</p>
+      <p>Real production lesson: pure bin packing fights against resilience. Tightly packed nodes have no headroom for the next pod or for memory spikes. Spread-out nodes are robust but waste money. The right answer depends on whether your cluster autoscaler is aggressive enough to recover the &quot;waste&quot; nodes - if it is, packing wins; if it is not, spreading wins.</p>
 
       <svg viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Workload placement comparison showing pack vs spread strategies across nodes">
         <rect width="800" height="360" fill="#0f172a" rx="12"/>
-        <text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700">WORKLOAD PLACEMENT &mdash; PACK vs SPREAD</text>
+        <text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700">WORKLOAD PLACEMENT - PACK vs SPREAD</text>
         <text x="200" y="68" text-anchor="middle" fill="#fcd34d" font-size="12" font-weight="700">PACK (MostAllocated, FFD)</text>
         <text x="200" y="84" text-anchor="middle" fill="#94a3b8" font-size="9">enables aggressive autoscaler scale-down</text>
         <rect x="60" y="100" width="80" height="180" rx="6" fill="none" stroke="#fbbf24" stroke-width="1.5"/>
@@ -297,21 +297,21 @@ with DAG(
 
       <h3>HashiCorp Nomad</h3>
 
-      <p>Nomad is a generalist scheduler &mdash; it schedules anything, not just containers. Batch jobs, system services, periodic tasks, parameterized jobs, and dispatched jobs (one-off invocations of a job template). The scheduler uses bin-packing with anti-affinity and constraint solving.</p>
+      <p>Nomad is a generalist scheduler - it schedules anything, not just containers. Batch jobs, system services, periodic tasks, parameterized jobs, and dispatched jobs (one-off invocations of a job template). The scheduler uses bin-packing with anti-affinity and constraint solving.</p>
 
       <p>Nomad&apos;s differentiator from Kubernetes: simpler operational model, a single binary, multi-region native (federated clusters out of the box), and it can run in environments where Kubernetes is overkill (edge, IoT, simple batch farms).</p>
 
       <h3>Apache Mesos and the Two-Level Scheduling Model</h3>
 
-      <p>Mesos was the dominant cluster scheduler before Kubernetes &mdash; Twitter, Apple, eBay, Airbnb, and Uber ran Mesos at huge scale. It is in decline operationally (the project was archived by the ASF in 2021 and most users have migrated to Kubernetes), but the design ideas it pioneered remain influential and worth understanding.</p>
+      <p>Mesos was the dominant cluster scheduler before Kubernetes - Twitter, Apple, eBay, Airbnb, and Uber ran Mesos at huge scale. It is in decline operationally (the project was archived by the ASF in 2021 and most users have migrated to Kubernetes), but the design ideas it pioneered remain influential and worth understanding.</p>
 
-      <p>Mesos&apos; defining innovation was the <strong>two-level scheduler</strong>. A central Mesos master tracked cluster resources and offered them &mdash; literally, as resource offers &mdash; to <strong>frameworks</strong> (Marathon for long-running services, Chronos for cron, Aurora for batch + services, and frameworks for Spark, Hadoop, Cassandra, Kafka, Jenkins). Each framework received offers and decided whether to accept any of them and what to schedule. The master never made placement decisions itself; it just brokered offers.</p>
+      <p>Mesos&apos; defining innovation was the <strong>two-level scheduler</strong>. A central Mesos master tracked cluster resources and offered them - literally, as resource offers - to <strong>frameworks</strong> (Marathon for long-running services, Chronos for cron, Aurora for batch + services, and frameworks for Spark, Hadoop, Cassandra, Kafka, Jenkins). Each framework received offers and decided whether to accept any of them and what to schedule. The master never made placement decisions itself; it just brokered offers.</p>
 
       <p>The advantages were real: a single cluster could run dozens of workload types each with its own scheduling logic; framework authors could implement domain-specific algorithms (Spark could co-locate stages, Hadoop could place near HDFS replicas) without modifying the master; and resource offers were a clean separation between &quot;what is available&quot; and &quot;who decides what to do with it&quot;.</p>
 
-      <p>The disadvantages were also real and ultimately decisive. Operating Mesos meant operating the master, the agents, ZooKeeper for HA, <em>and</em> at least one framework per workload type &mdash; typically Marathon for services, Chronos for cron, sometimes Aurora as a Marathon alternative. Each framework had its own configuration model, its own UI, its own operational gotchas. Kubernetes&apos; integrated &quot;one scheduler, one API, one operational model&quot; was easier to onboard, easier to staff for, and ultimately won the platform-engineering battle. The K8s scheduling framework (with its plugin extension points) is a more disciplined re-thinking of the Mesos two-level idea inside a single integrated control plane.</p>
+      <p>The disadvantages were also real and ultimately decisive. Operating Mesos meant operating the master, the agents, ZooKeeper for HA, <em>and</em> at least one framework per workload type - typically Marathon for services, Chronos for cron, sometimes Aurora as a Marathon alternative. Each framework had its own configuration model, its own UI, its own operational gotchas. Kubernetes&apos; integrated &quot;one scheduler, one API, one operational model&quot; was easier to onboard, easier to staff for, and ultimately won the platform-engineering battle. The K8s scheduling framework (with its plugin extension points) is a more disciplined re-thinking of the Mesos two-level idea inside a single integrated control plane.</p>
 
-      <p>If you operate Mesos today, you are likely already on a migration path to Kubernetes or Nomad. The Mesos design ideas show up in modern systems &mdash; the Kubernetes scheduler framework, the Yunikorn multi-tenant resource fairness model, the Yarn capacity scheduler &mdash; in cleaner forms.</p>
+      <p>If you operate Mesos today, you are likely already on a migration path to Kubernetes or Nomad. The Mesos design ideas show up in modern systems - the Kubernetes scheduler framework, the Yunikorn multi-tenant resource fairness model, the Yarn capacity scheduler - in cleaner forms.</p>
 
       <h3>Custom Job Queues (Sidekiq, Celery, RQ, BullMQ)</h3>
 
@@ -368,7 +368,7 @@ with DAG(
 
       <h3>Dominant Resource Fairness (DRF)</h3>
 
-      <p>The standard fairness algorithm for schedulers that allocate multiple resource types (CPU, memory, GPU). DRF (Ghodsi et al., 2011) computes each tenant&apos;s &quot;dominant share&quot; &mdash; the largest share they hold across all resources &mdash; and equalizes those dominant shares.</p>
+      <p>The standard fairness algorithm for schedulers that allocate multiple resource types (CPU, memory, GPU). DRF (Ghodsi et al., 2011) computes each tenant&apos;s &quot;dominant share&quot; - the largest share they hold across all resources - and equalizes those dominant shares.</p>
 
       <p>Concretely: if tenant A is using 50% of CPU and 20% of memory, A&apos;s dominant share is 50%. If tenant B is using 30% of CPU and 60% of memory, B&apos;s dominant share is 60%. DRF would prefer to allocate the next slot to A. Used by Mesos, Yunikorn, and Yarn capacity scheduler.</p>
 
@@ -384,7 +384,7 @@ with DAG(
 
       <h3>Resource Quotas and LimitRanges</h3>
 
-      <p>ResourceQuota caps the aggregate resource consumption per namespace (e.g. payments-team can use at most 100 CPU and 200Gi memory). LimitRange sets per-pod defaults and bounds within a namespace. These are not technically scheduling features &mdash; they are admission-time validations &mdash; but they shape the inputs to scheduling.</p>
+      <p>ResourceQuota caps the aggregate resource consumption per namespace (e.g. payments-team can use at most 100 CPU and 200Gi memory). LimitRange sets per-pod defaults and bounds within a namespace. These are not technically scheduling features - they are admission-time validations - but they shape the inputs to scheduling.</p>
 
       <h2>Failure Recovery and Retries</h2>
 
@@ -392,7 +392,7 @@ with DAG(
 
       <h3>Exponential Backoff with Jitter</h3>
 
-      <p>The default retry pattern. Wait 1s, then 2s, then 4s, then 8s &mdash; with random jitter to avoid synchronizing retries from many workers. Kubernetes job <code>backoffLimit</code>, Sidekiq retries, AWS SDK&apos;s default retry policy all use this. Without jitter, a downstream brownout can be amplified by retry storms.</p>
+      <p>The default retry pattern. Wait 1s, then 2s, then 4s, then 8s - with random jitter to avoid synchronizing retries from many workers. Kubernetes job <code>backoffLimit</code>, Sidekiq retries, AWS SDK&apos;s default retry policy all use this. Without jitter, a downstream brownout can be amplified by retry storms.</p>
 
       <h3>Idempotency Keys</h3>
 
@@ -400,7 +400,7 @@ with DAG(
 
       <h3>Dead Letter Queues</h3>
 
-      <p>After N retries, the job moves to a dead letter queue (DLQ) where humans (or another job) can inspect it. The DLQ exists because the alternative &mdash; infinite retries &mdash; is worse. Production runbooks should monitor DLQ depth as a first-class metric; a growing DLQ is a real incident signal.</p>
+      <p>After N retries, the job moves to a dead letter queue (DLQ) where humans (or another job) can inspect it. The DLQ exists because the alternative - infinite retries - is worse. Production runbooks should monitor DLQ depth as a first-class metric; a growing DLQ is a real incident signal.</p>
 
       <h3>Visibility Timeouts</h3>
 
@@ -412,7 +412,7 @@ with DAG(
 
       <h2>Resource-Aware and GPU Scheduling</h2>
 
-      <p>GPU workloads break naive scheduling. A GPU is a discrete, indivisible resource &mdash; you cannot split a GPU between two pods (until recently; nvidia&apos;s MIG support changes this). The scheduler needs to know about GPU types (H100 vs A100 vs T4), GPU counts per node, and topology (NVLink groups for multi-GPU jobs).</p>
+      <p>GPU workloads break naive scheduling. A GPU is a discrete, indivisible resource - you cannot split a GPU between two pods (until recently; nvidia&apos;s MIG support changes this). The scheduler needs to know about GPU types (H100 vs A100 vs T4), GPU counts per node, and topology (NVLink groups for multi-GPU jobs).</p>
 
       <p>Kubernetes models this through device plugins: nvidia&apos;s plugin advertises <code>nvidia.com/gpu</code> as a schedulable resource, and pods request it via <code>resources.limits</code>. For more sophisticated patterns (gang scheduling N pods together for distributed training, topology-aware placement, fractional GPU), custom schedulers like Volcano, KAI Scheduler, or Run:AI take over.</p>
 
@@ -420,16 +420,16 @@ with DAG(
 
       <h2>Workload Placement Across Clusters and Clouds</h2>
 
-      <p>Single-cluster scheduling is solved. Multi-cluster scheduling &mdash; deciding which cluster a workload runs on across many regions or cloud providers &mdash; is open territory. Approaches:</p>
+      <p>Single-cluster scheduling is solved. Multi-cluster scheduling - deciding which cluster a workload runs on across many regions or cloud providers - is open territory. Approaches:</p>
 
       <ul>
         <li><strong>Karmada</strong>: open-source Kubernetes-native multi-cluster scheduler. Workloads are submitted to a host cluster; Karmada propagates them to member clusters based on policy.</li>
         <li><strong>Cluster API + custom controllers</strong>: each business workload has a controller that watches across clusters and reconciles placement.</li>
         <li><strong>External orchestrator</strong> (Spinnaker, Argo CD with multi-cluster, Crossplane): orchestrate deployments across clusters from a central control plane.</li>
-        <li><strong>Cell-based architecture</strong>: pre-partition tenants across clusters; each tenant lives in a single cell. No cross-cluster scheduling needed at runtime &mdash; the placement is decided at tenant-onboarding time.</li>
+        <li><strong>Cell-based architecture</strong>: pre-partition tenants across clusters; each tenant lives in a single cell. No cross-cluster scheduling needed at runtime - the placement is decided at tenant-onboarding time.</li>
       </ul>
 
-      <p>The cross-cluster identity layer matters for security: a workload that can move between clusters needs an identity that travels with it. <a href="/glossary/spiffe" class="text-primary underline">SPIFFE</a> workload identity solves this &mdash; the same SPIFFE ID is valid across federated clusters, so cross-cluster scheduling does not require credential re-issuance. See the <a href="/courses/mastering-spiffe-spire/spiffe-spire-deep-dive" class="text-primary underline">SPIFFE/SPIRE Deep Dive module</a> in the Cloud Native Security Engineering course for the full pattern.</p>
+      <p>The cross-cluster identity layer matters for security: a workload that can move between clusters needs an identity that travels with it. <a href="/glossary/spiffe" class="text-primary underline">SPIFFE</a> workload identity solves this - the same SPIFFE ID is valid across federated clusters, so cross-cluster scheduling does not require credential re-issuance. See the <a href="/courses/mastering-spiffe-spire/spiffe-spire-deep-dive" class="text-primary underline">SPIFFE/SPIRE Deep Dive module</a> in the Cloud Native Security Engineering course for the full pattern.</p>
 
       <h2>Common Pitfalls</h2>
 
@@ -439,11 +439,11 @@ with DAG(
 
       <h3>2. Forgetting PodDisruptionBudgets</h3>
 
-      <p>The scheduler will happily evict and reschedule pods during node maintenance, autoscaler scale-down, or preemption. Without PDBs, the entire replica set can be terminated simultaneously &mdash; causing a brief outage. Always declare a PDB with <code>minAvailable</code> or <code>maxUnavailable</code> for production deployments.</p>
+      <p>The scheduler will happily evict and reschedule pods during node maintenance, autoscaler scale-down, or preemption. Without PDBs, the entire replica set can be terminated simultaneously - causing a brief outage. Always declare a PDB with <code>minAvailable</code> or <code>maxUnavailable</code> for production deployments.</p>
 
       <h3>3. Topology Spread Without Resilience Goals</h3>
 
-      <p>A common misuse: setting <code>topologySpreadConstraints</code> with <code>maxSkew: 1</code> on a 3-replica deployment in a 3-zone cluster. The scheduler now refuses to schedule a 4th replica because that would violate the constraint &mdash; even though there is plenty of capacity. Use <code>ScheduleAnyway</code> for soft constraints and reason about what spread you actually need.</p>
+      <p>A common misuse: setting <code>topologySpreadConstraints</code> with <code>maxSkew: 1</code> on a 3-replica deployment in a 3-zone cluster. The scheduler now refuses to schedule a 4th replica because that would violate the constraint - even though there is plenty of capacity. Use <code>ScheduleAnyway</code> for soft constraints and reason about what spread you actually need.</p>
 
       <h3>4. Cron Schedule Drift</h3>
 
@@ -451,7 +451,7 @@ with DAG(
 
       <h3>5. Trusting Visibility Timeout for Long Jobs</h3>
 
-      <p>If a worker takes longer than the visibility timeout to process a message, the message becomes visible again and another worker picks it up &mdash; double processing. Workers for long jobs should periodically extend the visibility timeout (heartbeat) or split the job into smaller chunks.</p>
+      <p>If a worker takes longer than the visibility timeout to process a message, the message becomes visible again and another worker picks it up - double processing. Workers for long jobs should periodically extend the visibility timeout (heartbeat) or split the job into smaller chunks.</p>
 
       <aside class="callout callout-mistake">
         <strong>Common mistake</strong>
@@ -460,12 +460,12 @@ with DAG(
 
       <aside class="callout callout-production">
         <strong>Production note</strong>
-        <p>The most expensive scheduling decision is the one made at deploy time, not runtime. <code>topologySpreadConstraints</code>, <code>podAntiAffinity</code>, <code>nodeSelector</code>, and the right <code>PriorityClass</code> are baked into the manifest &mdash; the scheduler can only pick from what you allowed. Treat deploy manifests as scheduler policy and review them in code review.</p>
+        <p>The most expensive scheduling decision is the one made at deploy time, not runtime. <code>topologySpreadConstraints</code>, <code>podAntiAffinity</code>, <code>nodeSelector</code>, and the right <code>PriorityClass</code> are baked into the manifest - the scheduler can only pick from what you allowed. Treat deploy manifests as scheduler policy and review them in code review.</p>
       </aside>
 
       <aside class="callout callout-troubleshoot">
         <strong>Troubleshooting</strong>
-        <p>A pod stuck in Pending? Run <code>kubectl describe pod &lt;name&gt;</code> &mdash; the events list the exact reason (<em>0/N nodes are available: 3 Insufficient cpu, 2 node(s) had taint, ...</em>). Aggregate this across pods to spot patterns: insufficient CPU means resource pressure, taint mismatches mean a labelling drift, &ldquo;didn&apos;t match Pod&apos;s node affinity&rdquo; means a deploy referencing a label that does not exist.</p>
+        <p>A pod stuck in Pending? Run <code>kubectl describe pod &lt;name&gt;</code> - the events list the exact reason (<em>0/N nodes are available: 3 Insufficient cpu, 2 node(s) had taint, ...</em>). Aggregate this across pods to spot patterns: insufficient CPU means resource pressure, taint mismatches mean a labelling drift, &ldquo;didn&apos;t match Pod&apos;s node affinity&rdquo; means a deploy referencing a label that does not exist.</p>
       </aside>
 
       <h2>Observability</h2>
@@ -487,7 +487,7 @@ with DAG(
       <ol>
         <li><strong>Hostile pod placement</strong>: an attacker who can schedule a pod (via a compromised SA, an exploited admission gap) can target specific nodes via node affinity. The mitigation is admission policy: PodSecurity restricted, image-signing enforcement, NetworkPolicy default-deny per namespace. Walk the <a href="/games/kubernetes-security-simulator" class="text-primary underline">Kubernetes Security Simulator</a> for hands-on practice on these defences.</li>
         <li><strong>Cross-tenant noisy neighbours</strong>: a CPU- or I/O-hungry pod on a shared node degrades co-tenant performance. CPU and memory limits, plus dedicated node pools for sensitive workloads, are the common defenses.</li>
-        <li><strong>Privileged scheduler plugins</strong>: a custom scheduler plugin runs in the cluster with cluster-scope read access. Vet plugins like you vet admission webhooks &mdash; signed images, audited code, monitored behaviour.</li>
+        <li><strong>Privileged scheduler plugins</strong>: a custom scheduler plugin runs in the cluster with cluster-scope read access. Vet plugins like you vet admission webhooks - signed images, audited code, monitored behaviour.</li>
       </ol>
 
       <h2>Frequently Asked Questions</h2>
@@ -502,10 +502,10 @@ with DAG(
       <p>Two patterns. <strong>Shared cluster</strong>: separate node pools, priority classes, and resource quotas isolate batch from prod. Cheaper, more flexible. <strong>Dedicated batch cluster</strong>: lower blast radius (a batch outage cannot affect prod), simpler operational model. Most teams start shared and graduate to dedicated when batch scale or sensitivity demands it.</p>
 
       <h3>How do I know if my cluster is under-utilised or over-utilised?</h3>
-      <p>The right metric is <strong>request utilisation</strong> (CPU/memory requested / available), not <strong>actual usage</strong> (CPU/memory used / available). The scheduler cares about requests; nodes appear &quot;full&quot; at request utilisation even if actual usage is 30%. If request utilisation is high but actual usage is low, your requests are oversized &mdash; tune them down.</p>
+      <p>The right metric is <strong>request utilisation</strong> (CPU/memory requested / available), not <strong>actual usage</strong> (CPU/memory used / available). The scheduler cares about requests; nodes appear &quot;full&quot; at request utilisation even if actual usage is 30%. If request utilisation is high but actual usage is low, your requests are oversized - tune them down.</p>
 
       <h3>Should I use Airflow, Argo Workflows, Dagster, or Prefect?</h3>
-      <p>Airflow is the incumbent &mdash; mature, huge ecosystem, hard to operate at scale. Argo Workflows is Kubernetes-native &mdash; great if you already run Kubernetes and want simple infra. Dagster has the best modern developer experience and asset-based modelling. Prefect is the cleanest Pythonic API. For new projects, evaluate Argo + Dagster first; pick Airflow only if you need its specific operators or community.</p>
+      <p>Airflow is the incumbent - mature, huge ecosystem, hard to operate at scale. Argo Workflows is Kubernetes-native - great if you already run Kubernetes and want simple infra. Dagster has the best modern developer experience and asset-based modelling. Prefect is the cleanest Pythonic API. For new projects, evaluate Argo + Dagster first; pick Airflow only if you need its specific operators or community.</p>
 
       <h3>What is &quot;gang scheduling&quot; and when do I need it?</h3>
       <p>Gang scheduling guarantees that a set of related pods all start together, or none of them start. Required for distributed ML training (rank 0 cannot do useful work without rank 1...N), Spark jobs (the driver needs all executors), and MPI workloads. The default Kubernetes scheduler does not support it; Volcano, Yunikorn, and KubeFlow&apos;s training-operator add it.</p>
@@ -514,7 +514,7 @@ with DAG(
 
       <p>Scheduling decides what runs where. Get it right and your nodes are evenly utilised, your jobs survive failures, and your priorities are respected without manual intervention. Get it wrong and you end up with thrashing pods, starved background work, and a cluster running at 30% utilisation while telling you it has no room.</p>
 
-      <p>The high-leverage takeaways for production engineers: <strong>topology spread across zones is the difference between &quot;single-AZ outage&quot; and &quot;customer-impacting outage&quot;</strong>; <strong>resource requests should be set at p95 of actual usage, not p99-of-peak-day, otherwise the scheduler refuses to pack</strong>; <strong>PriorityClasses + PodDisruptionBudgets together let you reason about both preemption and drain safety</strong>; <strong>distributed cron needs leader election, not &quot;cron on every node&quot; or &quot;cron on the master&quot;</strong>; <strong>queue-based orchestration needs idempotency keys, exponential backoff with jitter, dead-letter queues, and visibility timeouts &mdash; not all four is incomplete</strong>; <strong>fairness is not free &mdash; pick a tenancy model (DRF, dedicated namespaces, dedicated clusters) that matches your actual isolation requirements</strong>. The scheduler that quietly does the right thing is the one that has been instrumented and tuned over real production traffic.</p>
+      <p>The high-leverage takeaways for production engineers: <strong>topology spread across zones is the difference between &quot;single-AZ outage&quot; and &quot;customer-impacting outage&quot;</strong>; <strong>resource requests should be set at p95 of actual usage, not p99-of-peak-day, otherwise the scheduler refuses to pack</strong>; <strong>PriorityClasses + PodDisruptionBudgets together let you reason about both preemption and drain safety</strong>; <strong>distributed cron needs leader election, not &quot;cron on every node&quot; or &quot;cron on the master&quot;</strong>; <strong>queue-based orchestration needs idempotency keys, exponential backoff with jitter, dead-letter queues, and visibility timeouts - not all four is incomplete</strong>; <strong>fairness is not free - pick a tenancy model (DRF, dedicated namespaces, dedicated clusters) that matches your actual isolation requirements</strong>. The scheduler that quietly does the right thing is the one that has been instrumented and tuned over real production traffic.</p>
 
       <h2>Where to Go Next</h2>
 

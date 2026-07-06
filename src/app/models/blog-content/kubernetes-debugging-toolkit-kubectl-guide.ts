@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Kubernetes does not tell you what is wrong &mdash; it tells you what <em>state</em> things are in. Your job is to interpret the state, trace the root cause, and fix it. This guide covers the debugging commands and patterns that platform engineers use daily, organized by the problems you actually encounter.</p>
+      <p>Kubernetes does not tell you what is wrong - it tells you what <em>state</em> things are in. Your job is to interpret the state, trace the root cause, and fix it. This guide covers the debugging commands and patterns that platform engineers use daily, organized by the problems you actually encounter.</p>
 
       <h2>Essential Debugging Commands</h2>
 
@@ -273,12 +273,12 @@ kubectl port-forward svc/my-service 8080:80 -n my-namespace
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>describe, logs, events</strong> &mdash; these three commands solve 80% of Kubernetes problems</li>
+        <li><strong>describe, logs, events</strong> - these three commands solve 80% of Kubernetes problems</li>
         <li><strong>Always check logs from the previous container</strong> with <code>--previous</code> for CrashLoopBackOff</li>
-        <li><strong>Exit code 137 means OOMKilled</strong> &mdash; increase memory limits, not requests</li>
-        <li><strong>Empty endpoints means label mismatch</strong> &mdash; the most common service routing issue</li>
+        <li><strong>Exit code 137 means OOMKilled</strong> - increase memory limits, not requests</li>
+        <li><strong>Empty endpoints means label mismatch</strong> - the most common service routing issue</li>
         <li><strong>Use ephemeral debug containers</strong> to debug pods without restarting them</li>
-        <li><strong>kubectl top</strong> shows real-time resource usage &mdash; compare against requests and limits</li>
+        <li><strong>kubectl top</strong> shows real-time resource usage - compare against requests and limits</li>
         <li><strong>Port-forward is your friend</strong> for testing services locally without ingress</li>
       </ul>
 

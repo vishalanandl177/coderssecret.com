@@ -114,16 +114,16 @@ kubectl get pods -n kube-system -l app.kubernetes.io/name=karpenter
       <div class="flow-diagram">
         <div class="flow-diagram-title">Karpenter Resource Hierarchy</div>
         <div class="layer-diagram">
-          <div class="layer-item" style="background:#7c3aed">NodePool<span class="layer-item-sub">Defines WHAT to provision — instance types, zones, capacity type (spot/on-demand), limits</span></div>
-          <div class="layer-item" style="background:#3b82f6">EC2NodeClass<span class="layer-item-sub">Defines HOW to provision — AMI, subnets, security groups, user data, block devices</span></div>
-          <div class="layer-item" style="background:#f97316">NodeClaim<span class="layer-item-sub">Auto-created by Karpenter — represents a single provisioned node (like a Pod for nodes)</span></div>
+          <div class="layer-item" style="background:#7c3aed">NodePool<span class="layer-item-sub">Defines WHAT to provision - instance types, zones, capacity type (spot/on-demand), limits</span></div>
+          <div class="layer-item" style="background:#3b82f6">EC2NodeClass<span class="layer-item-sub">Defines HOW to provision - AMI, subnets, security groups, user data, block devices</span></div>
+          <div class="layer-item" style="background:#f97316">NodeClaim<span class="layer-item-sub">Auto-created by Karpenter - represents a single provisioned node (like a Pod for nodes)</span></div>
           <div class="layer-item" style="background:#22c55e">EC2 Instance + Node<span class="layer-item-sub">The actual cloud instance that joins the cluster and runs your pods</span></div>
         </div>
       </div>
 
       <h2>NodePool: Define What to Provision</h2>
       <p>A <strong>NodePool</strong> tells Karpenter what kind of nodes it can create. Think of it as a set of constraints and preferences:</p>
-      <pre><code># nodepool.yaml — Production-ready NodePool
+      <pre><code># nodepool.yaml - Production-ready NodePool
 apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
@@ -169,18 +169,18 @@ spec:
           operator: In
           values: ["us-east-1a", "us-east-1b", "us-east-1c"]
 
-      # Taints (optional — restrict what can run on these nodes)
+      # Taints (optional - restrict what can run on these nodes)
       # taints:
       #   - key: workload-type
       #     value: compute-heavy
       #     effect: NoSchedule
 
-  # Resource limits — cap total provisioned capacity
+  # Resource limits - cap total provisioned capacity
   limits:
     cpu: "1000"        # Max 1000 vCPUs across all nodes
     memory: "2000Gi"   # Max 2TB RAM
 
-  # Disruption policy — how Karpenter consolidates/replaces nodes
+  # Disruption policy - how Karpenter consolidates/replaces nodes
   disruption:
     # Consolidation: merge underutilized nodes to save money
     consolidationPolicy: WhenEmptyOrUnderutilized
@@ -194,7 +194,7 @@ spec:
   weight: 10  # Priority (higher = preferred over other NodePools)</code></pre>
 
       <h2>EC2NodeClass: Define How to Provision</h2>
-      <pre><code># ec2nodeclass.yaml — AWS-specific configuration
+      <pre><code># ec2nodeclass.yaml - AWS-specific configuration
 apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
 metadata:
@@ -203,11 +203,11 @@ spec:
   # IAM role for the nodes
   role: "KarpenterNodeRole-my-production-cluster"
 
-  # AMI selection — use the latest EKS-optimized AMI
+  # AMI selection - use the latest EKS-optimized AMI
   amiSelectorTerms:
     - alias: al2023@latest   # Amazon Linux 2023 (recommended)
 
-  # Subnet discovery — find subnets by tag
+  # Subnet discovery - find subnets by tag
   subnetSelectorTerms:
     - tags:
         karpenter.sh/discovery: "my-production-cluster"
@@ -234,7 +234,7 @@ spec:
     ManagedBy: karpenter
     Team: platform
 
-  # User data (optional — bootstrap scripts)
+  # User data (optional - bootstrap scripts)
   # userData: |
   #   #!/bin/bash
   #   echo "Custom bootstrap logic here"
@@ -265,7 +265,7 @@ spec:
         </div>
       </div>
 
-      <pre><code># Spot-optimized NodePool — maximize savings
+      <pre><code># Spot-optimized NodePool - maximize savings
 apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
@@ -325,7 +325,7 @@ spec:
   weight: 1  # Lower priority than spot pool (weight: 10)</code></pre>
 
       <h2>Consolidation: Automatic Cost Optimization</h2>
-      <p>Karpenter continuously watches for underutilized nodes and consolidates workloads to fewer, better-fitting instances. This happens automatically — no cron jobs, no manual intervention.</p>
+      <p>Karpenter continuously watches for underutilized nodes and consolidates workloads to fewer, better-fitting instances. This happens automatically - no cron jobs, no manual intervention.</p>
 
       <!-- Consolidation Flow -->
       <div class="flow-diagram">
@@ -344,12 +344,12 @@ spec:
 
       <pre><code># Example: Consolidation in action
 # Before consolidation:
-#   Node 1 (m5.2xlarge — 8 vCPU, 32GB): using 2 vCPU, 4GB (25% utilized)
-#   Node 2 (m5.2xlarge — 8 vCPU, 32GB): using 3 vCPU, 8GB (37% utilized)
+#   Node 1 (m5.2xlarge - 8 vCPU, 32GB): using 2 vCPU, 4GB (25% utilized)
+#   Node 2 (m5.2xlarge - 8 vCPU, 32GB): using 3 vCPU, 8GB (37% utilized)
 #   Total cost: 2x m5.2xlarge = ~\$0.384/hr * 2 = \$0.768/hr
 
 # After consolidation (Karpenter automatically):
-#   1. Launches m5.xlarge (4 vCPU, 16GB) — fits both workloads
+#   1. Launches m5.xlarge (4 vCPU, 16GB) - fits both workloads
 #   2. Cordons Node 1 and Node 2
 #   3. Drains pods (respecting PDBs)
 #   4. Terminates old nodes
@@ -433,18 +433,18 @@ requirements:
 # 1. Pod requests 2 vCPU, 4GB memory
 # 2. Karpenter evaluates: m6i.large (amd64) = \$0.096/hr
 #                          m6g.large (arm64) = \$0.077/hr
-# 3. Picks m6g.large (arm64) — 20% cheaper, same performance
+# 3. Picks m6g.large (arm64) - 20% cheaper, same performance
 # 4. Only if your image doesn't support arm64, falls back to amd64</code></pre>
 
       <h2>Monitoring &amp; Observability</h2>
       <pre><code># Karpenter exposes Prometheus metrics out of the box
 
 # Key metrics to monitor:
-# karpenter_nodes_total              — Current node count by pool
-# karpenter_nodeclaims_terminated    — Node terminations (consolidation, expiry)
-# karpenter_pods_startup_duration    — Time from Pending to Running
-# karpenter_provisioner_scheduling   — Scheduling decisions per second
-# karpenter_interruption_received    — Spot interruption events
+# karpenter_nodes_total              - Current node count by pool
+# karpenter_nodeclaims_terminated    - Node terminations (consolidation, expiry)
+# karpenter_pods_startup_duration    - Time from Pending to Running
+# karpenter_provisioner_scheduling   - Scheduling decisions per second
+# karpenter_interruption_received    - Spot interruption events
 
 # Grafana dashboard (community):
 # https://github.com/aws/karpenter/tree/main/charts/karpenter/dashboards
@@ -478,21 +478,21 @@ kubectl logs -n kube-system -l app.kubernetes.io/name=karpenter -f</code></pre>
       <div class="flow-diagram">
         <div class="flow-diagram-title">Karpenter Production Checklist</div>
         <div class="timeline">
-          <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">Set resource limits on NodePools</div><div class="timeline-item-desc">Prevent runaway scaling — cap CPU and memory per pool</div></div>
-          <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">Use Pod Disruption Budgets (PDBs)</div><div class="timeline-item-desc">Protect availability during consolidation — at least 1 replica always running</div></div>
-          <div class="timeline-item" style="--c:#7c3aed"><div class="timeline-item-title" style="color:#7c3aed">Diversify instance types widely</div><div class="timeline-item-desc">Allow 15+ instance types for spot — reduces interruption probability by 90%</div></div>
-          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Set pod resource requests accurately</div><div class="timeline-item-desc">Karpenter uses requests (not limits) to bin-pack — wrong requests = wasted capacity</div></div>
+          <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">Set resource limits on NodePools</div><div class="timeline-item-desc">Prevent runaway scaling - cap CPU and memory per pool</div></div>
+          <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">Use Pod Disruption Budgets (PDBs)</div><div class="timeline-item-desc">Protect availability during consolidation - at least 1 replica always running</div></div>
+          <div class="timeline-item" style="--c:#7c3aed"><div class="timeline-item-title" style="color:#7c3aed">Diversify instance types widely</div><div class="timeline-item-desc">Allow 15+ instance types for spot - reduces interruption probability by 90%</div></div>
+          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Set pod resource requests accurately</div><div class="timeline-item-desc">Karpenter uses requests (not limits) to bin-pack - wrong requests = wasted capacity</div></div>
           <div class="timeline-item" style="--c:#ef4444"><div class="timeline-item-title" style="color:#ef4444">Enable SQS interruption queue</div><div class="timeline-item-desc">Graceful handling of spot interruptions, maintenance events, and rebalance recommendations</div></div>
-          <div class="timeline-item" style="--c:#ec4899"><div class="timeline-item-title" style="color:#ec4899">Use multiple NodePools</div><div class="timeline-item-desc">Separate pools for: general workloads, GPU, spot-only, on-demand critical — different rules for each</div></div>
+          <div class="timeline-item" style="--c:#ec4899"><div class="timeline-item-title" style="color:#ec4899">Use multiple NodePools</div><div class="timeline-item-desc">Separate pools for: general workloads, GPU, spot-only, on-demand critical - different rules for each</div></div>
           <div class="timeline-item" style="--c:#a855f7"><div class="timeline-item-title" style="color:#a855f7">Monitor consolidation aggressiveness</div><div class="timeline-item-desc">Start with consolidateAfter: 60s, tune based on workload stability</div></div>
         </div>
       </div>
 
       <h2>Migrating from Cluster Autoscaler</h2>
-      <pre><code># Migration strategy — run both side-by-side, then decommission CA
+      <pre><code># Migration strategy - run both side-by-side, then decommission CA
 
 # Step 1: Install Karpenter alongside Cluster Autoscaler
-# (They can coexist — Karpenter handles new provisioning,
+# (They can coexist - Karpenter handles new provisioning,
 # CA manages existing node groups)
 
 # Step 2: Create NodePool + EC2NodeClass

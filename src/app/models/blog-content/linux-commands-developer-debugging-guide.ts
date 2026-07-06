@@ -256,14 +256,14 @@ grep "request_time" access.log | awk -F'request_time=' '{print $2}' | \\
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>jq is essential</strong> &mdash; every API, Docker, and Kubernetes tool outputs JSON. jq makes it queryable.</li>
-        <li><strong>awk handles 90% of log analysis</strong> &mdash; column extraction, filtering, counting, summing</li>
-        <li><strong>ss replaces netstat</strong> &mdash; faster and shows more information about socket states</li>
-        <li><strong>strace reveals why a process is slow</strong> &mdash; it shows every system call with timing</li>
-        <li><strong>lsof +L1 finds disk space leaks</strong> &mdash; deleted files held open by running processes</li>
-        <li><strong>xargs -P enables easy parallelism</strong> &mdash; run commands across multiple inputs simultaneously</li>
-        <li><strong>Combine commands with pipes</strong> &mdash; the power is in composition, not individual tools</li>
+        <li><strong>jq is essential</strong> - every API, Docker, and Kubernetes tool outputs JSON. jq makes it queryable.</li>
+        <li><strong>awk handles 90% of log analysis</strong> - column extraction, filtering, counting, summing</li>
+        <li><strong>ss replaces netstat</strong> - faster and shows more information about socket states</li>
+        <li><strong>strace reveals why a process is slow</strong> - it shows every system call with timing</li>
+        <li><strong>lsof +L1 finds disk space leaks</strong> - deleted files held open by running processes</li>
+        <li><strong>xargs -P enables easy parallelism</strong> - run commands across multiple inputs simultaneously</li>
+        <li><strong>Combine commands with pipes</strong> - the power is in composition, not individual tools</li>
       </ul>
 
-      <p>These commands are not arcane knowledge &mdash; they are the standard toolkit for anyone who operates production systems. Spend an afternoon practicing them and you will debug faster than colleagues who reach for monitoring dashboards first. The command line is the fastest path from &ldquo;something is wrong&rdquo; to &ldquo;here is exactly what happened.&rdquo;</p>
+      <p>These commands are not arcane knowledge - they are the standard toolkit for anyone who operates production systems. Spend an afternoon practicing them and you will debug faster than colleagues who reach for monitoring dashboards first. The command line is the fastest path from &ldquo;something is wrong&rdquo; to &ldquo;here is exactly what happened.&rdquo;</p>
     `;

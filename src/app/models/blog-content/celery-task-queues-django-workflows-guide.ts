@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Your Django view takes 30 seconds because it sends emails, generates PDFs, and calls three external APIs. Your users are staring at a loading spinner. The fix is not faster code &mdash; it is moving slow work to a background task queue.</p>
+      <p>Your Django view takes 30 seconds because it sends emails, generates PDFs, and calls three external APIs. Your users are staring at a loading spinner. The fix is not faster code - it is moving slow work to a background task queue.</p>
 
       <p>Celery is the standard solution for Python. This guide takes you from basic tasks to production-grade workflows with retries, chains, monitoring, and the gotchas that bite every team.</p>
 
@@ -263,14 +263,14 @@ CELERY_TASK_ALWAYS_EAGER = False        # Never True in production!</code></pre>
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Move anything over 500ms to a background task</strong> &mdash; emails, PDFs, API calls, data processing</li>
-        <li><strong>Always pass IDs, not objects</strong> to Celery tasks &mdash; re-fetch from the database inside the task</li>
-        <li><strong>Use retries with exponential backoff</strong> for external API calls &mdash; temporary failures are normal</li>
-        <li><strong>Chains for sequential workflows, chords for fan-out/fan-in</strong> &mdash; compose complex pipelines from simple tasks</li>
-        <li><strong>Set time limits on every task</strong> &mdash; a hung worker is worse than a failed task</li>
-        <li><strong>Monitor with Flower</strong> &mdash; you cannot fix what you cannot see</li>
-        <li><strong>Design tasks to be idempotent</strong> &mdash; they will be retried, and that must be safe</li>
+        <li><strong>Move anything over 500ms to a background task</strong> - emails, PDFs, API calls, data processing</li>
+        <li><strong>Always pass IDs, not objects</strong> to Celery tasks - re-fetch from the database inside the task</li>
+        <li><strong>Use retries with exponential backoff</strong> for external API calls - temporary failures are normal</li>
+        <li><strong>Chains for sequential workflows, chords for fan-out/fan-in</strong> - compose complex pipelines from simple tasks</li>
+        <li><strong>Set time limits on every task</strong> - a hung worker is worse than a failed task</li>
+        <li><strong>Monitor with Flower</strong> - you cannot fix what you cannot see</li>
+        <li><strong>Design tasks to be idempotent</strong> - they will be retried, and that must be safe</li>
       </ul>
 
-      <p>Celery transforms your Django app from a synchronous request-response system into an asynchronous workflow engine. The key is starting simple &mdash; one task, one worker, one queue &mdash; and adding complexity (chains, chords, multiple queues) only when your workload demands it.</p>
+      <p>Celery transforms your Django app from a synchronous request-response system into an asynchronous workflow engine. The key is starting simple - one task, one worker, one queue - and adding complexity (chains, chords, multiple queues) only when your workload demands it.</p>
     `;

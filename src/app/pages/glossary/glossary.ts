@@ -104,7 +104,7 @@ export class GlossaryComponent {
     if (!slug) {
       this.isHub.set(true);
       this.seo.update({
-        title: 'Cloud Native Security Glossary — CodersSecret',
+        title: 'Cloud Native Security Glossary - CodersSecret',
         description: 'Definitions for SPIFFE, SPIRE, Zero Trust, workload identity, mTLS, OPA, Falco, service mesh, Sigstore, and more cloud-native security terms.',
         url: '/glossary',
       });
@@ -115,7 +115,7 @@ export class GlossaryComponent {
     if (entry) {
       this.entry.set(entry);
       this.seo.update({
-        title: entry.title + ' — CodersSecret',
+        title: entry.title + ' - CodersSecret',
         description: entry.description,
         url: '/glossary/' + entry.slug,
         jsonLd: [{

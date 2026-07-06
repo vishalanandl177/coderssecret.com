@@ -476,7 +476,7 @@ export class SlidePlayerComponent implements OnDestroy {
       this.copied.set(true);
       setTimeout(() => this.copied.set(false), 2000);
     } catch {
-      // Clipboard API failed (permissions, not HTTPS, etc.) — silently fail
+      // Clipboard API failed (permissions, not HTTPS, etc.) - silently fail
     }
   }
 

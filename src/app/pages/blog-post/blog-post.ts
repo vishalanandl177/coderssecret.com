@@ -903,7 +903,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
       return;
     }
 
-    // Start fresh — extract text from article content
+    // Start fresh - extract text from article content
     const article = this.el.nativeElement.querySelector('article');
     if (!article) return;
 

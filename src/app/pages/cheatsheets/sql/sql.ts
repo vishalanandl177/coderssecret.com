@@ -328,7 +328,7 @@ export class SqlCheatsheetComponent {
 
   constructor() {
     this.seo.update({
-      title: 'SQL Cheat Sheet 2026 — Quick Reference for Developers',
+      title: 'SQL Cheat Sheet 2026 - Quick Reference for Developers',
       description: 'Complete SQL cheat sheet: SELECT, JOIN, GROUP BY, window functions, subqueries, CTEs, indexes, transactions, and performance tips.',
       url: '/cheatsheets/sql',
       breadcrumbs: [

@@ -5,7 +5,7 @@
  * Each banner is:
  *  - 1200x480 (optimized for OG / blog hero)
  *  - Category-themed color palette
- *  - Unique pattern seeded from the slug (deterministic — same slug = same banner)
+ *  - Unique pattern seeded from the slug (deterministic - same slug = same banner)
  *  - Title overlaid on top
  *
  * Run: node scripts/generate-banners.js

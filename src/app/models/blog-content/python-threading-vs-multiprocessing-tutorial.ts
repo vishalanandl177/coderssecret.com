@@ -1,8 +1,8 @@
 export const CONTENT = `
-      <p>You wrote a Python script that processes 10,000 files, but it takes 30 minutes because it handles them one by one. You've heard about "threading" and "multiprocessing" but you're not sure which to use — or what the difference even is. This guide explains Python's concurrency models from the ground up, with diagrams and real code you can run.</p>
+      <p>You wrote a Python script that processes 10,000 files, but it takes 30 minutes because it handles them one by one. You've heard about "threading" and "multiprocessing" but you're not sure which to use - or what the difference even is. This guide explains Python's concurrency models from the ground up, with diagrams and real code you can run.</p>
 
       <h2>First: What Does "Concurrency" Mean?</h2>
-      <p>Imagine a restaurant kitchen. <strong>Sequential processing</strong> means one chef does everything — chops vegetables, then cooks meat, then plates the dish. <strong>Concurrency</strong> means multiple tasks make progress at the same time. But there are two ways to achieve this:</p>
+      <p>Imagine a restaurant kitchen. <strong>Sequential processing</strong> means one chef does everything - chops vegetables, then cooks meat, then plates the dish. <strong>Concurrency</strong> means multiple tasks make progress at the same time. But there are two ways to achieve this:</p>
 
       <!-- Concurrency vs Parallelism -->
       <div class="flow-diagram">
@@ -41,16 +41,16 @@ export const CONTENT = `
           <div class="layer-item" style="background:#ef4444">The GIL (Global Interpreter Lock)<span class="layer-item-sub">Only ONE thread can hold the GIL and execute Python code at a time</span></div>
           <div class="layer-item" style="background:#3b82f6">Thread 1: Hold GIL &#x2192; Run code &#x2192; Release GIL &#x2192; Wait...<span class="layer-item-sub">Gets the lock, runs for a bit, gives it up</span></div>
           <div class="layer-item" style="background:#7c3aed">Thread 2: Wait... &#x2192; Hold GIL &#x2192; Run code &#x2192; Release GIL<span class="layer-item-sub">Waits its turn, then runs when Thread 1 releases</span></div>
-          <div class="layer-item" style="background:#f97316">Thread 3: Wait... &#x2192; Wait... &#x2192; Hold GIL &#x2192; Run code<span class="layer-item-sub">Threads take turns — no true parallelism for CPU work!</span></div>
+          <div class="layer-item" style="background:#f97316">Thread 3: Wait... &#x2192; Wait... &#x2192; Hold GIL &#x2192; Run code<span class="layer-item-sub">Threads take turns - no true parallelism for CPU work!</span></div>
         </div>
       </div>
 
-      <p><strong>Why does the GIL exist?</strong> It simplifies CPython's memory management. Python objects use reference counting for garbage collection, and the GIL prevents race conditions on reference counts. Without it, every object access would need its own lock — much slower.</p>
+      <p><strong>Why does the GIL exist?</strong> It simplifies CPython's memory management. Python objects use reference counting for garbage collection, and the GIL prevents race conditions on reference counts. Without it, every object access would need its own lock - much slower.</p>
 
       <p><strong>Key insight:</strong> The GIL only blocks <em>CPU-bound</em> work. When a thread does I/O (network request, file read, database query), it <strong>releases the GIL</strong> while waiting. This is why threading works great for I/O but not for computation.</p>
 
       <h2>Threading: Perfect for I/O-Bound Work</h2>
-      <p>Use <code>threading</code> when your program spends most of its time <strong>waiting</strong> — for network responses, file I/O, database queries, or API calls.</p>
+      <p>Use <code>threading</code> when your program spends most of its time <strong>waiting</strong> - for network responses, file I/O, database queries, or API calls.</p>
 
       <pre><code>import threading
 import time
@@ -98,7 +98,7 @@ for r in results:
     print(r)
 print(f"Threaded: {time.time() - start:.1f}s")
 # Output: ~1.1s (all 5 requests run simultaneously!)
-# That's a 5x speedup — because threads release the GIL during I/O</code></pre>
+# That's a 5x speedup - because threads release the GIL during I/O</code></pre>
 
       <!-- Why Threading Works for I/O -->
       <div class="flow-diagram">
@@ -132,7 +132,7 @@ print(f"Threaded: {time.time() - start:.1f}s")
       </div>
 
       <h2>ThreadPoolExecutor: The Modern Way</h2>
-      <p>Instead of manually creating threads, use <code>concurrent.futures.ThreadPoolExecutor</code> — it manages a pool of reusable threads and returns results cleanly:</p>
+      <p>Instead of manually creating threads, use <code>concurrent.futures.ThreadPoolExecutor</code> - it manages a pool of reusable threads and returns results cleanly:</p>
       <pre><code>from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 import time
@@ -164,11 +164,11 @@ print(f"\\nCompleted in {time.time() - start:.1f}s")
 # 10 URLs with max 2s delay each, 5 workers = ~4s total (not 15s!)</code></pre>
 
       <h2>Multiprocessing: True Parallelism for CPU Work</h2>
-      <p>When your program is <strong>CPU-bound</strong> (number crunching, image processing, data transformation), threads won't help because of the GIL. Instead, use <code>multiprocessing</code> — it spawns separate Python processes, each with its own GIL and its own CPU core.</p>
+      <p>When your program is <strong>CPU-bound</strong> (number crunching, image processing, data transformation), threads won't help because of the GIL. Instead, use <code>multiprocessing</code> - it spawns separate Python processes, each with its own GIL and its own CPU core.</p>
 
       <!-- Threading vs Multiprocessing -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">Threading vs Multiprocessing — Under the Hood</div>
+        <div class="flow-diagram-title">Threading vs Multiprocessing - Under the Hood</div>
         <div class="vs-cards">
           <div class="vs-card" style="border-color:#3b82f6">
             <div class="vs-card-header" style="background:#3b82f6">&#x1F9F5; Threading</div>
@@ -283,7 +283,7 @@ print(f"Sequential: {time.time() - start:.1f}s")
 # ProcessPool is ~3-4x faster on a 4-core machine</code></pre>
 
       <h2>asyncio: The Third Option</h2>
-      <p><strong>asyncio</strong> is Python's built-in async/await framework. Like threading, it's for I/O-bound work — but instead of creating OS threads, it uses a <strong>single-threaded event loop</strong> with cooperative multitasking. It's lighter than threading and scales to thousands of concurrent connections.</p>
+      <p><strong>asyncio</strong> is Python's built-in async/await framework. Like threading, it's for I/O-bound work - but instead of creating OS threads, it uses a <strong>single-threaded event loop</strong> with cooperative multitasking. It's lighter than threading and scales to thousands of concurrent connections.</p>
       <pre><code>import asyncio
 import aiohttp
 import time
@@ -320,12 +320,12 @@ import io
 import time
 
 def download_image(url):
-    """Download an image (I/O-bound — use threads)."""
+    """Download an image (I/O-bound - use threads)."""
     response = requests.get(url, timeout=10)
     return response.content
 
 def resize_image(image_bytes):
-    """Resize an image to 300x300 (CPU-bound — use processes)."""
+    """Resize an image to 300x300 (CPU-bound - use processes)."""
     img = Image.open(io.BytesIO(image_bytes))
     img = img.resize((300, 300), Image.LANCZOS)
     buffer = io.BytesIO()
@@ -354,7 +354,7 @@ print(f"Resized {len(resized)} images in {time.time() - start:.1f}s")
 # - Processes for resizing (CPU-intensive pixel manipulation)</code></pre>
 
       <h2>Thread Safety: Race Conditions and Locks</h2>
-      <p>When multiple threads share data, you can get <strong>race conditions</strong> — bugs where the result depends on which thread runs first:</p>
+      <p>When multiple threads share data, you can get <strong>race conditions</strong> - bugs where the result depends on which thread runs first:</p>
       <pre><code>import threading
 
 # ── BROKEN: Race condition ─────────────────────
@@ -398,7 +398,7 @@ print(f"Actual:   {counter}")  # Exactly 500,000 &#x2705;
 from queue import Queue
 from collections import Counter
 
-# Queue is thread-safe by default — no locks needed
+# Queue is thread-safe by default - no locks needed
 task_queue = Queue()
 for i in range(1000):
     task_queue.put(i)
@@ -424,7 +424,7 @@ for t in threads:
 print(f"Processed {len(results)} items")  # 1000 &#x2705;</code></pre>
 
       <h2>Sharing Data Between Processes</h2>
-      <p>Processes have <strong>isolated memory</strong> — they can't share variables like threads can. Use these mechanisms to communicate:</p>
+      <p>Processes have <strong>isolated memory</strong> - they can't share variables like threads can. Use these mechanisms to communicate:</p>
       <pre><code>import multiprocessing
 
 # ── Method 1: Shared Value ─────────────────────
@@ -505,7 +505,7 @@ print(results)  # ['HELLO', 'WORLD', 'PYTHON']</code></pre>
 
       <!-- Comparison Table -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">Threading vs Multiprocessing vs asyncio — Complete Comparison</div>
+        <div class="flow-diagram-title">Threading vs Multiprocessing vs asyncio - Complete Comparison</div>
         <div style="overflow-x:auto">
           <table style="width:100%;border-collapse:collapse;font-size:0.78rem;min-width:550px">
             <thead>
@@ -562,5 +562,5 @@ asyncio.run(main())
 # Step 2: ProcessPool for CPU (process files)
 # This is the most common real-world pattern!</code></pre>
 
-      <p>Python's concurrency story is simpler than it looks: <strong>threads for waiting, processes for computing, asyncio for massive I/O scale</strong>. The GIL is not a bug — it's a design choice that makes single-threaded Python fast and safe. Once you understand it, choosing the right tool becomes second nature. Start with <code>ThreadPoolExecutor</code> and <code>ProcessPoolExecutor</code> — they handle 95% of real-world concurrency needs with clean, readable code.</p>
+      <p>Python's concurrency story is simpler than it looks: <strong>threads for waiting, processes for computing, asyncio for massive I/O scale</strong>. The GIL is not a bug - it's a design choice that makes single-threaded Python fast and safe. Once you understand it, choosing the right tool becomes second nature. Start with <code>ThreadPoolExecutor</code> and <code>ProcessPoolExecutor</code> - they handle 95% of real-world concurrency needs with clean, readable code.</p>
     `;

@@ -31,16 +31,16 @@ export class ThreatModelingChallengeComponent {
     description: 'Map the attack surface of real cloud-native systems. Each scenario presents an architecture or data-flow diagram and asks you to enumerate threats with STRIDE, prioritise mitigations, and identify the trust boundary that actually matters.',
     steps: [
       'Each scenario shows an architecture diagram, data flow, or asset inventory from a real cloud-native system.',
-      'Identify the top threat from four plausible options — the wrong answers explain why they look plausible but rank lower.',
+      'Identify the top threat from four plausible options - the wrong answers explain why they look plausible but rank lower.',
       'Read the production explanation, follow the link to the relevant lesson, and move to the next scenario.',
-      'Score yourself across all six rounds — covering STRIDE classification, trust boundaries, data classification, attack trees, severity prioritisation, and mitigation cost.',
+      'Score yourself across all six rounds - covering STRIDE classification, trust boundaries, data classification, attack trees, severity prioritisation, and mitigation cost.',
     ],
     practiceTitle: `What You'll Practice`,
-    practiceDescription: 'Threat modeling is the most leveraged security skill — finding what to fix before it ships costs less than every alternative.',
+    practiceDescription: 'Threat modeling is the most leveraged security skill - finding what to fix before it ships costs less than every alternative.',
     practiceConcepts: [
       { name: 'STRIDE', description: 'Spoofing/Tampering/Repudiation/Info-disclosure/DoS/Escalation' },
       { name: 'Trust Boundaries', description: 'Where one trust domain ends and another begins' },
-      { name: 'Data Classification', description: 'PII, secrets, public — handling decisions' },
+      { name: 'Data Classification', description: 'PII, secrets, public - handling decisions' },
       { name: 'Attack Trees', description: 'Working back from the goal to the entry' },
       { name: 'Severity', description: 'DREAD-style impact + likelihood' },
       { name: 'Mitigations', description: 'Cost vs effectiveness ranking' },
@@ -57,8 +57,8 @@ export class ThreatModelingChallengeComponent {
   results: QuizResults = {
     perfect: { headline: 'Threat model mastered. Flawless run.', emoji: '\u{1F947}', message: 'You think like an attacker AND a designer. The Cloud Native Security Engineering course goes deeper into adversarial architecture, attack-graph automation, and the patterns that scale across hundreds of services.' },
     great: { headline: 'You read architectures like an adversary.', emoji: '\u{1F9E0}', message: 'Strong instincts. Brush up on the few you missed and integrate STRIDE/PASTA reviews into your design-review process.' },
-    good: { headline: 'Solid foundation — refine the rough edges.', emoji: '\u{1F4DA}', message: 'You know the framework. The structured curriculum walks through threat modeling on real cloud-native systems with end-to-end labs.' },
-    weak: { headline: 'Time to learn the threat-modeling fundamentals.', emoji: '\u{1F50D}', message: 'STRIDE, trust boundaries, attack trees — these are the language of defensive design. Start with the introduction-cloud-native-security module, then come back.' },
+    good: { headline: 'Solid foundation - refine the rough edges.', emoji: '\u{1F4DA}', message: 'You know the framework. The structured curriculum walks through threat modeling on real cloud-native systems with end-to-end labs.' },
+    weak: { headline: 'Time to learn the threat-modeling fundamentals.', emoji: '\u{1F50D}', message: 'STRIDE, trust boundaries, attack trees - these are the language of defensive design. Start with the introduction-cloud-native-security module, then come back.' },
   };
 
   callToActions: QuizCallToActions = {
@@ -83,27 +83,27 @@ Token spec:
       question: 'Which STRIDE category does the enumeration attack primarily fall into?',
       choices: [
         {
-          label: 'D — Denial of Service',
+          label: 'D - Denial of Service',
           correct: false,
-          feedback: 'Token enumeration aims to take over accounts, not deny service. DoS is when the attack prevents legitimate use — different threat class.',
+          feedback: 'Token enumeration aims to take over accounts, not deny service. DoS is when the attack prevents legitimate use - different threat class.',
         },
         {
-          label: 'S — Spoofing of identity. The attacker proves "I am the user with this email" without actually being them, by guessing a credential (the reset token).',
+          label: 'S - Spoofing of identity. The attacker proves "I am the user with this email" without actually being them, by guessing a credential (the reset token).',
           correct: true,
-          feedback: 'Correct. The attack lets the adversary impersonate the legitimate user — that\'s spoofing in STRIDE. Mitigations: longer tokens (32+ random chars; 62^32 is unguessable), shorter validity (15-30 minutes), per-account rate limiting (not just per-IP — IPs are cheap), and constant-time token lookup. Also consider: tie the reset to a session cookie set when the request was made, so a cross-device email click + reset doesn\'t work.',
+          feedback: 'Correct. The attack lets the adversary impersonate the legitimate user - that\'s spoofing in STRIDE. Mitigations: longer tokens (32+ random chars; 62^32 is unguessable), shorter validity (15-30 minutes), per-account rate limiting (not just per-IP - IPs are cheap), and constant-time token lookup. Also consider: tie the reset to a session cookie set when the request was made, so a cross-device email click + reset doesn\'t work.',
         },
         {
-          label: 'I — Information Disclosure. The attacker learns information they shouldn\'t.',
+          label: 'I - Information Disclosure. The attacker learns information they shouldn\'t.',
           correct: false,
-          feedback: 'Information disclosure is unintended leakage — leaked logs, exposed APIs, error messages. Token enumeration is about gaining authentication, not learning info.',
+          feedback: 'Information disclosure is unintended leakage - leaked logs, exposed APIs, error messages. Token enumeration is about gaining authentication, not learning info.',
         },
         {
-          label: 'R — Repudiation. The attacker denies having performed the action.',
+          label: 'R - Repudiation. The attacker denies having performed the action.',
           correct: false,
-          feedback: 'Repudiation is about disowning legitimate actions — solved by audit logs and signatures. Not the right category here.',
+          feedback: 'Repudiation is about disowning legitimate actions - solved by audit logs and signatures. Not the right category here.',
         },
       ],
-      explanation: 'STRIDE is a mnemonic for threat categories: Spoofing (auth bypass), Tampering (integrity), Repudiation (audit), Information disclosure (confidentiality), Denial of Service (availability), Elevation of privilege (authz bypass). Most threats fit multiple categories — but identifying the primary one drives the right mitigation. Token enumeration is spoofing; SQL injection is tampering + information disclosure; CSRF is spoofing + tampering. STRIDE per-flow (vs per-component) is more useful in modern cloud-native systems.',
+      explanation: 'STRIDE is a mnemonic for threat categories: Spoofing (auth bypass), Tampering (integrity), Repudiation (audit), Information disclosure (confidentiality), Denial of Service (availability), Elevation of privilege (authz bypass). Most threats fit multiple categories - but identifying the primary one drives the right mitigation. Token enumeration is spoofing; SQL injection is tampering + information disclosure; CSRF is spoofing + tampering. STRIDE per-flow (vs per-component) is more useful in modern cloud-native systems.',
       learnMore: { label: 'Threat modeling foundations', href: '/courses/cloud-native-security-engineering/introduction-cloud-native-security' },
     },
     {
@@ -144,10 +144,10 @@ Token spec:
         {
           label: 'K8s Ingress → API Pod. The mesh-internal boundary.',
           correct: false,
-          feedback: 'Important to enforce mTLS here, but the API pod is already inside the trust zone — compromise here is less catastrophic than compromise at the data boundary.',
+          feedback: 'Important to enforce mTLS here, but the API pod is already inside the trust zone - compromise here is less catastrophic than compromise at the data boundary.',
         },
       ],
-      explanation: 'The most valuable trust boundary is the one between "code that processes input" and "data of record". Compromise of the input-processing layer (API, web app) is regularly assumed in threat modeling — it\'s the data boundary that determines blast radius. This is why the principle "don\'t use database superusers for application connections" matters more than any individual web-layer hardening. Same principle: AWS IAM least-privilege between application and S3/DynamoDB; Kubernetes RBAC scoped to specific verbs/resources; service-to-service authz enforced at the receiving service.',
+      explanation: 'The most valuable trust boundary is the one between "code that processes input" and "data of record". Compromise of the input-processing layer (API, web app) is regularly assumed in threat modeling - it\'s the data boundary that determines blast radius. This is why the principle "don\'t use database superusers for application connections" matters more than any individual web-layer hardening. Same principle: AWS IAM least-privilege between application and S3/DynamoDB; Kubernetes RBAC scoped to specific verbs/resources; service-to-service authz enforced at the receiving service.',
       learnMore: { label: 'Architect Zero Trust systems', href: '/courses/cloud-native-security-engineering/zero-trust-security-fundamentals' },
     },
     {
@@ -166,12 +166,12 @@ Token spec:
         {
           label: 'Email and IP address. Password hash and device fingerprint are anonymized.',
           correct: false,
-          feedback: 'IP address is correctly identified as PII. But "password hash and device fingerprint are anonymized" is wrong — both are linked to a specific person and used to identify or track them.',
+          feedback: 'IP address is correctly identified as PII. But "password hash and device fingerprint are anonymized" is wrong - both are linked to a specific person and used to identify or track them.',
         },
         {
-          label: 'Email, signup IP, password hash, AND device fingerprint hash. GDPR considers any data that can identify or track a specific individual to be personal data — even hashed device fingerprints are personal data when used to recognize a person across sessions.',
+          label: 'Email, signup IP, password hash, AND device fingerprint hash. GDPR considers any data that can identify or track a specific individual to be personal data - even hashed device fingerprints are personal data when used to recognize a person across sessions.',
           correct: true,
-          feedback: 'Correct. GDPR Article 4 defines personal data broadly: any information relating to an identified or identifiable natural person. Hashed values are NOT anonymous — they\'re pseudonymous if they consistently identify a person, and pseudonymous data is still personal data under GDPR. Device fingerprints (even hashed) are explicitly cited in EDPB guidance. Password hashes are personal data because they\'re tied to the account. Storage handling: encryption at rest, retention policies, the right to erasure, and clear data-flow documentation.',
+          feedback: 'Correct. GDPR Article 4 defines personal data broadly: any information relating to an identified or identifiable natural person. Hashed values are NOT anonymous - they\'re pseudonymous if they consistently identify a person, and pseudonymous data is still personal data under GDPR. Device fingerprints (even hashed) are explicitly cited in EDPB guidance. Password hashes are personal data because they\'re tied to the account. Storage handling: encryption at rest, retention policies, the right to erasure, and clear data-flow documentation.',
         },
         {
           label: 'Only email is PII; everything else is technical metadata.',
@@ -179,19 +179,19 @@ Token spec:
           feedback: 'IP address is established PII (CJEU ruling C-582/14). Password hash is an authentication credential tied to a person. Device fingerprint is explicitly PII per EDPB.',
         },
         {
-          label: 'None of it is PII — all values are hashed or pseudonymised.',
+          label: 'None of it is PII - all values are hashed or pseudonymised.',
           correct: false,
           feedback: 'Email and IP are not hashed. And "hashed = anonymous" is a common misconception that GDPR rejects.',
         },
       ],
-      explanation: 'PII / personal data classification drives a lot of architectural decisions: encryption at rest, retention policies, deletion rights, audit logs of access, data residency. The mistake of thinking "I hashed it, so it\'s anonymous" leads to compliance gaps — and to design decisions that make true anonymisation harder later. The cleaner pattern: classify each field on collection (Public / Internal / PII / PII-Sensitive / Secret), apply handling policy programmatically, and audit data-egress paths against the classification.',
+      explanation: 'PII / personal data classification drives a lot of architectural decisions: encryption at rest, retention policies, deletion rights, audit logs of access, data residency. The mistake of thinking "I hashed it, so it\'s anonymous" leads to compliance gaps - and to design decisions that make true anonymisation harder later. The cleaner pattern: classify each field on collection (Public / Internal / PII / PII-Sensitive / Secret), apply handling policy programmatically, and audit data-egress paths against the classification.',
       learnMore: { label: 'Compliance-aware architecture', href: '/courses/cloud-native-security-engineering' },
     },
     {
       id: 'attack-tree',
       topic: 'Attack Trees',
       title: 'Working back from the attacker\'s goal',
-      briefing: 'An attacker\'s goal: exfiltrate the customer database. You map the attack tree — every path that achieves the goal. Which root path is the most plausible entry?',
+      briefing: 'An attacker\'s goal: exfiltrate the customer database. You map the attack tree - every path that achieves the goal. Which root path is the most plausible entry?',
       yaml: `Goal: Exfiltrate customer DB
 
 Branches:
@@ -206,27 +206,27 @@ Defender resources are limited.`,
       question: 'Which branch typically has the highest probability AND is most under-defended in mid-stage companies?',
       choices: [
         {
-          label: 'B — 0-day RCE in the public API. Most attack reports describe RCE; therefore most attacks are RCE.',
+          label: 'B - 0-day RCE in the public API. Most attack reports describe RCE; therefore most attacks are RCE.',
           correct: false,
-          feedback: 'Reporting bias — public attack disclosures over-represent technically interesting RCE. In real-world incident data, RCE is far less common than supply-chain and credential paths.',
+          feedback: 'Reporting bias - public attack disclosures over-represent technically interesting RCE. In real-world incident data, RCE is far less common than supply-chain and credential paths.',
         },
         {
-          label: 'F — CI runner compromise. Mid-stage companies regularly grant CI broad access (deploy + read secrets), pin actions to mutable refs, and don\'t harden runners. A compromised runner = stolen secrets = direct DB access. Verizon DBIR consistently shows credentials and supply-chain over 0-days.',
+          label: 'F - CI runner compromise. Mid-stage companies regularly grant CI broad access (deploy + read secrets), pin actions to mutable refs, and don\'t harden runners. A compromised runner = stolen secrets = direct DB access. Verizon DBIR consistently shows credentials and supply-chain over 0-days.',
           correct: true,
           feedback: 'Correct. CI/CD compromise has eclipsed RCE in real-world breach reports for several years (Verizon DBIR, Mandiant M-Trends). Mid-stage companies tend to have under-hardened CI: GITHUB_TOKEN with full permissions, action references like @main, secrets accessible to fork PRs (pull_request_target patterns), self-hosted runners with privileged Docker access, and broad cloud IAM scopes. The fix: minimum permissions, SHA-pinned actions, OIDC-based ephemeral cloud auth, ephemeral runners.',
         },
         {
-          label: 'D — Insider threat. Most breach data implicates insiders.',
+          label: 'D - Insider threat. Most breach data implicates insiders.',
           correct: false,
           feedback: 'Insider threats are real but require established defenses (DLP, behavior analytics, separation of duties) that are different from technical/access defenses. Not the typical "high prob + under-defended" cell for mid-stage companies.',
         },
         {
-          label: 'A — Developer laptop compromise. Most laptops are unmanaged.',
+          label: 'A - Developer laptop compromise. Most laptops are unmanaged.',
           correct: false,
           feedback: 'Laptop compromise IS common, but mature companies are increasingly addressing it (MDM, hardware security keys, no-prod-creds-on-laptop policies). At mid-stage it\'s a real risk but typically less than CI compromise.',
         },
       ],
-      explanation: 'Attack tree analysis is a forcing function: enumerate every plausible path, estimate probability and effort, and budget defense by the highest-leverage paths. The mistake is letting attention follow novelty (RCE, exotic exploits) rather than data (credentials, supply chain). The Verizon DBIR is the best annual reality check on real breach causes — read it, then re-prioritise. CI/CD hardening has the highest ratio of "attack risk" to "engineering effort" for most companies right now.',
+      explanation: 'Attack tree analysis is a forcing function: enumerate every plausible path, estimate probability and effort, and budget defense by the highest-leverage paths. The mistake is letting attention follow novelty (RCE, exotic exploits) rather than data (credentials, supply chain). The Verizon DBIR is the best annual reality check on real breach causes - read it, then re-prioritise. CI/CD hardening has the highest ratio of "attack risk" to "engineering effort" for most companies right now.',
       learnMore: { label: 'Secure CI/CD pipelines', href: '/courses/cloud-native-security-engineering/secure-cicd-pipelines' },
     },
     {
@@ -251,27 +251,27 @@ T3: Unencrypted backups in S3 bucket "company-backups".
       question: 'Which one ships this sprint?',
       choices: [
         {
-          label: 'T1 — XSS in admin. Persistence is the most dangerous outcome.',
+          label: 'T1 - XSS in admin. Persistence is the most dangerous outcome.',
           correct: false,
           feedback: 'Limited audience (5 internal users) and requires already-authenticated admin. Real risk but low likelihood.',
         },
         {
-          label: 'T2 — Missing authz on profile API. High likelihood (any user) × medium impact (PII exposure across the user base) = highest risk × cost ratio. Also smallest fix surface (one endpoint, one check).',
+          label: 'T2 - Missing authz on profile API. High likelihood (any user) × medium impact (PII exposure across the user base) = highest risk × cost ratio. Also smallest fix surface (one endpoint, one check).',
           correct: true,
-          feedback: 'Correct. Risk = Impact × Likelihood. T2: medium impact × high likelihood × low cost-to-fix = best ratio this sprint. T2 is also a class of vulnerability (BOLA / IDOR — Broken Object Level Authorization) that\'s OWASP API Top 10 #1 and a common breach vector. The fix is a few lines of authz code. T1 and T3 are real but lower likelihood and bigger fix surfaces.',
+          feedback: 'Correct. Risk = Impact × Likelihood. T2: medium impact × high likelihood × low cost-to-fix = best ratio this sprint. T2 is also a class of vulnerability (BOLA / IDOR - Broken Object Level Authorization) that\'s OWASP API Top 10 #1 and a common breach vector. The fix is a few lines of authz code. T1 and T3 are real but lower likelihood and bigger fix surfaces.',
         },
         {
-          label: 'T3 — Unencrypted backups. Backup leakage is catastrophic.',
+          label: 'T3 - Unencrypted backups. Backup leakage is catastrophic.',
           correct: false,
-          feedback: 'Catastrophic IF exploited, but likelihood is low (private bucket, allowlist). Encrypt backups as a sprint follow-up — it\'s a hardening, not a hot risk.',
+          feedback: 'Catastrophic IF exploited, but likelihood is low (private bucket, allowlist). Encrypt backups as a sprint follow-up - it\'s a hardening, not a hot risk.',
         },
         {
-          label: 'All three are equal — split the sprint into thirds.',
+          label: 'All three are equal - split the sprint into thirds.',
           correct: false,
           feedback: 'Splitting capacity 3 ways means none get done well. Prioritise.',
         },
       ],
-      explanation: 'Severity = Impact × Likelihood is the simplest useful model. DREAD adds Discoverability/Reproducibility/Exploitability for nuance. CVSS v3.1 is the industry-standard score. The trap is letting "scary" override "likely" — a low-probability catastrophic threat is still lower priority than a high-probability moderate one when capacity is tight. Track all three; ship the highest ratio.',
+      explanation: 'Severity = Impact × Likelihood is the simplest useful model. DREAD adds Discoverability/Reproducibility/Exploitability for nuance. CVSS v3.1 is the industry-standard score. The trap is letting "scary" override "likely" - a low-probability catastrophic threat is still lower priority than a high-probability moderate one when capacity is tight. Track all three; ship the highest ratio.',
       learnMore: { label: 'API security risk patterns', href: '/games/api-attack-defense' },
     },
     {
@@ -299,7 +299,7 @@ Option C: Run trivy on every PR + pre-deploy scan
         {
           label: 'A. Replacing the long-lived key with IRSA + scope-limiting the IAM role to "write Kinesis, no S3 read" turns a catastrophic compromise into a contained one. The AWS credential has minutes-of-validity, only the permissions actually needed, and is automatically rotated.',
           correct: true,
-          feedback: 'Correct. Workload-identity + least-privilege closes the worst-case impact even if the code is compromised. A 60-minute STS token with Kinesis-write only is a much smaller blast radius than a long-lived key with S3 read access. Combine with WAF (defence in depth at the edge), code scanning (catch issues pre-deploy), and runtime detection (Falco for unexpected egress) — no single mitigation is enough, but workload identity + least-privilege is the single highest-impact change.',
+          feedback: 'Correct. Workload-identity + least-privilege closes the worst-case impact even if the code is compromised. A 60-minute STS token with Kinesis-write only is a much smaller blast radius than a long-lived key with S3 read access. Combine with WAF (defence in depth at the edge), code scanning (catch issues pre-deploy), and runtime detection (Falco for unexpected egress) - no single mitigation is enough, but workload identity + least-privilege is the single highest-impact change.',
         },
         {
           label: 'C. Code scanning catches the bug before it ships.',
@@ -307,12 +307,12 @@ Option C: Run trivy on every PR + pre-deploy scan
           feedback: 'Scanners catch known patterns; novel bugs pass. Reducing the blast radius of "code is exploited" is the more durable defence. Use scanners AND least-privilege, not scanners INSTEAD OF least-privilege.',
         },
         {
-          label: 'All three are equal — implement all simultaneously.',
+          label: 'All three are equal - implement all simultaneously.',
           correct: false,
           feedback: 'They\'re not equal. A reduces blast radius; B catches edge attacks; C catches known patterns. Sequence by impact: A first, B and C as parallel work after.',
         },
       ],
-      explanation: 'The most-leveraged security investment is usually shrinking the blast radius of the next compromise — workload identity, least-privilege IAM, network segmentation, scoped database users. These mitigations apply broadly and benefit every workload running in the platform. Edge defenses (WAF) and detection (scanners, runtime alerts) are necessary too, but they assume the code is compromised in some way the defender didn\'t anticipate. The defence-in-depth stack is "shrink blast radius + catch known patterns + detect anomalies" — not any single one.',
+      explanation: 'The most-leveraged security investment is usually shrinking the blast radius of the next compromise - workload identity, least-privilege IAM, network segmentation, scoped database users. These mitigations apply broadly and benefit every workload running in the platform. Edge defenses (WAF) and detection (scanners, runtime alerts) are necessary too, but they assume the code is compromised in some way the defender didn\'t anticipate. The defence-in-depth stack is "shrink blast radius + catch known patterns + detect anomalies" - not any single one.',
       learnMore: { label: 'Machine identity & least privilege', href: '/courses/mastering-spiffe-spire' },
     },
   ];

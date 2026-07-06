@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Google uses Core Web Vitals as a ranking factor. A slow site does not just frustrate users &mdash; it literally pushes you down in search results. Yet most developers treat performance as an afterthought, adding a lazy loading directive and calling it done.</p>
+      <p>Google uses Core Web Vitals as a ranking factor. A slow site does not just frustrate users - it literally pushes you down in search results. Yet most developers treat performance as an afterthought, adding a lazy loading directive and calling it done.</p>
 
       <p>This guide takes you from red Lighthouse scores to green with concrete, measurable optimizations for each Core Web Vital.</p>
 
@@ -18,21 +18,21 @@ export const CONTENT = `
         <tbody>
           <tr>
             <td><strong>LCP</strong> (Largest Contentful Paint)</td>
-            <td>Loading speed &mdash; when the biggest visible element renders</td>
+            <td>Loading speed - when the biggest visible element renders</td>
             <td>&le; 2.5s</td>
             <td>2.5s - 4.0s</td>
             <td>&gt; 4.0s</td>
           </tr>
           <tr>
             <td><strong>INP</strong> (Interaction to Next Paint)</td>
-            <td>Responsiveness &mdash; delay between user interaction and visual response</td>
+            <td>Responsiveness - delay between user interaction and visual response</td>
             <td>&le; 200ms</td>
             <td>200ms - 500ms</td>
             <td>&gt; 500ms</td>
           </tr>
           <tr>
             <td><strong>CLS</strong> (Cumulative Layout Shift)</td>
-            <td>Visual stability &mdash; how much the page layout shifts unexpectedly</td>
+            <td>Visual stability - how much the page layout shifts unexpectedly</td>
             <td>&le; 0.1</td>
             <td>0.1 - 0.25</td>
             <td>&gt; 0.25</td>
@@ -249,7 +249,7 @@ import { NgOptimizedImage } from '@angular/common';
       <h2>Measurement Tools</h2>
 
       <ul>
-        <li><strong>Lighthouse (Chrome DevTools):</strong> Lab data &mdash; synthetic tests on your machine</li>
+        <li><strong>Lighthouse (Chrome DevTools):</strong> Lab data - synthetic tests on your machine</li>
         <li><strong>PageSpeed Insights:</strong> Combines lab data with real-user data from CrUX</li>
         <li><strong>Web Vitals JS library:</strong> Measure real user metrics in production</li>
         <li><strong>Chrome DevTools Performance tab:</strong> Flame chart showing exactly where time is spent</li>
@@ -282,10 +282,10 @@ function sendToAnalytics(name, metric) {
         <li><strong>LCP:</strong> Optimize the hero image (AVIF/WebP, preload, fetchpriority), inline critical CSS, defer everything else</li>
         <li><strong>INP:</strong> Break long tasks into chunks with setTimeout(0), throttle event handlers, use CSS contain</li>
         <li><strong>CLS:</strong> Always set image dimensions, use font-display: swap with size-adjust, reserve space for dynamic content</li>
-        <li><strong>Never lazy-load above-the-fold content</strong> &mdash; it makes LCP worse, not better</li>
-        <li><strong>Use Angular @defer</strong> for below-the-fold components &mdash; it is built-in code splitting</li>
-        <li><strong>Measure real users, not just Lighthouse</strong> &mdash; lab scores and field data often tell different stories</li>
-        <li><strong>Performance is a feature</strong> &mdash; every 100ms of delay reduces conversions by 7%</li>
+        <li><strong>Never lazy-load above-the-fold content</strong> - it makes LCP worse, not better</li>
+        <li><strong>Use Angular @defer</strong> for below-the-fold components - it is built-in code splitting</li>
+        <li><strong>Measure real users, not just Lighthouse</strong> - lab scores and field data often tell different stories</li>
+        <li><strong>Performance is a feature</strong> - every 100ms of delay reduces conversions by 7%</li>
       </ul>
 
       <p>Web performance is not about chasing a perfect Lighthouse score. It is about ensuring real users on real devices have a fast, stable, responsive experience. Fix the fundamentals in this guide, measure with real-user data, and iterate on what matters most to your users.</p>

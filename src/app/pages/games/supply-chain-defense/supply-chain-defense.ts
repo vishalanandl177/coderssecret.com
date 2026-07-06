@@ -28,15 +28,15 @@ export class SupplyChainDefenseComponent {
     badge: 'Supply Chain Lab',
     titlePlain: 'Supply Chain',
     titleGradient: 'Defense Simulator',
-    description: 'Most security incidents now begin in the supply chain — a compromised dependency, an unsigned image, a leaked CI token. Each scenario drops you into a real attack class and asks you to spot the gap before the build promotes to production.',
+    description: 'Most security incidents now begin in the supply chain - a compromised dependency, an unsigned image, a leaked CI token. Each scenario drops you into a real attack class and asks you to spot the gap before the build promotes to production.',
     steps: [
       'Each scenario shows a CI/CD config, an SBOM diff, or a registry artefact with a hidden supply-chain risk.',
-      'Identify the issue from four plausible options — the wrong answers explain why they look reasonable but miss the real risk.',
+      'Identify the issue from four plausible options - the wrong answers explain why they look reasonable but miss the real risk.',
       'Read the production explanation, follow the link to the relevant lesson, and move to the next scenario.',
-      'Score yourself across all six rounds — covering signature verification, SBOM gaps, SLSA provenance, dependency confusion, CI runner compromise, and admission policy.',
+      'Score yourself across all six rounds - covering signature verification, SBOM gaps, SLSA provenance, dependency confusion, CI runner compromise, and admission policy.',
     ],
     practiceTitle: `What You'll Practice`,
-    practiceDescription: 'The simulator covers the supply-chain attack classes that show up in real-world incident reports — from SolarWinds to xz-utils to compromised npm packages.',
+    practiceDescription: 'The simulator covers the supply-chain attack classes that show up in real-world incident reports - from SolarWinds to xz-utils to compromised npm packages.',
     practiceConcepts: [
       { name: 'Sigstore', description: 'cosign signing & verification gates' },
       { name: 'SBOM', description: 'syft / grype / CycloneDX coverage' },
@@ -57,7 +57,7 @@ export class SupplyChainDefenseComponent {
   results: QuizResults = {
     perfect: { headline: 'Supply chain hardened. Flawless run.', emoji: '\u{1F947}', message: 'You spotted every supply-chain gap. The Cloud Native Security Engineering course goes deeper into multi-org SLSA design and the gates that scale across hundreds of services.' },
     great: { headline: 'You think like an SBOM auditor.', emoji: '\u{1F510}', message: 'Strong instincts. Brush up on the few you missed and read the DevSecOps cheatsheet for the hardened cosign / Kyverno patterns.' },
-    good: { headline: 'Solid foundation — refine the rough edges.', emoji: '\u{1F4DA}', message: 'You know the patterns. The structured curriculum walks through each attack class with the labs to deploy the fixes.' },
+    good: { headline: 'Solid foundation - refine the rough edges.', emoji: '\u{1F4DA}', message: 'You know the patterns. The structured curriculum walks through each attack class with the labs to deploy the fixes.' },
     weak: { headline: 'Time to dig into supply chain fundamentals.', emoji: '\u{1F50D}', message: 'These are the SolarWinds / xz-utils / dependency-confusion patterns. Start with the supply-chain modules and the DevSecOps cheatsheet, then come back.' },
   };
 
@@ -89,12 +89,12 @@ verifyImages:
           feedback: 'Without --key, cosign verifies via Sigstore keyless (Fulcio + Rekor). That\'s correct usage. The bug is elsewhere.',
         },
         {
-          label: '"any keyless signer accepted" means an attacker can sign their own malicious image with their own GitHub identity and the gate passes — the policy verifies signed-ness but not signed-by-whom.',
+          label: '"any keyless signer accepted" means an attacker can sign their own malicious image with their own GitHub identity and the gate passes - the policy verifies signed-ness but not signed-by-whom.',
           correct: true,
-          feedback: 'Correct. Sigstore keyless lets anyone with any OIDC identity sign anything. Without an identity allowlist (--certificate-identity-regexp + --certificate-oidc-issuer in cosign, or matching attestor block in Kyverno), the gate confirms "this image is signed by someone Sigstore knows about" — which is trivially satisfied by an attacker.',
+          feedback: 'Correct. Sigstore keyless lets anyone with any OIDC identity sign anything. Without an identity allowlist (--certificate-identity-regexp + --certificate-oidc-issuer in cosign, or matching attestor block in Kyverno), the gate confirms "this image is signed by someone Sigstore knows about" - which is trivially satisfied by an attacker.',
         },
         {
-          label: 'Kyverno doesn\'t support Sigstore — must use the cosigned admission controller.',
+          label: 'Kyverno doesn\'t support Sigstore - must use the cosigned admission controller.',
           correct: false,
           feedback: 'Kyverno fully supports Sigstore (verifyImages rule). cosigned is an alternative; both work.',
         },
@@ -104,7 +104,7 @@ verifyImages:
           feedback: 'cosign verify checks the specified reference. It works on tags, digests, and digest-pinned images.',
         },
       ],
-      explanation: 'The hardened pattern: pin the expected signer identity. In cosign: --certificate-identity-regexp ".*@example.com$" --certificate-oidc-issuer "https://accounts.google.com". In Kyverno verifyImages: attestors with an entries.keyless block specifying subject and issuer. Even better, gate on a specific repo name in the certificate identity (e.g. "ci@github.com:example/payments-api"). The whole point of keyless is the verifiable identity — use it.',
+      explanation: 'The hardened pattern: pin the expected signer identity. In cosign: --certificate-identity-regexp ".*@example.com$" --certificate-oidc-issuer "https://accounts.google.com". In Kyverno verifyImages: attestors with an entries.keyless block specifying subject and issuer. Even better, gate on a specific repo name in the certificate identity (e.g. "ci@github.com:example/payments-api"). The whole point of keyless is the verifiable identity - use it.',
       learnMore: { label: 'Sigstore in production', href: '/courses/cloud-native-security-engineering/secure-cicd-pipelines' },
     },
     {
@@ -131,9 +131,9 @@ $ syft registry/api:latest -o spdx-json | jq '.packages | length'
           feedback: 'Trivy maintains its own DB independently of the build. --no-cache affects build-time, not scan-time.',
         },
         {
-          label: 'syft and trivy detect Go module dependencies only when the binary embeds module metadata. If the build passed `-trimpath -ldflags "-s -w"`, module info is stripped — so the scanner sees only the OS package layer, not the Go module graph.',
+          label: 'syft and trivy detect Go module dependencies only when the binary embeds module metadata. If the build passed `-trimpath -ldflags "-s -w"`, module info is stripped - so the scanner sees only the OS package layer, not the Go module graph.',
           correct: true,
-          feedback: 'Correct. -ldflags "-s -w" strips symbol tables, and stripping or LDFLAGS that drop debug info also drop the buildinfo section that syft needs to identify Go modules. The CVE database for Go vulns is huge and well-maintained — but only matters if the SBOM is complete. Fix: build with module info preserved (drop -s -w in production builds, or use go build with -buildvcs=true) and verify SBOM coverage in CI.',
+          feedback: 'Correct. -ldflags "-s -w" strips symbol tables, and stripping or LDFLAGS that drop debug info also drop the buildinfo section that syft needs to identify Go modules. The CVE database for Go vulns is huge and well-maintained - but only matters if the SBOM is complete. Fix: build with module info preserved (drop -s -w in production builds, or use go build with -buildvcs=true) and verify SBOM coverage in CI.',
         },
         {
           label: 'Go binaries are immune to vulnerabilities by design.',
@@ -141,12 +141,12 @@ $ syft registry/api:latest -o spdx-json | jq '.packages | length'
           feedback: 'Go binaries inherit every CVE in their dependency graph. The Go ecosystem (gopkg.in, golang.org/x/, third-party) has plenty of CVEs.',
         },
         {
-          label: 'Trivy doesn\'t support Go — only Java, Python, npm.',
+          label: 'Trivy doesn\'t support Go - only Java, Python, npm.',
           correct: false,
-          feedback: 'Trivy fully supports Go module detection — when the binary metadata is intact.',
+          feedback: 'Trivy fully supports Go module detection - when the binary metadata is intact.',
         },
       ],
-      explanation: 'A "clean" SBOM is often an incomplete SBOM. The hardening pattern: (1) measure SBOM coverage in CI — count packages and compare to expected; (2) generate the SBOM at the source (build time) when full module info is available, not after the fact; (3) sign and attach the SBOM as a Sigstore attestation so consumers can verify it; (4) use language-aware scanners (osv-scanner, govulncheck) in addition to image scanners. Trivy + grype catch what they can see; if they can\'t see the modules, they can\'t catch their CVEs.',
+      explanation: 'A "clean" SBOM is often an incomplete SBOM. The hardening pattern: (1) measure SBOM coverage in CI - count packages and compare to expected; (2) generate the SBOM at the source (build time) when full module info is available, not after the fact; (3) sign and attach the SBOM as a Sigstore attestation so consumers can verify it; (4) use language-aware scanners (osv-scanner, govulncheck) in addition to image scanners. Trivy + grype catch what they can see; if they can\'t see the modules, they can\'t catch their CVEs.',
       learnMore: { label: 'Build trustworthy SBOMs', href: '/courses/cloud-native-security-engineering/secure-cicd-pipelines' },
     },
     {
@@ -175,9 +175,9 @@ $ syft registry/api:latest -o spdx-json | jq '.packages | length'
           feedback: 'SLSA doesn\'t mandate hash algorithm. The bar is about provenance non-forgeability, not crypto choice.',
         },
         {
-          label: 'SLSA L3 requires the build platform itself (not the build) to attest provenance — and the signing key must be isolated from the build environment so a compromised build can\'t forge provenance. Self-hosted "vendor-internal-buildbot" with the signing key on the same machine is L2 at best.',
+          label: 'SLSA L3 requires the build platform itself (not the build) to attest provenance - and the signing key must be isolated from the build environment so a compromised build can\'t forge provenance. Self-hosted "vendor-internal-buildbot" with the signing key on the same machine is L2 at best.',
           correct: true,
-          feedback: 'Correct. The L2 → L3 jump is exactly that: provenance must come from a hardened, isolated build platform whose signing key the build job cannot access. GitHub Actions slsa-github-generator (which uses workflow OIDC + a non-runner-side signer) hits L3. A self-hosted Jenkins where the build job has access to the private key is L2 max — a compromised build can sign forged provenance.',
+          feedback: 'Correct. The L2 → L3 jump is exactly that: provenance must come from a hardened, isolated build platform whose signing key the build job cannot access. GitHub Actions slsa-github-generator (which uses workflow OIDC + a non-runner-side signer) hits L3. A self-hosted Jenkins where the build job has access to the private key is L2 max - a compromised build can sign forged provenance.',
         },
         {
           label: 'SLSA L3 requires the materials to be reproduced at consumer time.',
@@ -185,7 +185,7 @@ $ syft registry/api:latest -o spdx-json | jq '.packages | length'
           feedback: 'Reproducible builds are not a SLSA requirement (though they help). The L3 bar is about provenance integrity.',
         },
         {
-          label: 'SLSA L3 requires the use of cosign — RSA-signed provenance is not SLSA.',
+          label: 'SLSA L3 requires the use of cosign - RSA-signed provenance is not SLSA.',
           correct: false,
           feedback: 'SLSA is signing-tool-agnostic. RSA, cosign keyless, and DSSE-signed in-toto all work.',
         },
@@ -212,17 +212,17 @@ $ syft registry/api:latest -o spdx-json | jq '.packages | length'
       question: 'What\'s the attack here, and what\'s the fix?',
       choices: [
         {
-          label: 'pip is buggy — file an issue and pin to an older version.',
+          label: 'pip is buggy - file an issue and pin to an older version.',
           correct: false,
           feedback: 'pip is behaving exactly as documented: with multiple indexes, it picks the highest-versioned package across all of them. The flaw is the multi-index configuration, not pip itself.',
         },
         {
-          label: 'Dependency confusion: an attacker registered the same package name on public PyPI with a higher version (2.99.99 vs internal 1.4.2). pip\'s --extra-index-url merges indexes and picks the highest version — pulling the attacker\'s package. Fix: pin trusted source per package, or use a single internal index that proxies/shadows public packages.',
+          label: 'Dependency confusion: an attacker registered the same package name on public PyPI with a higher version (2.99.99 vs internal 1.4.2). pip\'s --extra-index-url merges indexes and picks the highest version - pulling the attacker\'s package. Fix: pin trusted source per package, or use a single internal index that proxies/shadows public packages.',
           correct: true,
           feedback: 'Correct. Dependency confusion was popularised by Alex Birsan in 2021 and remains the canonical "I bought a name on a public registry that you have privately" attack. Fixes: (a) use --index-url alone (single source), with a private index that proxies public packages internally; (b) pin per-package source with a tool like pip-compile + hash-pinning; (c) reserve your internal package names on public registries even if you never publish there.',
         },
         {
-          label: 'The internal index has a stale version — bump internal-payments-utils to 3.0.0 and republish.',
+          label: 'The internal index has a stale version - bump internal-payments-utils to 3.0.0 and republish.',
           correct: false,
           feedback: 'A version race is a temporary fix. The attacker can bump again. The structural fix is to remove the multi-index race entirely.',
         },
@@ -263,10 +263,10 @@ jobs:
         {
           label: 'pull_request_target runs in the base branch context with full secret access. Combined with `ref: pull_request.head.sha` (checking out fork code), `npm install` runs an attacker-controlled postinstall script with AWS keys + deploy token in env vars. This is the canonical GitHub Actions secret-exfiltration pattern.',
           correct: true,
-          feedback: 'Correct. pull_request_target was designed for workflows that need secrets but should not run untrusted code (e.g. labelling, comment automation). Checking out fork code in pull_request_target — and especially running npm install / pip install / mvn / go mod download — runs attacker code with secrets exposed. The fix: use plain `pull_request` (no secrets), or split into a non-secret "build untrusted code in pull_request" and a secret-scoped "deploy on pull_request_target after manual approval".',
+          feedback: 'Correct. pull_request_target was designed for workflows that need secrets but should not run untrusted code (e.g. labelling, comment automation). Checking out fork code in pull_request_target - and especially running npm install / pip install / mvn / go mod download - runs attacker code with secrets exposed. The fix: use plain `pull_request` (no secrets), or split into a non-secret "build untrusted code in pull_request" and a secret-scoped "deploy on pull_request_target after manual approval".',
         },
         {
-          label: 'actions/checkout@v4 is too old — needs to be upgraded.',
+          label: 'actions/checkout@v4 is too old - needs to be upgraded.',
           correct: false,
           feedback: 'v4 is current. The vulnerability is in the workflow design (pull_request_target + checkout fork + secrets), not in checkout itself.',
         },
@@ -278,10 +278,10 @@ jobs:
         {
           label: 'npm install should be npm ci for reproducibility.',
           correct: false,
-          feedback: 'npm ci vs npm install is good practice but doesn\'t change the attack — both run postinstall scripts.',
+          feedback: 'npm ci vs npm install is good practice but doesn\'t change the attack - both run postinstall scripts.',
         },
       ],
-      explanation: 'pull_request_target combined with fork checkout is GitHub\'s most-warned-against anti-pattern. The CVE list for this exact mistake is long. Hardening: never check out fork code in pull_request_target. If you need secrets-aware processing of fork PRs, do it in two stages — a non-secret build step on pull_request, then a labelled-and-approved deploy step on pull_request_target that only runs trusted code. Use OIDC-based cloud auth (aws-actions/configure-aws-credentials with role-to-assume) so secrets are short-lived and scope-limited.',
+      explanation: 'pull_request_target combined with fork checkout is GitHub\'s most-warned-against anti-pattern. The CVE list for this exact mistake is long. Hardening: never check out fork code in pull_request_target. If you need secrets-aware processing of fork PRs, do it in two stages - a non-secret build step on pull_request, then a labelled-and-approved deploy step on pull_request_target that only runs trusted code. Use OIDC-based cloud auth (aws-actions/configure-aws-credentials with role-to-assume) so secrets are short-lived and scope-limited.',
       learnMore: { label: 'Hardened CI/CD pipelines', href: '/courses/cloud-native-security-engineering/secure-cicd-pipelines' },
     },
     {
@@ -312,22 +312,22 @@ spec:
       question: 'What\'s the gap that a determined attacker exploits?',
       choices: [
         {
-          label: 'Kyverno is too slow for admission — production needs OPA Gatekeeper.',
+          label: 'Kyverno is too slow for admission - production needs OPA Gatekeeper.',
           correct: false,
           feedback: 'Kyverno is fast enough; performance isn\'t the gap.',
         },
         {
           label: 'The match scope is "prod-payments, prod-marketing" only. An attacker who can deploy to ANY other namespace (test, staging, kube-system, default) can run unsigned images and pivot from there. The policy needs to be cluster-wide, with explicit exceptions for namespaces that can\'t be brought up to standard.',
           correct: true,
-          feedback: 'Correct. The deny-everywhere-then-allowlist pattern is much safer than the allow-everywhere-then-protect-prod pattern. Real-world: an attacker who compromises a developer SA can deploy a privileged unsigned image into the default namespace, escalate via the kubelet, and pivot. Cluster-wide policy with explicit, audited namespace exclusions — not "we secured prod" — is the production posture.',
+          feedback: 'Correct. The deny-everywhere-then-allowlist pattern is much safer than the allow-everywhere-then-protect-prod pattern. Real-world: an attacker who compromises a developer SA can deploy a privileged unsigned image into the default namespace, escalate via the kubelet, and pivot. Cluster-wide policy with explicit, audited namespace exclusions - not "we secured prod" - is the production posture.',
         },
         {
-          label: 'imageReferences pattern "registry.example.com/*" is too narrow — needs to match every registry.',
+          label: 'imageReferences pattern "registry.example.com/*" is too narrow - needs to match every registry.',
           correct: false,
           feedback: 'The narrowness is the right call: only your registry is signed, so you only verify yours. The flaw is in the namespace match, not the image pattern.',
         },
         {
-          label: 'subject regex ".*@example.com$" is too permissive — should be a single email.',
+          label: 'subject regex ".*@example.com$" is too permissive - should be a single email.',
           correct: false,
           feedback: 'Allowing the engineering team\'s @example.com identities is reasonable for a CI signing service. The namespace-scope flaw is the bigger issue.',
         },

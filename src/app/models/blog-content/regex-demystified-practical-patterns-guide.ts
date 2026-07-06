@@ -298,13 +298,13 @@ re.DOTALL       (re.S)   . matches newlines too</code></pre>
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Read regex left to right</strong> like a sentence &mdash; each symbol has a simple meaning</li>
+        <li><strong>Read regex left to right</strong> like a sentence - each symbol has a simple meaning</li>
         <li><strong>Learn 10 symbols and you can read 90% of regex:</strong> <code>. * + ? ^ $ [] () | \\</code></li>
         <li><strong>Use raw strings in Python</strong> (<code>r'pattern'</code>) to avoid escaping backslashes</li>
-        <li><strong>Use named capture groups</strong> for readability &mdash; <code>(?P&lt;name&gt;...)</code> is self-documenting</li>
-        <li><strong>Test regex interactively</strong> at regex101.com &mdash; it visualizes matches and explains each part</li>
-        <li><strong>Do not use regex for HTML, JSON, or XML</strong> &mdash; use proper parsers for structured formats</li>
-        <li><strong>Keep patterns simple</strong> &mdash; if a regex is unreadable, split the validation into multiple simpler checks</li>
+        <li><strong>Use named capture groups</strong> for readability - <code>(?P&lt;name&gt;...)</code> is self-documenting</li>
+        <li><strong>Test regex interactively</strong> at regex101.com - it visualizes matches and explains each part</li>
+        <li><strong>Do not use regex for HTML, JSON, or XML</strong> - use proper parsers for structured formats</li>
+        <li><strong>Keep patterns simple</strong> - if a regex is unreadable, split the validation into multiple simpler checks</li>
       </ul>
 
       <p>Regex is a tool, not a test of intelligence. If you can read the 10 basic symbols, you can understand any regex by reading it character by character. The fear goes away the moment you stop trying to read patterns as a whole and start reading them left to right, one token at a time.</p>

@@ -3,7 +3,7 @@ export const CONTENT = `
 
       <h2>The GIL: What It Actually Means</h2>
 
-      <p>The Global Interpreter Lock (GIL) prevents multiple Python threads from executing Python bytecode simultaneously. But it does <strong>not</strong> prevent concurrency &mdash; it prevents parallelism for CPU-bound code.</p>
+      <p>The Global Interpreter Lock (GIL) prevents multiple Python threads from executing Python bytecode simultaneously. But it does <strong>not</strong> prevent concurrency - it prevents parallelism for CPU-bound code.</p>
 
       <pre><code># The GIL means:
 # - Only one thread executes Python code at a time
@@ -243,13 +243,13 @@ print(f"Threading: {time.time() - start:.1f}s")  # ~8.0s (GIL!)</code></pre>
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>The GIL prevents parallel CPU work, not concurrent I/O</strong> &mdash; threading works fine for I/O</li>
-        <li><strong>Threading is simplest for moderate I/O concurrency</strong> &mdash; no async/await refactoring needed</li>
-        <li><strong>Asyncio scales to thousands of connections on one thread</strong> &mdash; use it for high-concurrency I/O</li>
+        <li><strong>The GIL prevents parallel CPU work, not concurrent I/O</strong> - threading works fine for I/O</li>
+        <li><strong>Threading is simplest for moderate I/O concurrency</strong> - no async/await refactoring needed</li>
+        <li><strong>Asyncio scales to thousands of connections on one thread</strong> - use it for high-concurrency I/O</li>
         <li><strong>Multiprocessing is the ONLY option for parallel CPU work</strong> in standard CPython</li>
         <li><strong>concurrent.futures provides a unified API</strong> for both threading and multiprocessing</li>
-        <li><strong>Do not use threading for CPU work</strong> &mdash; it will be as slow as sequential due to the GIL</li>
-        <li><strong>Asyncio requires async libraries</strong> &mdash; you cannot use requests, only aiohttp or httpx</li>
+        <li><strong>Do not use threading for CPU work</strong> - it will be as slow as sequential due to the GIL</li>
+        <li><strong>Asyncio requires async libraries</strong> - you cannot use requests, only aiohttp or httpx</li>
       </ul>
 
       <p>Python concurrency is not confusing once you answer one question: is my bottleneck I/O or CPU? I/O-bound gets threading or asyncio. CPU-bound gets multiprocessing. Everything else is implementation detail. Match the tool to the bottleneck and your Python code will be as concurrent as any language.</p>

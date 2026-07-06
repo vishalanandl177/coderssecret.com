@@ -5,7 +5,7 @@ export const CONTENT = `
 
       <h2>Pattern 1: Chain-of-Thought Reasoning</h2>
 
-      <p>Large language models produce better answers when forced to <strong>reason step by step</strong> before giving a final answer. Without this, the model jumps to conclusions &mdash; especially on multi-step problems.</p>
+      <p>Large language models produce better answers when forced to <strong>reason step by step</strong> before giving a final answer. Without this, the model jumps to conclusions - especially on multi-step problems.</p>
 
       <h3>Without Chain-of-Thought</h3>
 
@@ -415,14 +415,14 @@ while True:
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Chain-of-thought</strong> improves accuracy on any multi-step reasoning task &mdash; always use it for complex analysis</li>
+        <li><strong>Chain-of-thought</strong> improves accuracy on any multi-step reasoning task - always use it for complex analysis</li>
         <li><strong>Few-shot examples</strong> are the most reliable way to get consistent formatting without fine-tuning</li>
-        <li><strong>Tool use guarantees structured output</strong> &mdash; never parse free-text JSON in production</li>
-        <li><strong>RAG eliminates hallucination</strong> for domain-specific questions &mdash; always retrieve before generating</li>
-        <li><strong>Guardrails are not optional</strong> &mdash; validate inputs and outputs in every production pipeline</li>
-        <li><strong>Manage conversation context aggressively</strong> &mdash; summarize old messages to stay within token budgets</li>
-        <li><strong>Version your prompts</strong> like you version code &mdash; they are as critical as any other system configuration</li>
+        <li><strong>Tool use guarantees structured output</strong> - never parse free-text JSON in production</li>
+        <li><strong>RAG eliminates hallucination</strong> for domain-specific questions - always retrieve before generating</li>
+        <li><strong>Guardrails are not optional</strong> - validate inputs and outputs in every production pipeline</li>
+        <li><strong>Manage conversation context aggressively</strong> - summarize old messages to stay within token budgets</li>
+        <li><strong>Version your prompts</strong> like you version code - they are as critical as any other system configuration</li>
       </ul>
 
-      <p>Prompt engineering is software engineering. Treat prompts as code: version them, test them, validate their output, and iterate based on production data. The patterns in this guide are not theoretical &mdash; they are the same techniques used in production AI systems handling millions of requests per day.</p>
+      <p>Prompt engineering is software engineering. Treat prompts as code: version them, test them, validate their output, and iterate based on production data. The patterns in this guide are not theoretical - they are the same techniques used in production AI systems handling millions of requests per day.</p>
     `;

@@ -26,9 +26,9 @@ export class OpaRegoCheatsheetComponent {
       title: 'Rego language essentials',
       rows: [
         { cmd: 'package authz', desc: 'Every Rego file is in a package. Queries reference this path: data.authz.allow.', prodNote: 'Use a hierarchy that mirrors your services: data.kubernetes.admission.podsecurity, data.authz.payments.read.' },
-        { cmd: 'default allow := false', desc: 'Default rule: when no allow rule fires, return false. Always set defaults — undefined is not the same as false.', warning: 'Without a default, undefined results may be coerced to false by some integrations and to "no decision" by others. Be explicit.' },
-        { cmd: 'allow if {\n  input.user.role == "admin"\n}', desc: 'Rule body — Rego is "if all expressions hold, the rule succeeds". The body is implicit AND.', prodNote: 'Multiple allow rules are OR-ed. Define multiple `allow` rules instead of nested OR conditions for readability.' },
-        { cmd: 'deny[msg] if {\n  input.request.kind.kind == "Pod"\n  input.request.object.spec.hostNetwork\n  msg := "hostNetwork is not allowed"\n}', desc: 'Partial set rule — produces violations as set entries. Common pattern in Gatekeeper and admission control.', prodNote: 'Each entry includes a human-readable message; surface these in admission webhook responses for fast debugging.' },
+        { cmd: 'default allow := false', desc: 'Default rule: when no allow rule fires, return false. Always set defaults - undefined is not the same as false.', warning: 'Without a default, undefined results may be coerced to false by some integrations and to "no decision" by others. Be explicit.' },
+        { cmd: 'allow if {\n  input.user.role == "admin"\n}', desc: 'Rule body - Rego is "if all expressions hold, the rule succeeds". The body is implicit AND.', prodNote: 'Multiple allow rules are OR-ed. Define multiple `allow` rules instead of nested OR conditions for readability.' },
+        { cmd: 'deny[msg] if {\n  input.request.kind.kind == "Pod"\n  input.request.object.spec.hostNetwork\n  msg := "hostNetwork is not allowed"\n}', desc: 'Partial set rule - produces violations as set entries. Common pattern in Gatekeeper and admission control.', prodNote: 'Each entry includes a human-readable message; surface these in admission webhook responses for fast debugging.' },
         { cmd: 'some i; input.containers[i].privileged', desc: 'Iterate over a collection looking for any element matching the body. `some` introduces variables.', prodNote: 'Quantifier patterns: `every i in input.containers { not c.privileged }` for "all must satisfy".' },
       ],
     },
@@ -37,7 +37,7 @@ export class OpaRegoCheatsheetComponent {
       rows: [
         { cmd: 'startswith(input.image, "registry.example.com/")', desc: 'String prefix match. Use for image registry allowlists.', prodNote: 'Combine with regex.match() for richer patterns; never trust user-supplied strings without normalization.' },
         { cmd: 'time.now_ns()', desc: 'Current time in nanoseconds. Use for time-window rules (e.g. business hours, ticket expiry).', warning: 'Time-based rules are evaluator-dependent. In Gatekeeper, time.now_ns() may not reflect the cluster controller\'s clock identically.' },
-        { cmd: 'json.unmarshal(input.annotations.policy, parsed)', desc: 'Parse a JSON string into a Rego object. Useful when annotations carry policy metadata.', prodNote: 'Wrap in error handling (`with default {}`) — malformed JSON will fail the rule otherwise.' },
+        { cmd: 'json.unmarshal(input.annotations.policy, parsed)', desc: 'Parse a JSON string into a Rego object. Useful when annotations carry policy metadata.', prodNote: 'Wrap in error handling (`with default {}`) - malformed JSON will fail the rule otherwise.' },
         { cmd: 'crypto.sha256(input.payload)', desc: 'SHA-256 hash. Useful for content-addressable policy keys.', prodNote: 'OPA also has crypto.x509.parse_certificates() for cert chain analysis.' },
       ],
     },
@@ -54,9 +54,9 @@ export class OpaRegoCheatsheetComponent {
     {
       title: 'Gatekeeper (Kubernetes admission)',
       rows: [
-        { cmd: 'kubectl apply -f constraint-template.yaml', desc: 'Install a ConstraintTemplate — defines a constraint kind (e.g. K8sRequiredLabels) backed by Rego.', prodNote: 'ConstraintTemplate goes in cluster-scoped CRD; the Rego is in the spec.targets[].rego field.' },
-        { cmd: 'kubectl apply -f constraint.yaml', desc: 'Install a Constraint instance — applies the template to specific resources (kinds, namespaces).', prodNote: 'Use enforcementAction: dryrun first to capture violations without blocking. Promote to deny once clean.' },
-        { cmd: 'kubectl get constraints', desc: 'List all active constraints across the cluster.', prodNote: 'Each constraint reports violations in status.violations — perfect for dashboards and alerting.' },
+        { cmd: 'kubectl apply -f constraint-template.yaml', desc: 'Install a ConstraintTemplate - defines a constraint kind (e.g. K8sRequiredLabels) backed by Rego.', prodNote: 'ConstraintTemplate goes in cluster-scoped CRD; the Rego is in the spec.targets[].rego field.' },
+        { cmd: 'kubectl apply -f constraint.yaml', desc: 'Install a Constraint instance - applies the template to specific resources (kinds, namespaces).', prodNote: 'Use enforcementAction: dryrun first to capture violations without blocking. Promote to deny once clean.' },
+        { cmd: 'kubectl get constraints', desc: 'List all active constraints across the cluster.', prodNote: 'Each constraint reports violations in status.violations - perfect for dashboards and alerting.' },
         { cmd: 'kubectl describe constraint <name> | grep -A 10 violations', desc: 'See current violations for a specific constraint.', warning: 'Violations are an audit signal of past bad state. Existing resources don\'t get retro-blocked when you create a constraint.' },
       ],
     },
@@ -71,9 +71,9 @@ export class OpaRegoCheatsheetComponent {
     {
       title: 'Testing & CI patterns',
       rows: [
-        { cmd: 'test_admin_can_read if {\n  allow with input as {"user":{"role":"admin"}}\n}', desc: 'Rego unit test. Use `with input as ...` to inject test inputs.', prodNote: 'Name tests test_<expectation_in_words> — they read like specifications when failing.' },
+        { cmd: 'test_admin_can_read if {\n  allow with input as {"user":{"role":"admin"}}\n}', desc: 'Rego unit test. Use `with input as ...` to inject test inputs.', prodNote: 'Name tests test_<expectation_in_words> - they read like specifications when failing.' },
         { cmd: 'opa test --coverage --threshold 80 ./policies', desc: 'Enforce policy test coverage threshold. Fails CI if below 80%.', prodNote: 'Combine with --explain=fails to surface why specific tests broke.' },
-        { cmd: 'opa eval -d policies -i sample-input.json "data.authz.allow" --partial', desc: 'Partial evaluation — useful for ahead-of-time policy compilation.', prodNote: 'Helps identify rules that are constant given known inputs; can dramatically speed runtime evaluation.' },
+        { cmd: 'opa eval -d policies -i sample-input.json "data.authz.allow" --partial', desc: 'Partial evaluation - useful for ahead-of-time policy compilation.', prodNote: 'Helps identify rules that are constant given known inputs; can dramatically speed runtime evaluation.' },
       ],
     },
   ];
@@ -106,7 +106,7 @@ deny[msg] if {
   not startswith(input.image, "registry.example.com/")
   msg := sprintf("image %s is not from a trusted registry", [input.image])
 }`,
-      why: 'contains() matches the substring anywhere — an attacker registers "registry.example.com.attacker.com/img" and bypasses the check. startswith() with a trailing "/" anchors the match to the registry host; the message also identifies the offending image for fast triage.',
+      why: 'contains() matches the substring anywhere - an attacker registers "registry.example.com.attacker.com/img" and bypasses the check. startswith() with a trailing "/" anchors the match to the registry host; the message also identifies the offending image for fast triage.',
     },
     {
       bad: `# Constraint applied with deny enforcement on day one:
@@ -124,12 +124,12 @@ spec:
     - apiGroups: [""]
       kinds: ["Pod"]
 # Promote to deny only after status.violations is empty.`,
-      why: 'Going straight to deny on existing clusters blocks legitimate workloads that pre-date the policy. dryrun captures violations in status.violations without rejecting requests — once you can see (and fix) the gap, promote to deny in a controlled change.',
+      why: 'Going straight to deny on existing clusters blocks legitimate workloads that pre-date the policy. dryrun captures violations in status.violations without rejecting requests - once you can see (and fix) the gap, promote to deny in a controlled change.',
     },
   ];
 
   related: RelatedLink[] = [
-    { label: 'Cloud Native Security Engineering — Policy as Code module', href: '/courses/cloud-native-security-engineering/policy-as-code-security', description: 'Module: design and ship OPA policy across admission, ingress, and microservice authz.' },
+    { label: 'Cloud Native Security Engineering - Policy as Code module', href: '/courses/cloud-native-security-engineering/policy-as-code-security', description: 'Module: design and ship OPA policy across admission, ingress, and microservice authz.' },
     { label: 'Kubernetes Security Simulator', href: '/games/kubernetes-security-simulator', description: 'Practice spotting RBAC/admission misconfigurations including policy-as-code coverage.' },
     { label: 'OPA glossary entry', href: '/glossary/opa', description: 'Definition and how OPA fits into a cloud-native security architecture.' },
   ];

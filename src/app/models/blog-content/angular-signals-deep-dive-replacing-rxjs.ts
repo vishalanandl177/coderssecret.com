@@ -107,7 +107,7 @@ export class SidebarComponent {
   isOpen$ = inject(SidebarService).isOpen$;
 }</code></pre>
 
-      <h3>After (Signal &mdash; simpler, no subscription management)</h3>
+      <h3>After (Signal - simpler, no subscription management)</h3>
 
       <pre><code>@Injectable({ providedIn: 'root' })
 export class SidebarService {
@@ -266,14 +266,14 @@ export class ProductListComponent {
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Signals replace BehaviorSubject for synchronous state</strong> &mdash; simpler, no subscriptions to manage</li>
-        <li><strong>RxJS remains essential for async streams</strong> &mdash; HTTP, WebSocket, debounce, complex event composition</li>
-        <li><strong>Use computed() for derived values</strong> &mdash; it is lazy, cached, and glitch-free</li>
-        <li><strong>Never mutate signal values directly</strong> &mdash; always create new references with update() or set()</li>
-        <li><strong>Bridge with toSignal() and toObservable()</strong> &mdash; use the right primitive at each layer</li>
-        <li><strong>Effects run in injection context only</strong> &mdash; field initializers or constructors, not lifecycle hooks</li>
-        <li><strong>Signals and RxJS coexist</strong> &mdash; this is not a replacement, it is an addition to your toolkit</li>
+        <li><strong>Signals replace BehaviorSubject for synchronous state</strong> - simpler, no subscriptions to manage</li>
+        <li><strong>RxJS remains essential for async streams</strong> - HTTP, WebSocket, debounce, complex event composition</li>
+        <li><strong>Use computed() for derived values</strong> - it is lazy, cached, and glitch-free</li>
+        <li><strong>Never mutate signal values directly</strong> - always create new references with update() or set()</li>
+        <li><strong>Bridge with toSignal() and toObservable()</strong> - use the right primitive at each layer</li>
+        <li><strong>Effects run in injection context only</strong> - field initializers or constructors, not lifecycle hooks</li>
+        <li><strong>Signals and RxJS coexist</strong> - this is not a replacement, it is an addition to your toolkit</li>
       </ul>
 
-      <p>The best Angular code in 2026 uses both signals and observables, each where they are strongest. Signals for component state and UI bindings. Observables for async operations and complex event streams. Do not pick a side &mdash; use the right tool for each job.</p>
+      <p>The best Angular code in 2026 uses both signals and observables, each where they are strongest. Signals for component state and UI bindings. Observables for async operations and complex event streams. Do not pick a side - use the right tool for each job.</p>
     `;

@@ -1,8 +1,8 @@
 export const CONTENT = `
-      <p>You've probably used Envoy without knowing it. If you've deployed to Istio, used AWS App Mesh, or run Consul Connect — Envoy was the proxy doing the actual work. It's the most important piece of infrastructure in the cloud-native world that most developers never interact with directly. Let's change that.</p>
+      <p>You've probably used Envoy without knowing it. If you've deployed to Istio, used AWS App Mesh, or run Consul Connect - Envoy was the proxy doing the actual work. It's the most important piece of infrastructure in the cloud-native world that most developers never interact with directly. Let's change that.</p>
 
       <h2>What is Envoy?</h2>
-      <p>Envoy is a <strong>high-performance, programmable L4/L7 proxy</strong> designed for modern microservice architectures. Unlike nginx or HAProxy which are configured via static config files, Envoy is designed to be <strong>dynamically configured at runtime</strong> via APIs — no restarts needed.</p>
+      <p>Envoy is a <strong>high-performance, programmable L4/L7 proxy</strong> designed for modern microservice architectures. Unlike nginx or HAProxy which are configured via static config files, Envoy is designed to be <strong>dynamically configured at runtime</strong> via APIs - no restarts needed.</p>
 
       <!-- Envoy vs Traditional -->
       <div class="flow-diagram">
@@ -50,13 +50,13 @@ export const CONTENT = `
 
       <ul>
         <li><strong>Listener:</strong> A port Envoy listens on (e.g., port 8080). Accepts incoming connections.</li>
-        <li><strong>Filter Chain:</strong> A pipeline of filters that process the request — TLS termination, HTTP parsing, rate limiting, auth, etc.</li>
+        <li><strong>Filter Chain:</strong> A pipeline of filters that process the request - TLS termination, HTTP parsing, rate limiting, auth, etc.</li>
         <li><strong>Route:</strong> Rules that match requests (by path, header, method) to a destination cluster.</li>
         <li><strong>Cluster:</strong> A named group of backend servers. Think of it like a "service" in Kubernetes.</li>
         <li><strong>Endpoint:</strong> An individual IP:port within a cluster. The actual server handling the request.</li>
       </ul>
 
-      <pre><code># envoy.yaml — Static configuration example
+      <pre><code># envoy.yaml - Static configuration example
 static_resources:
   listeners:
     - name: http_listener
@@ -119,7 +119,7 @@ static_resources:
 
       <h2>What is xDS? (The Dynamic Control Plane)</h2>
 
-      <p>The static config above works, but every change requires restarting Envoy. In production with thousands of Envoy instances, that's impossible. Enter <strong>xDS</strong> — a set of gRPC APIs that push configuration to Envoy dynamically.</p>
+      <p>The static config above works, but every change requires restarting Envoy. In production with thousands of Envoy instances, that's impossible. Enter <strong>xDS</strong> - a set of gRPC APIs that push configuration to Envoy dynamically.</p>
 
       <!-- xDS APIs -->
       <div class="flow-diagram">
@@ -171,7 +171,7 @@ static_resources:
             </div>
             <div class="seq-step">
               <div></div>
-              <div class="seq-action" style="border-color:#22c55e;color:#4ade80">Envoy starts routing to new pod — zero downtime!</div>
+              <div class="seq-action" style="border-color:#22c55e;color:#4ade80">Envoy starts routing to new pod - zero downtime!</div>
             </div>
           </div>
         </div>
@@ -264,7 +264,7 @@ func main() {
 // To add a new backend dynamically:
 // 1. Update the snapshot with new endpoints
 // 2. Call snapshotCache.SetSnapshot() with version "v2"
-// 3. Envoy automatically picks up the change — no restart!</code></pre>
+// 3. Envoy automatically picks up the change - no restart!</code></pre>
 
       <h2>Who Uses Envoy + xDS?</h2>
 
@@ -283,12 +283,12 @@ func main() {
 
       <h2>When to Use Envoy</h2>
       <ul>
-        <li><strong>Service mesh sidecar:</strong> Envoy runs alongside every service, handles mTLS, retries, circuit breaking, observability — transparently.</li>
+        <li><strong>Service mesh sidecar:</strong> Envoy runs alongside every service, handles mTLS, retries, circuit breaking, observability - transparently.</li>
         <li><strong>API gateway:</strong> Route external traffic to internal services with rate limiting, auth, and L7 routing.</li>
-        <li><strong>gRPC proxy:</strong> Envoy has first-class gRPC support — load balancing, transcoding (gRPC &#x2194; HTTP/JSON), health checking.</li>
+        <li><strong>gRPC proxy:</strong> Envoy has first-class gRPC support - load balancing, transcoding (gRPC &#x2194; HTTP/JSON), health checking.</li>
         <li><strong>Dynamic infrastructure:</strong> When backends change frequently (Kubernetes pods scaling up/down), xDS pushes updates instantly.</li>
         <li><strong>Observability backbone:</strong> Envoy emits detailed L7 metrics, distributed tracing headers (Jaeger, Zipkin), and structured access logs for every request.</li>
       </ul>
 
-      <p>Envoy is not a replacement for nginx — it's a different tool for a different era. If you have a static website, nginx is perfect. If you have 200 microservices talking to each other with dynamic routing, mTLS, and traffic shaping — Envoy is what you need. And xDS is how you control it at scale.</p>
+      <p>Envoy is not a replacement for nginx - it's a different tool for a different era. If you have a static website, nginx is perfect. If you have 200 microservices talking to each other with dynamic routing, mTLS, and traffic shaping - Envoy is what you need. And xDS is how you control it at scale.</p>
     `;

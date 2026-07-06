@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Regular TLS (HTTPS) only verifies the <em>server's</em> identity — the client checks the server's certificate, but the server has no idea who the client is. <strong>Mutual TLS (mTLS)</strong> adds client verification: both sides present certificates and verify each other. It's the gold standard for <strong>zero-trust service-to-service communication</strong>, used by service meshes (Istio, Linkerd), banking systems, and any environment where API keys aren't secure enough.</p>
+      <p>Regular TLS (HTTPS) only verifies the <em>server's</em> identity - the client checks the server's certificate, but the server has no idea who the client is. <strong>Mutual TLS (mTLS)</strong> adds client verification: both sides present certificates and verify each other. It's the gold standard for <strong>zero-trust service-to-service communication</strong>, used by service meshes (Istio, Linkerd), banking systems, and any environment where API keys aren't secure enough.</p>
 
       <h2>How TLS vs mTLS Works</h2>
 
@@ -29,7 +29,7 @@ export const CONTENT = `
         </div>
       </div>
 
-      <h2>The mTLS Handshake — Step by Step</h2>
+      <h2>The mTLS Handshake - Step by Step</h2>
 
       <!-- mTLS Handshake Flow -->
       <div class="flow-diagram">
@@ -77,11 +77,11 @@ export const CONTENT = `
         <div class="flow-diagram-title">Inside an X.509 Certificate</div>
         <div class="layer-diagram">
           <div class="layer-item" style="background:#3b82f6">Subject (Who is this?)<span class="layer-item-sub">CN=service-a.example.com, O=MyCompany, OU=Engineering</span></div>
-          <div class="layer-item" style="background:#7c3aed">Issuer (Who signed it?)<span class="layer-item-sub">CN=MyCompany Internal CA — the Certificate Authority that vouches for this cert</span></div>
-          <div class="layer-item" style="background:#f97316">Public Key<span class="layer-item-sub">RSA 2048-bit or ECDSA P-256 — used for key exchange during TLS handshake</span></div>
-          <div class="layer-item" style="background:#22c55e">Validity Period<span class="layer-item-sub">Not Before: 2026-04-01, Not After: 2027-04-01 — expired certs are rejected</span></div>
+          <div class="layer-item" style="background:#7c3aed">Issuer (Who signed it?)<span class="layer-item-sub">CN=MyCompany Internal CA - the Certificate Authority that vouches for this cert</span></div>
+          <div class="layer-item" style="background:#f97316">Public Key<span class="layer-item-sub">RSA 2048-bit or ECDSA P-256 - used for key exchange during TLS handshake</span></div>
+          <div class="layer-item" style="background:#22c55e">Validity Period<span class="layer-item-sub">Not Before: 2026-04-01, Not After: 2027-04-01 - expired certs are rejected</span></div>
           <div class="layer-item" style="background:#ef4444">Extensions (SAN, Key Usage)<span class="layer-item-sub">Subject Alternative Names (DNS/IP), Key Usage (digital signature, key encipherment)</span></div>
-          <div class="layer-item" style="background:#ec4899">Digital Signature<span class="layer-item-sub">Signed by the CA's private key — proves the cert hasn't been tampered with</span></div>
+          <div class="layer-item" style="background:#ec4899">Digital Signature<span class="layer-item-sub">Signed by the CA's private key - proves the cert hasn't been tampered with</span></div>
         </div>
       </div>
 
@@ -108,10 +108,10 @@ export const CONTENT = `
       </div>
 
       <h2>Step 1: Generate Your Own Certificate Authority</h2>
-      <p>In production, you'd use a managed CA (AWS Private CA, Vault PKI, cert-manager). For learning, we'll create our own CA using Python's <code>cryptography</code> library — no OpenSSL CLI needed.</p>
+      <p>In production, you'd use a managed CA (AWS Private CA, Vault PKI, cert-manager). For learning, we'll create our own CA using Python's <code>cryptography</code> library - no OpenSSL CLI needed.</p>
       <pre><code># pip install cryptography flask requests
 
-# generate_certs.py — Complete PKI setup in Python
+# generate_certs.py - Complete PKI setup in Python
 from cryptography import x509
 from cryptography.x509.oid import NameOID, ExtendedKeyUsageOID
 from cryptography.hazmat.primitives import hashes, serialization
@@ -249,8 +249,8 @@ save_key(client_key, "certs/client-key.pem")
 save_cert(client_cert, "certs/client-cert.pem")
 
 print("\\n Done! Generated files:")
-print("  certs/ca-cert.pem       (Root CA certificate — share with all services)")
-print("  certs/ca-key.pem        (Root CA private key — keep SECRET)")
+print("  certs/ca-cert.pem       (Root CA certificate - share with all services)")
+print("  certs/ca-key.pem        (Root CA private key - keep SECRET)")
 print("  certs/server-cert.pem   (Server certificate)")
 print("  certs/server-key.pem    (Server private key)")
 print("  certs/client-cert.pem   (Client certificate)")
@@ -283,7 +283,7 @@ print(f'SANs:    {san.value.get_all_for(x509.DNSName)}')
 
       <h2>Step 2: Build the mTLS Server (Flask)</h2>
       <p>Now let's build a Flask server that <strong>requires client certificates</strong>:</p>
-      <pre><code># mtls_server.py — Flask server with mutual TLS
+      <pre><code># mtls_server.py - Flask server with mutual TLS
 import ssl
 from flask import Flask, request, jsonify
 
@@ -347,7 +347,7 @@ if __name__ == "__main__":
     )</code></pre>
 
       <h2>Step 3: Build the mTLS Client</h2>
-      <pre><code># mtls_client.py — Python client with mutual TLS
+      <pre><code># mtls_client.py - Python client with mutual TLS
 import requests
 import json
 
@@ -417,7 +417,7 @@ gunicorn mtls_server:app \\
 
       <h2>Certificate Rotation</h2>
       <p>Certificates expire. You need an automated rotation strategy:</p>
-      <pre><code># rotate_certs.py — Automated certificate renewal
+      <pre><code># rotate_certs.py - Automated certificate renewal
 from datetime import datetime, timezone
 from cryptography import x509
 
@@ -567,11 +567,11 @@ spec:
       <h2>When to Use mTLS</h2>
       <ul>
         <li><strong>Microservice-to-microservice:</strong> Internal APIs within your cluster. Service meshes (Istio, Linkerd) automate this completely.</li>
-        <li><strong>Zero-trust networks:</strong> Don't trust the network — verify every connection. mTLS ensures only authorized services communicate.</li>
+        <li><strong>Zero-trust networks:</strong> Don't trust the network - verify every connection. mTLS ensures only authorized services communicate.</li>
         <li><strong>Financial/healthcare systems:</strong> Regulatory requirements (PCI-DSS, HIPAA) often mandate mutual authentication.</li>
-        <li><strong>IoT device authentication:</strong> Each device gets a unique certificate — more secure than shared API keys.</li>
+        <li><strong>IoT device authentication:</strong> Each device gets a unique certificate - more secure than shared API keys.</li>
         <li><strong>Cross-organization APIs:</strong> When two companies need to securely exchange data, each side presents certificates signed by agreed-upon CAs.</li>
       </ul>
 
-      <p>mTLS is the strongest form of service authentication available. It eliminates shared secrets (API keys), prevents man-in-the-middle attacks, and provides cryptographic proof of identity for both sides of every connection. With tools like cert-manager and the Python <code>cryptography</code> library, setting up mTLS is no longer reserved for security experts — any developer can build it.</p>
+      <p>mTLS is the strongest form of service authentication available. It eliminates shared secrets (API keys), prevents man-in-the-middle attacks, and provides cryptographic proof of identity for both sides of every connection. With tools like cert-manager and the Python <code>cryptography</code> library, setting up mTLS is no longer reserved for security experts - any developer can build it.</p>
     `;

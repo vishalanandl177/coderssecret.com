@@ -332,8 +332,8 @@ export class DevopsScenarioComponent {
 
   constructor() {
     this.seo.update({
-      title: 'DevOps Scenario Simulator — Production Incident Game',
-      description: 'Practice production incident response. Kubernetes crashes, database outages, TLS expiry, memory leaks — what would you do? Interactive SRE training game.',
+      title: 'DevOps Scenario Simulator - Production Incident Game',
+      description: 'Practice production incident response. Kubernetes crashes, database outages, TLS expiry, memory leaks - what would you do? Interactive SRE training game.',
       url: '/games/devops-scenario',
       breadcrumbs: [
         { name: 'Home', url: '/' },

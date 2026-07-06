@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Angular has come a long way from its AngularJS roots. With <strong>Angular 21</strong> (released 2026), the framework is faster, simpler, and more developer-friendly than ever — while retaining the batteries-included architecture that makes it the top choice for large-scale enterprise applications. If you've dismissed Angular as "too complex" or "too heavy," it's time for a fresh look.</p>
+      <p>Angular has come a long way from its AngularJS roots. With <strong>Angular 21</strong> (released 2026), the framework is faster, simpler, and more developer-friendly than ever - while retaining the batteries-included architecture that makes it the top choice for large-scale enterprise applications. If you've dismissed Angular as "too complex" or "too heavy," it's time for a fresh look.</p>
 
       <h2>What's New in Angular 21</h2>
       <p>Angular 21 represents the culmination of a multi-year modernization effort. Here are the headline features:</p>
@@ -36,10 +36,10 @@ export class CounterComponent {
   // Writable signal
   count = signal(0);
 
-  // Computed signal — automatically tracks dependencies
+  // Computed signal - automatically tracks dependencies
   doubled = computed(() =&gt; this.count() * 2);
 
-  // Effect — runs side effects when signals change
+  // Effect - runs side effects when signals change
   logger = effect(() =&gt; {
     console.log('Count changed to:', this.count());
   });
@@ -52,7 +52,7 @@ export class CounterComponent {
 }</code></pre>
 
       <h2>Standalone Components: No More NgModules</h2>
-      <p>NgModules were Angular's biggest complexity tax. In Angular 21, <strong>every component is standalone by default</strong> — no NgModules needed. Imports go directly on the component:</p>
+      <p>NgModules were Angular's biggest complexity tax. In Angular 21, <strong>every component is standalone by default</strong> - no NgModules needed. Imports go directly on the component:</p>
       <pre><code>@Component({
   selector: 'app-dashboard',
   imports: [CommonModule, RouterLink, ChartComponent, DataTableComponent],
@@ -68,7 +68,7 @@ export class DashboardComponent {
 }</code></pre>
 
       <h2>Deferrable Views: Lazy Load Anything</h2>
-      <p>The <code>@defer</code> block lets you lazy-load parts of a template — not just routes, but <em>individual components</em> within a page:</p>
+      <p>The <code>@defer</code> block lets you lazy-load parts of a template - not just routes, but <em>individual components</em> within a page:</p>
       <pre><code>@Component({
   template: '
     &lt;!-- Loads immediately --&gt;
@@ -132,7 +132,7 @@ export class ProductPageComponent { }</code></pre>
         <div class="flow-diagram-title">What Angular Gives You Out of the Box</div>
         <div class="layer-diagram">
           <div class="layer-item" style="background:#ef4444">Routing (with guards, resolvers, lazy loading)<span class="layer-item-sub">Multi-level nested routes, route-based code splitting, preloading strategies</span></div>
-          <div class="layer-item" style="background:#f97316">Forms (Reactive &amp; Template-driven)<span class="layer-item-sub">Validation, dynamic forms, form arrays — built-in, no library needed</span></div>
+          <div class="layer-item" style="background:#f97316">Forms (Reactive &amp; Template-driven)<span class="layer-item-sub">Validation, dynamic forms, form arrays - built-in, no library needed</span></div>
           <div class="layer-item" style="background:#a855f7">HTTP Client<span class="layer-item-sub">Interceptors, retry logic, typed responses, progress events</span></div>
           <div class="layer-item" style="background:#3b82f6">Dependency Injection<span class="layer-item-sub">Hierarchical DI, providedIn scoping, testability</span></div>
           <div class="layer-item" style="background:#22c55e">CLI &amp; Tooling<span class="layer-item-sub">Schematics, generators, migrations, build optimization</span></div>
@@ -142,7 +142,7 @@ export class ProductPageComponent { }</code></pre>
 
       <h2>Dependency Injection: Angular's Superpower</h2>
       <p>Angular's DI system is the single biggest advantage for large codebases. It makes services testable, configurable, and composable without global state:</p>
-      <pre><code>// Service with DI — easily testable, easily swappable
+      <pre><code>// Service with DI - easily testable, easily swappable
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
@@ -157,7 +157,7 @@ export class AuthService {
   }
 }
 
-// In tests — inject a mock, no global monkey-patching
+// In tests - inject a mock, no global monkey-patching
 TestBed.configureTestingModule({
   providers: [
     { provide: AuthService, useValue: mockAuthService }
@@ -168,7 +168,7 @@ TestBed.configureTestingModule({
 
       <!-- Framework Comparison -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">Angular vs React vs Vue — 2026 Comparison</div>
+        <div class="flow-diagram-title">Angular vs React vs Vue - 2026 Comparison</div>
         <div style="overflow-x:auto">
           <table style="width:100%;border-collapse:collapse;font-size:0.78rem;min-width:600px">
             <thead>
@@ -262,7 +262,7 @@ TestBed.configureTestingModule({
 
       <!-- Performance Bar Chart -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">Startup Performance — Time to Interactive (lower is better, hover for values)</div>
+        <div class="flow-diagram-title">Startup Performance - Time to Interactive (lower is better, hover for values)</div>
         <div class="bar-chart">
           <div class="bar-chart-item"><div class="bar-chart-bar bar-h-55 bar-red" data-value="~1.2s"></div><div class="bar-chart-label">Angular 21</div></div>
           <div class="bar-chart-item"><div class="bar-chart-bar bar-h-50 bar-blue" data-value="~1.1s"></div><div class="bar-chart-label">React 19</div></div>
@@ -271,7 +271,7 @@ TestBed.configureTestingModule({
       </div>
 
       <div class="flow-diagram">
-        <div class="flow-diagram-title">Update Performance — 10,000 Row Table Update (lower is better)</div>
+        <div class="flow-diagram-title">Update Performance - 10,000 Row Table Update (lower is better)</div>
         <div class="bar-chart">
           <div class="bar-chart-item"><div class="bar-chart-bar bar-h-35 bar-red" data-value="~45ms"></div><div class="bar-chart-label">Angular (Signals)</div></div>
           <div class="bar-chart-item"><div class="bar-chart-bar bar-h-60 bar-blue" data-value="~80ms"></div><div class="bar-chart-label">React (useState)</div></div>
@@ -285,7 +285,7 @@ TestBed.configureTestingModule({
       <p>Angular is the strongest choice when:</p>
       <ul>
         <li><strong>Your team is large (5+ frontend devs):</strong> Angular's opinionated structure means everyone writes code the same way. No debates about folder structure, state management, or HTTP libraries.</li>
-        <li><strong>Your app is complex:</strong> Enterprise dashboards, admin panels, ERP systems, banking apps — anything with dozens of forms, complex routing, and role-based access.</li>
+        <li><strong>Your app is complex:</strong> Enterprise dashboards, admin panels, ERP systems, banking apps - anything with dozens of forms, complex routing, and role-based access.</li>
         <li><strong>You need long-term maintainability:</strong> Angular's <code>ng update</code> with automatic migrations means upgrading across major versions is scripted, not a rewrite.</li>
         <li><strong>TypeScript is non-negotiable:</strong> Angular is TypeScript-first. Strict typing catches bugs at compile time, not in production.</li>
         <li><strong>You need SSR/SSG:</strong> Angular 21's built-in hydration and SSR are production-ready without needing a separate meta-framework.</li>
@@ -302,7 +302,7 @@ TestBed.configureTestingModule({
       <h2>When to Choose Vue</h2>
       <ul>
         <li><strong>Simplicity is a priority:</strong> Vue has the gentlest learning curve. Junior developers can be productive in days, not weeks.</li>
-        <li><strong>Small to medium apps:</strong> Dashboards, content sites, internal tools — Vue shines when the app doesn't need Angular's full toolkit.</li>
+        <li><strong>Small to medium apps:</strong> Dashboards, content sites, internal tools - Vue shines when the app doesn't need Angular's full toolkit.</li>
         <li><strong>Incremental adoption:</strong> Vue can be dropped into an existing page. No build step required for simple use cases.</li>
         <li><strong>Laravel / Python backend teams:</strong> Vue is the default frontend choice in the Laravel ecosystem and is popular with backend-first teams.</li>
       </ul>
@@ -335,8 +335,8 @@ TestBed.configureTestingModule({
       <h2>Real-World Angular at Scale</h2>
       <p>Major companies running Angular in production at massive scale:</p>
       <ul>
-        <li><strong>Google:</strong> Gmail, Google Cloud Console, Google Analytics, Google Ads — all built with Angular. Over 2,000 Angular apps internally.</li>
-        <li><strong>Microsoft:</strong> Azure Portal, Office 365, Xbox — Angular powers critical Microsoft products.</li>
+        <li><strong>Google:</strong> Gmail, Google Cloud Console, Google Analytics, Google Ads - all built with Angular. Over 2,000 Angular apps internally.</li>
+        <li><strong>Microsoft:</strong> Azure Portal, Office 365, Xbox - Angular powers critical Microsoft products.</li>
         <li><strong>Deutsche Bank:</strong> Trading platforms and internal tools handling billions in daily transactions.</li>
         <li><strong>Samsung:</strong> SmartThings IoT dashboard and consumer-facing web apps.</li>
         <li><strong>Forbes:</strong> Their entire content platform is built on Angular.</li>
@@ -348,7 +348,7 @@ TestBed.configureTestingModule({
 // Before (RxJS overhead)
 items$ = this.http.get&lt;Item[]&gt;('/api/items');
 
-// After (signal — no subscription management)
+// After (signal - no subscription management)
 items = toSignal(this.http.get&lt;Item[]&gt;('/api/items'), { initialValue: [] });
 
 // 2. Use @defer for heavy components
@@ -381,5 +381,5 @@ items = toSignal(this.http.get&lt;Item[]&gt;('/api/items'), { initialValue: [] }
         <li><strong>React</strong> is the best choice when you want maximum flexibility, a massive ecosystem, and the option to go mobile with React Native.</li>
         <li><strong>Vue</strong> is the best choice when you want the simplest developer experience and a gentle learning curve for a small-to-medium application.</li>
       </ul>
-      <p>The framework wars are over. Pick the one that matches your team, your scale, and your timeline — and build something great with it.</p>
+      <p>The framework wars are over. Pick the one that matches your team, your scale, and your timeline - and build something great with it.</p>
     `;

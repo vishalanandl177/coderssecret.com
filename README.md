@@ -1,12 +1,12 @@
 # CodersSecret
 
-> Battle-tested guides on Python, DevOps, APIs, and system design — written by engineers, for engineers who ship.
+> Battle-tested guides on Python, DevOps, APIs, and system design - written by engineers, for engineers who ship.
 
 **[coderssecret.com](https://coderssecret.com)**
 
 ## About
 
-CodersSecret is a modern developer blog built with Angular 21, Tailwind CSS 4, and Spartan UI. It features in-depth technical tutorials on backend engineering, DevOps, security, and system design — with interactive diagrams, code examples, and practical walkthroughs.
+CodersSecret is a modern developer blog built with Angular 21, Tailwind CSS 4, and Spartan UI. It features in-depth technical tutorials on backend engineering, DevOps, security, and system design - with interactive diagrams, code examples, and practical walkthroughs.
 
 ## Tech Stack
 
@@ -23,20 +23,20 @@ CodersSecret is a modern developer blog built with Angular 21, Tailwind CSS 4, a
 ## Features
 
 - **80+ in-depth blog posts** with interactive diagrams and slides
-- **5 free courses** — 73 modules, 145+ hands-on labs and inline exercises (SPIFFE/SPIRE, Cloud Native Security, Production RAG, Distributed Systems, Analytics Engineering)
+- **5 free courses** - 73 modules, 145+ hands-on labs and inline exercises (SPIFFE/SPIRE, Cloud Native Security, Production RAG, Distributed Systems, Analytics Engineering)
 - **10 glossary pages** with architecture SVGs
 - **320+ pre-rendered pages** for SEO
-- **Dynamic SEO** — per-page titles, meta descriptions, Open Graph, Twitter Cards, JSON-LD (Course, FAQPage, DefinedTerm, BreadcrumbList)
-- **Interactive diagrams** — sequence flows, comparison cards, pipeline diagrams, SVG architecture visuals
+- **Dynamic SEO** - per-page titles, meta descriptions, Open Graph, Twitter Cards, JSON-LD (Course, FAQPage, DefinedTerm, BreadcrumbList)
+- **Interactive diagrams** - sequence flows, comparison cards, pipeline diagrams, SVG architecture visuals
 - **Syntax highlighted code blocks** with copy-to-clipboard button
 - **Dark/Light theme** toggle with system preference and `prefers-color-scheme` detection
 - **Reading progress bar** on blog posts
 - **Table of contents** (auto-generated from headings)
 - **Share buttons** (X/Twitter, LinkedIn, copy link)
 - **Full-text search** with keyboard shortcut (Ctrl+K)
-- **Responsive design** — mobile-first with category filters
-- **PWA ready** — manifest.json, icons, apple-touch-icon
-- **SEO optimized** — robots.txt, auto-generated sitemap.xml, canonical URLs, breadcrumbs
+- **Responsive design** - mobile-first with category filters
+- **PWA ready** - manifest.json, icons, apple-touch-icon
+- **SEO optimized** - robots.txt, auto-generated sitemap.xml, canonical URLs, breadcrumbs
 - **Back-to-top button** and skip-to-content link (accessibility)
 - **Pagination** with "Load more" on blog list
 

@@ -152,7 +152,7 @@ print(add(1))
 print(add(2))`,
       options: ['[1] then [2]', '[1] then [1, 2]', '[1, 2] then [1, 2]', 'Error'],
       correctIndex: 1,
-      explanation: 'Mutable default arguments are evaluated ONCE at function definition. The same list is reused across calls — a classic Python gotcha.',
+      explanation: 'Mutable default arguments are evaluated ONCE at function definition. The same list is reused across calls - a classic Python gotcha.',
     },
     {
       language: 'JavaScript',
@@ -191,7 +191,7 @@ print(True == 1)
 print(True is 1)`,
       options: ['3, True, True', '3, True, False', 'Error, True, False', 'TrueTrueTrue, True, True'],
       correctIndex: 1,
-      explanation: 'In Python, bool is a subclass of int. True == 1 and True + True + True = 3. But `is` checks identity — True and 1 are different objects.',
+      explanation: 'In Python, bool is a subclass of int. True == 1 and True + True + True = 3. But `is` checks identity - True and 1 are different objects.',
     },
     {
       language: 'JavaScript',
@@ -214,7 +214,7 @@ y = "hello world"
 print(x is y)`,
       options: ['True, True', 'True, False', 'False, False', 'Depends on implementation'],
       correctIndex: 3,
-      explanation: 'String interning is a CPython optimization. Short strings with identifier-like characters get interned. Longer strings with spaces often are not — but this is implementation-specific and should NOT be relied upon.',
+      explanation: 'String interning is a CPython optimization. Short strings with identifier-like characters get interned. Longer strings with spaces often are not - but this is implementation-specific and should NOT be relied upon.',
     },
     {
       language: 'JavaScript',
@@ -223,7 +223,7 @@ console.log(typeof undefined);
 console.log(typeof NaN);`,
       options: ['null, undefined, number', 'object, undefined, number', 'object, undefined, NaN', 'null, undefined, NaN'],
       correctIndex: 1,
-      explanation: 'typeof null returns "object" — a 25+ year old JavaScript bug that will never be fixed for backwards compatibility. NaN is a Number type (Not-a-Number is still a number).',
+      explanation: 'typeof null returns "object" - a 25+ year old JavaScript bug that will never be fixed for backwards compatibility. NaN is a Number type (Not-a-Number is still a number).',
     },
     {
       language: 'Python',
@@ -244,7 +244,7 @@ console.log(typeof NaN);`,
       code: 'x = (1)\ny = (1,)\nprint(type(x).__name__, type(y).__name__)',
       options: ['tuple tuple', 'int tuple', 'int int', 'tuple int'],
       correctIndex: 1,
-      explanation: 'Parentheses alone dont make a tuple — the COMMA does. (1) is just the integer 1 with parentheses. (1,) is a tuple with one element.',
+      explanation: 'Parentheses alone dont make a tuple - the COMMA does. (1) is just the integer 1 with parentheses. (1,) is a tuple with one element.',
     },
     {
       language: 'JavaScript',
@@ -291,7 +291,7 @@ console.log(typeof NaN);`,
 
   constructor() {
     this.seo.update({
-      title: 'Guess the Output — Python & JavaScript Code Quiz',
+      title: 'Guess the Output - Python & JavaScript Code Quiz',
       description: 'Test your knowledge with tricky Python and JavaScript code snippets. Can you predict the output? 10 questions covering classic language quirks.',
       url: '/games/guess-output',
       breadcrumbs: [

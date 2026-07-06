@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>OKRs &mdash; <strong>Objectives and Key Results</strong> &mdash; are the goal-setting framework used by Google, Intel, Spotify, LinkedIn, and thousands of startups. The idea is simple: decide <strong>what you want to achieve</strong> (the Objective) and <strong>how you will measure progress</strong> (the Key Results).</p>
+      <p>OKRs - <strong>Objectives and Key Results</strong> - are the goal-setting framework used by Google, Intel, Spotify, LinkedIn, and thousands of startups. The idea is simple: decide <strong>what you want to achieve</strong> (the Objective) and <strong>how you will measure progress</strong> (the Key Results).</p>
 
       <p>But most OKR guides drown you in theory. This one is different. We will cover the framework in 5 minutes, then spend the rest on <strong>real examples you can copy and adapt</strong> for your own team.</p>
 
@@ -27,7 +27,7 @@ export const CONTENT = `
         </div>
       </div>
 
-      <p><strong>That is it.</strong> An Objective tells the team <em>where to go</em>. Key Results tell you <em>whether you got there</em>. If you cannot measure it, it is not a Key Result &mdash; it is a wish.</p>
+      <p><strong>That is it.</strong> An Objective tells the team <em>where to go</em>. Key Results tell you <em>whether you got there</em>. If you cannot measure it, it is not a Key Result - it is a wish.</p>
 
       <h2>Good OKRs vs Bad OKRs</h2>
 
@@ -63,17 +63,17 @@ export const CONTENT = `
       <h2>The Rules</h2>
 
       <ul>
-        <li><strong>3-5 Objectives per quarter</strong> &mdash; more than 5 means you have no priorities</li>
-        <li><strong>2-5 Key Results per Objective</strong> &mdash; more than 5 means the Objective is too broad</li>
-        <li><strong>Key Results are outcomes, not tasks</strong> &mdash; "Deploy monitoring" is a task. "Reduce mean-time-to-detect from 30 min to 5 min" is a Key Result</li>
-        <li><strong>Aim for 70% achievement</strong> &mdash; if you consistently hit 100%, your OKRs are too easy. OKRs should stretch you</li>
-        <li><strong>OKRs are not performance reviews</strong> &mdash; they are learning tools. Missing a stretch goal is fine; not trying is not</li>
-        <li><strong>Review weekly, score quarterly</strong> &mdash; check in every week. Score 0.0 to 1.0 at the end of the quarter</li>
+        <li><strong>3-5 Objectives per quarter</strong> - more than 5 means you have no priorities</li>
+        <li><strong>2-5 Key Results per Objective</strong> - more than 5 means the Objective is too broad</li>
+        <li><strong>Key Results are outcomes, not tasks</strong> - "Deploy monitoring" is a task. "Reduce mean-time-to-detect from 30 min to 5 min" is a Key Result</li>
+        <li><strong>Aim for 70% achievement</strong> - if you consistently hit 100%, your OKRs are too easy. OKRs should stretch you</li>
+        <li><strong>OKRs are not performance reviews</strong> - they are learning tools. Missing a stretch goal is fine; not trying is not</li>
+        <li><strong>Review weekly, score quarterly</strong> - check in every week. Score 0.0 to 1.0 at the end of the quarter</li>
       </ul>
 
       <h2>Real-World Example 1: Backend Engineering Team</h2>
 
-      <p><strong>Context:</strong> A 6-person backend team at a B2B SaaS company. Their API has reliability problems &mdash; customers are complaining about downtime and slow responses.</p>
+      <p><strong>Context:</strong> A 6-person backend team at a B2B SaaS company. Their API has reliability problems - customers are complaining about downtime and slow responses.</p>
 
       <pre><code>OBJECTIVE: Make our API rock-solid reliable
 
@@ -82,7 +82,7 @@ KR2: Reduce p99 API latency from 800ms to 200ms
 KR3: Reduce production incidents (Sev1 + Sev2) from 12/month to 3/month
 KR4: Achieve mean-time-to-recovery (MTTR) under 15 minutes for all Sev1 incidents</code></pre>
 
-      <p><strong>Why this works:</strong> Every Key Result is a measurable outcome tied to customer pain. The team can pursue any strategy &mdash; better monitoring, database optimization, circuit breakers, chaos engineering &mdash; as long as the numbers move.</p>
+      <p><strong>Why this works:</strong> Every Key Result is a measurable outcome tied to customer pain. The team can pursue any strategy - better monitoring, database optimization, circuit breakers, chaos engineering - as long as the numbers move.</p>
 
       <h2>Real-World Example 2: Frontend Team</h2>
 
@@ -95,7 +95,7 @@ KR2: Increase onboarding completion rate from 34% to 65%
 KR3: Reduce JavaScript bundle size from 2.1MB to under 500KB
 KR4: Achieve a Core Web Vitals "Good" rating on 90%+ of pages</code></pre>
 
-      <p><strong>Why this works:</strong> Mixes technical metrics (LCP, bundle size) with business outcomes (onboarding completion). The team cannot just optimize code &mdash; they also need to think about UX flow.</p>
+      <p><strong>Why this works:</strong> Mixes technical metrics (LCP, bundle size) with business outcomes (onboarding completion). The team cannot just optimize code - they also need to think about UX flow.</p>
 
       <h2>Real-World Example 3: DevOps / Platform Team</h2>
 
@@ -127,7 +127,7 @@ KR4: Reduce churn rate from 40%/month to under 10%/month</code></pre>
 
       <p><strong>Context:</strong> The company just passed a SOC2 audit but the security posture is reactive. They want to shift left and build security into the development process.</p>
 
-      <pre><code>OBJECTIVE: Shift security left — catch vulnerabilities before production
+      <pre><code>OBJECTIVE: Shift security left - catch vulnerabilities before production
 
 KR1: 100% of repos have automated SAST scanning in CI pipeline
 KR2: Reduce average vulnerability remediation time from 45 days to 7 days
@@ -142,7 +142,7 @@ KR4: 80% of engineers complete secure coding training (currently 15%)</code></pr
 
 KR1: Increase recommendation click-through rate from 2.1% to 8%
 KR2: Reduce model training pipeline failures from 30% to under 5%
-KR3: Achieve model freshness — retrain and deploy within 4 hours of new data
+KR3: Achieve model freshness - retrain and deploy within 4 hours of new data
 KR4: Reduce cold-start problem: new users get personalized recs within 3 interactions</code></pre>
 
       <h2>How to Write Your First OKR in 10 Minutes</h2>
@@ -172,7 +172,7 @@ Step 4: Sanity check
           <div class="vs-card" style="border-color:#a855f7">
             <div class="vs-card-header" style="background:#a855f7">OKR</div>
             <div class="vs-card-body">
-              <div class="vs-row"><span class="vs-row-icon">&#x1F680;</span>Drives <strong>change</strong> — where do we want to go?</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F680;</span>Drives <strong>change</strong> - where do we want to go?</div>
               <div class="vs-row"><span class="vs-row-icon">&#x23F3;</span>Time-bound (quarterly)</div>
               <div class="vs-row"><span class="vs-row-icon">&#x1F3AF;</span>Ambitious, stretch targets (aim for 70%)</div>
               <div class="vs-row"><span class="vs-row-icon">&#x1F504;</span>Changes every quarter</div>
@@ -182,7 +182,7 @@ Step 4: Sanity check
           <div class="vs-card" style="border-color:#22c55e">
             <div class="vs-card-header" style="background:#22c55e">KPI</div>
             <div class="vs-card-body">
-              <div class="vs-row"><span class="vs-row-icon">&#x1F4CA;</span>Tracks <strong>health</strong> — are we on track?</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F4CA;</span>Tracks <strong>health</strong> - are we on track?</div>
               <div class="vs-row"><span class="vs-row-icon">&#x267E;</span>Ongoing (always measured)</div>
               <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>Realistic, must-hit thresholds</div>
               <div class="vs-row"><span class="vs-row-icon">&#x1F4C8;</span>Stays relatively stable</div>
@@ -196,12 +196,12 @@ Step 4: Sanity check
       <h2>Common Mistakes</h2>
 
       <ul>
-        <li><strong>Too many OKRs</strong> &mdash; if everything is a priority, nothing is. Stick to 3-5 Objectives per quarter.</li>
-        <li><strong>Key Results that are tasks</strong> &mdash; "Launch feature X" is a task. "Increase metric Y from A to B" is a Key Result. Measure outcomes, not output.</li>
-        <li><strong>Sandbagging</strong> &mdash; setting easy targets so you always hit 100%. OKRs should be uncomfortable. 70% achievement on a stretch goal beats 100% on a safe one.</li>
-        <li><strong>Set-and-forget</strong> &mdash; writing OKRs in January and reviewing in March. Check in weekly. Adjust if the world changes.</li>
-        <li><strong>Tying OKRs to bonuses</strong> &mdash; the moment OKRs affect compensation, people sandbag. Google explicitly decouples OKRs from performance reviews.</li>
-        <li><strong>No baseline</strong> &mdash; "Improve latency to 200ms" means nothing without knowing the starting point. Always write "from X to Y."</li>
+        <li><strong>Too many OKRs</strong> - if everything is a priority, nothing is. Stick to 3-5 Objectives per quarter.</li>
+        <li><strong>Key Results that are tasks</strong> - "Launch feature X" is a task. "Increase metric Y from A to B" is a Key Result. Measure outcomes, not output.</li>
+        <li><strong>Sandbagging</strong> - setting easy targets so you always hit 100%. OKRs should be uncomfortable. 70% achievement on a stretch goal beats 100% on a safe one.</li>
+        <li><strong>Set-and-forget</strong> - writing OKRs in January and reviewing in March. Check in weekly. Adjust if the world changes.</li>
+        <li><strong>Tying OKRs to bonuses</strong> - the moment OKRs affect compensation, people sandbag. Google explicitly decouples OKRs from performance reviews.</li>
+        <li><strong>No baseline</strong> - "Improve latency to 200ms" means nothing without knowing the starting point. Always write "from X to Y."</li>
       </ul>
 
       <h2>Summary</h2>
@@ -211,8 +211,8 @@ Step 4: Sanity check
         <li><strong>Key Results</strong> = how you measure it (quantitative, specific, "from X to Y")</li>
         <li>Write <strong>3-5 Objectives</strong> per quarter with <strong>2-5 Key Results</strong> each</li>
         <li>Measure <strong>outcomes, not tasks</strong></li>
-        <li>Aim for <strong>70% achievement</strong> &mdash; if you hit 100%, you aimed too low</li>
+        <li>Aim for <strong>70% achievement</strong> - if you hit 100%, you aimed too low</li>
         <li>Review <strong>weekly</strong>, score <strong>quarterly</strong></li>
-        <li>OKRs drive change; KPIs track health &mdash; <strong>use both</strong></li>
+        <li>OKRs drive change; KPIs track health - <strong>use both</strong></li>
       </ul>
     `;

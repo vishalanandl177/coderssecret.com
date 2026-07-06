@@ -210,7 +210,7 @@ def process_with_dlq(message, max_retries=3):
 
       <h2>Idempotency: Processing Events Safely</h2>
 
-      <p>Events can be delivered more than once (network retries, consumer restarts). Your consumers <strong>must</strong> be idempotent &mdash; processing the same event twice should produce the same result.</p>
+      <p>Events can be delivered more than once (network retries, consumer restarts). Your consumers <strong>must</strong> be idempotent - processing the same event twice should produce the same result.</p>
 
       <pre><code># Idempotent consumer using event_id deduplication
 class IdempotentConsumer:
@@ -249,14 +249,14 @@ class IdempotentConsumer:
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Events decouple services in time and availability</strong> &mdash; producers and consumers do not need to be online simultaneously</li>
-        <li><strong>Use Kafka for event streaming, RabbitMQ for task queues</strong> &mdash; Kafka retains events, RabbitMQ deletes after consumption</li>
-        <li><strong>Events should be self-contained</strong> &mdash; include enough data that consumers never need to call back to the producer</li>
-        <li><strong>Dead letter queues prevent data loss</strong> &mdash; failed messages go to DLQ for later investigation, not the void</li>
-        <li><strong>Consumers must be idempotent</strong> &mdash; use event_id deduplication or database constraints</li>
-        <li><strong>Event sourcing gives you a complete audit trail</strong> &mdash; but adds complexity, so use it where the audit trail justifies the cost</li>
-        <li><strong>Migrate incrementally</strong> &mdash; start with events inside your monolith before splitting services</li>
+        <li><strong>Events decouple services in time and availability</strong> - producers and consumers do not need to be online simultaneously</li>
+        <li><strong>Use Kafka for event streaming, RabbitMQ for task queues</strong> - Kafka retains events, RabbitMQ deletes after consumption</li>
+        <li><strong>Events should be self-contained</strong> - include enough data that consumers never need to call back to the producer</li>
+        <li><strong>Dead letter queues prevent data loss</strong> - failed messages go to DLQ for later investigation, not the void</li>
+        <li><strong>Consumers must be idempotent</strong> - use event_id deduplication or database constraints</li>
+        <li><strong>Event sourcing gives you a complete audit trail</strong> - but adds complexity, so use it where the audit trail justifies the cost</li>
+        <li><strong>Migrate incrementally</strong> - start with events inside your monolith before splitting services</li>
       </ul>
 
-      <p>Event-driven architecture is not about technology &mdash; it is about designing systems where services communicate through facts rather than commands. When Service A says &ldquo;an order was created&rdquo; instead of &ldquo;charge this customer,&rdquo; you get a system that is more resilient, more scalable, and easier to evolve. Start with the events. The architecture follows.</p>
+      <p>Event-driven architecture is not about technology - it is about designing systems where services communicate through facts rather than commands. When Service A says &ldquo;an order was created&rdquo; instead of &ldquo;charge this customer,&rdquo; you get a system that is more resilient, more scalable, and easier to evolve. Start with the events. The architecture follows.</p>
     `;

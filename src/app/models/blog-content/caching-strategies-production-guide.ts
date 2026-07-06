@@ -1,7 +1,7 @@
 export const CONTENT = `
       <p>Every cache eventually causes an outage if you do not design it right. The reasons are always the same family: stale data when invalidation lags, thundering herds when the cache expires under load, hot keys that overwhelm a single Redis node, cascading failure when the cache itself goes down and the underlying database cannot serve the resulting load. Caching is the most leveraged performance tool in your stack and one of the easiest to get subtly wrong.</p>
 
-      <p>This guide is a production walk through how real systems cache &mdash; the access patterns (cache-aside, write-through, write-back, read-through), the topologies (application caches, distributed caches, CDN edges), the failure modes (thundering herd, cache stampede, hot partitions), and the operational decisions that determine whether your cache makes the system faster or just makes the next outage harder to debug.</p>
+      <p>This guide is a production walk through how real systems cache - the access patterns (cache-aside, write-through, write-back, read-through), the topologies (application caches, distributed caches, CDN edges), the failure modes (thundering herd, cache stampede, hot partitions), and the operational decisions that determine whether your cache makes the system faster or just makes the next outage harder to debug.</p>
 
       <h2>Why Caching, and What Caching Actually Buys You</h2>
 
@@ -33,7 +33,7 @@ def update_user(user_id, data):
     db.execute("UPDATE users SET ... WHERE id = ?", user_id)
     redis.delete(f"user:{user_id}")           # invalidate</code></pre>
 
-      <p><strong>Pros:</strong> simple. The cache only contains data that has been requested. Survives a cold cache or a missing entry &mdash; the worst case is a database query.</p>
+      <p><strong>Pros:</strong> simple. The cache only contains data that has been requested. Survives a cold cache or a missing entry - the worst case is a database query.</p>
 
       <p><strong>Cons:</strong> first request after a miss pays the database cost (latency penalty). Stale data possible if invalidation is lost or the TTL is too long. The thundering herd problem (covered below) shows up exactly here.</p>
 
@@ -41,7 +41,7 @@ def update_user(user_id, data):
 
       <p>The cache itself loads data from the database on a miss. The application talks only to the cache; the cache decides when to fetch. Common with caching libraries that wrap the database (NCache, Caffeine with a CacheLoader, Spring Cache abstraction).</p>
 
-      <p><strong>Pros:</strong> application code is simpler &mdash; one access path. Loading logic centralised. Cache implementation can deduplicate concurrent loads of the same key (the &quot;cache loader stampede&quot; defence).</p>
+      <p><strong>Pros:</strong> application code is simpler - one access path. Loading logic centralised. Cache implementation can deduplicate concurrent loads of the same key (the &quot;cache loader stampede&quot; defence).</p>
 
       <p><strong>Cons:</strong> the cache layer must know how to query your database, which couples them. Less common in microservices because the cache is rarely allowed to talk to your database directly.</p>
 
@@ -55,13 +55,13 @@ def update_user(user_id, data):
 
       <p><strong>Pros:</strong> never stale (within the write-completion window). Reads never miss for recently-written data.</p>
 
-      <p><strong>Cons:</strong> writes are slower (two systems on the critical path). Wasted cache writes for data that is rarely or never read &mdash; you populate the cache for every write, not just for reads. Use only when most written data will be read soon.</p>
+      <p><strong>Cons:</strong> writes are slower (two systems on the critical path). Wasted cache writes for data that is rarely or never read - you populate the cache for every write, not just for reads. Use only when most written data will be read soon.</p>
 
       <h3>Write-Back (Write-Behind)</h3>
 
       <p>Writes go to the cache only. The cache asynchronously flushes dirty entries to the database in batches. The database catches up later.</p>
 
-      <p><strong>Pros:</strong> very fast writes &mdash; the database is never on the critical path. Naturally batches multiple updates to the same key. High write throughput.</p>
+      <p><strong>Pros:</strong> very fast writes - the database is never on the critical path. Naturally batches multiple updates to the same key. High write throughput.</p>
 
       <p><strong>Cons:</strong> data loss window if the cache crashes before flushing. Hard to reason about consistency. Only used when write throughput dominates and some data loss is acceptable (analytics counters, view counts, leaderboards).</p>
 
@@ -128,16 +128,16 @@ def update_user(user_id, data):
       <p>Real systems cache at multiple layers. A request for a product page might hit:</p>
 
       <ol>
-        <li><strong>Browser cache</strong> (Cache-Control headers, service worker) &mdash; nanoseconds.</li>
-        <li><strong>CDN edge cache</strong> (Cloudflare, Fastly, CloudFront) &mdash; ~10ms within the same continent.</li>
-        <li><strong>Origin reverse proxy cache</strong> (Varnish, NGINX) &mdash; ~5ms within the same datacentre.</li>
-        <li><strong>Application in-process cache</strong> (Caffeine, Guava, Python <code>functools.lru_cache</code>) &mdash; microseconds.</li>
-        <li><strong>Distributed cache</strong> (Redis, Memcached) &mdash; ~1&ndash;3ms within the same VPC.</li>
-        <li><strong>Database query cache / page cache</strong> &mdash; ~1ms for in-memory pages.</li>
-        <li><strong>The actual storage</strong> &mdash; tens of milliseconds for SSD, hundreds for cold storage.</li>
+        <li><strong>Browser cache</strong> (Cache-Control headers, service worker) - nanoseconds.</li>
+        <li><strong>CDN edge cache</strong> (Cloudflare, Fastly, CloudFront) - ~10ms within the same continent.</li>
+        <li><strong>Origin reverse proxy cache</strong> (Varnish, NGINX) - ~5ms within the same datacentre.</li>
+        <li><strong>Application in-process cache</strong> (Caffeine, Guava, Python <code>functools.lru_cache</code>) - microseconds.</li>
+        <li><strong>Distributed cache</strong> (Redis, Memcached) - ~1&ndash;3ms within the same VPC.</li>
+        <li><strong>Database query cache / page cache</strong> - ~1ms for in-memory pages.</li>
+        <li><strong>The actual storage</strong> - tens of milliseconds for SSD, hundreds for cold storage.</li>
       </ol>
 
-      <p>Each layer has different invalidation cost, different consistency story, and different blast radius if it fails. The hierarchy is intentional &mdash; the higher the layer, the cheaper the hit and the harder the invalidation.</p>
+      <p>Each layer has different invalidation cost, different consistency story, and different blast radius if it fails. The hierarchy is intentional - the higher the layer, the cheaper the hit and the harder the invalidation.</p>
 
       <svg viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Multi-layer cache hierarchy showing browser, CDN, application, distributed cache, and origin database">
         <rect width="800" height="360" fill="#0f172a" rx="12"/>
@@ -170,17 +170,17 @@ def update_user(user_id, data):
 
       <h3>Redis: Single-Node, Sentinel, Cluster</h3>
 
-      <p>Redis is the de facto standard distributed cache because of its rich data structures (not just key/value &mdash; sorted sets, hashes, streams, HyperLogLog) and its operational maturity. Three topologies dominate:</p>
+      <p>Redis is the de facto standard distributed cache because of its rich data structures (not just key/value - sorted sets, hashes, streams, HyperLogLog) and its operational maturity. Three topologies dominate:</p>
 
       <ul>
         <li><strong>Single-node</strong> with persistence (RDB snapshots + AOF). Simplest, no HA. Acceptable for non-critical caches; restart pauses are real.</li>
-        <li><strong>Sentinel</strong>: a primary with one or more replicas, plus Sentinel processes that coordinate failover. Strong-ish HA &mdash; Sentinel orchestrates leader election among the Sentinels themselves and promotes a replica when the primary fails. The classic warning is split-brain during a partition: see <a href="/blog/distributed-systems-algorithms-production-guide" class="text-primary underline">the consensus discussion in the Distributed Systems Algorithms guide</a>.</li>
+        <li><strong>Sentinel</strong>: a primary with one or more replicas, plus Sentinel processes that coordinate failover. Strong-ish HA - Sentinel orchestrates leader election among the Sentinels themselves and promotes a replica when the primary fails. The classic warning is split-brain during a partition: see <a href="/blog/distributed-systems-algorithms-production-guide" class="text-primary underline">the consensus discussion in the Distributed Systems Algorithms guide</a>.</li>
         <li><strong>Cluster</strong>: 16384 hash slots partitioned across N primary nodes, with replicas per primary. Linear scalability for both memory and throughput. Rebalancing happens online via slot migration. Most large Redis deployments converge on Cluster mode, often with cloud-managed offerings like AWS ElastiCache or Memorystore.</li>
       </ul>
 
       <h3>Memcached</h3>
 
-      <p>Memcached is the simpler counterpoint to Redis. Pure key/value, no persistence, no replication, no data structures &mdash; just a sharded LRU cache. Its strength is operational simplicity (Facebook famously runs many trillions of ops/day on Memcached) and predictable performance.</p>
+      <p>Memcached is the simpler counterpoint to Redis. Pure key/value, no persistence, no replication, no data structures - just a sharded LRU cache. Its strength is operational simplicity (Facebook famously runs many trillions of ops/day on Memcached) and predictable performance.</p>
 
       <p>Memcached uses client-side consistent hashing for sharding. The <strong>libmemcached</strong> client is the de facto C client; <strong>Mcrouter</strong> (open-sourced by Facebook) is a proxy that adds connection pooling, replication, and pool management on top of plain Memcached.</p>
 
@@ -247,10 +247,10 @@ def update_user(user_id, data):
 
       <blockquote>
         <p>&ldquo;There are only two hard things in Computer Science: cache invalidation and naming things.&rdquo;</p>
-        <p>&mdash; Phil Karlton</p>
+        <p>- Phil Karlton</p>
       </blockquote>
 
-      <p>Invalidation is hard because you have to maintain a relationship between two systems &mdash; the cache and the source of truth &mdash; and the moment that relationship lags, you serve stale data. The strategies, ordered from simplest to most complex:</p>
+      <p>Invalidation is hard because you have to maintain a relationship between two systems - the cache and the source of truth - and the moment that relationship lags, you serve stale data. The strategies, ordered from simplest to most complex:</p>
 
       <h3>TTL Expiry</h3>
 
@@ -280,7 +280,7 @@ def update_user(user_id, data):
 
       <h3>Versioned Cache Keys</h3>
 
-      <p>Bake a version into the cache key (<code>user:123:v42</code>). To invalidate, increment the version &mdash; old keys remain in cache but are never read again, and they expire naturally via TTL. Useful when you cannot reliably enumerate all entries to invalidate (e.g. precomputed search results).</p>
+      <p>Bake a version into the cache key (<code>user:123:v42</code>). To invalidate, increment the version - old keys remain in cache but are never read again, and they expire naturally via TTL. Useful when you cannot reliably enumerate all entries to invalidate (e.g. precomputed search results).</p>
 
       <svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cache invalidation flow showing CDC pipeline propagating database writes to distributed cache invalidations">
         <rect width="800" height="380" fill="#0f172a" rx="12"/>
@@ -351,7 +351,7 @@ def update_user(user_id, data):
         time.sleep(0.05)
         return get_user_with_lock(user_id)  # retry</code></pre>
 
-      <p>Effective but adds latency for the losers. A failed lock-holder leaves the lock orphaned for the lock TTL &mdash; that is the worst-case latency penalty.</p>
+      <p>Effective but adds latency for the losers. A failed lock-holder leaves the lock orphaned for the lock TTL - that is the worst-case latency penalty.</p>
 
       <h3>2. Probabilistic Early Expiration</h3>
 
@@ -365,7 +365,7 @@ def update_user(user_id, data):
 
       <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cache stampede pattern showing many concurrent misses overwhelming the database">
         <rect width="800" height="320" fill="#0f172a" rx="12"/>
-        <text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700">CACHE STAMPEDE &mdash; AND ITS DEFENCES</text>
+        <text x="400" y="32" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700">CACHE STAMPEDE - AND ITS DEFENCES</text>
         <text x="200" y="68" text-anchor="middle" fill="#fca5a5" font-size="12" font-weight="700">UNPROTECTED</text>
         <circle cx="80" cy="120" r="10" fill="#1e293b" stroke="#fca5a5"/>
         <circle cx="80" cy="150" r="10" fill="#1e293b" stroke="#fca5a5"/>
@@ -410,7 +410,7 @@ def update_user(user_id, data):
 
       <h2>Hot Keys and Hot Partitions</h2>
 
-      <p>In a sharded cache (Redis Cluster, Memcached with consistent hashing, DynamoDB), every key maps to a single partition. If 90% of your traffic targets one key (the homepage product, the celebrity user&apos;s feed), that key&apos;s partition becomes a hotspot &mdash; saturating one node while others sit idle.</p>
+      <p>In a sharded cache (Redis Cluster, Memcached with consistent hashing, DynamoDB), every key maps to a single partition. If 90% of your traffic targets one key (the homepage product, the celebrity user&apos;s feed), that key&apos;s partition becomes a hotspot - saturating one node while others sit idle.</p>
 
       <p>Detection: per-partition request rate metrics. Cassandra exposes per-token-range metrics; Redis Cluster exposes per-node QPS. A 10x difference between the busiest and average node is a clear hot-key signal.</p>
 
@@ -418,7 +418,7 @@ def update_user(user_id, data):
       <ul>
         <li><strong>Local cache as a shield</strong>: each application pod caches the hot key in process for 1&ndash;2 seconds, fronting the distributed cache. Requests to the hot key never leave the pod.</li>
         <li><strong>Key splitting</strong>: instead of <code>product:123</code>, write to <code>product:123:shard1</code>...<code>product:123:shardN</code> and have readers pick a random shard. The hot key becomes N less-hot keys spread across partitions.</li>
-        <li><strong>Cache the precomputed answer</strong>: if the hot key feeds 10 different views, compute all 10 once and cache them &mdash; avoid recomputation on every read.</li>
+        <li><strong>Cache the precomputed answer</strong>: if the hot key feeds 10 different views, compute all 10 once and cache them - avoid recomputation on every read.</li>
         <li><strong>CDN it</strong>: if it is GET-able, push it to the CDN with a short TTL. The hot key becomes the CDN&apos;s problem, which is built for it.</li>
       </ul>
 
@@ -434,7 +434,7 @@ def update_user(user_id, data):
         <li><strong>Random</strong>: evict at random. Surprisingly competitive with LRU in some workloads, much cheaper to implement.</li>
       </ul>
 
-      <p>Redis exposes the choice as <code>maxmemory-policy</code>: <code>allkeys-lru</code>, <code>allkeys-lfu</code>, <code>volatile-lru</code>, <code>volatile-lfu</code>, <code>volatile-ttl</code>, <code>volatile-random</code>, <code>allkeys-random</code>, <code>noeviction</code>. The <code>noeviction</code> setting refuses writes when full &mdash; useful for cache-as-truth use cases (queues, session stores) where data loss is unacceptable.</p>
+      <p>Redis exposes the choice as <code>maxmemory-policy</code>: <code>allkeys-lru</code>, <code>allkeys-lfu</code>, <code>volatile-lru</code>, <code>volatile-lfu</code>, <code>volatile-ttl</code>, <code>volatile-random</code>, <code>allkeys-random</code>, <code>noeviction</code>. The <code>noeviction</code> setting refuses writes when full - useful for cache-as-truth use cases (queues, session stores) where data loss is unacceptable.</p>
 
       <h2>Multi-Region Caching</h2>
 
@@ -506,7 +506,7 @@ def update_user(user_id, data):
         <li><strong>DynamoDB DAX</strong>: an opt-in in-memory cache that fronts DynamoDB transparently for read latency.</li>
       </ul>
 
-      <p>Sometimes the database&apos;s own cache is enough &mdash; if your working set fits in <code>shared_buffers</code>, you may not need a separate Redis at all. Always start with database tuning before introducing an external cache.</p>
+      <p>Sometimes the database&apos;s own cache is enough - if your working set fits in <code>shared_buffers</code>, you may not need a separate Redis at all. Always start with database tuning before introducing an external cache.</p>
 
       <h2>Kubernetes Caching Patterns</h2>
 
@@ -515,7 +515,7 @@ def update_user(user_id, data):
       <ul>
         <li><strong>Sidecar cache</strong>: a Redis or Memcached container in the pod. Lowest latency (loopback), but unique cache per pod (multi-pod deployments duplicate). Useful for read-heavy single-tenant services.</li>
         <li><strong>StatefulSet cache</strong>: a dedicated Redis StatefulSet per cluster, accessed via Service DNS. The standard pattern for shared application caches.</li>
-        <li><strong>External managed cache</strong>: AWS ElastiCache / GCP Memorystore. The right answer for production at any scale &mdash; outsource the operational burden.</li>
+        <li><strong>External managed cache</strong>: AWS ElastiCache / GCP Memorystore. The right answer for production at any scale - outsource the operational burden.</li>
         <li><strong>HTTP cache via ingress</strong>: NGINX Ingress with proxy_cache directives, or a dedicated Varnish layer. Caches at the edge of the cluster.</li>
       </ul>
 
@@ -526,14 +526,14 @@ def update_user(user_id, data):
       <ol>
         <li><strong>Cross-tenant data leakage</strong>: a cache key that does not include tenant scope can serve one tenant&apos;s data to another. Always include tenant_id in the key.</li>
         <li><strong>Cache poisoning</strong>: an attacker tricks the cache into storing malicious content. Most common with HTTP caches and unkeyed headers (e.g. caching based on Host header that the attacker controls). Use the <code>Vary</code> header carefully and validate cache keys against a whitelist.</li>
-        <li><strong>Sensitive data in cache</strong>: PII, secrets, tokens cached without thought. Treat the cache as a separate datastore for compliance purposes &mdash; encryption at rest, access control, audit logs.</li>
+        <li><strong>Sensitive data in cache</strong>: PII, secrets, tokens cached without thought. Treat the cache as a separate datastore for compliance purposes - encryption at rest, access control, audit logs.</li>
       </ol>
 
-      <p>The classic vulnerability is web cache deception (Omer Gil, 2017): an attacker requests <code>example.com/account/profile.css</code> &mdash; the CDN sees the .css extension and caches the response, but the application ignores the extension and serves the user&apos;s authenticated profile. Now the next request for the same path serves that profile to anyone. Cache only what the application explicitly marks as cacheable.</p>
+      <p>The classic vulnerability is web cache deception (Omer Gil, 2017): an attacker requests <code>example.com/account/profile.css</code> - the CDN sees the .css extension and caches the response, but the application ignores the extension and serves the user&apos;s authenticated profile. Now the next request for the same path serves that profile to anyone. Cache only what the application explicitly marks as cacheable.</p>
 
       <aside class="callout callout-security">
         <strong>Security warning</strong>
-        <p>Always include the tenant ID (or user ID for per-user data) in the cache key. The most insidious cache bug is &ldquo;tenant A briefly sees tenant B&apos;s data&rdquo; from a missed key qualifier &mdash; the bug rarely fires in single-tenant testing and only surfaces under load. Treat tenant scoping at the cache layer as non-negotiable.</p>
+        <p>Always include the tenant ID (or user ID for per-user data) in the cache key. The most insidious cache bug is &ldquo;tenant A briefly sees tenant B&apos;s data&rdquo; from a missed key qualifier - the bug rarely fires in single-tenant testing and only surfaces under load. Treat tenant scoping at the cache layer as non-negotiable.</p>
       </aside>
 
       <aside class="callout callout-mistake">
@@ -575,16 +575,16 @@ def update_user(user_id, data):
       <p>Use DEL on writes (not SET); use a CDC pipeline for cross-service invalidation; use short TTLs as a safety net so stale entries expire on their own; treat the database as authoritative and the cache as ephemeral.</p>
 
       <h3>Is in-process caching ever worth it on top of Redis?</h3>
-      <p>Yes &mdash; for hot keys it can shave the 1ms Redis call to a few microseconds and dramatically reduce Redis load. Use a small TTL (1&ndash;5 seconds) so staleness is bounded, and keep the cache size small (Caffeine with size limit) to avoid memory pressure.</p>
+      <p>Yes - for hot keys it can shave the 1ms Redis call to a few microseconds and dramatically reduce Redis load. Use a small TTL (1&ndash;5 seconds) so staleness is bounded, and keep the cache size small (Caffeine with size limit) to avoid memory pressure.</p>
 
       <h3>What about caching at the edge with workers (Cloudflare Workers, Lambda@Edge)?</h3>
       <p>Excellent fit for content that varies by region, country, or device class but does not need per-user customisation. Edge workers can compose responses from cached fragments and origin calls, often achieving 95%+ hit rates with sub-50ms latency globally.</p>
 
       <h2>Conclusion</h2>
 
-      <p>Caching is the highest-leverage performance tool in your stack and one of the easiest to get subtly wrong. Every cache eventually causes an outage if you do not design for the failure modes &mdash; stale data, thundering herds, hot keys, cascading failure when the cache itself goes down. The systems that get it right are the ones that started with the failure modes in mind.</p>
+      <p>Caching is the highest-leverage performance tool in your stack and one of the easiest to get subtly wrong. Every cache eventually causes an outage if you do not design for the failure modes - stale data, thundering herds, hot keys, cascading failure when the cache itself goes down. The systems that get it right are the ones that started with the failure modes in mind.</p>
 
-      <p>The high-leverage takeaways: <strong>measure first &mdash; do not cache what is already fast enough</strong>; <strong>define the freshness contract before choosing the strategy</strong>; <strong>cache-aside is the default; write-through only when most writes will be read soon; write-back only when data loss windows are acceptable</strong>; <strong>DEL on writes, never SET</strong>; <strong>multi-layer beats single-layer &mdash; CDN at the edge, distributed cache for shared application state, in-process for hot keys</strong>; <strong>defend against thundering herd before it bites you, not after</strong>; <strong>treat the cache as a tier with its own SLOs, observability, and security posture</strong>. The cache that does not emit hit-rate, eviction, latency, and stampede metrics is just guessing about whether it is helping.</p>
+      <p>The high-leverage takeaways: <strong>measure first - do not cache what is already fast enough</strong>; <strong>define the freshness contract before choosing the strategy</strong>; <strong>cache-aside is the default; write-through only when most writes will be read soon; write-back only when data loss windows are acceptable</strong>; <strong>DEL on writes, never SET</strong>; <strong>multi-layer beats single-layer - CDN at the edge, distributed cache for shared application state, in-process for hot keys</strong>; <strong>defend against thundering herd before it bites you, not after</strong>; <strong>treat the cache as a tier with its own SLOs, observability, and security posture</strong>. The cache that does not emit hit-rate, eviction, latency, and stampede metrics is just guessing about whether it is helping.</p>
 
       <h2>Where to Go Next</h2>
 

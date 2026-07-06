@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>When your microservices talk to each other, how do you ensure that only <strong>authorized services</strong> can make those calls? API keys leak. JWTs expire and need refresh infrastructure. The most robust solution is <strong>certificate-based M2M authentication</strong> — and there's a Go library that makes it straightforward: <a href="https://github.com/vishalanandl177/m2mauth" target="_blank" rel="noopener noreferrer"><strong>m2mauth</strong></a>.</p>
+      <p>When your microservices talk to each other, how do you ensure that only <strong>authorized services</strong> can make those calls? API keys leak. JWTs expire and need refresh infrastructure. The most robust solution is <strong>certificate-based M2M authentication</strong> - and there's a Go library that makes it straightforward: <a href="https://github.com/vishalanandl177/m2mauth" target="_blank" rel="noopener noreferrer"><strong>m2mauth</strong></a>.</p>
 
       <h2>Why m2mauth?</h2>
       <p>Building mTLS from scratch in Go means dealing with TLS config, certificate loading, peer verification, and error handling yourself. The <code>m2mauth</code> library wraps all of this into a clean API focused specifically on service-to-service authentication.</p>
@@ -21,7 +21,7 @@ export const CONTENT = `
           <div class="vs-card" style="border-color:#22c55e">
             <div class="vs-card-header" style="background:#22c55e">&#x2705; Using m2mauth</div>
             <div class="vs-card-body">
-              <div class="vs-row"><span class="vs-row-icon">&#x26A1;</span>Clean API — few lines to set up</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x26A1;</span>Clean API - few lines to set up</div>
               <div class="vs-row"><span class="vs-row-icon">&#x1F512;</span>Secure defaults (TLS 1.2+, strong ciphers)</div>
               <div class="vs-row"><span class="vs-row-icon">&#x2705;</span>Handles certificate loading and validation</div>
               <div class="vs-row"><span class="vs-row-icon">&#x1F4E6;</span>Open source, auditable, community-maintained</div>
@@ -88,7 +88,7 @@ func main() {
     mux := http.NewServeMux()
     mux.HandleFunc("/api/data", func(w http.ResponseWriter, r *http.Request) {
         // At this point, the client's certificate has been verified
-        // by m2mauth — only trusted services reach this handler
+        // by m2mauth - only trusted services reach this handler
         fmt.Fprintf(w, "Hello from Service B! You are authenticated.")
     })
 
@@ -133,7 +133,7 @@ func main() {
         log.Fatalf("Failed to create M2M client: %v", err)
     }
 
-    // Make authenticated request — certificate is sent automatically
+    // Make authenticated request - certificate is sent automatically
     resp, err := client.Get("https://localhost:8443/api/data")
     if err != nil {
         log.Fatalf("Request failed: %v", err)
@@ -239,7 +239,7 @@ spec:
       <h2>When to Use m2mauth</h2>
       <ul>
         <li><strong>Microservice-to-microservice:</strong> Internal APIs within your cluster where API keys aren't secure enough.</li>
-        <li><strong>Zero-trust environments:</strong> Every connection must prove identity cryptographically — not just "I have the right API key."</li>
+        <li><strong>Zero-trust environments:</strong> Every connection must prove identity cryptographically - not just "I have the right API key."</li>
         <li><strong>Cross-cluster communication:</strong> Services in different Kubernetes clusters or VPCs that need to trust each other.</li>
         <li><strong>Compliance requirements:</strong> PCI-DSS, HIPAA, or SOC 2 often require mutual authentication for sensitive data access.</li>
       </ul>
@@ -248,22 +248,22 @@ spec:
 
       <p>The <code>m2mauth</code> library is perfect for small-to-medium deployments where you manage certificates manually. But there's a fundamental problem it can't solve: <strong>the identity bootstrapping problem</strong>.</p>
 
-      <p>When a new pod starts in Kubernetes, how does it prove who it is? It can't show a certificate — it doesn't have one yet. It can't use a password — where would you store it securely before the pod exists? This chicken-and-egg problem is exactly what SPIFFE and SPIRE were designed to solve.</p>
+      <p>When a new pod starts in Kubernetes, how does it prove who it is? It can't show a certificate - it doesn't have one yet. It can't use a password - where would you store it securely before the pod exists? This chicken-and-egg problem is exactly what SPIFFE and SPIRE were designed to solve.</p>
 
       <h2>What is SPIFFE?</h2>
 
-      <p><strong>SPIFFE</strong> (Secure Production Identity Framework for Everyone) is not a tool — it's an <strong>open standard</strong> (a set of specifications) that defines how workloads identify themselves to each other. Think of it like how HTTPS is a standard that defines secure web connections. SPIFFE is a standard that defines secure workload identity.</p>
+      <p><strong>SPIFFE</strong> (Secure Production Identity Framework for Everyone) is not a tool - it's an <strong>open standard</strong> (a set of specifications) that defines how workloads identify themselves to each other. Think of it like how HTTPS is a standard that defines secure web connections. SPIFFE is a standard that defines secure workload identity.</p>
 
       <p>SPIFFE answers three questions:</p>
       <ul>
         <li><strong>How do you name a workload?</strong> → SPIFFE ID (a URI)</li>
-        <li><strong>How do you prove a workload's identity?</strong> → SVID (a signed document — X.509 cert or JWT)</li>
+        <li><strong>How do you prove a workload's identity?</strong> → SVID (a signed document - X.509 cert or JWT)</li>
         <li><strong>How does a workload get its identity?</strong> → Workload API (a local Unix socket)</li>
       </ul>
 
       <h2>SPIFFE IDs: Naming Workloads</h2>
 
-      <p>Every workload in a SPIFFE-enabled system has a <strong>SPIFFE ID</strong> — a URI that uniquely identifies it:</p>
+      <p>Every workload in a SPIFFE-enabled system has a <strong>SPIFFE ID</strong> - a URI that uniquely identifies it:</p>
 
       <pre><code># SPIFFE ID format:
 spiffe://trust-domain/path
@@ -283,7 +283,7 @@ spiffe://acme.com/cluster/us-east/service/order-api
 # By environment + team + service:
 spiffe://acme.com/env/prod/team/platform/service/gateway</code></pre>
 
-      <p>The SPIFFE ID is embedded inside the identity document (SVID). When Service A talks to Service B, they exchange SVIDs and verify each other's SPIFFE ID — not IP addresses, not hostnames, not API keys. This is cryptographic proof of identity.</p>
+      <p>The SPIFFE ID is embedded inside the identity document (SVID). When Service A talks to Service B, they exchange SVIDs and verify each other's SPIFFE ID - not IP addresses, not hostnames, not API keys. This is cryptographic proof of identity.</p>
 
       <h2>SVIDs: Proving Identity</h2>
 
@@ -332,7 +332,7 @@ spiffe://acme.com/env/prod/team/platform/service/gateway</code></pre>
 
       <h2>Workload Attestation: How SPIRE Knows Who's Asking</h2>
 
-      <p>This is the clever part — how does SPIRE know which identity to give a workload? It uses <strong>attestation</strong>: verifying properties of the workload's environment to determine its identity.</p>
+      <p>This is the clever part - how does SPIRE know which identity to give a workload? It uses <strong>attestation</strong>: verifying properties of the workload's environment to determine its identity.</p>
 
       <!-- Attestation Flow -->
       <div class="flow-diagram">
@@ -352,10 +352,10 @@ spiffe://acme.com/env/prod/team/platform/service/gateway</code></pre>
               <div class="seq-action" style="border-color:#7c3aed;color:#a78bfa">Agent inspects caller: PID &#x2192; K8s API &#x2192; pod name, namespace, SA, labels</div>
             </div>
             <div class="seq-step">
-              <div class="seq-arrow right-23" style="--arrow-color:#f97316"><span class="seq-num orange">2</span> "Pod in ns:production, sa:payment-service — match?"</div>
+              <div class="seq-arrow right-23" style="--arrow-color:#f97316"><span class="seq-num orange">2</span> "Pod in ns:production, sa:payment-service - match?"</div>
             </div>
             <div class="seq-step">
-              <div class="seq-arrow left-23" style="--arrow-color:#22c55e"><span class="seq-num green">3</span> "Yes — issue SVID: spiffe://acme.com/.../payment-service"</div>
+              <div class="seq-arrow left-23" style="--arrow-color:#22c55e"><span class="seq-num green">3</span> "Yes - issue SVID: spiffe://acme.com/.../payment-service"</div>
             </div>
             <div class="seq-step">
               <div class="seq-arrow left" style="--arrow-color:#22c55e"><span class="seq-num green">4</span> X.509 SVID + private key + trust bundle</div>
@@ -368,7 +368,7 @@ spiffe://acme.com/env/prod/team/platform/service/gateway</code></pre>
         </div>
       </div>
 
-      <p>SPIRE supports multiple <strong>attestors</strong> — plugins that verify workload identity on different platforms:</p>
+      <p>SPIRE supports multiple <strong>attestors</strong> - plugins that verify workload identity on different platforms:</p>
 
       <pre><code># Kubernetes attestor selectors:
 -selector k8s:ns:production               # Pod is in namespace "production"
@@ -386,11 +386,11 @@ spiffe://acme.com/env/prod/team/platform/service/gateway</code></pre>
 -selector docker:label:service:payments    # Docker label
 
 # The beauty: SPIRE doesn't care WHERE your workload runs.
-# Kubernetes, VMs, Docker, bare metal — same identity system.</code></pre>
+# Kubernetes, VMs, Docker, bare metal - same identity system.</code></pre>
 
       <h2>Trust Domains and Federation</h2>
 
-      <p>A <strong>trust domain</strong> is a zone of trust — all workloads within a trust domain share the same root certificates and can verify each other. But what if Service A in <code>us-east.acme.com</code> needs to call Service B in <code>eu-west.acme.com</code>? That's where <strong>federation</strong> comes in.</p>
+      <p>A <strong>trust domain</strong> is a zone of trust - all workloads within a trust domain share the same root certificates and can verify each other. But what if Service A in <code>us-east.acme.com</code> needs to call Service B in <code>eu-west.acme.com</code>? That's where <strong>federation</strong> comes in.</p>
 
       <!-- Federation Diagram -->
       <div class="flow-diagram">
@@ -432,7 +432,7 @@ spire-server bundle set \\
 # and both sides cryptographically verify the other's identity.
 # No API keys to rotate. No shared credentials to leak.</code></pre>
 
-      <h2>SPIRE on Kubernetes — Full Setup</h2>
+      <h2>SPIRE on Kubernetes - Full Setup</h2>
 
       <pre><code># Deploy SPIRE on Kubernetes using Helm
 
@@ -445,7 +445,7 @@ helm install spire-server spiffe/spire-server \\
   --namespace spire-system --create-namespace \\
   --set trustDomain=mycompany.com
 
-# 3. Install SPIRE agent (DaemonSet — runs on every node)
+# 3. Install SPIRE agent (DaemonSet - runs on every node)
 helm install spire-agent spiffe/spire-agent \\
   --namespace spire-system
 
@@ -537,7 +537,7 @@ func callPaymentService(ctx context.Context) {
 }</code></pre>
 
 
-      <h2>m2mauth vs SPIFFE/SPIRE — When to Use Which</h2>
+      <h2>m2mauth vs SPIFFE/SPIRE - When to Use Which</h2>
 
       <!-- Comparison -->
       <div class="flow-diagram">
@@ -571,10 +571,10 @@ func callPaymentService(ctx context.Context) {
 
       <ul>
         <li><strong>Uber</strong> uses SPIFFE/SPIRE to issue identities for thousands of microservices across multiple data centres. Every service-to-service call is mTLS-authenticated with SVIDs that rotate every hour.</li>
-        <li><strong>Bloomberg</strong> deployed SPIRE to replace static service account credentials across their trading platform — eliminating credential leaks as a threat vector.</li>
+        <li><strong>Bloomberg</strong> deployed SPIRE to replace static service account credentials across their trading platform - eliminating credential leaks as a threat vector.</li>
         <li><strong>ByteDance (TikTok)</strong> uses SPIRE for workload identity across their global Kubernetes infrastructure, enabling zero-trust networking across regions.</li>
         <li><strong>HPE (Hewlett Packard Enterprise)</strong> acquired the SPIFFE/SPIRE project creators and uses it across their hybrid cloud products.</li>
-        <li><strong>Square/Block</strong> uses SPIFFE for payment processing services — every transaction flows through mTLS-authenticated connections with automatically rotated certificates.</li>
+        <li><strong>Square/Block</strong> uses SPIFFE for payment processing services - every transaction flows through mTLS-authenticated connections with automatically rotated certificates.</li>
       </ul>
 
       <h2>The "Bottom Turtle" Problem</h2>
@@ -585,11 +585,11 @@ func callPaymentService(ctx context.Context) {
 
       <p>Computer security has the same problem. You protect your APIs with secrets (passwords, API keys). You protect the secrets with encryption keys. You protect the encryption keys with a secrets vault. You protect the vault with... more secrets. <strong>It's secrets all the way down.</strong></p>
 
-      <p>SPIFFE and SPIRE aim to be the <strong>bottom turtle</strong> — the foundational layer of trust that everything else stands on. Instead of cascading secrets, you have cryptographic identity rooted in platform attestation (the node's identity is verified by the cloud provider or kernel, the workload's identity is verified by the node). No secrets to leak because there are no secrets — just cryptographic proofs.</p>
+      <p>SPIFFE and SPIRE aim to be the <strong>bottom turtle</strong> - the foundational layer of trust that everything else stands on. Instead of cascading secrets, you have cryptographic identity rooted in platform attestation (the node's identity is verified by the cloud provider or kernel, the workload's identity is verified by the node). No secrets to leak because there are no secrets - just cryptographic proofs.</p>
 
       <h2>Think of It as MFA for Workloads</h2>
 
-      <p>You know how multi-factor authentication (MFA) works for humans — you prove your identity with something you know (password) AND something you have (phone/hardware key). SPIFFE/SPIRE does the same thing for workloads:</p>
+      <p>You know how multi-factor authentication (MFA) works for humans - you prove your identity with something you know (password) AND something you have (phone/hardware key). SPIFFE/SPIRE does the same thing for workloads:</p>
 
       <ul>
         <li><strong>Something the workload IS:</strong> its process attributes (PID, container image hash, Kubernetes service account)</li>
@@ -603,11 +603,11 @@ func callPaymentService(ctx context.Context) {
       <div class="flow-diagram">
         <div class="flow-diagram-title">Emerging SPIFFE/SPIRE Use Cases (2025-2026)</div>
         <div class="timeline">
-          <div class="timeline-item" style="--c:#7c3aed"><div class="timeline-item-title" style="color:#7c3aed">AI Agent Identity</div><div class="timeline-item-desc">AI agents that interact with sensitive systems (databases, APIs, cloud resources) need verifiable, short-lived identities — not long-lived API keys. SPIFFE SVIDs provide exactly this: the agent gets an identity, does its work, the identity expires automatically.</div></div>
-          <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">Edge Computing Security</div><div class="timeline-item-desc">Edge nodes in retail stores, factories, and cell towers need to authenticate with central cloud services. SPIRE extends the identity control plane to the edge — same cryptographic verification model, even on far-flung devices with intermittent connectivity.</div></div>
-          <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">Service Mesh Trust Foundation</div><div class="timeline-item-desc">Service meshes like Istio and Linkerd already use SPIFFE under the hood for mTLS between sidecars. But SPIRE can serve as a trust foundation ACROSS meshes — different clusters, different mesh implementations, same identity framework.</div></div>
-          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Virtual Machine Identity (KubeVirt)</div><div class="timeline-item-desc">Not everything runs in containers. VMs managed by KubeVirt (or OpenShift Virtualization) can get SPIFFE identities too — same attestation model, same SVIDs, same trust domains. One identity system for containers AND VMs.</div></div>
-          <div class="timeline-item" style="--c:#ef4444"><div class="timeline-item-title" style="color:#ef4444">Cross-Organisation Federation</div><div class="timeline-item-desc">Two companies exchanging trust bundles can authenticate each other's workloads without sharing any secrets. Your payment service calls your partner's fraud API — both sides verify with SPIFFE, no API keys exchanged, no secrets vault shared.</div></div>
+          <div class="timeline-item" style="--c:#7c3aed"><div class="timeline-item-title" style="color:#7c3aed">AI Agent Identity</div><div class="timeline-item-desc">AI agents that interact with sensitive systems (databases, APIs, cloud resources) need verifiable, short-lived identities - not long-lived API keys. SPIFFE SVIDs provide exactly this: the agent gets an identity, does its work, the identity expires automatically.</div></div>
+          <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">Edge Computing Security</div><div class="timeline-item-desc">Edge nodes in retail stores, factories, and cell towers need to authenticate with central cloud services. SPIRE extends the identity control plane to the edge - same cryptographic verification model, even on far-flung devices with intermittent connectivity.</div></div>
+          <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">Service Mesh Trust Foundation</div><div class="timeline-item-desc">Service meshes like Istio and Linkerd already use SPIFFE under the hood for mTLS between sidecars. But SPIRE can serve as a trust foundation ACROSS meshes - different clusters, different mesh implementations, same identity framework.</div></div>
+          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Virtual Machine Identity (KubeVirt)</div><div class="timeline-item-desc">Not everything runs in containers. VMs managed by KubeVirt (or OpenShift Virtualization) can get SPIFFE identities too - same attestation model, same SVIDs, same trust domains. One identity system for containers AND VMs.</div></div>
+          <div class="timeline-item" style="--c:#ef4444"><div class="timeline-item-title" style="color:#ef4444">Cross-Organisation Federation</div><div class="timeline-item-desc">Two companies exchanging trust bundles can authenticate each other's workloads without sharing any secrets. Your payment service calls your partner's fraud API - both sides verify with SPIFFE, no API keys exchanged, no secrets vault shared.</div></div>
         </div>
       </div>
 
@@ -683,7 +683,7 @@ func chargeCustomer(order ChargeRequest) error {
     // Marshal the request
     body, _ := json.Marshal(order)
 
-    // Call Payment Service — mTLS proves we ARE the Order Service
+    // Call Payment Service - mTLS proves we ARE the Order Service
     resp, err := client.Post(
         "https://payment-service.internal:8443/api/charge",
         "application/json",
@@ -703,7 +703,7 @@ func chargeCustomer(order ChargeRequest) error {
 }
 
 // ── Example 2: Payment Service (server side) ──
-// Only accepts calls from Order Service — rejects everything else
+// Only accepts calls from Order Service - rejects everything else
 
 func main() {
     config := m2mauth.Config{
@@ -862,9 +862,9 @@ func (ic *InventoryClient) ReserveStock(ctx context.Context, productID string, q
 
       <h2>Example: SPIFFE + m2mauth Migration (Gradual)</h2>
 
-      <p>You don't need to switch from m2mauth to SPIRE all at once. Here's how to migrate gradually — one service at a time:</p>
+      <p>You don't need to switch from m2mauth to SPIRE all at once. Here's how to migrate gradually - one service at a time:</p>
 
-      <pre><code>// service_auth.go — Abstraction that supports both m2mauth and SPIFFE
+      <pre><code>// service_auth.go - Abstraction that supports both m2mauth and SPIFFE
 package auth
 
 import (
@@ -903,7 +903,7 @@ func NewAuthenticatedClient() (*http.Client, error) {
     return m2mauth.NewClient(config)
 }
 
-// In your service code — works with both:
+// In your service code - works with both:
 // client, err := auth.NewAuthenticatedClient()
 // resp, err := client.Get("https://payment-service:8443/api/charge")
 
@@ -911,7 +911,7 @@ func NewAuthenticatedClient() (*http.Client, error) {
 // 1. Deploy SPIRE to your cluster
 // 2. Set SPIFFE_ENDPOINT_SOCKET on ONE service
 // 3. That service uses SPIRE, all others still use m2mauth
-// 4. Both work because they're both mTLS — compatible!
+// 4. Both work because they're both mTLS - compatible!
 // 5. Gradually migrate all services to SPIRE
 // 6. Remove static cert files when all services are on SPIRE</code></pre>
 
@@ -920,9 +920,9 @@ func NewAuthenticatedClient() (*http.Client, error) {
         <div class="flow-diagram-title">Gradual Migration: m2mauth &#x2192; SPIFFE/SPIRE</div>
         <div class="timeline">
           <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">Phase 1: All services use m2mauth (static certs)</div><div class="timeline-item-desc">Quick setup. Works for dev, staging, and small production. Manual cert rotation.</div></div>
-          <div class="timeline-item" style="--c:#7c3aed"><div class="timeline-item-title" style="color:#7c3aed">Phase 2: Deploy SPIRE, migrate first service</div><div class="timeline-item-desc">Install SPIRE server + agents. Migrate one non-critical service. Both still talk mTLS — fully compatible.</div></div>
-          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Phase 3: Migrate remaining services one at a time</div><div class="timeline-item-desc">Each service switches from static certs to SPIRE SVIDs. No downtime — mTLS works with both cert sources.</div></div>
-          <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">Phase 4: Full SPIRE — remove static certs</div><div class="timeline-item-desc">All services on SPIRE. Auto-rotation, cross-cluster federation, zero manual cert management.</div></div>
+          <div class="timeline-item" style="--c:#7c3aed"><div class="timeline-item-title" style="color:#7c3aed">Phase 2: Deploy SPIRE, migrate first service</div><div class="timeline-item-desc">Install SPIRE server + agents. Migrate one non-critical service. Both still talk mTLS - fully compatible.</div></div>
+          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Phase 3: Migrate remaining services one at a time</div><div class="timeline-item-desc">Each service switches from static certs to SPIRE SVIDs. No downtime - mTLS works with both cert sources.</div></div>
+          <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">Phase 4: Full SPIRE - remove static certs</div><div class="timeline-item-desc">All services on SPIRE. Auto-rotation, cross-cluster federation, zero manual cert management.</div></div>
         </div>
       </div>
 
@@ -940,5 +940,5 @@ func NewAuthenticatedClient() (*http.Client, error) {
         </div>
       </div>
 
-      <p>Start with <a href="https://github.com/vishalanandl177/m2mauth" target="_blank" rel="noopener noreferrer"><strong>m2mauth</strong></a> to get mTLS working in your Go services today. When you outgrow static certificates (20+ services, multi-cluster, compliance requirements), graduate to SPIFFE/SPIRE for automatic identity management. Both solve the same fundamental problem — proving "I am who I say I am" — at different scales.</p>
+      <p>Start with <a href="https://github.com/vishalanandl177/m2mauth" target="_blank" rel="noopener noreferrer"><strong>m2mauth</strong></a> to get mTLS working in your Go services today. When you outgrow static certificates (20+ services, multi-cluster, compliance requirements), graduate to SPIFFE/SPIRE for automatic identity management. Both solve the same fundamental problem - proving "I am who I say I am" - at different scales.</p>
     `;

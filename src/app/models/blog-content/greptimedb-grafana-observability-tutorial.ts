@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Most teams use Prometheus for metrics, but Prometheus was designed as a monitoring tool, not a database. It struggles with long-term storage, high cardinality, and horizontal scaling. <strong>GreptimeDB</strong> is a cloud-native time-series database that speaks PromQL natively — meaning you can replace Prometheus's storage with GreptimeDB and keep your existing Grafana dashboards and alerting rules unchanged.</p>
+      <p>Most teams use Prometheus for metrics, but Prometheus was designed as a monitoring tool, not a database. It struggles with long-term storage, high cardinality, and horizontal scaling. <strong>GreptimeDB</strong> is a cloud-native time-series database that speaks PromQL natively - meaning you can replace Prometheus's storage with GreptimeDB and keep your existing Grafana dashboards and alerting rules unchanged.</p>
 
       <h2>What is GreptimeDB?</h2>
 
@@ -37,7 +37,7 @@ export const CONTENT = `
       <div class="flow-diagram">
         <div class="flow-diagram-title">GreptimeDB + Grafana Stack</div>
         <div class="layer-diagram">
-          <div class="layer-item" style="background:#3b82f6">Grafana (Dashboards + Alerts)<span class="layer-item-sub">Visualise metrics, create dashboards, set up alert rules — connects via Prometheus data source</span></div>
+          <div class="layer-item" style="background:#3b82f6">Grafana (Dashboards + Alerts)<span class="layer-item-sub">Visualise metrics, create dashboards, set up alert rules - connects via Prometheus data source</span></div>
           <div class="layer-item" style="background:#7c3aed">GreptimeDB (Query Engine + Storage)<span class="layer-item-sub">PromQL + SQL query interface. Stores data in columnar format. Handles aggregation.</span></div>
           <div class="layer-item" style="background:#f97316">Data Ingestion (Prometheus remote_write / OTLP / SQL)<span class="layer-item-sub">Accepts data via Prometheus remote write, OpenTelemetry, gRPC, or direct SQL INSERT</span></div>
           <div class="layer-item" style="background:#22c55e">Data Sources (Your Services + Infrastructure)<span class="layer-item-sub">Application metrics, Kubernetes metrics, node metrics, custom business metrics</span></div>
@@ -113,7 +113,7 @@ ORDER BY avg_latency DESC;
 
       <h2>Step 3: Connect Prometheus (Remote Write)</h2>
 
-      <pre><code># prometheus.yml — Send metrics to GreptimeDB
+      <pre><code># prometheus.yml - Send metrics to GreptimeDB
 global:
   scrape_interval: 15s
 
@@ -234,11 +234,11 @@ topk(10, avg by (path) (rate(http_request_duration_seconds_sum[5m]) / rate(http_
       <h2>When to Use GreptimeDB</h2>
       <ul>
         <li><strong>Long-term metrics storage:</strong> Prometheus for scraping, GreptimeDB for months/years of retention on S3.</li>
-        <li><strong>High cardinality:</strong> Kubernetes labels, per-pod metrics, per-endpoint tracking — GreptimeDB handles it without OOM.</li>
-        <li><strong>SQL on metrics:</strong> Join metrics with business data. "Show me latency for premium customers" — impossible with pure PromQL.</li>
-        <li><strong>Multi-cloud observability:</strong> One GreptimeDB instance stores metrics from AWS, GCP, and on-prem — all queryable together.</li>
-        <li><strong>IoT / edge:</strong> Lightweight Rust binary, low resource usage — runs on edge nodes and aggregates to cloud.</li>
+        <li><strong>High cardinality:</strong> Kubernetes labels, per-pod metrics, per-endpoint tracking - GreptimeDB handles it without OOM.</li>
+        <li><strong>SQL on metrics:</strong> Join metrics with business data. "Show me latency for premium customers" - impossible with pure PromQL.</li>
+        <li><strong>Multi-cloud observability:</strong> One GreptimeDB instance stores metrics from AWS, GCP, and on-prem - all queryable together.</li>
+        <li><strong>IoT / edge:</strong> Lightweight Rust binary, low resource usage - runs on edge nodes and aggregates to cloud.</li>
       </ul>
 
-      <p>GreptimeDB is not a replacement for Prometheus — it's a <strong>complement</strong>. Prometheus scrapes. GreptimeDB stores and queries. Grafana visualises. Together, they form a modern observability stack that scales from a hobby project to a multi-region enterprise deployment.</p>
+      <p>GreptimeDB is not a replacement for Prometheus - it's a <strong>complement</strong>. Prometheus scrapes. GreptimeDB stores and queries. Grafana visualises. Together, they form a modern observability stack that scales from a hobby project to a multi-region enterprise deployment.</p>
     `;

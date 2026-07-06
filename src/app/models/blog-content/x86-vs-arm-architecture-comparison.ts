@@ -1,11 +1,11 @@
 export const CONTENT = `
-      <p>Your laptop probably runs x86 (Intel or AMD). Your phone definitely runs ARM (Qualcomm, Apple, MediaTek). Your cloud server might be either. The M4 MacBook runs ARM. AWS Graviton runs ARM. Windows runs on both. These two architectures power every computing device on the planet — and understanding the difference helps you make better decisions about hardware, cloud instances, and even how to write your code.</p>
+      <p>Your laptop probably runs x86 (Intel or AMD). Your phone definitely runs ARM (Qualcomm, Apple, MediaTek). Your cloud server might be either. The M4 MacBook runs ARM. AWS Graviton runs ARM. Windows runs on both. These two architectures power every computing device on the planet - and understanding the difference helps you make better decisions about hardware, cloud instances, and even how to write your code.</p>
 
       <h2>The Fundamental Difference: CISC vs RISC</h2>
 
       <!-- CISC vs RISC -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">x86 (CISC) vs ARM (RISC) — Philosophy</div>
+        <div class="flow-diagram-title">x86 (CISC) vs ARM (RISC) - Philosophy</div>
         <div class="vs-cards">
           <div class="vs-card" style="border-color:#3b82f6">
             <div class="vs-card-header" style="background:#3b82f6">x86 (CISC)</div>
@@ -37,7 +37,7 @@ export const CONTENT = `
 
       <!-- Detailed Comparison Table -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">x86 vs ARM — Head-to-Head (2026)</div>
+        <div class="flow-diagram-title">x86 vs ARM - Head-to-Head (2026)</div>
         <div style="overflow-x:auto">
           <table style="width:100%;border-collapse:collapse;font-size:0.78rem;min-width:550px">
             <thead>
@@ -65,7 +65,7 @@ export const CONTENT = `
 
       <!-- Single-Thread -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">Single-Thread Performance (Geekbench 6 — higher is better)</div>
+        <div class="flow-diagram-title">Single-Thread Performance (Geekbench 6 - higher is better)</div>
         <div class="bar-chart">
           <div class="bar-chart-item"><div class="bar-chart-bar bar-h-90 bar-green" data-value="~3800"></div><div class="bar-chart-label">Apple M4 Pro (ARM)</div></div>
           <div class="bar-chart-item"><div class="bar-chart-bar bar-h-80 bar-blue" data-value="~3400"></div><div class="bar-chart-label">Intel i9-14900K (x86)</div></div>
@@ -90,7 +90,7 @@ export const CONTENT = `
       <h2>For Developers: What Actually Changes?</h2>
 
       <pre><code># For most developers: NOTHING changes in your day-to-day code.
-# Python, JavaScript, Go, Java, C# — all run on both architectures.
+# Python, JavaScript, Go, Java, C# - all run on both architectures.
 # The runtime/VM/interpreter handles the differences.
 
 # What DOES change:
@@ -111,8 +111,8 @@ cargo build --target aarch64-unknown-linux-gnu
 aarch64-linux-gnu-gcc -o myapp-arm64 main.c
 
 # 3. Cloud: ARM instances are 20-40% cheaper
-# AWS: c7g (Graviton 3) vs c7i (Intel) — same specs, 20% cheaper
-# GCP: T2A (Ampere) vs N2 (Intel) — similar savings
+# AWS: c7g (Graviton 3) vs c7i (Intel) - same specs, 20% cheaper
+# GCP: T2A (Ampere) vs N2 (Intel) - similar savings
 
 # 4. CI/CD: Build for both platforms
 # GitHub Actions:
@@ -146,7 +146,7 @@ aarch64-linux-gnu-gcc -o myapp-arm64 main.c
         </div>
       </div>
 
-      <p>That's a <strong>24% savings</strong> switching from Intel to Graviton — for the same or better performance. At scale (100 instances), that's \\$3,700/month saved. Per year: \\$44,000. For doing nothing but changing the instance type.</p>
+      <p>That's a <strong>24% savings</strong> switching from Intel to Graviton - for the same or better performance. At scale (100 instances), that's \\$3,700/month saved. Per year: \\$44,000. For doing nothing but changing the instance type.</p>
 
       <h2>When to Choose x86 vs ARM</h2>
 
@@ -180,12 +180,12 @@ aarch64-linux-gnu-gcc -o myapp-arm64 main.c
 
       <h2>The Future: ARM Is Winning</h2>
       <ul>
-        <li><strong>Apple Silicon proved ARM can match x86</strong> — M1 (2020) shocked the industry. M4 (2025) beats Intel's best at half the power.</li>
-        <li><strong>Cloud is going ARM</strong> — AWS Graviton handles ~30% of EC2 workloads. Google and Azure are following.</li>
-        <li><strong>Windows on ARM</strong> — Snapdragon X Elite laptops run Windows natively. Microsoft is all-in on ARM.</li>
-        <li><strong>AI on ARM</strong> — Apple Neural Engine, Qualcomm NPU. On-device AI is ARM's game.</li>
-        <li><strong>x86 isn't dying</strong> — it still dominates gaming, legacy enterprise, and high-frequency trading. But it's no longer the default.</li>
+        <li><strong>Apple Silicon proved ARM can match x86</strong> - M1 (2020) shocked the industry. M4 (2025) beats Intel's best at half the power.</li>
+        <li><strong>Cloud is going ARM</strong> - AWS Graviton handles ~30% of EC2 workloads. Google and Azure are following.</li>
+        <li><strong>Windows on ARM</strong> - Snapdragon X Elite laptops run Windows natively. Microsoft is all-in on ARM.</li>
+        <li><strong>AI on ARM</strong> - Apple Neural Engine, Qualcomm NPU. On-device AI is ARM's game.</li>
+        <li><strong>x86 isn't dying</strong> - it still dominates gaming, legacy enterprise, and high-frequency trading. But it's no longer the default.</li>
       </ul>
 
-      <p>The best architecture is the one that fits your workload. x86 still wins for raw single-thread speed and legacy compatibility. ARM wins for power efficiency and cost. But the gap is closing fast — and for most cloud workloads in 2026, ARM (Graviton, Ampere) is the smarter default choice.</p>
+      <p>The best architecture is the one that fits your workload. x86 still wins for raw single-thread speed and legacy compatibility. ARM wins for power efficiency and cost. But the gap is closing fast - and for most cloud workloads in 2026, ARM (Graviton, Ampere) is the smarter default choice.</p>
     `;

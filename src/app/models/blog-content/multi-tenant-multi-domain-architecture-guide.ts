@@ -1,11 +1,11 @@
 export const CONTENT = `
-      <p>You're building a SaaS product. Ten companies sign up. Then a hundred. Then a thousand. Each company — each <strong>tenant</strong> — thinks they're the only customer. They expect their data to be private, their experience to be customised, and their performance to be unaffected by what other tenants are doing. Meanwhile, you're running one codebase, one infrastructure, and trying not to go bankrupt on hosting costs.</p>
+      <p>You're building a SaaS product. Ten companies sign up. Then a hundred. Then a thousand. Each company - each <strong>tenant</strong> - thinks they're the only customer. They expect their data to be private, their experience to be customised, and their performance to be unaffected by what other tenants are doing. Meanwhile, you're running one codebase, one infrastructure, and trying not to go bankrupt on hosting costs.</p>
 
-      <p>Welcome to multi-tenancy — the architecture pattern that makes SaaS economically viable. Get it right and you scale to millions of tenants on shared infrastructure. Get it wrong and you have data leaks, noisy neighbours, and midnight pages.</p>
+      <p>Welcome to multi-tenancy - the architecture pattern that makes SaaS economically viable. Get it right and you scale to millions of tenants on shared infrastructure. Get it wrong and you have data leaks, noisy neighbours, and midnight pages.</p>
 
       <h2>What is Multi-Tenancy?</h2>
 
-      <p>A <strong>tenant</strong> is an organisational unit — usually a company, team, or workspace — that uses your SaaS product. Multi-tenancy means <strong>multiple tenants share the same application instance and infrastructure</strong>, but their data and experience are isolated from each other.</p>
+      <p>A <strong>tenant</strong> is an organisational unit - usually a company, team, or workspace - that uses your SaaS product. Multi-tenancy means <strong>multiple tenants share the same application instance and infrastructure</strong>, but their data and experience are isolated from each other.</p>
 
       <!-- Single vs Multi -->
       <div class="flow-diagram">
@@ -130,7 +130,7 @@ def list_orders(request):
 # &#x26A0; The risk: one missing .for_tenant() call = data leak across tenants
 # Solution: Use Row-Level Security (RLS) in PostgreSQL as a safety net</code></pre>
 
-      <pre><code>-- PostgreSQL Row-Level Security (RLS) — the safety net
+      <pre><code>-- PostgreSQL Row-Level Security (RLS) - the safety net
 -- Even if application code forgets to filter, the DB enforces it
 
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
@@ -189,7 +189,7 @@ MIDDLEWARE = ['django_tenants.middleware.TenantSubdomainMiddleware', ...]</code>
 
       <p>The nuclear option. Each tenant gets their own database instance. Maximum isolation but maximum operational complexity.</p>
 
-      <pre><code># Separate database per tenant — connection routing
+      <pre><code># Separate database per tenant - connection routing
 import os
 
 TENANT_DB_MAP = {
@@ -215,7 +215,7 @@ def get_db_connection(tenant_slug):
         password=os.environ['DB_PASSWORD'],
     )
 
-# Used by: banks, healthcare, government — where regulatory
+# Used by: banks, healthcare, government - where regulatory
 # requirements mandate complete physical data separation</code></pre>
 
       <h2>Comparison: Which Model When?</h2>
@@ -386,8 +386,8 @@ async def resolve_tenant(request: Request):
               </tr>
             </thead>
             <tbody>
-              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">Slack</td><td style="padding:0.5rem">Shared schema (MySQL)</td><td style="padding:0.5rem">acme.slack.com</td><td style="padding:0.5rem">Sharded by workspace — each shard holds ~500 workspaces</td></tr>
-              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">Shopify</td><td style="padding:0.5rem">Sharded shared schema</td><td style="padding:0.5rem">my-store.myshopify.com + custom domains</td><td style="padding:0.5rem">Pods architecture — each "pod" serves ~10K shops</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">Slack</td><td style="padding:0.5rem">Shared schema (MySQL)</td><td style="padding:0.5rem">acme.slack.com</td><td style="padding:0.5rem">Sharded by workspace - each shard holds ~500 workspaces</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">Shopify</td><td style="padding:0.5rem">Sharded shared schema</td><td style="padding:0.5rem">my-store.myshopify.com + custom domains</td><td style="padding:0.5rem">Pods architecture - each "pod" serves ~10K shops</td></tr>
               <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">Atlassian</td><td style="padding:0.5rem">DB per tenant (migrated)</td><td style="padding:0.5rem">mysite.atlassian.net</td><td style="padding:0.5rem">Migrated from shared to isolated for enterprise compliance</td></tr>
               <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:var(--foreground);font-weight:700">Notion</td><td style="padding:0.5rem">Shared schema (PostgreSQL)</td><td style="padding:0.5rem">acme.notion.site</td><td style="padding:0.5rem">Single massive PostgreSQL with partitioning</td></tr>
               <tr><td style="padding:0.5rem;color:var(--foreground);font-weight:700">Salesforce</td><td style="padding:0.5rem">Shared schema (Oracle)</td><td style="padding:0.5rem">Custom domains</td><td style="padding:0.5rem">~100K tenants per database instance with metadata-driven schema</td></tr>
@@ -454,7 +454,7 @@ def cache_set(tenant_id: str, key: str, value: str, ttl: int = 300):
 cache_set("acme", "dashboard_stats", json.dumps(stats))
 data = cache_get("acme", "dashboard_stats")
 
-# NEVER cache without tenant prefix — that's how data leaks happen
+# NEVER cache without tenant prefix - that's how data leaks happen
 # &#x274C; r.get("dashboard_stats")  -- whose stats? EVERYONE's mixed together
 # &#x2705; r.get("tenant:acme:dashboard_stats")  -- acme's stats only</code></pre>
 
@@ -466,7 +466,7 @@ data = cache_get("acme", "dashboard_stats")
         <div class="timeline">
           <div class="timeline-item" style="--c:#ef4444"><div class="timeline-item-title" style="color:#ef4444">1. Every query MUST filter by tenant_id</div><div class="timeline-item-desc">Use RLS (Row-Level Security) as a safety net. One missing WHERE clause = data breach across tenants.</div></div>
           <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">2. Every cache key MUST be prefixed with tenant</div><div class="timeline-item-desc">A cache without tenant prefix serves one tenant's data to another. Namespace everything.</div></div>
-          <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">3. Every file upload MUST be stored in tenant-scoped paths</div><div class="timeline-item-desc">s3://uploads/tenant-acme/file.pdf — not s3://uploads/file.pdf. Object-level isolation.</div></div>
+          <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">3. Every file upload MUST be stored in tenant-scoped paths</div><div class="timeline-item-desc">s3://uploads/tenant-acme/file.pdf - not s3://uploads/file.pdf. Object-level isolation.</div></div>
           <div class="timeline-item" style="--c:#7c3aed"><div class="timeline-item-title" style="color:#7c3aed">4. Every background job MUST carry tenant context</div><div class="timeline-item-desc">When a Celery/Sidekiq job runs, it must know which tenant it's processing for. Pass tenant_id explicitly.</div></div>
           <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">5. Every API response MUST be scoped to the requesting tenant</div><div class="timeline-item-desc">Test: log in as tenant A, try to access tenant B's resources via ID guessing. Should return 403, not data.</div></div>
           <div class="timeline-item" style="--c:#ec4899"><div class="timeline-item-title" style="color:#ec4899">6. Audit logging MUST include tenant_id</div><div class="timeline-item-desc">When something goes wrong, you need to know which tenant was affected. Log tenant_id on every operation.</div></div>
@@ -487,7 +487,7 @@ data = cache_get("acme", "dashboard_stats")
         </div>
       </div>
 
-      <p>Start with Model 1 (shared schema + tenant_id). Add RLS from day one. Support subdomains first, custom domains later. Use tenant middleware to inject context everywhere. Rate limit per tenant. Prefix all cache keys and file paths. And test, test, test: log in as tenant A, try to access tenant B's data. If you can — you have a bug that needs fixing before launch.</p>
+      <p>Start with Model 1 (shared schema + tenant_id). Add RLS from day one. Support subdomains first, custom domains later. Use tenant middleware to inject context everywhere. Rate limit per tenant. Prefix all cache keys and file paths. And test, test, test: log in as tenant A, try to access tenant B's data. If you can - you have a bug that needs fixing before launch.</p>
 
       <p>Multi-tenancy is not a feature you add later. It's a foundation you build from the first database migration. Get it right early and you'll scale from 10 tenants to 10,000 without rewriting your architecture.</p>
     `;

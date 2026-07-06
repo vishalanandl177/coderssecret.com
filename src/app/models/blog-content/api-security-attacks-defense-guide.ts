@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Your API is your attack surface. Every endpoint you expose is a door that attackers will try to open. In 2025, API attacks increased by 681% (Salt Security report). This guide shows you <strong>exactly how hackers attack APIs</strong> and how to defend against each attack — with real exploit examples and defense code.</p>
+      <p>Your API is your attack surface. Every endpoint you expose is a door that attackers will try to open. In 2025, API attacks increased by 681% (Salt Security report). This guide shows you <strong>exactly how hackers attack APIs</strong> and how to defend against each attack - with real exploit examples and defense code.</p>
 
       <h2>The Top API Attack Vectors</h2>
 
@@ -17,7 +17,7 @@ export const CONTENT = `
         </div>
       </div>
 
-      <h2>1. SQL Injection — The Classic Database Attack</h2>
+      <h2>1. SQL Injection - The Classic Database Attack</h2>
       <p><strong>How the attacker thinks:</strong> "If I put SQL code in this input field, will the server execute it?"</p>
 
       <pre><code># &#x274C; VULNERABLE: String concatenation in SQL
@@ -31,7 +31,7 @@ def get_users():
     results = db.execute(query)
     return jsonify(results)
 
-# Even worse — the attacker can MODIFY data:
+# Even worse - the attacker can MODIFY data:
 # search='; DROP TABLE users; --
 # Becomes: SELECT * FROM users WHERE name = ''; DROP TABLE users; --'
 # Your users table is gone.</code></pre>
@@ -40,12 +40,12 @@ def get_users():
 @app.route("/api/users")
 def get_users():
     search = request.args.get("search", "")
-    # Parameters are NEVER executed as SQL — they're treated as data
+    # Parameters are NEVER executed as SQL - they're treated as data
     query = "SELECT * FROM users WHERE name = ?"
     results = db.execute(query, (search,))
     return jsonify(results)
 
-# With an ORM (even safer — no raw SQL at all):
+# With an ORM (even safer - no raw SQL at all):
 users = User.query.filter(User.name.ilike(f"%{search}%")).all()
 
 # Defense checklist:
@@ -98,8 +98,8 @@ def get_order(order_id):
 # &#x2705; DEFENSE: Multiple layers
 
 # Layer 1: Escape all output (frameworks do this by default)
-# Angular: Safe by default — [innerHTML] is sanitized
-# React: Safe by default — JSX escapes values
+# Angular: Safe by default - [innerHTML] is sanitized
+# React: Safe by default - JSX escapes values
 # Django: {{ value }} auto-escapes HTML
 # NEVER use: [innerHTML]="untrustedData" or dangerouslySetInnerHTML
 
@@ -116,7 +116,7 @@ def sanitize_input(text):
     import bleach
     return bleach.clean(text, tags=[], strip=True)</code></pre>
 
-      <h2>4. Rate Limiting — Stop Brute Force &amp; DDoS</h2>
+      <h2>4. Rate Limiting - Stop Brute Force &amp; DDoS</h2>
       <p><strong>How the attacker thinks:</strong> "If there's no rate limit, I can try 10,000 passwords per second on the login endpoint."</p>
 
       <!-- Rate Limit Strategies -->
@@ -246,13 +246,13 @@ class UpdateProfileRequest(BaseModel):
     bio: str | None = None
     # role, is_admin NOT in schema = impossible to set</code></pre>
 
-      <h2>7. Security Headers — The Free Defense Layer</h2>
+      <h2>7. Security Headers - The Free Defense Layer</h2>
       <pre><code># Every API response should include these headers:
 
 # nginx configuration:
 add_header X-Content-Type-Options "nosniff" always;
 add_header X-Frame-Options "DENY" always;
-add_header X-XSS-Protection "0" always;  # Disabled — use CSP instead
+add_header X-XSS-Protection "0" always;  # Disabled - use CSP instead
 add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 add_header Content-Security-Policy "default-src 'self'" always;
 add_header Strict-Transport-Security "max-age=63072000; includeSubDomains" always;
@@ -272,8 +272,8 @@ def add_security_headers(response):
 
 # 1. Short-lived access tokens (15 min)
 # 2. Refresh tokens stored in HttpOnly cookies (not localStorage!)
-# 3. Token rotation — new refresh token on each use
-# 4. Revocation — maintain a blocklist for compromised tokens
+# 3. Token rotation - new refresh token on each use
+# 4. Revocation - maintain a blocklist for compromised tokens
 
 # &#x274C; BAD: Long-lived token in localStorage
 localStorage.setItem('token', jwt)
@@ -351,5 +351,5 @@ Set-Cookie: access_token=eyJ...; HttpOnly; Secure; SameSite=Strict; Path=/api; M
         </div>
       </div>
 
-      <p>API security is not a feature you add at the end — it's a practice you embed from day one. The attacks in this guide are not theoretical — they happen every day to real APIs. Start with the critical items: parameterized queries, ownership checks, rate limiting, and proper authentication. Then layer on WAF, security headers, and monitoring. Every defense you add makes the attacker's job exponentially harder.</p>
+      <p>API security is not a feature you add at the end - it's a practice you embed from day one. The attacks in this guide are not theoretical - they happen every day to real APIs. Start with the critical items: parameterized queries, ownership checks, rate limiting, and proper authentication. Then layer on WAF, security headers, and monitoring. Every defense you add makes the attacker's job exponentially harder.</p>
     `;

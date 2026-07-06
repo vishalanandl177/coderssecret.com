@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Every Angular team eventually debates state management. One developer wants NgRx for &ldquo;proper architecture.&rdquo; Another says signals make everything simpler. A third argues that injectable services with BehaviorSubjects work fine. They are all right &mdash; for different scenarios.</p>
+      <p>Every Angular team eventually debates state management. One developer wants NgRx for &ldquo;proper architecture.&rdquo; Another says signals make everything simpler. A third argues that injectable services with BehaviorSubjects work fine. They are all right - for different scenarios.</p>
 
       <h2>The Three Approaches</h2>
 
@@ -232,12 +232,12 @@ export class CartBadgeComponent {
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Start with the simplest approach that works</strong> &mdash; signal services for most apps</li>
-        <li><strong>NgRx Store earns its complexity at scale</strong> &mdash; with large teams, the enforced patterns prevent chaos</li>
-        <li><strong>NgRx SignalStore is the middle ground</strong> &mdash; structured state management without Redux boilerplate</li>
-        <li><strong>Local state stays local</strong> &mdash; not everything belongs in a global store</li>
-        <li><strong>You can mix approaches</strong> &mdash; global auth state in a service, feature state in NgRx, component state in signals</li>
-        <li><strong>The best state management is the one your team understands</strong> &mdash; a well-used simple approach beats a misused complex one</li>
+        <li><strong>Start with the simplest approach that works</strong> - signal services for most apps</li>
+        <li><strong>NgRx Store earns its complexity at scale</strong> - with large teams, the enforced patterns prevent chaos</li>
+        <li><strong>NgRx SignalStore is the middle ground</strong> - structured state management without Redux boilerplate</li>
+        <li><strong>Local state stays local</strong> - not everything belongs in a global store</li>
+        <li><strong>You can mix approaches</strong> - global auth state in a service, feature state in NgRx, component state in signals</li>
+        <li><strong>The best state management is the one your team understands</strong> - a well-used simple approach beats a misused complex one</li>
       </ul>
 
       <p>State management is a spectrum, not a binary choice. Match the tool to the problem: signals for simple state, signal stores for moderate complexity, full NgRx for enterprise-scale applications with strict architectural requirements. The goal is managing complexity, not adding it.</p>

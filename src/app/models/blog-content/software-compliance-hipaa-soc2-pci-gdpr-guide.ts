@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>You've built a great product. Then legal says "we need SOC 2 before we can close this enterprise deal" or "HIPAA compliance is required to handle patient data." Suddenly you're reading 300-page PDFs full of legalese. This guide cuts through the noise — here's what each compliance framework <strong>actually requires from your engineering team</strong>, with practical implementation details.</p>
+      <p>You've built a great product. Then legal says "we need SOC 2 before we can close this enterprise deal" or "HIPAA compliance is required to handle patient data." Suddenly you're reading 300-page PDFs full of legalese. This guide cuts through the noise - here's what each compliance framework <strong>actually requires from your engineering team</strong>, with practical implementation details.</p>
 
       <h2>Why Compliance Matters for Developers</h2>
       <p>Compliance isn't just a checkbox for sales. It's a structured way to prove your software is <strong>secure, reliable, and trustworthy</strong>. Every framework boils down to the same core questions:</p>
@@ -50,11 +50,11 @@ export const CONTENT = `
         </div>
       </div>
 
-      <h2>HIPAA — Healthcare Data Protection</h2>
-      <p><strong>HIPAA</strong> (Health Insurance Portability and Accountability Act) protects <strong>Protected Health Information (PHI)</strong> — any data that can identify a patient and relates to their health, treatment, or payment. If your software touches patient data in the US, you must comply.</p>
+      <h2>HIPAA - Healthcare Data Protection</h2>
+      <p><strong>HIPAA</strong> (Health Insurance Portability and Accountability Act) protects <strong>Protected Health Information (PHI)</strong> - any data that can identify a patient and relates to their health, treatment, or payment. If your software touches patient data in the US, you must comply.</p>
 
       <h2>What Engineering Must Implement for HIPAA</h2>
-      <pre><code># HIPAA Technical Safeguards — What your code must do:
+      <pre><code># HIPAA Technical Safeguards - What your code must do:
 
 # 1. Encryption at Rest
 # All PHI stored in databases must be encrypted
@@ -67,7 +67,7 @@ aws rds modify-db-instance --db-instance-identifier mydb \\
 # Enforce HTTPS on all endpoints, use mTLS between internal services
 
 # 3. Access Controls
-# Role-based access — minimum necessary access to PHI
+# Role-based access - minimum necessary access to PHI
 # Example: Django middleware that logs all PHI access
 class PHIAccessMiddleware:
     def process_view(self, request, view_func, *args, **kwargs):
@@ -79,7 +79,7 @@ class PHIAccessMiddleware:
                 timestamp=timezone.now(),
             )
 
-# 4. Audit Logging (REQUIRED — most missed requirement!)
+# 4. Audit Logging (REQUIRED - most missed requirement!)
 # Log: WHO accessed WHAT data, WHEN, from WHERE
 # Retain audit logs for 6 years (HIPAA requirement)
 # Use: AWS CloudTrail, Datadog, Splunk
@@ -90,7 +90,7 @@ SESSION_COOKIE_AGE = 900  # 15 minutes
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # 6. Unique User IDs
-# Every user must have a unique identifier — no shared accounts
+# Every user must have a unique identifier - no shared accounts
 # No generic "admin" or "support" accounts allowed
 
 # 7. Emergency Access Procedure
@@ -104,12 +104,12 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
           <div class="timeline-item" style="--c:#ef4444"><div class="timeline-item-title" style="color:#ef4444">Encrypt all PHI at rest (AES-256, KMS-managed keys)</div><div class="timeline-item-desc">Database, file storage, backups, logs containing PHI</div></div>
           <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Encrypt all PHI in transit (TLS 1.2+)</div><div class="timeline-item-desc">HTTPS everywhere, mTLS for internal services</div></div>
           <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">Audit logging with 6-year retention</div><div class="timeline-item-desc">Log every access to PHI: who, what, when, where</div></div>
-          <div class="timeline-item" style="--c:#7c3aed"><div class="timeline-item-title" style="color:#7c3aed">Role-based access control (RBAC)</div><div class="timeline-item-desc">Minimum necessary access — doctors see patients, billing sees invoices</div></div>
-          <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">BAA with all vendors</div><div class="timeline-item-desc">Business Associate Agreement with AWS, Stripe, Twilio — anyone touching PHI</div></div>
+          <div class="timeline-item" style="--c:#7c3aed"><div class="timeline-item-title" style="color:#7c3aed">Role-based access control (RBAC)</div><div class="timeline-item-desc">Minimum necessary access - doctors see patients, billing sees invoices</div></div>
+          <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">BAA with all vendors</div><div class="timeline-item-desc">Business Associate Agreement with AWS, Stripe, Twilio - anyone touching PHI</div></div>
         </div>
       </div>
 
-      <h2>SOC 2 — SaaS Security Standard</h2>
+      <h2>SOC 2 - SaaS Security Standard</h2>
       <p><strong>SOC 2</strong> (Service Organization Control 2) is the most common compliance requirement for B2B SaaS companies. It's based on 5 <strong>Trust Service Criteria</strong>:</p>
 
       <!-- SOC 2 Trust Criteria -->
@@ -124,11 +124,11 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
         </div>
       </div>
 
-      <pre><code># SOC 2 Security Controls — What auditors check:
+      <pre><code># SOC 2 Security Controls - What auditors check:
 
 # 1. Infrastructure as Code (auditors LOVE this)
-# All infra defined in Terraform/Pulumi — changes are tracked in git
-# No manual console clicks — everything is reproducible and auditable
+# All infra defined in Terraform/Pulumi - changes are tracked in git
+# No manual console clicks - everything is reproducible and auditable
 
 # 2. CI/CD Pipeline Security
 # - Code reviews required (branch protection rules)
@@ -160,7 +160,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # - Deployments are logged with who, what, when
 # - Rollback plan documented for each deploy</code></pre>
 
-      <h2>PCI-DSS — Payment Card Security</h2>
+      <h2>PCI-DSS - Payment Card Security</h2>
       <p><strong>PCI-DSS</strong> (Payment Card Industry Data Security Standard) applies if your system processes, stores, or transmits credit card numbers. The simplest way to achieve PCI compliance: <strong>don't handle card data yourself</strong>.</p>
 
       <!-- PCI Strategy -->
@@ -191,18 +191,18 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
       <pre><code># PCI-Compliant payment flow using Stripe:
 
-# Frontend (React/Angular) — card data NEVER touches your server
+# Frontend (React/Angular) - card data NEVER touches your server
 # &lt;script src="https://js.stripe.com/v3/"&gt;&lt;/script&gt;
 # const stripe = Stripe('pk_live_xxx');
 # const {token} = await stripe.createToken(cardElement);
 # // Send token.id to your server (NOT card numbers!)
 
-# Backend (Python) — only handles tokens
+# Backend (Python) - only handles tokens
 import stripe
 stripe.api_key = "sk_live_xxx"  # Store in environment variable!
 
 def create_charge(token_id, amount):
-    """Charge a card using a Stripe token — PCI compliant."""
+    """Charge a card using a Stripe token - PCI compliant."""
     charge = stripe.PaymentIntent.create(
         amount=amount,
         currency="usd",
@@ -219,8 +219,8 @@ def create_charge(token_id, amount):
 # 4. Complete SAQ-A questionnaire annually
 # 5. Quarterly network vulnerability scan (ASV scan)</code></pre>
 
-      <h2>GDPR — EU Data Privacy</h2>
-      <p><strong>GDPR</strong> (General Data Protection Regulation) applies to ANY company processing data of EU residents — even if you're based in the US. It gives users rights over their personal data and imposes strict requirements on how you handle it.</p>
+      <h2>GDPR - EU Data Privacy</h2>
+      <p><strong>GDPR</strong> (General Data Protection Regulation) applies to ANY company processing data of EU residents - even if you're based in the US. It gives users rights over their personal data and imposes strict requirements on how you handle it.</p>
 
       <h2>GDPR User Rights (You Must Implement These)</h2>
 
@@ -316,8 +316,8 @@ class ConsentRecord(db.Model):
 # Must NOT track anything before consent is given
 # Google Analytics should NOT fire until user clicks "Accept"</code></pre>
 
-      <h2>ISO 27001 — Information Security Management</h2>
-      <p><strong>ISO 27001</strong> is the international gold standard for information security. It's a <strong>management system</strong> — less about specific technical controls and more about having a structured process for identifying and managing security risks.</p>
+      <h2>ISO 27001 - Information Security Management</h2>
+      <p><strong>ISO 27001</strong> is the international gold standard for information security. It's a <strong>management system</strong> - less about specific technical controls and more about having a structured process for identifying and managing security risks.</p>
 
       <pre><code># ISO 27001 requires an ISMS (Information Security Management System):
 
@@ -418,10 +418,10 @@ deny[msg] {
             </thead>
             <tbody>
               <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:#3b82f6;font-weight:700">HIPAA</td><td style="padding:0.5rem;color:var(--foreground)">Up to \\$1.9M per violation category/year</td><td style="padding:0.5rem;color:var(--foreground)">Anthem: \\$16M (2018)</td></tr>
-              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:#7c3aed;font-weight:700">SOC 2</td><td style="padding:0.5rem;color:var(--foreground)">No direct fine — but lose enterprise deals</td><td style="padding:0.5rem;color:var(--foreground)">Revenue loss from failed audits</td></tr>
+              <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:#7c3aed;font-weight:700">SOC 2</td><td style="padding:0.5rem;color:var(--foreground)">No direct fine - but lose enterprise deals</td><td style="padding:0.5rem;color:var(--foreground)">Revenue loss from failed audits</td></tr>
               <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:#f97316;font-weight:700">PCI-DSS</td><td style="padding:0.5rem;color:var(--foreground)">\\$5K-\\$100K/month until compliant</td><td style="padding:0.5rem;color:var(--foreground)">Target: \\$162M (2013 breach)</td></tr>
               <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.5rem;color:#22c55e;font-weight:700">GDPR</td><td style="padding:0.5rem;color:var(--foreground);font-weight:700">4% of global revenue or EUR 20M</td><td style="padding:0.5rem;color:var(--foreground)">Meta: EUR 1.2B (2023)</td></tr>
-              <tr><td style="padding:0.5rem;color:#ef4444;font-weight:700">ISO 27001</td><td style="padding:0.5rem;color:var(--foreground)">No direct fine — certification revoked</td><td style="padding:0.5rem;color:var(--foreground)">Lost contracts, trust damage</td></tr>
+              <tr><td style="padding:0.5rem;color:#ef4444;font-weight:700">ISO 27001</td><td style="padding:0.5rem;color:var(--foreground)">No direct fine - certification revoked</td><td style="padding:0.5rem;color:var(--foreground)">Lost contracts, trust damage</td></tr>
             </tbody>
           </table>
         </div>
@@ -445,5 +445,5 @@ deny[msg] {
         </div>
       </div>
 
-      <p>Compliance is not a one-time project — it's a continuous process. The best engineering teams build compliance into their development workflow: infrastructure as code, automated evidence collection, security scanning in CI/CD, and regular access reviews. Start with the framework your customers require, implement the universal controls first, and expand from there. The overlap between frameworks means your second certification is always easier than your first.</p>
+      <p>Compliance is not a one-time project - it's a continuous process. The best engineering teams build compliance into their development workflow: infrastructure as code, automated evidence collection, security scanning in CI/CD, and regular access reviews. Start with the framework your customers require, implement the universal controls first, and expand from there. The overlap between frameworks means your second certification is always easier than your first.</p>
     `;

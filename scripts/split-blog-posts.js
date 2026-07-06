@@ -1,7 +1,7 @@
 /**
  * Splits blog-post.model.ts into:
- *   - blog-post.model.ts (metadata only — ~95KB)
- *   - blog-content/<slug>.ts (one file per post — ~10-30KB each)
+ *   - blog-post.model.ts (metadata only - ~95KB)
+ *   - blog-content/<slug>.ts (one file per post - ~10-30KB each)
  *
  * Run: node scripts/split-blog-posts.js
  */

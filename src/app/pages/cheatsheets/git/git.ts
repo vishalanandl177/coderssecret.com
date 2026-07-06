@@ -349,7 +349,7 @@ export class GitCheatsheetComponent {
 
   constructor() {
     this.seo.update({
-      title: 'Git Cheat Sheet 2026 — Quick Reference for Developers',
+      title: 'Git Cheat Sheet 2026 - Quick Reference for Developers',
       description: 'Complete Git cheat sheet: branch, merge, rebase, stash, reset, cherry-pick, log, diff, and how to undo every mistake.',
       url: '/cheatsheets/git',
       breadcrumbs: [

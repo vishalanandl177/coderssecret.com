@@ -28,7 +28,7 @@ while ((match = categoryRegex.exec(modelContent)) !== null) {
   categories.add(match[1]);
 }
 
-// Extract blog post slugs — only after BLOG_POSTS starts
+// Extract blog post slugs - only after BLOG_POSTS starts
 const blogPostsStart = modelContent.indexOf('BLOG_POSTS');
 const blogSection = blogPostsStart > 0 ? modelContent.substring(blogPostsStart) : modelContent;
 const blogSlugRegex = /slug:\s*'([^']+)'/g;

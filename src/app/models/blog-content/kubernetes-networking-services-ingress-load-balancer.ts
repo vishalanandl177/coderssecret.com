@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Kubernetes networking is the #1 thing that confuses beginners. You deploy your app, but how do users actually reach it? You hear terms like "ClusterIP," "NodePort," "LoadBalancer," "Ingress," and "ALB Controller" — and they all seem to do similar things. This guide explains each one using <strong>simple analogies</strong>, shows you <strong>when to use what</strong>, and gives you copy-paste YAML for every scenario.</p>
+      <p>Kubernetes networking is the #1 thing that confuses beginners. You deploy your app, but how do users actually reach it? You hear terms like "ClusterIP," "NodePort," "LoadBalancer," "Ingress," and "ALB Controller" - and they all seem to do similar things. This guide explains each one using <strong>simple analogies</strong>, shows you <strong>when to use what</strong>, and gives you copy-paste YAML for every scenario.</p>
 
       <h2>The Big Picture: How Traffic Reaches Your App</h2>
       <p>Think of Kubernetes like a large office building. Your application pods are employees working in rooms. The question is: how does someone from outside the building find and talk to the right employee?</p>
@@ -8,16 +8,16 @@ export const CONTENT = `
       <div class="flow-diagram">
         <div class="flow-diagram-title">Kubernetes Networking: The Office Building Analogy</div>
         <div class="layer-diagram">
-          <div class="layer-item" style="background:#ef4444">Internet (The Street)<span class="layer-item-sub">Users, browsers, mobile apps — the outside world trying to reach your app</span></div>
-          <div class="layer-item" style="background:#f97316">Load Balancer (The Main Entrance)<span class="layer-item-sub">One public IP address — the front door of your building. Routes traffic inside.</span></div>
+          <div class="layer-item" style="background:#ef4444">Internet (The Street)<span class="layer-item-sub">Users, browsers, mobile apps - the outside world trying to reach your app</span></div>
+          <div class="layer-item" style="background:#f97316">Load Balancer (The Main Entrance)<span class="layer-item-sub">One public IP address - the front door of your building. Routes traffic inside.</span></div>
           <div class="layer-item" style="background:#7c3aed">Ingress (The Receptionist)<span class="layer-item-sub">Reads the request and routes to the right department: api.example.com goes to API team, app.example.com goes to Frontend team</span></div>
           <div class="layer-item" style="background:#3b82f6">Service (The Department Phone Extension)<span class="layer-item-sub">A stable "phone number" for a group of pods. Even if employees (pods) change desks, the extension stays the same.</span></div>
-          <div class="layer-item" style="background:#22c55e">Pod (The Employee)<span class="layer-item-sub">The actual running instance of your application. Pods come and go — they're ephemeral.</span></div>
+          <div class="layer-item" style="background:#22c55e">Pod (The Employee)<span class="layer-item-sub">The actual running instance of your application. Pods come and go - they're ephemeral.</span></div>
         </div>
       </div>
 
       <h2>Kubernetes Services: The Foundation</h2>
-      <p>A <strong>Service</strong> is the most fundamental networking concept in Kubernetes. Pods are temporary — they get created, destroyed, and rescheduled constantly. A Service gives you a <strong>stable address</strong> that always points to the right pods, no matter how many there are or where they're running.</p>
+      <p>A <strong>Service</strong> is the most fundamental networking concept in Kubernetes. Pods are temporary - they get created, destroyed, and rescheduled constantly. A Service gives you a <strong>stable address</strong> that always points to the right pods, no matter how many there are or where they're running.</p>
 
       <h2>ClusterIP: Internal Communication Only</h2>
       <p><strong>Analogy:</strong> An internal phone extension. Only people inside the building can call it. Outsiders can't.</p>
@@ -50,7 +50,7 @@ export const CONTENT = `
         </div>
       </div>
 
-      <pre><code># ClusterIP Service — the DEFAULT type
+      <pre><code># ClusterIP Service - the DEFAULT type
 apiVersion: v1
 kind: Service
 metadata:
@@ -84,13 +84,13 @@ spec:
       targetPort: 5432
 
 # Now your app connects to: postgres://postgres:5432/mydb
-# No IP addresses needed — just the service name!</code></pre>
+# No IP addresses needed - just the service name!</code></pre>
 
       <h2>NodePort: Quick External Access (Development Only)</h2>
       <p><strong>Analogy:</strong> Punching a hole in the building wall. Anyone who knows the building's address and the hole number can reach in directly.</p>
-      <p><strong>Use when:</strong> You need quick external access for testing/development. <strong>Never in production</strong> — it's insecure and limited.</p>
+      <p><strong>Use when:</strong> You need quick external access for testing/development. <strong>Never in production</strong> - it's insecure and limited.</p>
 
-      <pre><code># NodePort Service — opens a port on EVERY node
+      <pre><code># NodePort Service - opens a port on EVERY node
 apiVersion: v1
 kind: Service
 metadata:
@@ -135,7 +135,7 @@ spec:
         </div>
       </div>
 
-      <pre><code># LoadBalancer Service — creates a cloud load balancer
+      <pre><code># LoadBalancer Service - creates a cloud load balancer
 apiVersion: v1
 kind: Service
 metadata:
@@ -260,15 +260,15 @@ spec:
                   number: 80</code></pre>
 
       <h2>AWS ALB Controller: The AWS-Native Ingress</h2>
-      <p>The <strong>AWS Load Balancer Controller</strong> (formerly ALB Ingress Controller) creates AWS Application Load Balancers directly from your Ingress resources. Instead of running nginx inside the cluster, it uses AWS-managed ALBs — which means AWS handles scaling, health checks, and SSL termination for you.</p>
+      <p>The <strong>AWS Load Balancer Controller</strong> (formerly ALB Ingress Controller) creates AWS Application Load Balancers directly from your Ingress resources. Instead of running nginx inside the cluster, it uses AWS-managed ALBs - which means AWS handles scaling, health checks, and SSL termination for you.</p>
 
       <!-- ALB Architecture -->
       <div class="flow-diagram">
         <div class="flow-diagram-title">AWS ALB Controller Architecture</div>
         <div class="layer-diagram">
           <div class="layer-item" style="background:#f97316">Internet &#x2192; Route53 (DNS)<span class="layer-item-sub">api.example.com &#x2192; ALB public endpoint</span></div>
-          <div class="layer-item" style="background:#3b82f6">AWS ALB (Application Load Balancer)<span class="layer-item-sub">Managed by AWS — auto-scaling, WAF integration, SSL termination, access logs</span></div>
-          <div class="layer-item" style="background:#7c3aed">Target Groups<span class="layer-item-sub">ALB routes to pods directly (IP mode) or via NodePort — bypasses kube-proxy</span></div>
+          <div class="layer-item" style="background:#3b82f6">AWS ALB (Application Load Balancer)<span class="layer-item-sub">Managed by AWS - auto-scaling, WAF integration, SSL termination, access logs</span></div>
+          <div class="layer-item" style="background:#7c3aed">Target Groups<span class="layer-item-sub">ALB routes to pods directly (IP mode) or via NodePort - bypasses kube-proxy</span></div>
           <div class="layer-item" style="background:#22c55e">Pods<span class="layer-item-sub">Your application containers receive traffic directly from the ALB</span></div>
         </div>
       </div>
@@ -383,7 +383,7 @@ spec:
       </div>
 
       <h2>Network Policies: Firewall Rules for Pods</h2>
-      <p>By default, <strong>every pod can talk to every other pod</strong> in the cluster. That's dangerous. Network Policies are Kubernetes's firewall — they control which pods can communicate with which.</p>
+      <p>By default, <strong>every pod can talk to every other pod</strong> in the cluster. That's dangerous. Network Policies are Kubernetes's firewall - they control which pods can communicate with which.</p>
       <pre><code># Default deny all ingress (lock down first, then whitelist)
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -466,11 +466,11 @@ spec:
 
       <h2>Common Beginner Mistakes</h2>
       <ul>
-        <li><strong>"My pod has an IP, why do I need a Service?"</strong> &#x2014; Pod IPs change every time a pod restarts or moves to another node. Services give you a stable address. Never hardcode pod IPs.</li>
-        <li><strong>"I created a LoadBalancer for every service"</strong> &#x2014; Each LoadBalancer creates a new cloud LB ($$). Use one Ingress to route to many services behind a single LB.</li>
-        <li><strong>"I'm using NodePort in production"</strong> &#x2014; NodePort exposes a random high port on every node. No SSL, no path routing, ugly URLs. Use Ingress instead.</li>
-        <li><strong>"My Ingress isn't working"</strong> &#x2014; Most likely you forgot to install an Ingress Controller. Ingress resources are just rules — you need a controller (nginx, traefik, ALB) to actually execute them.</li>
-        <li><strong>"I can't connect from one namespace to another"</strong> &#x2014; Use the full DNS name: <code>service-name.namespace.svc.cluster.local</code>. Or check if a NetworkPolicy is blocking it.</li>
+        <li><strong>"My pod has an IP, why do I need a Service?"</strong> - Pod IPs change every time a pod restarts or moves to another node. Services give you a stable address. Never hardcode pod IPs.</li>
+        <li><strong>"I created a LoadBalancer for every service"</strong> - Each LoadBalancer creates a new cloud LB ($$). Use one Ingress to route to many services behind a single LB.</li>
+        <li><strong>"I'm using NodePort in production"</strong> - NodePort exposes a random high port on every node. No SSL, no path routing, ugly URLs. Use Ingress instead.</li>
+        <li><strong>"My Ingress isn't working"</strong> - Most likely you forgot to install an Ingress Controller. Ingress resources are just rules - you need a controller (nginx, traefik, ALB) to actually execute them.</li>
+        <li><strong>"I can't connect from one namespace to another"</strong> - Use the full DNS name: <code>service-name.namespace.svc.cluster.local</code>. Or check if a NetworkPolicy is blocking it.</li>
       </ul>
 
       <h2>Debugging Kubernetes Networking</h2>
@@ -501,5 +501,5 @@ kubectl describe ingress my-ingress
 kubectl get networkpolicy -A
 kubectl describe networkpolicy deny-all</code></pre>
 
-      <p>Kubernetes networking follows a simple progression: <strong>ClusterIP</strong> for internal communication, <strong>Ingress</strong> for external HTTP traffic (with nginx or ALB Controller), <strong>LoadBalancer</strong> for non-HTTP services, and <strong>NetworkPolicy</strong> for security. Start with ClusterIP + Ingress — that covers 90% of use cases. Add complexity only when you need it.</p>
+      <p>Kubernetes networking follows a simple progression: <strong>ClusterIP</strong> for internal communication, <strong>Ingress</strong> for external HTTP traffic (with nginx or ALB Controller), <strong>LoadBalancer</strong> for non-HTTP services, and <strong>NetworkPolicy</strong> for security. Start with ClusterIP + Ingress - that covers 90% of use cases. Add complexity only when you need it.</p>
     `;

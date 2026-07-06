@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Every tutorial on network layers starts with a boring table: "Layer 7 is Application, Layer 6 is Presentation..." and you forget it by next week. This guide is different. We'll learn each layer by <strong>doing</strong> — capturing packets, debugging real problems, and understanding what happens byte-by-byte when you type <code>curl https://api.example.com</code>.</p>
+      <p>Every tutorial on network layers starts with a boring table: "Layer 7 is Application, Layer 6 is Presentation..." and you forget it by next week. This guide is different. We'll learn each layer by <strong>doing</strong> - capturing packets, debugging real problems, and understanding what happens byte-by-byte when you type <code>curl https://api.example.com</code>.</p>
 
       <h2>The Practical Model: TCP/IP (Not OSI)</h2>
       <p>The OSI model has 7 layers but the real internet uses the <strong>TCP/IP model</strong> with 4 layers. Every packet you've ever sent uses TCP/IP, not OSI. Let's focus on what actually matters:</p>
@@ -8,10 +8,10 @@ export const CONTENT = `
       <div class="flow-diagram">
         <div class="flow-diagram-title">TCP/IP Model (What the Internet Actually Uses)</div>
         <div class="layer-diagram">
-          <div class="layer-item" style="background:#ef4444">Layer 4: Application<span class="layer-item-sub">HTTP, HTTPS, DNS, gRPC, SMTP, SSH, WebSocket — what your code talks to</span></div>
-          <div class="layer-item" style="background:#f97316">Layer 3: Transport<span class="layer-item-sub">TCP (reliable, ordered) or UDP (fast, fire-and-forget) — how data is delivered</span></div>
-          <div class="layer-item" style="background:#3b82f6">Layer 2: Internet (Network)<span class="layer-item-sub">IP addresses, routing, packets crossing networks — where data goes</span></div>
-          <div class="layer-item" style="background:#22c55e">Layer 1: Network Access (Link + Physical)<span class="layer-item-sub">Ethernet, WiFi, MAC addresses, physical cables — the actual wire/radio</span></div>
+          <div class="layer-item" style="background:#ef4444">Layer 4: Application<span class="layer-item-sub">HTTP, HTTPS, DNS, gRPC, SMTP, SSH, WebSocket - what your code talks to</span></div>
+          <div class="layer-item" style="background:#f97316">Layer 3: Transport<span class="layer-item-sub">TCP (reliable, ordered) or UDP (fast, fire-and-forget) - how data is delivered</span></div>
+          <div class="layer-item" style="background:#3b82f6">Layer 2: Internet (Network)<span class="layer-item-sub">IP addresses, routing, packets crossing networks - where data goes</span></div>
+          <div class="layer-item" style="background:#22c55e">Layer 1: Network Access (Link + Physical)<span class="layer-item-sub">Ethernet, WiFi, MAC addresses, physical cables - the actual wire/radio</span></div>
         </div>
       </div>
 
@@ -89,7 +89,7 @@ arp -a
         <li>"VMs can't talk to each other" &#x2192; Check virtual switch / bridge configuration</li>
       </ul>
 
-      <h2>Layer 2: Internet Layer (IP — Getting Packets Across Networks)</h2>
+      <h2>Layer 2: Internet Layer (IP - Getting Packets Across Networks)</h2>
       <p>Layer 1 handles the local network. Layer 2 (IP) handles getting packets from <strong>your network to any other network in the world</strong> via routing.</p>
 
       <h2>Real-World: IP Addresses &amp; Routing</h2>
@@ -156,12 +156,12 @@ route print           # Windows
         <li>"VPN connected but can't reach internal services" &#x2192; Check route table conflicts</li>
       </ul>
 
-      <h2>Layer 3: Transport (TCP &amp; UDP — How Data Gets Delivered)</h2>
+      <h2>Layer 3: Transport (TCP &amp; UDP - How Data Gets Delivered)</h2>
       <p>IP gets packets to the right machine. Transport protocols get data to the right <strong>application</strong> on that machine, using <strong>ports</strong>.</p>
 
       <!-- TCP vs UDP -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">TCP vs UDP — The Two Transport Protocols</div>
+        <div class="flow-diagram-title">TCP vs UDP - The Two Transport Protocols</div>
         <div class="vs-cards">
           <div class="vs-card" style="border-color:#3b82f6">
             <div class="vs-card-header" style="background:#3b82f6">&#x1F4E6; TCP (Transmission Control Protocol)</div>
@@ -202,7 +202,7 @@ netstat -an           # Windows
 # ESTAB     0       0       10.0.1.5:43210       93.184.216.34:443  ← Active HTTPS
 # TIME_WAIT 0       0       10.0.1.5:43211       93.184.216.34:443  ← Closing
 
-# TCP 3-Way Handshake — capture it live with tcpdump
+# TCP 3-Way Handshake - capture it live with tcpdump
 sudo tcpdump -i eth0 -nn 'tcp[tcpflags] & (tcp-syn|tcp-ack) != 0' -c 10
 # Output:
 # 10:00:01 IP 10.0.1.5.43210 > 93.184.216.34.443: Flags [S]      ← SYN
@@ -252,10 +252,10 @@ ss -s  # Show TCP state summary
         </div>
       </div>
 
-      <h2>Layer 4: Application (HTTP, DNS, TLS — What Your Code Uses)</h2>
+      <h2>Layer 4: Application (HTTP, DNS, TLS - What Your Code Uses)</h2>
       <p>This is the layer developers interact with most. Every API call, database query, and web page uses application-layer protocols built on top of TCP/UDP.</p>
 
-      <h2>DNS — The Internet's Phone Book</h2>
+      <h2>DNS - The Internet's Phone Book</h2>
       <pre><code># How DNS resolution works (step by step):
 # 1. You type: curl api.example.com
 # 2. OS checks /etc/hosts file first (local override)
@@ -294,7 +294,7 @@ scutil --dns | head -20     # macOS
 sudo systemd-resolve --flush-caches   # Linux (systemd)
 sudo dscacheutil -flushcache          # macOS</code></pre>
 
-      <h2>HTTP/HTTPS — How the Web Works</h2>
+      <h2>HTTP/HTTPS - How the Web Works</h2>
       <pre><code># HTTP is a text-based request-response protocol on top of TCP
 
 # Raw HTTP request (what curl sends):
@@ -320,15 +320,15 @@ curl -v https://api.example.com/users 2>&1 | head -30
 
 # HTTP/2 vs HTTP/1.1:
 # HTTP/1.1: One request per TCP connection (or keep-alive pipelining)
-# HTTP/2: Multiplexed — many requests share one connection (used by gRPC)
-# HTTP/3: Uses QUIC (UDP-based) — faster handshake, no head-of-line blocking
+# HTTP/2: Multiplexed - many requests share one connection (used by gRPC)
+# HTTP/3: Uses QUIC (UDP-based) - faster handshake, no head-of-line blocking
 
 # Check which HTTP version a server supports:
 curl -v --http2 https://api.example.com 2>&1 | grep "< HTTP"
 # < HTTP/2 200</code></pre>
 
       <h2>Packet Capture with tcpdump &amp; Wireshark</h2>
-      <p>The ultimate debugging tool. <code>tcpdump</code> captures raw packets on any interface — the network equivalent of a debugger.</p>
+      <p>The ultimate debugging tool. <code>tcpdump</code> captures raw packets on any interface - the network equivalent of a debugger.</p>
       <pre><code># Capture all traffic on eth0
 sudo tcpdump -i eth0 -nn
 
@@ -442,10 +442,10 @@ sudo tcpdump -i eth0 -nn host 93.184.216.34 -w debug.pcap
       <div class="flow-diagram">
         <div class="flow-diagram-title">Network Layers in Kubernetes</div>
         <div class="layer-diagram">
-          <div class="layer-item" style="background:#ef4444">L4: Application — Ingress (HTTP routing, TLS termination, path-based routing)<span class="layer-item-sub">nginx-ingress, traefik, istio gateway &#x2192; routes external traffic to Services</span></div>
-          <div class="layer-item" style="background:#f97316">L3: Transport — Service (ClusterIP, NodePort, LoadBalancer)<span class="layer-item-sub">kube-proxy / iptables / eBPF &#x2192; load-balances TCP/UDP to pod endpoints</span></div>
-          <div class="layer-item" style="background:#3b82f6">L2: Internet — Pod Network (CNI plugin: Calico, Cilium, Flannel)<span class="layer-item-sub">Every pod gets a unique IP, pods communicate across nodes via overlay/BGP</span></div>
-          <div class="layer-item" style="background:#22c55e">L1: Link — Node Network (AWS VPC, GCP VPC, bare metal)<span class="layer-item-sub">Physical/virtual NICs, VPC subnets, security groups</span></div>
+          <div class="layer-item" style="background:#ef4444">L4: Application - Ingress (HTTP routing, TLS termination, path-based routing)<span class="layer-item-sub">nginx-ingress, traefik, istio gateway &#x2192; routes external traffic to Services</span></div>
+          <div class="layer-item" style="background:#f97316">L3: Transport - Service (ClusterIP, NodePort, LoadBalancer)<span class="layer-item-sub">kube-proxy / iptables / eBPF &#x2192; load-balances TCP/UDP to pod endpoints</span></div>
+          <div class="layer-item" style="background:#3b82f6">L2: Internet - Pod Network (CNI plugin: Calico, Cilium, Flannel)<span class="layer-item-sub">Every pod gets a unique IP, pods communicate across nodes via overlay/BGP</span></div>
+          <div class="layer-item" style="background:#22c55e">L1: Link - Node Network (AWS VPC, GCP VPC, bare metal)<span class="layer-item-sub">Physical/virtual NICs, VPC subnets, security groups</span></div>
         </div>
       </div>
 
@@ -480,7 +480,7 @@ kubectl run debug --image=nicolaka/netshoot -it --rm -- bash
       <div class="flow-diagram">
         <div class="flow-diagram-title">Network Mastery Roadmap</div>
         <div class="timeline">
-          <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">Level 1: Know your tools</div><div class="timeline-item-desc">ping, dig, curl -v, traceroute, ss, nc &#x2014; use them daily until they're muscle memory</div></div>
+          <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">Level 1: Know your tools</div><div class="timeline-item-desc">ping, dig, curl -v, traceroute, ss, nc - use them daily until they're muscle memory</div></div>
           <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">Level 2: Understand TCP</div><div class="timeline-item-desc">Handshake, states, retransmissions, window size. Read tcpdump output fluently.</div></div>
           <div class="timeline-item" style="--c:#7c3aed"><div class="timeline-item-title" style="color:#7c3aed">Level 3: Master DNS</div><div class="timeline-item-desc">Record types, TTL, caching layers, split-horizon DNS, CoreDNS in K8s</div></div>
           <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Level 4: Know TLS deeply</div><div class="timeline-item-desc">Certificate chains, mTLS, cipher suites. Debug with openssl s_client.</div></div>
@@ -489,5 +489,5 @@ kubectl run debug --image=nicolaka/netshoot -it --rm -- bash
         </div>
       </div>
 
-      <p>Networking isn't about memorizing layer numbers — it's about knowing which tool to reach for when something breaks at 3 AM. Start by running every command in this guide on your own machine. Then break things intentionally in a lab (block ports with iptables, poison DNS, drop packets with tc) and practice fixing them. That's how you master network layers — not by reading, but by debugging.</p>
+      <p>Networking isn't about memorizing layer numbers - it's about knowing which tool to reach for when something breaks at 3 AM. Start by running every command in this guide on your own machine. Then break things intentionally in a lab (block ports with iptables, poison DNS, drop packets with tc) and practice fixing them. That's how you master network layers - not by reading, but by debugging.</p>
     `;

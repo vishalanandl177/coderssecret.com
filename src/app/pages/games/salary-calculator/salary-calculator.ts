@@ -70,7 +70,7 @@ import { SeoService } from '../../../services/seo.service';
               {{ formatSalary(salary()) }}
             </div>
             <p class="text-sm text-muted-foreground">
-              Range: <strong class="text-foreground">{{ formatSalary(salary() * 0.85) }}</strong> — <strong class="text-foreground">{{ formatSalary(salary() * 1.15) }}</strong>
+              Range: <strong class="text-foreground">{{ formatSalary(salary() * 0.85) }}</strong> - <strong class="text-foreground">{{ formatSalary(salary() * 1.15) }}</strong>
             </p>
           </div>
 
@@ -185,7 +185,7 @@ export class SalaryCalculatorComponent {
 
   constructor() {
     this.seo.update({
-      title: 'Tech Salary Calculator — Software Engineer Compensation',
+      title: 'Tech Salary Calculator - Software Engineer Compensation',
       description: 'Estimate software engineer salaries by role, experience, location, and company type. Data from Levels.fyi, Glassdoor, and industry reports.',
       url: '/games/salary-calculator',
       breadcrumbs: [

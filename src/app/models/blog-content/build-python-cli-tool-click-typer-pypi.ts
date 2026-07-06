@@ -421,14 +421,14 @@ mytool --install-completion fish
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Use Typer for modern CLIs</strong> &mdash; type hints for argument parsing, automatic help generation, built-in completions</li>
-        <li><strong>Use Rich for output</strong> &mdash; tables, progress bars, colored text, panels make CLIs professional</li>
-        <li><strong>Test with CliRunner</strong> &mdash; test CLI commands like functions, assert on exit codes and output</li>
-        <li><strong>Use pyproject.toml</strong> for packaging &mdash; it replaces setup.py, setup.cfg, and MANIFEST.in</li>
-        <li><strong>Publish with trusted publishing</strong> &mdash; GitHub Actions OIDC to PyPI, no API tokens to manage</li>
-        <li><strong>Error messages should be actionable</strong> &mdash; tell users what went wrong AND how to fix it</li>
-        <li><strong>Ship shell completions</strong> &mdash; they dramatically improve the user experience</li>
+        <li><strong>Use Typer for modern CLIs</strong> - type hints for argument parsing, automatic help generation, built-in completions</li>
+        <li><strong>Use Rich for output</strong> - tables, progress bars, colored text, panels make CLIs professional</li>
+        <li><strong>Test with CliRunner</strong> - test CLI commands like functions, assert on exit codes and output</li>
+        <li><strong>Use pyproject.toml</strong> for packaging - it replaces setup.py, setup.cfg, and MANIFEST.in</li>
+        <li><strong>Publish with trusted publishing</strong> - GitHub Actions OIDC to PyPI, no API tokens to manage</li>
+        <li><strong>Error messages should be actionable</strong> - tell users what went wrong AND how to fix it</li>
+        <li><strong>Ship shell completions</strong> - they dramatically improve the user experience</li>
       </ul>
 
-      <p>The difference between a script and a tool is polish. Argument parsing, error handling, colored output, documentation, and distribution turn your 50-line script into something that gets starred on GitHub and installed by thousands. The tools exist &mdash; Typer, Rich, pyproject.toml, GitHub Actions &mdash; use them.</p>
+      <p>The difference between a script and a tool is polish. Argument parsing, error handling, colored output, documentation, and distribution turn your 50-line script into something that gets starred on GitHub and installed by thousands. The tools exist - Typer, Rich, pyproject.toml, GitHub Actions - use them.</p>
     `;

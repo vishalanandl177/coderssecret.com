@@ -4,7 +4,7 @@
 
 Must have:
 
-- title: `CodersSecret — Practical Engineering Tutorials` or equivalent
+- title: `CodersSecret - Practical Engineering Tutorials` or equivalent
 - meta description describing practical engineering tutorials
 - canonical: `https://coderssecret.com/`
 - one H1
@@ -23,7 +23,7 @@ Avoid:
 
 Must have:
 
-- title: `Blog | CodersSecret — Practical Engineering Tutorials` or equivalent
+- title: `Blog | CodersSecret - Practical Engineering Tutorials` or equivalent
 - page-specific meta description
 - canonical: `https://coderssecret.com/blog` or trailing slash equivalent
 - one H1

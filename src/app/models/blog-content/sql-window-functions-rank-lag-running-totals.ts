@@ -275,13 +275,13 @@ WHERE id IN (
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Window functions keep all rows</strong> unlike GROUP BY which collapses them &mdash; you get the calculation AND the detail</li>
-        <li><strong>PARTITION BY is like GROUP BY for windows</strong> &mdash; it defines the groups without collapsing rows</li>
-        <li><strong>ROW_NUMBER() is the most versatile</strong> &mdash; top-N queries, deduplication, pagination</li>
-        <li><strong>LAG/LEAD compare adjacent rows</strong> &mdash; month-over-month growth, time between events</li>
+        <li><strong>Window functions keep all rows</strong> unlike GROUP BY which collapses them - you get the calculation AND the detail</li>
+        <li><strong>PARTITION BY is like GROUP BY for windows</strong> - it defines the groups without collapsing rows</li>
+        <li><strong>ROW_NUMBER() is the most versatile</strong> - top-N queries, deduplication, pagination</li>
+        <li><strong>LAG/LEAD compare adjacent rows</strong> - month-over-month growth, time between events</li>
         <li><strong>SUM/AVG OVER with ROWS BETWEEN</strong> creates running totals and moving averages</li>
         <li><strong>Window functions execute after WHERE and GROUP BY</strong> but before ORDER BY and LIMIT</li>
-        <li><strong>Use CTEs (WITH clause) to filter window results</strong> &mdash; you cannot put window functions in WHERE</li>
+        <li><strong>Use CTEs (WITH clause) to filter window results</strong> - you cannot put window functions in WHERE</li>
       </ul>
 
       <p>Window functions are the single most powerful SQL feature that most developers have not learned. Once you internalize OVER, PARTITION BY, and ORDER BY, queries that previously required subqueries, self-joins, or application code become simple one-liners. They work in PostgreSQL, MySQL 8+, SQLite 3.25+, and every major database.</p>

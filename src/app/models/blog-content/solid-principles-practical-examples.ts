@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>You've heard of SOLID principles but every tutorial shows abstract <code>Shape</code> and <code>Animal</code> examples that don't match real codebases. This guide teaches SOLID through <strong>real-world code</strong> — the kind you actually write at work. For each principle, you'll see bad code, understand <em>why</em> it causes problems, and refactor it into something maintainable.</p>
+      <p>You've heard of SOLID principles but every tutorial shows abstract <code>Shape</code> and <code>Animal</code> examples that don't match real codebases. This guide teaches SOLID through <strong>real-world code</strong> - the kind you actually write at work. For each principle, you'll see bad code, understand <em>why</em> it causes problems, and refactor it into something maintainable.</p>
 
       <h2>What is SOLID?</h2>
       <p>SOLID is a set of 5 design principles that help you write code that's <strong>easy to change, easy to test, and easy to understand</strong>. They were coined by Robert C. Martin (Uncle Bob) and have stood the test of time across every object-oriented language.</p>
@@ -16,7 +16,7 @@ export const CONTENT = `
         </div>
       </div>
 
-      <h2>S — Single Responsibility Principle</h2>
+      <h2>S - Single Responsibility Principle</h2>
       <p><strong>"A class should have only one reason to change."</strong></p>
       <p>If a class handles user authentication AND sends emails AND logs to a file, changing any one of those features risks breaking the others. Each class should do one thing well.</p>
 
@@ -67,7 +67,7 @@ class UserRepository:
 
 class EmailService:
     def send_welcome(self, email: str):
-        # Email logic isolated here — change provider without touching users
+        # Email logic isolated here - change provider without touching users
         pass
 
 class UserService:
@@ -89,7 +89,7 @@ class UserService:
 # Change database? Edit UserRepository only.
 # Each class has ONE reason to change.</code></pre>
 
-      <h2>O — Open/Closed Principle</h2>
+      <h2>O - Open/Closed Principle</h2>
       <p><strong>"Software entities should be open for extension, but closed for modification."</strong></p>
       <p>You should be able to add new behavior <em>without changing existing code</em>. This prevents introducing bugs in working features when adding new ones.</p>
 
@@ -141,7 +141,7 @@ processor.process(CreditCardPayment(), 99.99)
 processor.process(CryptoPayment(), 0.005)
 # Adding new payment methods never touches PaymentProcessor!</code></pre>
 
-      <h2>L — Liskov Substitution Principle</h2>
+      <h2>L - Liskov Substitution Principle</h2>
       <p><strong>"Subtypes must be substitutable for their base types without breaking the program."</strong></p>
       <p>If your code works with a base class, it should work with <em>any</em> subclass without surprises. A subclass that changes the expected behavior violates LSP.</p>
 
@@ -197,7 +197,7 @@ class Square(Shape):
 # Both are Shapes. Both have area(). Neither pretends to be the other.
 # Any code using Shape works correctly with both.</code></pre>
 
-      <h2>I — Interface Segregation Principle</h2>
+      <h2>I - Interface Segregation Principle</h2>
       <p><strong>"No client should be forced to depend on methods it doesn't use."</strong></p>
 
       <pre><code># &#x274C; BAD: Fat interface forces unnecessary implementations
@@ -250,7 +250,7 @@ class TechLead(Coder, Designer, TeamLead):
     def design(self): return "Technical decisions"
     def manage_team(self): return "Sprint planning"</code></pre>
 
-      <h2>D — Dependency Inversion Principle</h2>
+      <h2>D - Dependency Inversion Principle</h2>
       <p><strong>"High-level modules should not depend on low-level modules. Both should depend on abstractions."</strong></p>
 
       <pre><code># &#x274C; BAD: High-level OrderService depends directly on low-level MySQLDatabase
@@ -287,7 +287,7 @@ class PostgresOrderRepo(OrderRepository):
         return "pg-order-id"
 
 class InMemoryOrderRepo(OrderRepository):
-    """For unit testing — no database needed!"""
+    """For unit testing - no database needed!"""
     def __init__(self):
         self.orders = []
     def save(self, order: dict) -> str:
@@ -317,13 +317,13 @@ assert result["total"] == 9.99  # Fast, isolated test!</code></pre>
       <div class="flow-diagram">
         <div class="flow-diagram-title">SOLID Quick Reference</div>
         <div class="timeline">
-          <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">S — Single Responsibility</div><div class="timeline-item-desc">One class = one job. If you describe a class with "AND", split it.</div></div>
-          <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">O — Open/Closed</div><div class="timeline-item-desc">Add new features by adding new code, not changing existing code. Use polymorphism.</div></div>
-          <div class="timeline-item" style="--c:#a855f7"><div class="timeline-item-title" style="color:#a855f7">L — Liskov Substitution</div><div class="timeline-item-desc">Subclasses must work wherever the parent class works. No surprises.</div></div>
-          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">I — Interface Segregation</div><div class="timeline-item-desc">Many small interfaces &gt; one fat interface. Don't force classes to implement unused methods.</div></div>
-          <div class="timeline-item" style="--c:#ef4444"><div class="timeline-item-title" style="color:#ef4444">D — Dependency Inversion</div><div class="timeline-item-desc">Depend on abstractions (interfaces), not concretions (specific implementations). Inject dependencies.</div></div>
+          <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">S - Single Responsibility</div><div class="timeline-item-desc">One class = one job. If you describe a class with "AND", split it.</div></div>
+          <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">O - Open/Closed</div><div class="timeline-item-desc">Add new features by adding new code, not changing existing code. Use polymorphism.</div></div>
+          <div class="timeline-item" style="--c:#a855f7"><div class="timeline-item-title" style="color:#a855f7">L - Liskov Substitution</div><div class="timeline-item-desc">Subclasses must work wherever the parent class works. No surprises.</div></div>
+          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">I - Interface Segregation</div><div class="timeline-item-desc">Many small interfaces &gt; one fat interface. Don't force classes to implement unused methods.</div></div>
+          <div class="timeline-item" style="--c:#ef4444"><div class="timeline-item-title" style="color:#ef4444">D - Dependency Inversion</div><div class="timeline-item-desc">Depend on abstractions (interfaces), not concretions (specific implementations). Inject dependencies.</div></div>
         </div>
       </div>
 
-      <p>SOLID principles aren't about writing perfect code — they're about writing code that <strong>survives contact with reality</strong>. Requirements change, teams change, and bugs happen. SOLID gives your codebase the flexibility to handle all of that without collapsing. Start with Single Responsibility and Dependency Inversion — they give the biggest payoff with the least effort. The rest will follow naturally as your design sense improves.</p>
+      <p>SOLID principles aren't about writing perfect code - they're about writing code that <strong>survives contact with reality</strong>. Requirements change, teams change, and bugs happen. SOLID gives your codebase the flexibility to handle all of that without collapsing. Start with Single Responsibility and Dependency Inversion - they give the biggest payoff with the least effort. The rest will follow naturally as your design sense improves.</p>
     `;

@@ -1,23 +1,23 @@
 export const CONTENT = `
-      <p>Before gRPC existed, Facebook needed a way for their services — written in Python, C++, Java, PHP, and Erlang — to talk to each other efficiently. They built <strong>Apache Thrift</strong>, an RPC framework that generates client and server code in <strong>28+ languages</strong> from a single interface definition. Thrift has been battle-tested at Facebook scale (billions of RPC calls per second) and remains a strong choice for heterogeneous microservice architectures.</p>
+      <p>Before gRPC existed, Facebook needed a way for their services - written in Python, C++, Java, PHP, and Erlang - to talk to each other efficiently. They built <strong>Apache Thrift</strong>, an RPC framework that generates client and server code in <strong>28+ languages</strong> from a single interface definition. Thrift has been battle-tested at Facebook scale (billions of RPC calls per second) and remains a strong choice for heterogeneous microservice architectures.</p>
 
       <h2>What is Apache Thrift?</h2>
       <p>Thrift is a <strong>cross-language RPC framework</strong> with three key components:</p>
       <ul>
-        <li><strong>Interface Definition Language (IDL):</strong> A .thrift file that defines your data types and services — like a .proto file for gRPC.</li>
+        <li><strong>Interface Definition Language (IDL):</strong> A .thrift file that defines your data types and services - like a .proto file for gRPC.</li>
         <li><strong>Code Generator:</strong> Generates client/server stubs in your target language(s) from the IDL.</li>
         <li><strong>Runtime Library:</strong> Handles serialization (multiple protocols), transport (sockets, HTTP, memory), and server models (threaded, non-blocking, forked).</li>
       </ul>
 
       <!-- Thrift Architecture -->
       <div class="flow-diagram">
-        <div class="flow-diagram-title">Thrift Architecture — Pluggable Layers</div>
+        <div class="flow-diagram-title">Thrift Architecture - Pluggable Layers</div>
         <div class="layer-diagram">
-          <div class="layer-item" style="background:#3b82f6">Your Code (Service Handlers)<span class="layer-item-sub">Business logic — implement the generated service interface</span></div>
-          <div class="layer-item" style="background:#7c3aed">Generated Code (Processor)<span class="layer-item-sub">Auto-generated from .thrift file — routes calls to your handlers</span></div>
-          <div class="layer-item" style="background:#f97316">Protocol (Serialization)<span class="layer-item-sub">Binary, Compact, JSON, or custom — how data is encoded on the wire</span></div>
-          <div class="layer-item" style="background:#22c55e">Transport (I/O)<span class="layer-item-sub">Socket, HTTP, framed, buffered, in-memory — how bytes are moved</span></div>
-          <div class="layer-item" style="background:#ef4444">Server (Concurrency Model)<span class="layer-item-sub">Simple, threaded, non-blocking, forked — how requests are handled</span></div>
+          <div class="layer-item" style="background:#3b82f6">Your Code (Service Handlers)<span class="layer-item-sub">Business logic - implement the generated service interface</span></div>
+          <div class="layer-item" style="background:#7c3aed">Generated Code (Processor)<span class="layer-item-sub">Auto-generated from .thrift file - routes calls to your handlers</span></div>
+          <div class="layer-item" style="background:#f97316">Protocol (Serialization)<span class="layer-item-sub">Binary, Compact, JSON, or custom - how data is encoded on the wire</span></div>
+          <div class="layer-item" style="background:#22c55e">Transport (I/O)<span class="layer-item-sub">Socket, HTTP, framed, buffered, in-memory - how bytes are moved</span></div>
+          <div class="layer-item" style="background:#ef4444">Server (Concurrency Model)<span class="layer-item-sub">Simple, threaded, non-blocking, forked - how requests are handled</span></div>
         </div>
       </div>
 
@@ -212,7 +212,7 @@ except Exception as e:
 
 transport.close()</code></pre>
 
-      <h2>Thrift vs gRPC — Which Should You Choose?</h2>
+      <h2>Thrift vs gRPC - Which Should You Choose?</h2>
 
       <!-- Thrift vs gRPC -->
       <div class="flow-diagram">
@@ -245,7 +245,7 @@ transport.close()</code></pre>
         <li><strong>28+ language support:</strong> If your stack includes niche languages (Erlang, Haskell, OCaml, Perl, D, Lua), Thrift has better coverage than gRPC.</li>
         <li><strong>Pluggable transports:</strong> Need to run over raw TCP sockets, shared memory, or custom transports? Thrift's transport layer is swappable.</li>
         <li><strong>Multiple serialization formats:</strong> Choose Binary (fastest), Compact (smallest), or JSON (debuggable) per-service.</li>
-        <li><strong>Existing Thrift infrastructure:</strong> Many companies (Facebook/Meta, Evernote, Cassandra) already use Thrift — stick with what works.</li>
+        <li><strong>Existing Thrift infrastructure:</strong> Many companies (Facebook/Meta, Evernote, Cassandra) already use Thrift - stick with what works.</li>
       </ul>
 
       <h2>When to Choose gRPC Instead</h2>
@@ -256,5 +256,5 @@ transport.close()</code></pre>
         <li><strong>Starting fresh:</strong> If you're building a new system, gRPC is the safer bet for long-term ecosystem support.</li>
       </ul>
 
-      <p>Apache Thrift remains a powerful, production-proven RPC framework. Its pluggable architecture and unmatched language support make it ideal for heterogeneous environments. If you're already in the Thrift ecosystem or need extreme flexibility in transport and serialization, Thrift is an excellent choice. For greenfield projects, evaluate both Thrift and gRPC against your specific needs — you can't go wrong with either.</p>
+      <p>Apache Thrift remains a powerful, production-proven RPC framework. Its pluggable architecture and unmatched language support make it ideal for heterogeneous environments. If you're already in the Thrift ecosystem or need extreme flexibility in transport and serialization, Thrift is an excellent choice. For greenfield projects, evaluate both Thrift and gRPC against your specific needs - you can't go wrong with either.</p>
     `;

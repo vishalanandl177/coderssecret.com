@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Every time you log in, make a payment, or send a message, cryptography is silently protecting you. But most developers treat it as a black box — "just use HTTPS and bcrypt." This guide gives you a <strong>practical understanding</strong> of how encryption, hashing, and digital signatures actually work, with Python code for every concept and clear guidance on when to use what.</p>
+      <p>Every time you log in, make a payment, or send a message, cryptography is silently protecting you. But most developers treat it as a black box - "just use HTTPS and bcrypt." This guide gives you a <strong>practical understanding</strong> of how encryption, hashing, and digital signatures actually work, with Python code for every concept and clear guidance on when to use what.</p>
 
       <h2>The Three Pillars of Cryptography</h2>
 
@@ -14,8 +14,8 @@ export const CONTENT = `
       </div>
 
       <ul>
-        <li><strong>Encryption:</strong> Scramble data so only authorized parties can read it. Reversible — you can decrypt to get the original data back.</li>
-        <li><strong>Hashing:</strong> Generate a fixed-size fingerprint of data. <em>Not reversible</em> — you can't get the original data from the hash. Used for integrity checks and passwords.</li>
+        <li><strong>Encryption:</strong> Scramble data so only authorized parties can read it. Reversible - you can decrypt to get the original data back.</li>
+        <li><strong>Hashing:</strong> Generate a fixed-size fingerprint of data. <em>Not reversible</em> - you can't get the original data from the hash. Used for integrity checks and passwords.</li>
         <li><strong>Digital Signatures:</strong> Prove that a message was sent by a specific person and hasn't been tampered with. Combines hashing + asymmetric encryption.</li>
       </ul>
 
@@ -71,7 +71,7 @@ nonce = os.urandom(12)  # 96-bit nonce (MUST be unique per encryption!)
 aes = AESGCM(key)
 ciphertext = aes.encrypt(nonce, plaintext, None)
 print(f"Encrypted: {ciphertext[:20].hex()}...")
-# Output: gibberish bytes — completely unreadable
+# Output: gibberish bytes - completely unreadable
 
 # Decrypt
 decrypted = aes.decrypt(nonce, ciphertext, None)
@@ -79,7 +79,7 @@ print(f"Decrypted: {decrypted.decode()}")
 # Output: "Patient record: John Doe, DOB 1990-01-15, Diagnosis: ..."
 
 # ── With Associated Data (AAD) ─────────────────
-# AAD is authenticated but NOT encrypted — useful for metadata
+# AAD is authenticated but NOT encrypted - useful for metadata
 # (e.g., patient ID is visible but tamper-proof)
 aad = b"patient-id:12345"
 ciphertext = aes.encrypt(nonce, plaintext, aad)
@@ -128,7 +128,7 @@ print(f"Decrypted: {decrypted.decode()}")
 
 # ⚠️ RSA can only encrypt small data (< key size - padding)
 # For large data: encrypt with AES, encrypt AES key with RSA
-# This is called "hybrid encryption" — exactly how TLS works!</code></pre>
+# This is called "hybrid encryption" - exactly how TLS works!</code></pre>
 
       <h2>How TLS Uses Both (Hybrid Encryption)</h2>
 
@@ -160,7 +160,7 @@ print(f"Decrypted: {decrypted.decode()}")
       </div>
 
       <h2>Part 2: Hashing Algorithms</h2>
-      <p>A hash function takes any input and produces a <strong>fixed-size output</strong> (the hash/digest). It's a one-way function — you can't reverse it to get the original data. Two key properties: the same input always produces the same hash, and even a tiny change in input produces a completely different hash.</p>
+      <p>A hash function takes any input and produces a <strong>fixed-size output</strong> (the hash/digest). It's a one-way function - you can't reverse it to get the original data. Two key properties: the same input always produces the same hash, and even a tiny change in input produces a completely different hash.</p>
 
       <pre><code>import hashlib
 
@@ -222,7 +222,7 @@ for name, h in algorithms.items():
       </div>
 
       <h2>Password Hashing: bcrypt, scrypt, Argon2</h2>
-      <p><strong>Never store passwords in plain text. Never use SHA-256 for passwords.</strong> Regular hash functions are too fast — an attacker can try billions of guesses per second. Password hashing algorithms are <em>intentionally slow</em> to make brute-force attacks impractical.</p>
+      <p><strong>Never store passwords in plain text. Never use SHA-256 for passwords.</strong> Regular hash functions are too fast - an attacker can try billions of guesses per second. Password hashing algorithms are <em>intentionally slow</em> to make brute-force attacks impractical.</p>
       <pre><code># ── bcrypt (most widely used) ──────────────────
 # pip install bcrypt
 import bcrypt
@@ -374,7 +374,7 @@ except Exception:
         <div class="flow-diagram-title">Cryptography Mistakes to Avoid</div>
         <div class="timeline">
           <div class="timeline-item" style="--c:#ef4444"><div class="timeline-item-title" style="color:#ef4444">Using MD5 or SHA-1 for anything security-related</div><div class="timeline-item-desc">Both are broken. Collisions can be generated in seconds. Use SHA-256+.</div></div>
-          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Hashing passwords with SHA-256</div><div class="timeline-item-desc">Too fast! Use bcrypt or Argon2 — designed to be slow and memory-hard.</div></div>
+          <div class="timeline-item" style="--c:#f97316"><div class="timeline-item-title" style="color:#f97316">Hashing passwords with SHA-256</div><div class="timeline-item-desc">Too fast! Use bcrypt or Argon2 - designed to be slow and memory-hard.</div></div>
           <div class="timeline-item" style="--c:#a855f7"><div class="timeline-item-title" style="color:#a855f7">Rolling your own crypto</div><div class="timeline-item-desc">Use established libraries (cryptography, NaCl/libsodium). Custom implementations will have bugs.</div></div>
           <div class="timeline-item" style="--c:#3b82f6"><div class="timeline-item-title" style="color:#3b82f6">Reusing nonces/IVs with AES-GCM</div><div class="timeline-item-desc">Catastrophic. Always use os.urandom() for each encryption operation.</div></div>
           <div class="timeline-item" style="--c:#22c55e"><div class="timeline-item-title" style="color:#22c55e">Comparing signatures with == instead of hmac.compare_digest()</div><div class="timeline-item-desc">String comparison leaks timing info. Use constant-time comparison for all security checks.</div></div>
@@ -382,5 +382,5 @@ except Exception:
         </div>
       </div>
 
-      <p>Cryptography is the foundation of all software security. You don't need to implement algorithms from scratch — but you <em>do</em> need to choose the right tool for each job and use it correctly. Remember the three rules: <strong>AES for encrypting data, bcrypt/Argon2 for passwords, SHA-256 for integrity</strong>. Use established libraries, never reuse nonces, and keep your keys out of your code. That covers 95% of real-world cryptography needs.</p>
+      <p>Cryptography is the foundation of all software security. You don't need to implement algorithms from scratch - but you <em>do</em> need to choose the right tool for each job and use it correctly. Remember the three rules: <strong>AES for encrypting data, bcrypt/Argon2 for passwords, SHA-256 for integrity</strong>. Use established libraries, never reuse nonces, and keep your keys out of your code. That covers 95% of real-world cryptography needs.</p>
     `;

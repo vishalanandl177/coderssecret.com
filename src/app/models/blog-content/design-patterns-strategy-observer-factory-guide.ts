@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Design patterns have a reputation problem. The Gang of Four book describes 23 patterns, most developers memorize a few for interviews, and then never consciously use them. But the truth is you use design patterns every day &mdash; you just do not call them by name.</p>
+      <p>Design patterns have a reputation problem. The Gang of Four book describes 23 patterns, most developers memorize a few for interviews, and then never consciously use them. But the truth is you use design patterns every day - you just do not call them by name.</p>
 
       <p>This guide covers the 7 patterns that genuinely appear in production code, with practical examples in Python and TypeScript.</p>
 
@@ -397,15 +397,15 @@ query = (QueryBuilder("users")
       <h2>Key Takeaways</h2>
 
       <ul>
-        <li><strong>Patterns are tools, not goals</strong> &mdash; do not force a pattern where a simple function would do</li>
-        <li><strong>Strategy eliminates if/else chains</strong> &mdash; use it when you have multiple algorithms for the same task</li>
-        <li><strong>Observer decouples producers from consumers</strong> &mdash; the foundation of event-driven architecture</li>
-        <li><strong>Factory centralizes creation logic</strong> &mdash; add new types without modifying calling code</li>
-        <li><strong>Decorator adds behavior without inheritance</strong> &mdash; compose small, focused wrappers</li>
+        <li><strong>Patterns are tools, not goals</strong> - do not force a pattern where a simple function would do</li>
+        <li><strong>Strategy eliminates if/else chains</strong> - use it when you have multiple algorithms for the same task</li>
+        <li><strong>Observer decouples producers from consumers</strong> - the foundation of event-driven architecture</li>
+        <li><strong>Factory centralizes creation logic</strong> - add new types without modifying calling code</li>
+        <li><strong>Decorator adds behavior without inheritance</strong> - compose small, focused wrappers</li>
         <li><strong>Singleton is just a module-level instance in Python</strong> and providedIn: root in Angular</li>
-        <li><strong>Adapter wraps third-party code</strong> to match your interfaces &mdash; essential for swappable integrations</li>
-        <li><strong>Builder replaces constructors with 10+ parameters</strong> &mdash; readable, chainable, self-documenting</li>
+        <li><strong>Adapter wraps third-party code</strong> to match your interfaces - essential for swappable integrations</li>
+        <li><strong>Builder replaces constructors with 10+ parameters</strong> - readable, chainable, self-documenting</li>
       </ul>
 
-      <p>The best code uses patterns without naming them. If you write a function that takes a callback, you are using Strategy. If you emit events, you are using Observer. If you wrap a class to add logging, you are using Decorator. The patterns are already in your code &mdash; knowing their names helps you communicate about them and apply them intentionally.</p>
+      <p>The best code uses patterns without naming them. If you write a function that takes a callback, you are using Strategy. If you emit events, you are using Observer. If you wrap a class to add logging, you are using Decorator. The patterns are already in your code - knowing their names helps you communicate about them and apply them intentionally.</p>
     `;

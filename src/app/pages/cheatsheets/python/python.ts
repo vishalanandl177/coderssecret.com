@@ -282,7 +282,7 @@ export class PythonCheatsheetComponent {
 
   constructor() {
     this.seo.update({
-      title: 'Python Cheat Sheet 2026 — Quick Reference for Developers',
+      title: 'Python Cheat Sheet 2026 - Quick Reference for Developers',
       description: 'Complete Python cheat sheet: data types, strings, lists, dicts, functions, classes, file I/O, error handling, comprehensions, decorators, and virtual environments.',
       url: '/cheatsheets/python',
       breadcrumbs: [
