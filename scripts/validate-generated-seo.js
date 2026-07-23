@@ -332,60 +332,64 @@ function validateStaticRedirectRules() {
 function validatePageForSitemapUrl(url) {
   const { primary, directoryIndex, route } = htmlFileForUrl(url);
   const relativePrimary = path.relative(DIST_DIR, primary);
-  const relativeDirectoryIndex = directoryIndex ? path.relative(DIST_DIR, directoryIndex) : '';
 
   if (!fs.existsSync(primary)) {
     fail(`${route}: generated page file is missing for sitemap URL ${url}`);
     return;
   }
-  if (directoryIndex && fs.existsSync(directoryIndex)) {
-    fail(`${relativeDirectoryIndex}: non-root directory index would make trailing-slash duplicate render for sitemap URL ${url}`);
-  }
 
-  const content = read(primary);
+  validateCanonicalPageFile(primary, relativePrimary, url);
+  if (directoryIndex && fs.existsSync(directoryIndex)) {
+    const relativeDirectoryIndex = path.relative(DIST_DIR, directoryIndex);
+    validateCanonicalPageFile(directoryIndex, relativeDirectoryIndex, url);
+  }
+}
+
+function validateCanonicalPageFile(filePath, relativePath, url) {
+  const content = read(filePath);
   const canonicalLinks = extractAll(/<link\s+rel=["']canonical["']\s+href=["']([^"']+)["'][^>]*>/gi, content);
   if (canonicalLinks.length !== 1) {
-    fail(`${relativePrimary}: expected exactly one canonical link, found ${canonicalLinks.length}`);
+    fail(`${relativePath}: expected exactly one canonical link, found ${canonicalLinks.length}`);
   } else if (canonicalLinks[0] !== url) {
-    fail(`${relativePrimary}: canonical (${canonicalLinks[0]}) does not match sitemap URL (${url})`);
+    fail(`${relativePath}: canonical (${canonicalLinks[0]}) does not match sitemap URL (${url})`);
   }
 
   if (/<meta[^>]+name=["']robots["'][^>]+content=["'][^"']*noindex/i.test(content)) {
-    fail(`${relativePrimary}: sitemap page is marked noindex`);
+    fail(`${relativePath}: sitemap page is marked noindex`);
   }
   if (/<meta[^>]+http-equiv=["']refresh["']/i.test(content)) {
-    fail(`${relativePrimary}: sitemap page uses a meta refresh redirect`);
+    fail(`${relativePath}: sitemap page uses a meta refresh redirect`);
   }
 
   const title = extractFirst(/<title>([^<]+)<\/title>/i, content);
-  if (!title) fail(`${relativePrimary}: missing title`);
+  if (!title) fail(`${relativePath}: missing title`);
 
   const description = extractFirst(/<meta\s+name=["']description["']\s+content=["']([^"']+)["'][^>]*>/i, content);
   if (!description || description.length < 40) {
-    fail(`${relativePrimary}: missing or thin meta description`);
+    fail(`${relativePath}: missing or thin meta description`);
   }
 
   const h1Count = (content.match(/<h1\b/gi) || []).length;
   if (h1Count !== 1) {
-    fail(`${relativePrimary}: expected exactly one H1, found ${h1Count}`);
+    fail(`${relativePath}: expected exactly one H1, found ${h1Count}`);
   }
 
   const appRoot = extractFirst(/<app-root\b[^>]*>([\s\S]*?)<\/app-root>/i, content);
   if (!appRoot || visibleText(appRoot).length < 120) {
-    fail(`${relativePrimary}: generated app-root content is missing or too thin`);
+    fail(`${relativePath}: generated app-root content is missing or too thin`);
   }
 
   const ogUrl = extractFirst(/<meta\s+property=["']og:url["']\s+content=["']([^"']+)["'][^>]*>/i, content);
   if (ogUrl && ogUrl !== url) {
-    fail(`${relativePrimary}: og:url (${ogUrl}) does not match canonical sitemap URL (${url})`);
+    fail(`${relativePath}: og:url (${ogUrl}) does not match canonical sitemap URL (${url})`);
   }
 
   const twitterUrl = extractFirst(/<meta\s+name=["']twitter:url["']\s+content=["']([^"']+)["'][^>]*>/i, content);
   if (twitterUrl && twitterUrl !== url) {
-    fail(`${relativePrimary}: twitter:url (${twitterUrl}) does not match canonical sitemap URL (${url})`);
+    fail(`${relativePath}: twitter:url (${twitterUrl}) does not match canonical sitemap URL (${url})`);
   }
 
-  validateJsonLd(content, relativePrimary, url);
+  validateJsonLd(content, relativePath, url);
 }
 
 function validateGeneratedHtmlFiles() {
@@ -394,10 +398,6 @@ function validateGeneratedHtmlFiles() {
     const relative = path.relative(DIST_DIR, filePath);
     const normalizedRelative = relative.replace(/\\/g, '/');
     const content = read(filePath);
-
-    if (normalizedRelative !== 'index.html' && normalizedRelative.endsWith('/index.html')) {
-      fail(`${relative}: non-root directory index would expose a trailing-slash duplicate URL`);
-    }
 
     if (content.includes('http://coderssecret.com')) {
       fail(`${relative}: generated HTML contains http://coderssecret.com`);

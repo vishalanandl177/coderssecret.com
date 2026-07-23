@@ -1018,7 +1018,7 @@ function compactSeoTitle(title, maxLength) {
       candidate = next;
     }
 
-    if (candidate.length >= 28) return candidate;
+    if (candidate.length >= 28 || /\bguide$/i.test(candidate)) return candidate;
     const guided = `${candidate} Guide`;
     return guided.length <= maxLength ? guided : candidate;
   }
@@ -1029,7 +1029,7 @@ function compactSeoTitle(title, maxLength) {
 function trimAtWord(text, maxLength) {
   const clipped = text.slice(0, maxLength);
   const lastSpace = clipped.lastIndexOf(' ');
-  return clipped.slice(0, lastSpace > 30 ? lastSpace : clipped.length).trim();
+  return clipped.slice(0, lastSpace >= Math.floor(maxLength * 0.55) ? lastSpace : clipped.length).trim();
 }
 
 function loadBlogPostContent(slug) {
@@ -1143,7 +1143,7 @@ function courseSeoDescription(course) {
 
 function moduleSeoTitle(course, mod) {
   const title = course.slug === 'mastering-spiffe-spire' ? spiffeModuleShortTitle(mod) : mod.title;
-  return `M${mod.number}: ${compactSeoTitle(title, 34)} | ${courseShortName(course)}`;
+  return `M${mod.number}: ${compactSeoTitle(title, 42)} | ${courseShortName(course)}`;
 }
 
 function spiffeModuleShortTitle(mod) {
@@ -3449,22 +3449,10 @@ let notFoundHtml = makeHtml({
     <p><a href="/">Go to Home</a> | <a href="/blog">Browse Blog</a></p>
   </main>`,
 });
-// Add noindex so Google ignores the 404 fallback. The script only normalizes
-// non-root trailing-slash paths; root remains stable and assets are untouched.
+// Add noindex so Google ignores the 404 fallback. Do not redirect from 404:
+// known trailing-slash route variants are served by generated directory indexes,
+// and unknown paths should remain clear 404s for crawlers.
 notFoundHtml = notFoundHtml.replace('</head>', `  <meta name="robots" content="noindex">
-  <script>
-    (function () {
-      var path = window.location.pathname;
-      var canonicalPath = path.replace(/\\/+$/, '') || '/';
-      if (canonicalPath === '/blog' && window.location.search) {
-        window.location.replace('/blog' + window.location.hash);
-        return;
-      }
-      if (path.length > 1 && /\\/$/.test(path)) {
-        window.location.replace(canonicalPath + window.location.search + window.location.hash);
-      }
-    })();
-  </script>
 </head>`);
 fs.writeFileSync(path.join(OUTPUT_DIR, '404.html'), notFoundHtml);
 
@@ -3528,8 +3516,6 @@ assertGeneratedSeoContent([
     requiredText: ['Understanding Zero Trust Security', 'Module 1 of 13', 'app-slide-player'],
   },
 ]);
-const removedDirectoryIndexes = removeNonCanonicalDirectoryIndexes();
-const removedEmptyRouteDirectories = removeEmptyRouteDirectories();
 const staticRedirectRules = writeStaticRedirectRules();
 cleanupPrerenderRuntime();
 
@@ -3621,7 +3607,7 @@ function writeStaticRedirectRules() {
   const outputRoot = path.resolve(OUTPUT_DIR);
   const rules = [
     '# Canonical redirects for hosts that support _redirects, such as Netlify or Cloudflare Pages.',
-    '# GitHub Pages ignores this file; 404.html keeps a client-side canonical fallback for users.',
+    '# GitHub Pages ignores this file; generated directory indexes cover trailing-slash route variants.',
     'http://coderssecret.com/* https://coderssecret.com/:splat 301!',
     'https://www.coderssecret.com/* https://coderssecret.com/:splat 301!',
     '/blog/?tag=:tag /blog 301!',
@@ -3716,11 +3702,10 @@ function assertGeneratedSeoContent(checks) {
 
 console.log(`✅ Pre-rendered ${created} route files + 404.html with SEO content.`);
 console.log(`   Extensionless aliases: ${extensionlessAliases}`);
-console.log(`   Removed non-canonical directory index files: ${removedDirectoryIndexes}`);
-console.log(`   Removed empty route directories: ${removedEmptyRouteDirectories}`);
+console.log(`   Trailing-slash canonical aliases: ${extensionlessAliases}`);
 console.log(`   Static redirect rules: ${staticRedirectRules}`);
 console.log(`   Blog posts: ${posts.length}`);
 console.log(`   Categories: ${categories.size}`);
 console.log(`   Blog list: 1`);
-console.log(`   404.html: Angular app with noindex and client-side canonical fallback`);
+console.log(`   404.html: Angular app with noindex and no redirect fallback`);
 console.log(`   Each page has: unique <title>, meta description, OG tags, canonical URL, and real HTML content.`);
