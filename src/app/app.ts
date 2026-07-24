@@ -86,6 +86,7 @@ export class App implements OnInit {
     'cs-transition-back',
     'cs-transition-lateral',
     'cs-transition-slides',
+    'cs-transition-disabled',
   ];
   private readonly interactionClasses = [
     'cs-transition-from-nav',
@@ -211,15 +212,24 @@ export class App implements OnInit {
   }
 
   private prepareRouteTransition(nextUrl: string) {
-    const win = this.document.defaultView;
     const root = this.document.documentElement;
+    const skipRouteTransition = this.isBlogListToDetail(this.lastNavigationUrl, nextUrl);
+
+    this.clearRouteTransitionClasses();
+
+    if (skipRouteTransition) {
+      this.clearInteractionSource();
+      root.classList.add('cs-transition-disabled');
+      this.scheduleRouteTransitionClear(750);
+      return;
+    }
+
     const pattern = this.getRouteTransitionPattern(this.lastNavigationUrl, nextUrl);
     const shouldUseCardTransform = pattern === 'container'
       && this.lastInteractionSource === 'card'
       && !!this.activeSourceElement
       && this.isBlogListToDetail(this.lastNavigationUrl, nextUrl);
 
-    this.clearRouteTransitionClasses();
     root.classList.add(`cs-transition-${pattern}`);
     root.dataset['csTransition'] = pattern;
 

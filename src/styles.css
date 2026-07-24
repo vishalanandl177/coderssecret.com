@@ -582,6 +582,12 @@
       animation-name: md3-top-level-enter;
     }
 
+    html.cs-transition-disabled::view-transition-group(cs-page),
+    html.cs-transition-disabled::view-transition-old(cs-page),
+    html.cs-transition-disabled::view-transition-new(cs-page) {
+      animation: none !important;
+    }
+
     html.cs-transition-container::view-transition-old(cs-page),
     html.cs-transition-forward::view-transition-old(cs-page) {
       animation-name: md3-content-exit;
