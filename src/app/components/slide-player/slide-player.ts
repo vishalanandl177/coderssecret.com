@@ -1,20 +1,24 @@
-import { Component, input, signal, computed, HostListener, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, computed, input, signal, viewChild } from '@angular/core';
+import { ResolvedSlideFocusStep, SlideCompanionAnchor, SlideData, resolveSlideFocusSteps } from './slide-focus';
 
-export interface SlideData {
-  type: 'title' | 'content' | 'code' | 'grid' | 'image' | 'end';
-  eyebrow?: string;
-  title: string;
-  subtitle?: string;
-  body?: string;
-  bullets?: string[];
-  tags?: string[];
-  code?: string;
-  lang?: string;
-  items?: { title: string; desc: string }[];
-  src?: string;
-  caption?: string;
-  links?: { label: string; value: string }[];
-  narration: string;
+export type { SlideData, SlideFocusStep } from './slide-focus';
+
+type ResolvedCompanionAnchor = Exclude<SlideCompanionAnchor, 'auto'> | 'dock';
+
+interface CompanionPlacement {
+  x: number;
+  y: number;
+  anchor: ResolvedCompanionAnchor;
+  score: number;
+}
+
+interface RelativeRect {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+  width: number;
+  height: number;
 }
 
 @Component({
@@ -23,18 +27,29 @@ export interface SlideData {
   template: `
     <div class="fixed inset-0 z-[100] bg-background flex flex-col overflow-hidden">
       <!-- Top bar -->
-      <header class="flex items-center justify-between px-6 h-14 border-b border-border/60 bg-card/80 backdrop-blur flex-shrink-0">
-        <div class="flex items-center gap-3">
-          <span class="text-xs font-mono text-muted-foreground uppercase tracking-wider">{{ deckTitle() }}</span>
-          <span class="text-xs text-muted-foreground">{{ idx() + 1 }} / {{ slides().length }}</span>
+      <header class="flex h-14 min-w-0 flex-shrink-0 items-center justify-between gap-2 border-b border-border/60 bg-card/80 px-3 backdrop-blur sm:px-6">
+        <div class="flex min-w-0 items-center gap-2 sm:gap-3">
+          <span class="min-w-0 truncate text-xs font-mono text-muted-foreground uppercase tracking-wider">{{ deckTitle() }}</span>
+          <span class="shrink-0 text-xs text-muted-foreground">{{ idx() + 1 }} / {{ slides().length }}</span>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex shrink-0 items-center gap-2">
+          <button type="button"
+                  (click)="toggleGuide()"
+                  aria-label="Teaching Guide"
+                  [attr.aria-pressed]="guideEnabled()"
+                  [style.background-color]="guideEnabled() ? 'var(--md-sys-color-primary-container)' : 'var(--md-sys-color-surface-container)'"
+                  [style.border-color]="guideEnabled() ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-outline-variant)'"
+                  [style.color]="guideEnabled() ? 'var(--md-sys-color-on-primary-container)' : 'var(--md-sys-color-on-surface-variant)'"
+                  class="md3-focus-ring inline-flex h-11 min-w-11 items-center justify-center gap-2 rounded-[var(--md-sys-shape-corner-full)] border px-3 text-xs font-bold transition-[background-color,border-color,color,transform] duration-200 active:scale-[0.98]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8 3.5 4.5 8 6"/><path d="m19 8 1.5-3.5L16 6"/><rect x="5" y="6" width="14" height="14" rx="7"/><path d="M8.5 12h.01M15.5 12h.01"/><path d="M9 16c2 1.3 4 1.3 6 0"/></svg>
+            <span class="hidden sm:inline">Guide</span>
+          </button>
           @if (speaking()) {
             <span class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
             <span class="text-xs font-mono text-green-500 hidden sm:inline">NARRATING</span>
           }
           <button type="button"
-                  (click)="showScript.set(!showScript())"
+                  (click)="toggleScript()"
                   [attr.aria-controls]="showScript() ? 'slide-script-panel' : null"
                   [attr.aria-expanded]="showScript()"
                   [class.text-primary]="showScript()"
@@ -43,9 +58,9 @@ export interface SlideData {
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h12"/></svg>
             Script
           </button>
-          <a [href]="backUrl()" class="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+          <a [href]="backUrl()" aria-label="Close slides" class="inline-flex h-11 w-11 items-center justify-center gap-1.5 rounded-full border border-border/60 bg-card px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:w-auto">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            Close
+            <span class="hidden sm:inline">Close</span>
           </a>
         </div>
       </header>
@@ -69,13 +84,13 @@ export interface SlideData {
         <div id="slide-script-panel" class="hidden md:block border-b border-border/60 bg-primary/5 backdrop-blur flex-shrink-0">
           <div class="max-w-5xl mx-auto px-6 py-3 flex gap-3 items-start">
             <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-primary font-bold flex-shrink-0 mt-0.5">NARRATOR</span>
-            <p class="text-sm text-foreground/90 leading-relaxed">{{ currentSlide().narration }}</p>
+            <p class="text-sm text-foreground/90 leading-relaxed">{{ currentNarrationText() }}</p>
           </div>
         </div>
       }
 
       <!-- Slide content -->
-      <main class="flex-1 overflow-y-auto relative">
+      <main #slideViewport class="flex-1 min-h-0 overflow-y-auto relative">
         @if (audioPrompt()) {
           <section
             role="dialog"
@@ -162,19 +177,21 @@ export interface SlideData {
           }
         </div>
 
-        <div class="max-w-5xl mx-auto px-6 py-12 md:py-16 min-h-full flex flex-col relative z-10">
+        <div #slideStage
+             [class.slide-stage-guide-enabled]="guideEnabled() && currentSlide().type !== 'title' && currentSlide().type !== 'end'"
+             class="slide-stage max-w-5xl mx-auto px-6 py-12 md:py-16 min-h-full flex flex-col relative z-10">
           @switch (currentSlide().type) {
             @case ('title') {
               <div class="flex-1 flex flex-col justify-center">
                 @if (currentSlide().eyebrow) {
                   <p class="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground mb-6">{{ currentSlide().eyebrow }}</p>
                 }
-                <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.05] mb-6">{{ currentSlide().title }}</h1>
+                <h1 data-slide-focus="title" [class.slide-focus-active]="isFocusActive('title')" class="slide-focus-target text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.05] mb-6">{{ currentSlide().title }}</h1>
                 @if (currentSlide().subtitle) {
-                  <p class="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl">{{ currentSlide().subtitle }}</p>
+                  <p data-slide-focus="subtitle" [class.slide-focus-active]="isFocusActive('subtitle')" class="slide-focus-target text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl">{{ currentSlide().subtitle }}</p>
                 }
                 @if (currentSlide().tags?.length) {
-                  <div class="flex flex-wrap gap-2 mt-8">
+                  <div data-slide-focus="tags" [class.slide-focus-active]="isFocusActive('tags')" class="slide-focus-target flex flex-wrap gap-2 mt-8">
                     @for (tag of currentSlide().tags; track tag) {
                       <span class="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/50 px-3 py-1 text-xs font-mono text-muted-foreground">
                         <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>{{ tag }}
@@ -191,14 +208,14 @@ export interface SlideData {
                     <span class="w-2 h-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500"></span>{{ currentSlide().eyebrow }}
                   </p>
                 }
-                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-6">{{ currentSlide().title }}</h2>
+                <h2 data-slide-focus="title" [class.slide-focus-active]="isFocusActive('title')" class="slide-focus-target text-3xl md:text-4xl font-extrabold tracking-tight mb-6">{{ currentSlide().title }}</h2>
                 @if (currentSlide().body) {
-                  <p class="text-base md:text-lg text-muted-foreground leading-relaxed mb-8 max-w-3xl">{{ currentSlide().body }}</p>
+                  <p data-slide-focus="body" [class.slide-focus-active]="isFocusActive('body')" class="slide-focus-target text-base md:text-lg text-muted-foreground leading-relaxed mb-8 max-w-3xl">{{ currentSlide().body }}</p>
                 }
                 @if (currentSlide().bullets?.length) {
                   <ul class="grid gap-3 md:gap-4 mt-2">
                     @for (b of currentSlide().bullets; track b; let i = $index) {
-                      <li class="flex gap-4 items-start rounded-xl border border-border/60 bg-card px-5 py-4 hover:border-primary/40 transition-colors">
+                      <li [attr.data-slide-focus]="'bullet:' + i" [class.slide-focus-active]="isFocusActive('bullet:' + i)" class="slide-focus-target flex gap-4 items-start rounded-xl border border-border/60 bg-card px-5 py-4 hover:border-primary/40 transition-colors">
                         <span class="font-mono text-xs text-primary font-bold flex-shrink-0 mt-1 inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/10">{{ String(i + 1).padStart(2, '0') }}</span>
                         <span class="text-base text-foreground leading-relaxed">{{ b }}</span>
                       </li>
@@ -214,11 +231,11 @@ export interface SlideData {
                     <span class="w-2 h-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500"></span>{{ currentSlide().eyebrow }}
                   </p>
                 }
-                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">{{ currentSlide().title }}</h2>
+                <h2 data-slide-focus="title" [class.slide-focus-active]="isFocusActive('title')" class="slide-focus-target text-3xl md:text-4xl font-extrabold tracking-tight mb-4">{{ currentSlide().title }}</h2>
                 @if (currentSlide().body) {
-                  <p class="text-base text-muted-foreground leading-relaxed mb-6 max-w-3xl">{{ currentSlide().body }}</p>
+                  <p data-slide-focus="body" [class.slide-focus-active]="isFocusActive('body')" class="slide-focus-target text-base text-muted-foreground leading-relaxed mb-6 max-w-3xl">{{ currentSlide().body }}</p>
                 }
-                <div class="rounded-xl border border-border/60 bg-muted overflow-hidden">
+                <div data-slide-focus="code" [class.slide-focus-active]="isFocusActive('code')" class="slide-focus-target rounded-xl border border-border/60 bg-muted overflow-hidden">
                   <div class="flex items-center gap-2 px-4 py-2.5 border-b border-border/40 bg-card/50">
                     <span class="w-3 h-3 rounded-full bg-red-500/70"></span>
                     <span class="w-3 h-3 rounded-full bg-yellow-500/70"></span>
@@ -245,13 +262,13 @@ export interface SlideData {
                     <span class="w-2 h-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500"></span>{{ currentSlide().eyebrow }}
                   </p>
                 }
-                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-8">{{ currentSlide().title }}</h2>
+                <h2 data-slide-focus="title" [class.slide-focus-active]="isFocusActive('title')" class="slide-focus-target text-3xl md:text-4xl font-extrabold tracking-tight mb-8">{{ currentSlide().title }}</h2>
                 @if (currentSlide().body) {
-                  <p class="text-base text-muted-foreground leading-relaxed mb-8 max-w-3xl">{{ currentSlide().body }}</p>
+                  <p data-slide-focus="body" [class.slide-focus-active]="isFocusActive('body')" class="slide-focus-target text-base text-muted-foreground leading-relaxed mb-8 max-w-3xl">{{ currentSlide().body }}</p>
                 }
                 <div class="grid md:grid-cols-2 gap-4">
                   @for (item of currentSlide().items; track item.title; let i = $index) {
-                    <div class="rounded-xl border border-border/60 bg-card p-5">
+                    <div [attr.data-slide-focus]="'item:' + i" [class.slide-focus-active]="isFocusActive('item:' + i)" class="slide-focus-target rounded-xl border border-border/60 bg-card p-5">
                       <div class="font-mono text-xs text-primary mb-2">{{ String(i + 1).padStart(2, '0') }}</div>
                       <div class="text-base font-semibold mb-1.5">{{ item.title }}</div>
                       <div class="text-sm text-muted-foreground leading-relaxed">{{ item.desc }}</div>
@@ -267,25 +284,25 @@ export interface SlideData {
                     <span class="w-2 h-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500"></span>{{ currentSlide().eyebrow }}
                   </p>
                 }
-                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">{{ currentSlide().title }}</h2>
+                <h2 data-slide-focus="title" [class.slide-focus-active]="isFocusActive('title')" class="slide-focus-target text-3xl md:text-4xl font-extrabold tracking-tight mb-4">{{ currentSlide().title }}</h2>
                 @if (currentSlide().caption) {
-                  <p class="text-base text-muted-foreground mb-6">{{ currentSlide().caption }}</p>
+                  <p data-slide-focus="caption" [class.slide-focus-active]="isFocusActive('caption')" class="slide-focus-target text-base text-muted-foreground mb-6">{{ currentSlide().caption }}</p>
                 }
-                <div class="rounded-xl border border-border/60 overflow-hidden bg-white">
-                  <img [src]="currentSlide().src" [alt]="currentSlide().title" class="w-full" loading="lazy" decoding="async" />
+                <div data-slide-focus="image" [class.slide-focus-active]="isFocusActive('image')" class="slide-focus-target rounded-xl border border-border/60 overflow-hidden bg-white">
+                  <img [src]="currentSlide().src" [alt]="currentSlide().title" (load)="scheduleCompanionPosition()" class="w-full" loading="lazy" decoding="async" />
                 </div>
               </div>
             }
             @case ('end') {
               <div class="flex-1 flex flex-col justify-center">
-                <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">{{ currentSlide().title }}</h2>
+                <h2 data-slide-focus="title" [class.slide-focus-active]="isFocusActive('title')" class="slide-focus-target text-4xl md:text-5xl font-extrabold tracking-tight mb-4">{{ currentSlide().title }}</h2>
                 @if (currentSlide().subtitle) {
-                  <p class="text-lg text-muted-foreground mb-10 max-w-2xl">{{ currentSlide().subtitle }}</p>
+                  <p data-slide-focus="subtitle" [class.slide-focus-active]="isFocusActive('subtitle')" class="slide-focus-target text-lg text-muted-foreground mb-10 max-w-2xl">{{ currentSlide().subtitle }}</p>
                 }
                 @if (currentSlide().links?.length) {
                   <div class="grid sm:grid-cols-2 gap-4 max-w-xl">
                     @for (link of currentSlide().links; track link.label) {
-                      <div class="rounded-xl border border-border/60 bg-card p-4">
+                      <div [attr.data-slide-focus]="'link:' + $index" [class.slide-focus-active]="isFocusActive('link:' + $index)" class="slide-focus-target rounded-xl border border-border/60 bg-card p-4">
                         <div class="font-mono text-xs text-primary uppercase tracking-wider mb-1.5">{{ link.label }}</div>
                         <div class="font-mono text-sm text-foreground break-all">{{ link.value }}</div>
                       </div>
@@ -295,12 +312,67 @@ export interface SlideData {
               </div>
             }
           }
+
+          @if (guideEnabled() && !audioPrompt()) {
+            <svg class="slide-companion-connector" [attr.viewBox]="connectorViewBox()" preserveAspectRatio="none" aria-hidden="true">
+              <path [attr.d]="connectorPath()"></path>
+              @if (connectorTarget()) {
+                <circle [attr.cx]="connectorTarget()!.x" [attr.cy]="connectorTarget()!.y" r="5"></circle>
+              }
+            </svg>
+
+            <div #slideCompanion
+                 aria-hidden="true"
+                 [class.slide-companion-positioned]="companionPositioned()"
+                 [class.slide-companion-facing-right]="companionFacing() === 'right'"
+                 [class.slide-companion-speaking]="speaking()"
+                 [class.slide-companion-travelling]="companionTravelling()"
+                 [style.transform]="companionTransform()"
+                 class="slide-companion">
+              <div class="slide-companion-pet-stage">
+                <svg class="slide-companion-pet" viewBox="0 0 160 190" role="presentation">
+                  <defs>
+                    <linearGradient id="slide-companion-body-gradient" x1="38" y1="35" x2="126" y2="170" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="var(--md-sys-color-primary-container)"/>
+                      <stop offset="1" stop-color="var(--md-sys-color-primary)"/>
+                    </linearGradient>
+                  </defs>
+                  <ellipse cx="82" cy="177" rx="43" ry="8" fill="var(--md-sys-color-shadow)" opacity="0.24"/>
+                  <g class="slide-companion-voice-wave" fill="none" stroke="var(--md-sys-color-tertiary)" stroke-linecap="round" stroke-width="4">
+                    <path d="M130 76c10 7 10 20 0 27"/>
+                    <path d="M140 67c18 13 18 34 0 47" opacity="0.58"/>
+                  </g>
+                  <g class="slide-companion-character">
+                    <path d="M53 58C36 46 34 28 44 20c10-8 26 1 35 20" fill="var(--md-sys-color-secondary-container)" stroke="var(--md-sys-color-primary)" stroke-width="4"/>
+                    <path d="M107 58c17-12 19-30 9-38-10-8-26 1-35 20" fill="var(--md-sys-color-secondary-container)" stroke="var(--md-sys-color-primary)" stroke-width="4"/>
+                    <path d="M38 84c2-28 18-45 44-45s42 17 44 45l4 43c2 28-18 44-48 44s-50-16-48-44z" fill="url(#slide-companion-body-gradient)" stroke="var(--md-sys-color-primary)" stroke-width="4"/>
+                    <path class="slide-companion-pointer-arm" d="M45 104c-16 0-27-7-35-19" fill="none" stroke="var(--md-sys-color-primary)" stroke-linecap="round" stroke-width="11"/>
+                    <circle cx="10" cy="85" r="6" fill="var(--md-sys-color-primary-container)" stroke="var(--md-sys-color-primary)" stroke-width="3"/>
+                    <path d="M119 109c11 7 16 18 14 30" fill="none" stroke="var(--md-sys-color-primary)" stroke-linecap="round" stroke-width="11"/>
+                    <circle cx="133" cy="141" r="6" fill="var(--md-sys-color-primary-container)" stroke="var(--md-sys-color-primary)" stroke-width="3"/>
+                    <ellipse cx="64" cy="83" rx="7" ry="10" fill="var(--md-sys-color-on-primary-container)"/>
+                    <ellipse cx="101" cy="83" rx="7" ry="10" fill="var(--md-sys-color-on-primary-container)"/>
+                    <circle cx="66" cy="80" r="2.4" fill="var(--md-sys-color-surface)"/>
+                    <circle cx="103" cy="80" r="2.4" fill="var(--md-sys-color-surface)"/>
+                    <path class="slide-companion-mouth-rest" d="M75 105c5 4 10 4 15 0" fill="none" stroke="var(--md-sys-color-on-primary-container)" stroke-linecap="round" stroke-width="4"/>
+                    <ellipse class="slide-companion-mouth-open" cx="82" cy="108" rx="8" ry="6" fill="var(--md-sys-color-on-primary-container)"/>
+                    <rect x="59" y="131" width="46" height="23" rx="11.5" fill="var(--md-sys-color-surface-container-high)"/>
+                    <path d="M76 137l-6 5.5 6 5.5M89 137l6 5.5-6 5.5" fill="none" stroke="var(--md-sys-color-primary)" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="slide-companion-status">
+                <span class="slide-companion-status-dot"></span>
+                <span>{{ companionStatusLabel() }}</span>
+              </div>
+            </div>
+          }
         </div>
       </main>
 
       <!-- Controls bar -->
-      <footer class="flex-shrink-0 border-t border-[color:var(--md-sys-color-outline-variant)] bg-[color:var(--md-sys-color-surface-container-low)] px-4 py-3">
-        <div class="mx-auto flex w-full max-w-4xl flex-wrap items-center justify-center gap-2 rounded-[var(--md-sys-shape-corner-full)] border border-[color:var(--md-sys-color-outline-variant)] bg-[color:var(--md-sys-color-surface-container-high)] px-3 py-2 shadow-[var(--md-sys-elevation-1)]">
+      <footer class="flex-shrink-0 border-t border-[color:var(--md-sys-color-outline-variant)] bg-[color:var(--md-sys-color-surface-container-low)] px-1 py-3 sm:px-4">
+        <div class="mx-auto flex w-full max-w-4xl flex-wrap items-center justify-center gap-2 rounded-[var(--md-sys-shape-corner-full)] border border-[color:var(--md-sys-color-outline-variant)] bg-[color:var(--md-sys-color-surface-container-high)] px-1 py-2 shadow-[var(--md-sys-elevation-1)] sm:px-3">
         <!-- Prev -->
         <button type="button" (click)="prev()" [disabled]="idx() === 0"
                 aria-label="Previous slide"
@@ -345,7 +417,7 @@ export interface SlideData {
         <!-- Auto-advance -->
         <button type="button" (click)="toggleAutoAdvance()"
                 [attr.aria-pressed]="autoAdvance()"
-                class="md3-focus-ring inline-flex h-11 items-center gap-2 rounded-[var(--md-sys-shape-corner-full)] border px-4 text-xs font-bold transition-[background-color,border-color,color,transform] duration-200 active:scale-[0.98]"
+                class="md3-focus-ring inline-flex h-11 items-center gap-2 rounded-[var(--md-sys-shape-corner-full)] border px-3 text-xs font-bold transition-[background-color,border-color,color,transform] duration-200 active:scale-[0.98] sm:px-4"
                 [style.background-color]="autoAdvance() ? 'var(--md-sys-color-secondary-container)' : 'var(--md-sys-color-surface-container)'"
                 [style.border-color]="autoAdvance() ? 'var(--md-sys-color-secondary)' : 'var(--md-sys-color-outline-variant)'"
                 [style.color]="autoAdvance() ? 'var(--md-sys-color-on-secondary-container)' : 'var(--md-sys-color-on-surface-variant)'">
@@ -357,7 +429,7 @@ export interface SlideData {
         @if (availableVoices().length > 0) {
           <label class="sr-only" for="slide-voice-select">Narration voice</label>
           <select id="slide-voice-select" (change)="onVoiceChange($event)"
-                  class="md3-focus-ring h-11 max-w-[220px] cursor-pointer rounded-[var(--md-sys-shape-corner-full)] border border-[color:var(--md-sys-color-outline-variant)] bg-[color:var(--md-sys-color-surface-container)] px-4 text-xs font-semibold text-[color:var(--md-sys-color-on-surface)] transition-[background-color,border-color] duration-200 hover:bg-[color:var(--md-sys-color-surface-container-highest)]"
+                  class="md3-focus-ring h-11 min-w-0 max-w-[180px] cursor-pointer rounded-[var(--md-sys-shape-corner-full)] border border-[color:var(--md-sys-color-outline-variant)] bg-[color:var(--md-sys-color-surface-container)] px-3 text-xs font-semibold text-[color:var(--md-sys-color-on-surface)] transition-[background-color,border-color] duration-200 hover:bg-[color:var(--md-sys-color-surface-container-highest)] sm:max-w-[220px] sm:px-4"
                   aria-label="Narration voice">
             @for (v of availableVoices(); track v.name) {
               <option [value]="v.name" [selected]="v.name === selectedVoice()">{{ v.name }}</option>
@@ -379,15 +451,29 @@ export interface SlideData {
     </div>
   `,
 })
-export class SlidePlayerComponent implements OnDestroy {
+export class SlidePlayerComponent implements AfterViewInit, OnDestroy {
   slides = input.required<SlideData[]>();
   deckTitle = input<string>('Tutorial');
   backUrl = input<string>('/');
+
+  slideViewport = viewChild<ElementRef<HTMLElement>>('slideViewport');
+  slideStage = viewChild<ElementRef<HTMLElement>>('slideStage');
+  slideCompanion = viewChild<ElementRef<HTMLElement>>('slideCompanion');
 
   idx = signal(0);
   autoAdvance = signal(true);
   speaking = signal(false);
   narrationPaused = signal(false);
+  guideEnabled = signal(true);
+  activeFocusIndex = signal(0);
+  activeFocusKey = signal<string | null>(null);
+  companionPosition = signal({ x: 0, y: 0 });
+  companionPositioned = signal(false);
+  companionFacing = signal<'left' | 'right'>('left');
+  companionTravelling = signal(false);
+  connectorPath = signal('');
+  connectorViewBox = signal('0 0 1 1');
+  connectorTarget = signal<{ x: number; y: number } | null>(null);
   showScript = signal(false);
   copied = signal(false);
   availableVoices = signal<SpeechSynthesisVoice[]>([]);
@@ -403,9 +489,40 @@ export class SlidePlayerComponent implements OnDestroy {
   private synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
   private utterance: SpeechSynthesisUtterance | null = null;
   private speakTimer: ReturnType<typeof setTimeout> | null = null;
+  private autoAdvanceTimer: ReturnType<typeof setTimeout> | null = null;
+  private travelTimer: ReturnType<typeof setTimeout> | null = null;
+  private companionFrame: number | null = null;
+  private connectorFrame: number | null = null;
+  private revealFrame: number | null = null;
+  private resizeObserver: ResizeObserver | null = null;
+  private narrationSession = 0;
+  private pendingStepIndex: number | null = null;
   private userInitiated = false;
+  private readonly companionTravelDuration = 500;
+  private readonly companionLeadInDuration = 520;
+  private readonly viewportScrollHandler = () => this.scheduleCompanionPosition();
 
   currentSlide = computed(() => this.slides()[this.idx()]);
+  focusSteps = computed(() => resolveSlideFocusSteps(this.currentSlide()));
+  currentFocusStep = computed<ResolvedSlideFocusStep | null>(() => {
+    const steps = this.focusSteps();
+    if (!steps.length) return null;
+    return steps[Math.min(this.activeFocusIndex(), steps.length - 1)];
+  });
+  currentNarrationText = computed(() => {
+    const steps = this.focusSteps();
+    return steps.length ? steps.map(step => step.narration).join(' ') : this.currentSlide().narration;
+  });
+  companionTransform = computed(() => {
+    const position = this.companionPosition();
+    return `translate3d(${position.x}px, ${position.y}px, 0)`;
+  });
+  companionStatusLabel = computed(() => {
+    const label = this.currentFocusStep()?.label || this.currentSlide().title;
+    if (this.narrationPaused()) return `Paused: ${label}`;
+    if (this.speaking()) return `Explaining: ${label}`;
+    return `Ready: ${label}`;
+  });
   mediaButtonLabel = computed(() => this.speaking() ? 'Pause narration' : this.narrationPaused() ? 'Resume narration' : 'Play narration');
   narrationStatusLabel = computed(() => this.speaking() ? 'Narrating' : this.narrationPaused() ? 'Paused' : 'Ready');
 
@@ -423,6 +540,18 @@ export class SlidePlayerComponent implements OnDestroy {
       if (savedVoice) this.selectedVoice.set(savedVoice);
       if (savedRate) this.rate.set(parseFloat(savedRate));
     }
+  }
+
+  ngAfterViewInit() {
+    this.prepareFocusForSlide();
+    const stage = this.slideStage()?.nativeElement;
+    const viewport = this.slideViewport()?.nativeElement;
+
+    if (stage && typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(() => this.scheduleCompanionPosition());
+      this.resizeObserver.observe(stage);
+    }
+    viewport?.addEventListener('scroll', this.viewportScrollHandler, { passive: true });
   }
 
   private loadVoices() {
@@ -443,29 +572,34 @@ export class SlidePlayerComponent implements OnDestroy {
     if (!this.selectedVoice() && english.length > 0) {
       this.selectedVoice.set(english[0].name);
     }
+    this.scheduleCompanionPosition();
   }
 
   @HostListener('window:keydown', ['$event'])
   onKey(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      window.location.href = this.backUrl();
+      return;
+    }
+    const target = e.target as HTMLElement | null;
+    if (target?.closest('button, a, input, select, textarea, [contenteditable="true"]')) return;
     if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); this.next(); }
     if (e.key === 'ArrowLeft') { e.preventDefault(); this.prev(); }
-    if (e.key === 'Escape') { window.location.href = this.backUrl(); }
     if (e.key === 'p' || e.key === 'P') { this.togglePlay(); }
     if (e.key === 's' || e.key === 'S') { this.stopAll(); }
   }
 
+  @HostListener('window:resize')
+  onResize() {
+    this.scheduleCompanionPosition();
+  }
+
   prev() {
-    if (this.idx() > 0) {
-      this.idx.update(i => i - 1);
-      if (this.shouldNarrateOnSlideChange()) this.speak();
-    }
+    this.goToSlide(this.idx() - 1);
   }
 
   jumpTo(i: number) {
-    if (i >= 0 && i < this.slides().length && i !== this.idx()) {
-      this.idx.set(i);
-      if (this.shouldNarrateOnSlideChange()) this.speak();
-    }
+    this.goToSlide(i);
   }
 
   async copyCode() {
@@ -481,26 +615,354 @@ export class SlidePlayerComponent implements OnDestroy {
   }
 
   next() {
-    if (this.idx() < this.slides().length - 1) {
-      this.idx.update(i => i + 1);
-      if (this.shouldNarrateOnSlideChange()) this.speak();
+    this.goToSlide(this.idx() + 1);
+  }
+
+  toggleGuide() {
+    this.guideEnabled.update(enabled => !enabled);
+    if (this.guideEnabled()) {
+      const step = this.currentFocusStep() ?? this.focusSteps()[0];
+      this.activeFocusKey.set(step?.target ?? 'title');
+      if (step) this.revealFocusTarget(step.target);
+      this.scheduleCompanionPosition();
+    } else {
+      if (this.revealFrame !== null) {
+        cancelAnimationFrame(this.revealFrame);
+        this.revealFrame = null;
+      }
+      this.companionPositioned.set(false);
+      this.connectorPath.set('');
+      this.connectorTarget.set(null);
     }
+  }
+
+  toggleScript() {
+    this.showScript.update(visible => !visible);
+    this.scheduleCompanionPosition();
+  }
+
+  isFocusActive(target: string) {
+    return this.guideEnabled() && this.activeFocusKey() === target;
+  }
+
+  scheduleCompanionPosition() {
+    if (typeof window === 'undefined') return;
+    if (this.companionFrame !== null) cancelAnimationFrame(this.companionFrame);
+    this.companionFrame = requestAnimationFrame(() => {
+      this.companionFrame = null;
+      if (!this.positionCompanion() && this.guideEnabled() && !this.audioPrompt()) {
+        this.companionFrame = requestAnimationFrame(() => {
+          this.companionFrame = null;
+          this.positionCompanion();
+        });
+      }
+    });
+  }
+
+  private goToSlide(index: number) {
+    if (index < 0 || index >= this.slides().length || index === this.idx()) return;
+
+    const continueNarrating = this.shouldNarrateOnSlideChange();
+    const wasPaused = this.narrationPaused();
+    this.cancelActiveUtterance();
+    this.idx.set(index);
+    const viewport = this.slideViewport()?.nativeElement;
+    if (viewport) viewport.scrollTop = 0;
+    this.speaking.set(false);
+    this.narrationPaused.set(false);
+    this.prepareFocusForSlide();
+
+    if (continueNarrating) {
+      this.speak();
+    } else if (wasPaused) {
+      this.pendingStepIndex = 0;
+      this.narrationPaused.set(true);
+    }
+  }
+
+  private prepareFocusForSlide() {
+    const firstStep = this.focusSteps()[0];
+    this.activeFocusIndex.set(0);
+    this.activeFocusKey.set(firstStep?.target ?? 'title');
+    this.scheduleCompanionPosition();
+  }
+
+  private activateFocusStep(index: number) {
+    const steps = this.focusSteps();
+    if (!steps.length) {
+      this.activeFocusIndex.set(0);
+      this.activeFocusKey.set('title');
+      this.scheduleCompanionPosition();
+      return;
+    }
+
+    const safeIndex = Math.min(Math.max(index, 0), steps.length - 1);
+    this.activeFocusIndex.set(safeIndex);
+    this.activeFocusKey.set(steps[safeIndex].target);
+    this.revealFocusTarget(steps[safeIndex].target);
+    this.scheduleCompanionPosition();
+  }
+
+  private revealFocusTarget(targetKey: string) {
+    if (typeof window === 'undefined' || !this.guideEnabled()) return;
+    if (this.revealFrame !== null) cancelAnimationFrame(this.revealFrame);
+    const session = this.narrationSession;
+    const slideIndex = this.idx();
+    this.revealFrame = requestAnimationFrame(() => {
+      this.revealFrame = null;
+      if (session !== this.narrationSession || slideIndex !== this.idx() || !this.guideEnabled()) return;
+      const stage = this.slideStage()?.nativeElement;
+      const viewport = this.slideViewport()?.nativeElement;
+      const target = stage?.querySelector<HTMLElement>(`[data-slide-focus="${targetKey}"]`);
+      if (!stage || !viewport || !target) return;
+
+      const viewportRect = viewport.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const safeTop = viewportRect.top + 20;
+      const safeBottom = viewportRect.bottom - 20;
+      if (targetRect.top < safeTop || targetRect.bottom > safeBottom) {
+        target.scrollIntoView({
+          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+          block: 'center',
+          inline: 'nearest',
+        });
+      }
+      this.scheduleCompanionPosition();
+    });
+  }
+
+  private positionCompanion() {
+    if (!this.guideEnabled() || this.audioPrompt()) return false;
+
+    const stage = this.slideStage()?.nativeElement;
+    const viewport = this.slideViewport()?.nativeElement;
+    const companion = this.slideCompanion()?.nativeElement;
+    if (!stage || !viewport || !companion) return false;
+
+    const focusElements = Array.from(stage.querySelectorAll<HTMLElement>('[data-slide-focus]'));
+    const requestedTarget = this.activeFocusKey();
+    const target = focusElements.find(element => element.dataset['slideFocus'] === requestedTarget)
+      ?? focusElements.find(element => element.dataset['slideFocus'] === 'title')
+      ?? focusElements[0];
+    if (!target) return false;
+
+    const stageRect = stage.getBoundingClientRect();
+    const viewportRect = viewport.getBoundingClientRect();
+    const companionRect = companion.getBoundingClientRect();
+    if (!stageRect.width || !stageRect.height || !companionRect.width || !companionRect.height) return false;
+
+    const targetRect = this.toRelativeRect(target.getBoundingClientRect(), stageRect);
+    const obstacles = focusElements.map(element => ({
+      element,
+      rect: this.toRelativeRect(element.getBoundingClientRect(), stageRect),
+    }));
+    const step = this.currentFocusStep();
+    const visibleBounds = this.getVisibleStageBounds(stageRect, viewportRect);
+    const placements = this.buildCompanionPlacements(
+      targetRect,
+      visibleBounds,
+      companionRect.width,
+      companionRect.height,
+      step?.anchor ?? 'auto',
+    );
+
+    const scored = placements.map((placement, priority) => {
+      const footprint = {
+        left: placement.x,
+        top: placement.y,
+        right: placement.x + companionRect.width,
+        bottom: placement.y + companionRect.height,
+        width: companionRect.width,
+        height: companionRect.height,
+      };
+      const overlapScore = obstacles.reduce((total, obstacle) => {
+        const padding = obstacle.element === target ? 12 : 7;
+        const expanded = this.expandRect(obstacle.rect, padding);
+        const weight = obstacle.element === target ? 12 : 4;
+        return total + this.overlapArea(footprint, expanded) * weight;
+      }, 0);
+      return { ...placement, score: overlapScore + priority * 180 };
+    });
+
+    const placement = scored.reduce((best, candidate) => candidate.score < best.score ? candidate : best);
+    const previous = this.companionPosition();
+    const travelled = this.companionPositioned()
+      && Math.hypot(previous.x - placement.x, previous.y - placement.y) > 6;
+
+    this.companionPosition.set({ x: placement.x, y: placement.y });
+    this.companionFacing.set(targetRect.left + targetRect.width / 2 < placement.x + companionRect.width / 2 ? 'left' : 'right');
+    this.companionPositioned.set(true);
+
+    if (travelled) {
+      this.companionTravelling.set(true);
+      if (this.travelTimer) clearTimeout(this.travelTimer);
+      this.travelTimer = setTimeout(() => this.companionTravelling.set(false), this.companionTravelDuration);
+    }
+
+    this.trackConnector(target);
+    return true;
+  }
+
+  private buildCompanionPlacements(
+    target: RelativeRect,
+    bounds: RelativeRect,
+    companionWidth: number,
+    companionHeight: number,
+    preferredAnchor: SlideCompanionAnchor,
+  ): CompanionPlacement[] {
+    const gap = 20;
+    const centerX = target.left + target.width / 2;
+    const centerY = target.top + target.height / 2;
+    const placements: Record<Exclude<ResolvedCompanionAnchor, 'dock'>, Omit<CompanionPlacement, 'score'>> = {
+      right: { x: target.right + gap, y: centerY - companionHeight / 2, anchor: 'right' },
+      left: { x: target.left - companionWidth - gap, y: centerY - companionHeight / 2, anchor: 'left' },
+      bottom: { x: centerX - companionWidth / 2, y: target.bottom + gap, anchor: 'bottom' },
+      top: { x: centerX - companionWidth / 2, y: target.top - companionHeight - gap, anchor: 'top' },
+    };
+    const boundsCenterX = bounds.left + bounds.width / 2;
+    const automaticOrder: Array<Exclude<ResolvedCompanionAnchor, 'dock'>> = centerX < boundsCenterX
+      ? ['right', 'left', 'bottom', 'top']
+      : ['left', 'right', 'bottom', 'top'];
+    const anchorOrder = preferredAnchor === 'auto'
+      ? automaticOrder
+      : [preferredAnchor, ...automaticOrder.filter(anchor => anchor !== preferredAnchor)];
+    const minimumX = bounds.left + 8;
+    const minimumY = bounds.top + 8;
+    const maximumX = Math.max(minimumX, bounds.right - companionWidth - 8);
+    const maximumY = Math.max(minimumY, bounds.bottom - companionHeight - 8);
+    const clampPlacement = (placement: Omit<CompanionPlacement, 'score'>): CompanionPlacement => ({
+      ...placement,
+      x: Math.min(Math.max(placement.x, minimumX), maximumX),
+      y: Math.min(Math.max(placement.y, minimumY), maximumY),
+      score: 0,
+    });
+    if (bounds.width <= 639) {
+      return [
+        { x: maximumX, y: minimumY, anchor: 'dock' as const },
+        { x: minimumX, y: minimumY, anchor: 'dock' as const },
+        { x: maximumX, y: maximumY, anchor: 'dock' as const },
+        { x: minimumX, y: maximumY, anchor: 'dock' as const },
+      ].map(clampPlacement);
+    }
+    const dockOnRight = centerX < boundsCenterX;
+    const docked: Array<Omit<CompanionPlacement, 'score'>> = [
+      { x: dockOnRight ? maximumX : minimumX, y: maximumY, anchor: 'dock' },
+      { x: dockOnRight ? maximumX : minimumX, y: minimumY, anchor: 'dock' },
+    ];
+
+    return [
+      ...anchorOrder.map(anchor => clampPlacement(placements[anchor])),
+      ...docked.map(clampPlacement),
+    ];
+  }
+
+  private getVisibleStageBounds(stage: DOMRect, viewport: DOMRect): RelativeRect {
+    const left = Math.max(stage.left, viewport.left) - stage.left;
+    const top = Math.max(stage.top, viewport.top) - stage.top;
+    const right = Math.min(stage.right, viewport.right) - stage.left;
+    const bottom = Math.min(stage.bottom, viewport.bottom) - stage.top;
+    return {
+      left,
+      top,
+      right,
+      bottom,
+      width: Math.max(0, right - left),
+      height: Math.max(0, bottom - top),
+    };
+  }
+
+  private toRelativeRect(rect: DOMRect, container: DOMRect): RelativeRect {
+    return {
+      left: rect.left - container.left,
+      top: rect.top - container.top,
+      right: rect.right - container.left,
+      bottom: rect.bottom - container.top,
+      width: rect.width,
+      height: rect.height,
+    };
+  }
+
+  private expandRect(rect: RelativeRect, padding: number): RelativeRect {
+    return {
+      left: rect.left - padding,
+      top: rect.top - padding,
+      right: rect.right + padding,
+      bottom: rect.bottom + padding,
+      width: rect.width + padding * 2,
+      height: rect.height + padding * 2,
+    };
+  }
+
+  private overlapArea(first: RelativeRect, second: RelativeRect) {
+    const width = Math.max(0, Math.min(first.right, second.right) - Math.max(first.left, second.left));
+    const height = Math.max(0, Math.min(first.bottom, second.bottom) - Math.max(first.top, second.top));
+    return width * height;
+  }
+
+  private trackConnector(target: HTMLElement) {
+    if (typeof window === 'undefined') return;
+    if (this.connectorFrame !== null) cancelAnimationFrame(this.connectorFrame);
+    const startedAt = performance.now();
+    const draw = (now: number) => {
+      this.drawConnector(target);
+      if (now - startedAt < this.companionTravelDuration + 20) {
+        this.connectorFrame = requestAnimationFrame(draw);
+      } else {
+        this.connectorFrame = null;
+      }
+    };
+    this.connectorFrame = requestAnimationFrame(draw);
+  }
+
+  private drawConnector(target: HTMLElement) {
+    const stage = this.slideStage()?.nativeElement;
+    const companion = this.slideCompanion()?.nativeElement;
+    if (!stage || !companion || !this.guideEnabled()) return;
+
+    const stageRect = stage.getBoundingClientRect();
+    const targetRect = this.toRelativeRect(target.getBoundingClientRect(), stageRect);
+    const companionRect = this.toRelativeRect(companion.getBoundingClientRect(), stageRect);
+    const facingLeft = this.companionFacing() === 'left';
+    const startX = facingLeft
+      ? companionRect.left + companionRect.width * 0.24
+      : companionRect.left + companionRect.width * 0.76;
+    const startY = companionRect.top + Math.min(66, companionRect.height * 0.42);
+    const endX = Math.min(Math.max(startX, targetRect.left), targetRect.right);
+    const endY = Math.min(Math.max(startY, targetRect.top), targetRect.bottom);
+    const horizontal = Math.abs(startX - endX) >= Math.abs(startY - endY);
+    const path = horizontal
+      ? `M ${startX} ${startY} C ${(startX + endX) / 2} ${startY}, ${(startX + endX) / 2} ${endY}, ${endX} ${endY}`
+      : `M ${startX} ${startY} C ${startX} ${(startY + endY) / 2}, ${endX} ${(startY + endY) / 2}, ${endX} ${endY}`;
+
+    this.connectorViewBox.set(`0 0 ${stageRect.width} ${stageRect.height}`);
+    this.connectorPath.set(path);
+    this.connectorTarget.set({ x: endX, y: endY });
   }
 
   togglePlay() {
     if (this.speaking()) {
+      if (this.speakTimer) {
+        clearTimeout(this.speakTimer);
+        this.speakTimer = null;
+      }
       this.synth?.pause();
       this.speaking.set(false);
       this.narrationPaused.set(true);
-    } else if (this.narrationPaused() || this.synth?.paused) {
+    } else if (this.narrationPaused()) {
       if (!this.synth) {
         this.showNarrationUnavailable();
         return;
       }
       this.narrationUnlocked.set(true);
+      this.userInitiated = true;
       this.synth.resume();
       this.speaking.set(true);
       this.narrationPaused.set(false);
+      if (this.pendingStepIndex !== null) {
+        this.queueFocusStep(this.narrationSession, this.pendingStepIndex, 0);
+      } else if (!this.utterance) {
+        this.speak(this.activeFocusIndex());
+      }
     } else if (!this.narrationUnlocked()) {
       this.requestNarrationStart();
     } else {
@@ -514,24 +976,29 @@ export class SlidePlayerComponent implements OnDestroy {
     this.cancelActiveUtterance();
     this.speaking.set(false);
     this.narrationPaused.set(false);
+    this.prepareFocusForSlide();
   }
 
   toggleAutoAdvance() {
     this.autoAdvance.update(v => !v);
+    if (!this.autoAdvance() && this.autoAdvanceTimer) {
+      clearTimeout(this.autoAdvanceTimer);
+      this.autoAdvanceTimer = null;
+    }
   }
 
   onVoiceChange(e: Event) {
     const name = (e.target as HTMLSelectElement).value;
     this.selectedVoice.set(name);
     if (typeof localStorage !== 'undefined') localStorage.setItem('slides.voice', name);
-    if (this.shouldNarrateOnSlideChange()) this.speak();
+    if (this.shouldNarrateOnSlideChange()) this.speak(this.activeFocusIndex());
   }
 
   onRateChange(e: Event) {
     const r = parseFloat((e.target as HTMLSelectElement).value);
     this.rate.set(r);
     if (typeof localStorage !== 'undefined') localStorage.setItem('slides.rate', String(r));
-    if (this.shouldNarrateOnSlideChange()) this.speak();
+    if (this.shouldNarrateOnSlideChange()) this.speak(this.activeFocusIndex());
   }
 
   startNarrationWithConsent() {
@@ -555,6 +1022,7 @@ export class SlidePlayerComponent implements OnDestroy {
     this.cancelActiveUtterance();
     this.speaking.set(false);
     this.narrationPaused.set(false);
+    this.prepareFocusForSlide();
   }
 
   private requestNarrationStart() {
@@ -581,20 +1049,31 @@ export class SlidePlayerComponent implements OnDestroy {
   }
 
   private cancelActiveUtterance() {
+    this.narrationSession += 1;
+    if (this.revealFrame !== null) {
+      cancelAnimationFrame(this.revealFrame);
+      this.revealFrame = null;
+    }
     if (this.speakTimer) {
       clearTimeout(this.speakTimer);
       this.speakTimer = null;
+    }
+    if (this.autoAdvanceTimer) {
+      clearTimeout(this.autoAdvanceTimer);
+      this.autoAdvanceTimer = null;
     }
     if (this.utterance) {
       this.utterance.onstart = null;
       this.utterance.onend = null;
       this.utterance.onerror = null;
     }
+    if (this.synth?.paused) this.synth.resume();
     this.synth?.cancel();
     this.utterance = null;
+    this.pendingStepIndex = null;
   }
 
-  private speak() {
+  private speak(startIndex = 0) {
     if (!this.narrationUnlocked()) {
       this.requestNarrationStart();
       return;
@@ -604,30 +1083,82 @@ export class SlidePlayerComponent implements OnDestroy {
       return;
     }
     this.cancelActiveUtterance();
-    const text = this.currentSlide().narration;
-    if (!text) {
+    const steps = this.focusSteps();
+    if (!steps.length) {
       this.speaking.set(false);
       this.narrationPaused.set(false);
       return;
     }
-    const u = new SpeechSynthesisUtterance(text);
+
+    const safeIndex = Math.min(Math.max(startIndex, 0), steps.length - 1);
+    const session = this.narrationSession;
+    this.speaking.set(true);
+    this.narrationPaused.set(false);
+    this.queueFocusStep(session, safeIndex, this.focusLeadInDelay());
+  }
+
+  private focusLeadInDelay() {
+    if (!this.guideEnabled() || typeof window === 'undefined') return 0;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : this.companionLeadInDuration;
+  }
+
+  private queueFocusStep(session: number, index: number, delay: number) {
+    if (session !== this.narrationSession) return;
+    this.activateFocusStep(index);
+    this.pendingStepIndex = index;
+    if (this.speakTimer) clearTimeout(this.speakTimer);
+
+    const start = () => {
+      this.speakTimer = null;
+      if (session !== this.narrationSession || this.narrationPaused()) return;
+      this.pendingStepIndex = null;
+      this.speakFocusStep(session, index);
+    };
+
+    if (delay <= 0) {
+      start();
+    } else {
+      this.speakTimer = setTimeout(start, delay);
+    }
+  }
+
+  private speakFocusStep(session: number, index: number) {
+    if (!this.synth || session !== this.narrationSession) return;
+    const step = this.focusSteps()[index];
+    if (!step) {
+      this.finishNarration(session);
+      return;
+    }
+
+    const u = new SpeechSynthesisUtterance(step.narration);
     u.rate = this.rate();
     u.pitch = 1.0;
     u.volume = 1.0;
     const voice = this.availableVoices().find(v => v.name === this.selectedVoice());
     if (voice) u.voice = voice;
     u.onstart = () => {
+      if (session !== this.narrationSession) return;
+      if (this.narrationPaused()) {
+        this.synth?.pause();
+        return;
+      }
       this.speaking.set(true);
       this.narrationPaused.set(false);
     };
     u.onend = () => {
-      this.speaking.set(false);
-      this.narrationPaused.set(false);
-      if (this.autoAdvance() && this.userInitiated && this.idx() < this.slides().length - 1) {
-        setTimeout(() => this.next(), 600);
+      if (session !== this.narrationSession || this.utterance !== u) return;
+      this.utterance = null;
+      const nextStep = index + 1;
+      if (nextStep < this.focusSteps().length) {
+        this.queueFocusStep(session, nextStep, this.focusLeadInDelay());
+      } else {
+        this.finishNarration(session);
       }
     };
     u.onerror = () => {
+      if (session !== this.narrationSession || this.utterance !== u) return;
+      this.utterance = null;
+      this.pendingStepIndex = null;
       this.speaking.set(false);
       this.narrationPaused.set(false);
       this.narrationUnlocked.set(false);
@@ -636,17 +1167,32 @@ export class SlidePlayerComponent implements OnDestroy {
       this.audioPrompt.set(true);
     };
     this.utterance = u;
-    this.speakTimer = setTimeout(() => {
-      this.speakTimer = null;
-      if (this.utterance === u && this.synth) {
-        this.speaking.set(true);
-        this.narrationPaused.set(false);
-        this.synth.speak(u);
-      }
-    }, 200);
+    this.synth.resume();
+    this.synth.speak(u);
+  }
+
+  private finishNarration(session: number) {
+    if (session !== this.narrationSession) return;
+    this.speaking.set(false);
+    this.narrationPaused.set(false);
+    this.pendingStepIndex = null;
+    if (this.autoAdvance() && this.userInitiated && this.idx() < this.slides().length - 1) {
+      this.autoAdvanceTimer = setTimeout(() => {
+        this.autoAdvanceTimer = null;
+        if (session === this.narrationSession && this.autoAdvance()) this.next();
+      }, 600);
+    }
   }
 
   ngOnDestroy() {
-    this.stopAll();
+    this.userInitiated = false;
+    this.cancelActiveUtterance();
+    this.resizeObserver?.disconnect();
+    this.slideViewport()?.nativeElement.removeEventListener('scroll', this.viewportScrollHandler);
+    if (this.companionFrame !== null) cancelAnimationFrame(this.companionFrame);
+    if (this.connectorFrame !== null) cancelAnimationFrame(this.connectorFrame);
+    if (this.revealFrame !== null) cancelAnimationFrame(this.revealFrame);
+    if (this.travelTimer) clearTimeout(this.travelTimer);
+    if (this.synth) this.synth.onvoiceschanged = null;
   }
 }

@@ -47,6 +47,13 @@ export class DrfApiLoggerSlidesComponent {
         { title: 'Understand usage', desc: 'Which endpoints get hammered? Which nobody touches?' },
       ],
       narration: "Why would you want this? Four big reasons. First, production debugging. Second, auditing and compliance. Third, finding your slow endpoints. And fourth, understanding how your API actually gets used.",
+      focusSteps: [
+        { target: 'title', label: 'Four reasons to log APIs', narration: 'Why would you want this? Four big reasons.', anchor: 'right' },
+        { target: 'item:0', label: 'Debug production', narration: 'First, production debugging.', anchor: 'right' },
+        { target: 'item:1', label: 'Audit everything', narration: 'Second, auditing and compliance.', anchor: 'right' },
+        { target: 'item:2', label: 'Find slow endpoints', narration: 'Third, finding your slow endpoints.', anchor: 'right' },
+        { target: 'item:3', label: 'Understand usage', narration: 'And fourth, understanding how your API actually gets used.', anchor: 'right' },
+      ],
     },
     // Slide 4
     {
@@ -77,6 +84,12 @@ export class DrfApiLoggerSlidesComponent {
         'Worker thread flushes to DB every 10s or 50 items',
       ],
       narration: "The flow is simple. A request comes in, the middleware grabs a snapshot. That snapshot goes into an in-memory queue. Then a background worker thread flushes the queue to the database.",
+      focusSteps: [
+        { target: 'body', label: 'Request lifecycle', narration: 'The flow is simple.', anchor: 'right' },
+        { target: 'bullet:0', label: 'Capture the request', narration: 'A request comes in, the middleware grabs a snapshot.', anchor: 'right' },
+        { target: 'bullet:1', label: 'Queue the snapshot', narration: 'That snapshot goes into an in-memory queue.', anchor: 'right' },
+        { target: 'bullet:2', label: 'Persist in the background', narration: 'Then a background worker thread flushes the queue to the database.', anchor: 'right' },
+      ],
     },
     // Slide 6
     {
