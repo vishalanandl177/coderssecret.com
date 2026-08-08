@@ -15,6 +15,56 @@ export interface BlogPost {
   popularRank?: number;
 }
 
+export function getRelatedBlogPosts(
+  currentPost: BlogPost,
+  allPosts: readonly BlogPost[],
+  limit = 4,
+): BlogPost[] {
+  const requestedCount = Math.max(0, Math.floor(limit));
+  if (requestedCount === 0) return [];
+
+  const currentIndex = allPosts.findIndex(post => post.slug === currentPost.slug);
+  const currentTags = new Set(currentPost.tags.map(tag => tag.toLowerCase()));
+  const candidates = allPosts
+    .map((post, index) => ({
+      post,
+      index,
+      sameCategory: post.category === currentPost.category,
+      sharedTags: post.tags.filter(tag => currentTags.has(tag.toLowerCase())).length,
+    }))
+    .filter(candidate =>
+      candidate.post.slug !== currentPost.slug &&
+      (candidate.sameCategory || candidate.sharedTags > 0)
+    );
+
+  const selected: BlogPost[] = [];
+  const selectedSlugs = new Set<string>();
+  const add = (candidate: typeof candidates[number] | undefined) => {
+    if (!candidate || selectedSlugs.has(candidate.post.slug) || selected.length >= requestedCount) return;
+    selected.push(candidate.post);
+    selectedSlugs.add(candidate.post.slug);
+  };
+
+  if (currentIndex >= 0) {
+    const sameCategory = candidates.filter(candidate => candidate.sameCategory);
+    add(sameCategory.filter(candidate => candidate.index < currentIndex).at(-1));
+    add(sameCategory.find(candidate => candidate.index > currentIndex));
+  }
+
+  candidates
+    .sort((left, right) => {
+      if (right.sharedTags !== left.sharedTags) return right.sharedTags - left.sharedTags;
+      if (right.sameCategory !== left.sameCategory) return Number(right.sameCategory) - Number(left.sameCategory);
+      const leftDistance = currentIndex >= 0 ? Math.abs(left.index - currentIndex) : Number.MAX_SAFE_INTEGER;
+      const rightDistance = currentIndex >= 0 ? Math.abs(right.index - currentIndex) : Number.MAX_SAFE_INTEGER;
+      if (leftDistance !== rightDistance) return leftDistance - rightDistance;
+      return left.post.slug.localeCompare(right.post.slug);
+    })
+    .forEach(add);
+
+  return selected;
+}
+
 /** Calculate read time from HTML content (~200 words per minute) */
 function calcReadTime(html: string): string {
   const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();

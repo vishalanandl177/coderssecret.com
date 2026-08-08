@@ -153,28 +153,35 @@ import { SeoService } from '../../../services/seo.service';
             <div class="md3-course-curriculum-list">
               @for (mod of c.modules; track mod.number) {
                 <article class="md3-course-module-disclosure">
-                  <button
-                    type="button"
-                    class="md3-course-disclosure-button"
-                    (click)="toggleModule(mod.number)"
-                    [attr.aria-expanded]="openModules().has(mod.number)"
-                    [attr.aria-controls]="'course-module-' + mod.number">
-                    <span class="md3-course-disclosure-title">
+                  <div class="md3-course-disclosure-header">
+                    <a
+                      [routerLink]="'/courses/' + c.slug + '/' + mod.slug"
+                      class="md3-course-disclosure-link"
+                      [attr.aria-label]="'Open Module ' + mod.number + ': ' + mod.title">
                       <span class="md3-course-module-number" aria-hidden="true">{{ mod.number }}</span>
                       <span class="md3-course-disclosure-copy">
                         <strong>{{ mod.title }}</strong>
                         <span>{{ mod.subtitle }}</span>
                       </span>
-                    </span>
+                    </a>
                     <span class="md3-course-disclosure-meta">
                       {{ mod.duration }} | {{ moduleLabLabel(mod, c) }}
                     </span>
-                    <svg class="md3-course-disclosure-icon" [class.open]="openModules().has(mod.number)"
-                         xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="m6 9 6 6 6-6"/>
-                    </svg>
-                  </button>
+                    <button
+                      type="button"
+                      class="md3-course-disclosure-toggle"
+                      (click)="toggleModule(mod.number)"
+                      [attr.aria-expanded]="openModules().has(mod.number)"
+                      [attr.aria-controls]="'course-module-' + mod.number"
+                      [attr.aria-label]="(openModules().has(mod.number) ? 'Hide' : 'Show') + ' details for Module ' + mod.number"
+                      [attr.title]="(openModules().has(mod.number) ? 'Hide' : 'Show') + ' module details'">
+                      <svg class="md3-course-disclosure-icon" [class.open]="openModules().has(mod.number)"
+                           xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                           stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="m6 9 6 6 6-6"/>
+                      </svg>
+                    </button>
+                  </div>
                   @if (openModules().has(mod.number)) {
                     <div [id]="'course-module-' + mod.number" class="md3-course-disclosure-body">
                       <div class="md3-course-module-grid">
@@ -214,6 +221,27 @@ import { SeoService } from '../../../services/seo.service';
             </div>
           </div>
         </section>
+
+        @if (c.seoPages.length > 0) {
+          <section class="md3-section">
+            <div class="md3-container">
+              <div class="md3-course-section-heading">
+                <p class="md3-course-eyebrow">Focused guides</p>
+                <h2>Start with the topic you need</h2>
+                <p>Use a focused guide to understand the production problem, then continue into the relevant module and the full course path.</p>
+              </div>
+              <div class="md3-course-related-grid">
+                @for (guide of c.seoPages; track guide.slug) {
+                  <a [routerLink]="'/courses/' + guide.slug" class="md3-course-related-card">
+                    <p class="md3-course-info-kicker">Course guide</p>
+                    <h3>{{ guide.title }}</h3>
+                    <p>{{ guide.description }}</p>
+                  </a>
+                }
+              </div>
+            </div>
+          </section>
+        }
 
         <section class="md3-section">
           <div class="md3-container">

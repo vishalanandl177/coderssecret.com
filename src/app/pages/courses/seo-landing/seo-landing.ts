@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { COURSES, Course, CourseSeoPage } from '../../../models/course.model';
+import { COURSES, Course, CourseModule, CourseSeoPage } from '../../../models/course.model';
 import { SeoService } from '../../../services/seo.service';
 
 @Component({
@@ -17,6 +17,8 @@ import { SeoService } from '../../../services/seo.service';
                 <li><a routerLink="/">Home</a></li>
                 <li aria-hidden="true">/</li>
                 <li><a routerLink="/courses">Courses</a></li>
+                <li aria-hidden="true">/</li>
+                <li><a [routerLink]="'/courses/' + courseSlug()">{{ courseTitle() }}</a></li>
                 <li aria-hidden="true">/</li>
                 <li aria-current="page">{{ p.title }}</li>
               </ol>
@@ -65,6 +67,40 @@ import { SeoService } from '../../../services/seo.service';
             </div>
           </div>
         </section>
+
+        <section class="md3-course-tonal-section md3-section">
+          <div class="md3-container">
+            <div class="md3-course-section-heading">
+              <p class="md3-course-eyebrow">Learning path</p>
+              <h2>Continue from concept to implementation</h2>
+              <p>These course modules place this topic in context, connect it to adjacent decisions, and provide the practical next step.</p>
+            </div>
+            <div class="md3-course-related-grid md3-course-guide-grid">
+              @for (mod of learningPath(); track mod.number) {
+                <a [routerLink]="'/courses/' + courseSlug() + '/' + mod.slug" class="md3-course-related-card">
+                  <p class="md3-course-info-kicker">Module {{ mod.number }}</p>
+                  <h3>{{ mod.title }}</h3>
+                  <p>{{ mod.subtitle }}</p>
+                  <p>{{ mod.duration }} | {{ mod.objectives.length }} learning objectives</p>
+                </a>
+              }
+            </div>
+
+            @if (targetModule(); as target) {
+              <div class="md3-course-guide-objectives">
+                <div class="md3-course-section-heading">
+                  <p class="md3-course-eyebrow">Practical outcomes</p>
+                  <h2>What the recommended module teaches</h2>
+                </div>
+                <ul class="md3-course-list">
+                  @for (objective of target.objectives; track objective) {
+                    <li><span class="md3-course-list-marker" aria-hidden="true">-</span><span>{{ objective }}</span></li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        </section>
       </main>
     }
   `,
@@ -79,10 +115,24 @@ export class SeoLandingComponent {
   courseSlug = computed(() => this.course()?.slug ?? 'mastering-spiffe-spire');
   courseModuleCount = computed(() => this.course()?.modules.length ?? 13);
   totalLabs = computed(() => this.course()?.modules.reduce((sum, m) => sum + m.labs.length, 0) ?? 30);
-  ctaModuleUrl = computed(() => {
+  targetModule = computed<CourseModule | undefined>(() => {
     const c = this.course();
     const p = this.page();
-    const target = c && p ? c.modules.find(m => m.number === p.ctaModule) : undefined;
+    return c && p ? c.modules.find(module => module.number === p.ctaModule) : undefined;
+  });
+  learningPath = computed<CourseModule[]>(() => {
+    const c = this.course();
+    const target = this.targetModule();
+    if (!c || !target) return [];
+
+    const targetIndex = c.modules.findIndex(module => module.number === target.number);
+    const visibleCount = Math.min(3, c.modules.length);
+    const startIndex = Math.max(0, Math.min(targetIndex - 1, c.modules.length - visibleCount));
+    return c.modules.slice(startIndex, startIndex + visibleCount);
+  });
+  ctaModuleUrl = computed(() => {
+    const c = this.course();
+    const target = this.targetModule();
     return c && target ? `/courses/${c.slug}/${target.slug}` : `/courses/${this.courseSlug()}`;
   });
 
@@ -118,6 +168,7 @@ export class SeoLandingComponent {
         breadcrumbs: [
           { name: 'Home', url: '/' },
           { name: 'Courses', url: '/courses' },
+          ...(foundCourse ? [{ name: foundCourse.title, url: `/courses/${foundCourse.slug}` }] : []),
           { name: found.title, url: `/courses/${found.slug}` },
         ],
       });

@@ -1,7 +1,7 @@
 import { Component, inject, DestroyRef, AfterViewChecked, OnDestroy, ElementRef, signal, HostListener, ChangeDetectorRef, PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BLOG_POSTS, CATEGORIES, BlogPost } from '../../models/blog-post.model';
+import { BLOG_POSTS, CATEGORIES, BlogPost, getRelatedBlogPosts } from '../../models/blog-post.model';
 import { SeoService } from '../../services/seo.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
@@ -544,9 +544,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
           const cat = CATEGORIES.find(c => c.slug === basePost.category);
           this.categoryName = cat?.name ?? '';
           this.categoryColor = this.getCategoryColor(basePost.category);
-          this.relatedPosts = BLOG_POSTS
-            .filter(p => p.id !== basePost.id && (p.category === basePost.category || p.tags.some(t => basePost.tags.includes(t))))
-            .slice(0, 2);
+          this.relatedPosts = getRelatedBlogPosts(basePost, BLOG_POSTS);
           let content = '';
           // Dynamically load content for this specific post
           try {

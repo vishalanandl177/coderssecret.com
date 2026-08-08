@@ -441,6 +441,47 @@ function validateGeneratedHtmlFiles() {
   }
 }
 
+function normalizeInternalHref(href) {
+  try {
+    const parsed = new URL(href, SITE_URL);
+    if (parsed.origin !== SITE_URL) return '';
+
+    const normalizedPath = parsed.pathname === '/'
+      ? ''
+      : parsed.pathname.replace(/\/+$/, '');
+    return `${SITE_URL}${normalizedPath}`;
+  } catch {
+    return '';
+  }
+}
+
+function validateSitemapInternalLinks(sitemapUrls) {
+  const sitemapSet = new Set(sitemapUrls);
+  const inboundSources = new Map(sitemapUrls.map(url => [url, new Set()]));
+
+  for (const sourceUrl of sitemapUrls) {
+    const { primary } = htmlFileForUrl(sourceUrl);
+    if (!fs.existsSync(primary)) continue;
+
+    const hrefs = extractAll(/<a\b[^>]*\shref=["']([^"']+)["'][^>]*>/gi, read(primary));
+    for (const href of hrefs) {
+      const targetUrl = normalizeInternalHref(href);
+      if (!targetUrl || targetUrl === sourceUrl || !sitemapSet.has(targetUrl)) continue;
+      inboundSources.get(targetUrl).add(sourceUrl);
+    }
+  }
+
+  for (const [url, sources] of inboundSources) {
+    if (sources.size === 0) {
+      fail(`internal links: sitemap URL has no crawlable link from another sitemap page (${url})`);
+    }
+
+    if (url.startsWith(`${SITE_URL}/blog/`) && sources.size < 3) {
+      fail(`internal links: blog article has fewer than three crawlable inbound page links (${url}, found ${sources.size})`);
+    }
+  }
+}
+
 function validateNoEmptyRouteDirectories() {
   function visit(dir) {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -476,6 +517,7 @@ if (!fs.existsSync(DIST_DIR)) {
   validateGeneratedHtmlFiles();
   validateNoEmptyRouteDirectories();
   sitemapUrls.forEach(validatePageForSitemapUrl);
+  validateSitemapInternalLinks(sitemapUrls);
 }
 
 if (warnings.length > 0) {
@@ -489,4 +531,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log('Generated SEO validation passed: sitemap, robots, canonicals, extensionless route files, metadata, JSON-LD, and internal links are consistent.');
+console.log('Generated SEO validation passed: sitemap, robots, canonicals, extensionless route files, metadata, JSON-LD, and crawlable internal links are consistent.');

@@ -41,7 +41,9 @@ const modelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'blog-post.
 const modelContent = fs.readFileSync(modelPath, 'utf-8');
 
 // Load post metadata through TypeScript so dates, authors, and tags stay intact.
-const posts = loadBlogPostsFromModel(modelContent);
+const blogModel = loadBlogModel(modelContent);
+const posts = blogModel.posts;
+const getRelatedBlogPosts = blogModel.getRelatedBlogPosts;
 const categories = new Set(posts.map(post => post.category).filter(Boolean));
 
 // Category display names
@@ -601,7 +603,7 @@ function escapeHtml(str) {
   return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function loadBlogPostsFromModel(blogContent) {
+function loadBlogModel(blogContent) {
   try {
     const ts = require('typescript');
     const js = ts.transpileModule(blogContent, {
@@ -612,10 +614,15 @@ function loadBlogPostsFromModel(blogContent) {
     }).outputText;
     const mod = { exports: {} };
     new Function('exports', 'require', 'module', js)(mod.exports, require, mod);
-    return Array.isArray(mod.exports.BLOG_POSTS) ? mod.exports.BLOG_POSTS : [];
+    return {
+      posts: Array.isArray(mod.exports.BLOG_POSTS) ? mod.exports.BLOG_POSTS : [],
+      getRelatedBlogPosts: typeof mod.exports.getRelatedBlogPosts === 'function'
+        ? mod.exports.getRelatedBlogPosts
+        : () => [],
+    };
   } catch (err) {
     console.warn(`Could not load blog model for rich blog prerender: ${err.message}`);
-    return [];
+    return { posts: [], getRelatedBlogPosts: () => [] };
   }
 }
 
@@ -1310,6 +1317,9 @@ function renderCourseLandingContent(course) {
   const faq = course.faqs && course.faqs.length > 0
     ? `<section><h2>Frequently Asked Questions</h2>${course.faqs.map(item => `<h3>${escapeHtml(item.question)}</h3><p>${escapeHtml(item.answer)}</p>`).join('\n')}</section>`
     : '';
+  const focusedGuides = course.seoPages && course.seoPages.length > 0
+    ? `<section><h2>Focused Course Guides</h2><p>Start with the production topic you need, then continue into the relevant module and full curriculum.</p><ul>${course.seoPages.map(page => `<li><a href="/courses/${page.slug}">${escapeHtml(page.title)}</a><p>${escapeHtml(page.description)}</p></li>`).join('\n')}</ul></section>`
+    : '';
 
   return `<main>
     <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/courses">Courses</a> / ${escapeHtml(course.title)}</nav>
@@ -1329,6 +1339,7 @@ function renderCourseLandingContent(course) {
       <h2>Course Topics</h2>
       <p>${course.tags.map(escapeHtml).join(', ')}</p>
     </section>
+    ${focusedGuides}
     <section>
       <h2>Instructor</h2>
       <h3>${escapeHtml(course.instructor.name)}</h3>
@@ -1534,8 +1545,12 @@ function courseModuleSlidesJsonLd(course, mod) {
 function renderSeoLandingContent(course, page) {
   const target = course.modules.find(mod => mod.number === page.ctaModule);
   const ctaHref = target ? `/courses/${course.slug}/${target.slug}` : `/courses/${course.slug}`;
+  const targetIndex = target ? course.modules.findIndex(mod => mod.number === target.number) : 0;
+  const visibleCount = Math.min(3, course.modules.length);
+  const startIndex = Math.max(0, Math.min(targetIndex - 1, course.modules.length - visibleCount));
+  const learningPath = course.modules.slice(startIndex, startIndex + visibleCount);
   return `<main>
-    <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/courses">Courses</a> / ${escapeHtml(page.title)}</nav>
+    <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/courses">Courses</a> / <a href="/courses/${course.slug}">${escapeHtml(course.title)}</a> / ${escapeHtml(page.title)}</nav>
     <article>${page.content}</article>
     <section>
       <h2>How to Use This Topic</h2>
@@ -1551,6 +1566,12 @@ function renderSeoLandingContent(course, page) {
       <p>Continue with ${escapeHtml(course.title)}: ${course.modules.length} modules, ${labCountLabelFor(course)}, completely free.</p>
       <p><a href="${ctaHref}">Start Module ${page.ctaModule}</a> | <a href="/courses/${course.slug}">View full curriculum</a></p>
     </section>
+    <section>
+      <h2>Continue from Concept to Implementation</h2>
+      <p>These course modules place this topic in context, connect it to adjacent decisions, and provide the practical next step.</p>
+      <ol>${learningPath.map(mod => `<li><a href="/courses/${course.slug}/${mod.slug}">Module ${mod.number}: ${escapeHtml(mod.title)}</a><p>${escapeHtml(mod.subtitle)} ${escapeHtml(mod.duration)}.</p></li>`).join('\n')}</ol>
+    </section>
+    ${target ? `<section><h2>What the Recommended Module Teaches</h2>${renderList(target.objectives)}</section>` : ''}
   </main>`;
 }
 
@@ -1839,10 +1860,7 @@ for (const post of posts) {
   const dir = path.join(OUTPUT_DIR, 'blog', post.slug);
   fs.mkdirSync(dir, { recursive: true });
 
-  // Find related posts by category/tags
-  const related = posts
-    .filter(p => p.slug !== post.slug && (p.category === post.category || (p.tags || []).some(tag => (post.tags || []).includes(tag))))
-    .slice(0, 3);
+  const related = getRelatedBlogPosts(post, posts, 4);
   const tags = post.tags || [];
   const articleHtml = loadBlogPostContent(post.slug);
   const articleBody = articleHtml

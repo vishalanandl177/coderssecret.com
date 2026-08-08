@@ -2906,6 +2906,10 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .md3-course-guide-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .md3-course-hub-card,
   .md3-course-path-card,
   .md3-course-outcome-card,
@@ -3032,6 +3036,11 @@
     margin: 0;
     color: var(--md-sys-color-on-surface-variant);
     line-height: 1.65;
+  }
+
+  .md3-course-guide-objectives {
+    max-width: 52rem;
+    margin-top: clamp(2rem, 4vw, 3rem);
   }
 
   .md3-course-metrics,
@@ -3163,7 +3172,7 @@
     background: var(--md-sys-color-surface-container-low);
   }
 
-  .md3-course-disclosure-button,
+  .md3-course-disclosure-header,
   .md3-course-faq-button {
     display: flex;
     width: 100%;
@@ -3171,24 +3180,58 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    border: 0;
     background: transparent;
     color: inherit;
-    padding: 1rem;
     text-align: left;
-    cursor: pointer;
   }
 
-  .md3-course-disclosure-button:hover,
   .md3-course-faq-button:hover {
     background: color-mix(in srgb, var(--md-sys-color-primary-container) 35%, transparent);
   }
 
-  .md3-course-disclosure-title {
+  .md3-course-faq-button {
+    border: 0;
+    padding: 1rem;
+    cursor: pointer;
+  }
+
+  .md3-course-disclosure-link {
     display: flex;
+    flex: 1 1 auto;
     min-width: 0;
     align-items: center;
     gap: 0.9rem;
+    align-self: stretch;
+    color: inherit;
+    padding: 1rem 0 1rem 1rem;
+    text-decoration: none;
+  }
+
+  .md3-course-disclosure-link:hover strong,
+  .md3-course-disclosure-link:focus-visible strong {
+    color: var(--md-sys-color-primary);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .md3-course-disclosure-toggle {
+    display: inline-grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex: 0 0 2.75rem;
+    place-items: center;
+    margin-right: 0.65rem;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--md-sys-color-primary);
+    cursor: pointer;
+  }
+
+  .md3-course-disclosure-toggle:hover,
+  .md3-course-disclosure-toggle:focus-visible {
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
   }
 
   .md3-course-disclosure-copy {
@@ -3483,13 +3526,19 @@
       line-height: 1.02;
     }
 
-    .md3-course-disclosure-button {
-      align-items: flex-start;
-      flex-direction: column;
+    .md3-course-disclosure-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
     }
 
     .md3-course-disclosure-meta {
-      margin-left: 3.65rem;
+      grid-column: 1;
+      margin: -0.75rem 1rem 1rem 4.65rem;
+    }
+
+    .md3-course-disclosure-toggle {
+      grid-column: 2;
+      grid-row: 1 / span 2;
     }
 
     .md3-course-nav-row {
