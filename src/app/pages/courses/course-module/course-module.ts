@@ -1,8 +1,9 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, DestroyRef, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { COURSES, CourseModule, Course } from '../../../models/course.model';
+import type { CourseModule, Course } from '../../../models/course.model';
+import { loadCourseBySlug } from '../../../models/course-loader';
 import { SeoService } from '../../../services/seo.service';
 
 @Component({
@@ -287,11 +288,85 @@ import { SeoService } from '../../../services/seo.service';
                           </div>
                           <h3>{{ lab.title }}</h3>
                           <p>{{ lab.objective }}</p>
+                          @if (lab.safety; as safety) {
+                            <aside class="md3-course-callout tertiary" aria-label="Lab safety contract">
+                              <p class="md3-course-info-kicker">Required safety contract</p>
+                              <h4>{{ safety.classification }} evidence &middot; network: {{ safety.networkPolicy }}</h4>
+                              <p><strong>Isolation</strong></p>
+                              <ul class="md3-course-list">
+                                @for (item of safety.requiredIsolation; track item) {
+                                  <li><span class="md3-course-list-marker" aria-hidden="true">-</span><span>{{ item }}</span></li>
+                                }
+                              </ul>
+                              <p><strong>Allowed behavior</strong></p>
+                              <ul class="md3-course-list">
+                                @for (item of safety.allowedBehaviors; track item) {
+                                  <li><span class="md3-course-list-marker" aria-hidden="true">+</span><span>{{ item }}</span></li>
+                                }
+                              </ul>
+                              @if (safety.artifactHashes && safety.artifactHashes.length > 0) {
+                                <p><strong>Verified course artifact hashes</strong></p>
+                                <ul class="md3-course-list">
+                                  @for (hash of safety.artifactHashes; track hash) {
+                                    <li><span class="md3-course-list-marker" aria-hidden="true">#</span><code>{{ hash }}</code></li>
+                                  }
+                                </ul>
+                              }
+                              <p><strong>Stop immediately when</strong></p>
+                              <ul class="md3-course-list">
+                                @for (item of safety.stopConditions; track item) {
+                                  <li><span class="md3-course-list-marker" aria-hidden="true">!</span><span>{{ item }}</span></li>
+                                }
+                              </ul>
+                              <p><strong>Never do in this lab</strong></p>
+                              <ul class="md3-course-list">
+                                @for (item of safety.prohibitedActions; track item) {
+                                  <li><span class="md3-course-list-marker" aria-hidden="true">!</span><span>{{ item }}</span></li>
+                                }
+                              </ul>
+                            </aside>
+                          }
                           <ol class="md3-course-list">
                             @for (step of lab.steps; track step) {
                               <li><span class="md3-course-list-marker" aria-hidden="true">-</span><span>{{ step }}</span></li>
                             }
                           </ol>
+                          @if (lab.expectedOutput) {
+                            <div class="md3-course-callout secondary">
+                              <p class="md3-course-info-kicker">Expected evidence</p>
+                              <p>{{ lab.expectedOutput }}</p>
+                            </div>
+                          }
+                          @if (lab.assessmentCriteria && lab.assessmentCriteria.length > 0) {
+                            <div class="md3-course-callout">
+                              <p class="md3-course-info-kicker">Assessment criteria</p>
+                              <ul class="md3-course-list">
+                                @for (criterion of lab.assessmentCriteria; track criterion) {
+                                  <li><span class="md3-course-list-marker" aria-hidden="true">+</span><span>{{ criterion }}</span></li>
+                                }
+                              </ul>
+                            </div>
+                          }
+                          @if (lab.resources && lab.resources.length > 0) {
+                            <div class="md3-course-callout secondary">
+                              <p class="md3-course-info-kicker">Course-owned resources</p>
+                              <ul class="md3-course-list">
+                                @for (resource of lab.resources; track resource.url) {
+                                  <li><span class="md3-course-list-marker" aria-hidden="true">-</span><a [href]="resource.url">{{ resource.label }}</a></li>
+                                }
+                              </ul>
+                            </div>
+                          }
+                          @if (lab.safety; as safety) {
+                            <div class="md3-course-callout">
+                              <p class="md3-course-info-kicker">Teardown</p>
+                              <ol class="md3-course-list">
+                                @for (step of safety.teardownSteps; track step) {
+                                  <li><span class="md3-course-list-marker" aria-hidden="true">-</span><span>{{ step }}</span></li>
+                                }
+                              </ol>
+                            </div>
+                          }
                           @if (lab.repoPath && labDelivery() !== 'inline') {
                             <a [href]="'https://github.com/vishalanandl177/' + courseSlug() + '/tree/main/' + lab.repoPath"
                                target="_blank"
@@ -378,6 +453,8 @@ import { SeoService } from '../../../services/seo.service';
 })
 export class CourseModuleComponent {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
   private seo = inject(SeoService);
   private sanitizer = inject(DomSanitizer);
 
@@ -416,11 +493,14 @@ export class CourseModuleComponent {
   });
 
   constructor() {
-    const router = inject(Router);
     const urlSegments = this.route.snapshot.pathFromRoot.flatMap(r => r.url.map(s => s.path));
     const courseSlugFromUrl = urlSegments[1] || '';
-    const course = COURSES.find(c => c.slug === courseSlugFromUrl);
-    if (!course) { router.navigate(['/courses']); return; }
+    void this.loadCourse(courseSlugFromUrl);
+  }
+
+  private async loadCourse(courseSlugFromUrl: string): Promise<void> {
+    const course = await loadCourseBySlug(courseSlugFromUrl);
+    if (!course) { this.router.navigate(['/courses']); return; }
     this.courseData.set(course);
     this.courseSlug.set(course.slug);
     this.courseTitle.set(course.title);
@@ -428,7 +508,7 @@ export class CourseModuleComponent {
     this.totalModules.set(course.modules.length);
     this.allModules.set(course.modules);
 
-    this.route.paramMap.pipe(takeUntilDestroyed()).subscribe(params => {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const moduleSlug = params.get('moduleSlug') ?? '';
       const c = this.courseData();
       if (!c) return;
@@ -482,7 +562,7 @@ export class CourseModuleComponent {
         });
         if (typeof window !== 'undefined') window.scrollTo(0, 0);
       } else {
-        router.navigate(['/courses/' + c.slug]);
+        this.router.navigate(['/courses/' + c.slug]);
       }
     });
   }
@@ -491,7 +571,33 @@ export class CourseModuleComponent {
     if (course.slug === 'mastering-spiffe-spire') {
       return `Module ${module.number}: ${this.getSpiffeModuleShortTitle(module)} | SPIFFE`;
     }
+    if (course.slug === 'malware-analysis-defense') {
+      return `Module ${module.number}: ${this.getMalwareModuleShortTitle(module)} | Malware Defense`;
+    }
     return `Module ${module.number}: ${module.title} | ${course.title}`;
+  }
+
+  private getMalwareModuleShortTitle(module: CourseModule): string {
+    const titles: Record<number, string> = {
+      1: 'Safety and Lab Containment',
+      2: 'Malware Concepts and Taxonomy',
+      3: 'Evidence and Provenance',
+      4: 'Static Artifact Triage',
+      5: 'Assembly for Analysts',
+      6: 'Ghidra Analysis Workflow',
+      7: 'Packages and Managed Code',
+      8: 'Endpoint Behavior Evidence',
+      9: 'Offline Network Evidence',
+      10: 'Sanitized Memory Evidence',
+      11: 'ATT&CK and D3FEND Mapping',
+      12: 'YARA Detection Engineering',
+      13: 'Sigma Analytics',
+      14: 'Containment and Recovery',
+      15: 'Analysis Reporting',
+      16: 'Malware-Resistant Software',
+      17: 'Defensive Capstone',
+    };
+    return titles[module.number] ?? module.title;
   }
 
   private getSpiffeModuleShortTitle(module: CourseModule): string {
@@ -517,8 +623,17 @@ export class CourseModuleComponent {
     const unit = course.labDelivery === 'inline' ? 'exercise' : 'lab';
     const labLabel = module.labs.length === 1 ? unit : `${unit}s`;
     const practiceType = course.labDelivery === 'inline' ? 'inline' : 'hands-on';
-    const courseName = course.slug === 'mastering-spiffe-spire' ? 'SPIFFE/SPIRE' : course.title;
-    return `Module ${module.number} of the free ${courseName} course: ${module.subtitle}. ${module.labs.length} ${practiceType} ${labLabel}.`;
+    const courseName = course.slug === 'mastering-spiffe-spire'
+      ? 'SPIFFE/SPIRE'
+      : course.slug === 'malware-analysis-defense'
+        ? 'malware defense'
+        : course.title;
+    const subtitle = module.subtitle.replace(/[.!?]+$/, '');
+    const description = `Module ${module.number} of the free ${courseName} course: ${subtitle}. ${module.labs.length} ${practiceType} ${labLabel}.`;
+    if (description.length <= 158) return description;
+    const clipped = description.slice(0, 155);
+    const lastSpace = clipped.lastIndexOf(' ');
+    return `${clipped.slice(0, lastSpace > 100 ? lastSpace : clipped.length).trim()}...`;
   }
 
   private getCourseImage(course: Course): string {
@@ -528,6 +643,7 @@ export class CourseModuleComponent {
       'production-rag-systems-engineering': 'https://coderssecret.com/images/banners/course-production-rag-systems-engineering.svg',
       'distributed-systems-engineering': 'https://coderssecret.com/og-image.svg',
       'production-analytics-engineering-dbt': 'https://coderssecret.com/images/banners/course-production-analytics-engineering-dbt.svg',
+      'malware-analysis-defense': 'https://coderssecret.com/images/banners/course-malware-analysis-defense.svg',
     };
     return imageByCourse[course.slug] ?? 'https://coderssecret.com/og-image.svg';
   }

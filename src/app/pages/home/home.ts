@@ -274,7 +274,7 @@ type HeroTrack = {
               </svg>
             </span>
             <span class="md3-home-flow-card-title">Learn the system</span>
-            <span class="md3-home-flow-card-copy">Use structured courses for SPIFFE, Kubernetes security, production RAG, distributed systems, and dbt analytics engineering.</span>
+            <span class="md3-home-flow-card-copy">Use structured courses for malware defense, SPIFFE, Kubernetes security, production RAG, distributed systems, and dbt analytics engineering.</span>
             <span class="md3-home-flow-card-action">
               Open course hub
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -429,7 +429,7 @@ type HeroTrack = {
             Production Courses for <span class="bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">Security</span>, <span class="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">AI</span> &amp; <span class="bg-gradient-to-r from-blue-500 to-emerald-500 bg-clip-text text-transparent">Data Engineering</span>
           </h2>
           <p class="text-base md:text-lg text-muted-foreground leading-relaxed">
-            Five complete, free curriculums covering 73 modules and 145+ labs or inline exercises. Each course is built around production thinking: annotated configs, practical diagrams, guided labs, and the diagnostic workflow engineers use when systems fail.
+            Seven complete, free curriculums covering 98 modules and 170 labs or inline exercises. Each course is built around production thinking: annotated configs, practical diagrams, guided labs, and the diagnostic workflow engineers use when systems fail.
           </p>
         </div>
 
@@ -1391,7 +1391,7 @@ export class HomeComponent implements OnInit {
       color: 'var(--md-sys-color-primary)',
       nodes: ['Scenario', 'Signal', 'Decision', 'Debrief'],
       metrics: [
-        { label: 'lab drills', value: '145+' },
+        { label: 'lab drills', value: '170' },
         { label: 'skill areas', value: '7' },
         { label: 'quick refs', value: '20+' },
         { label: 'routes', value: '1' },
@@ -1414,9 +1414,9 @@ export class HomeComponent implements OnInit {
     this.totalPosts.set(BLOG_POSTS.length);
     this.uniqueTags.set(new Set(BLOG_POSTS.flatMap(p => p.tags)).size);
     // Course stats: hardcoded to avoid importing the large course model for 2 numbers.
-    // Update when adding/removing courses: 5 courses, 73 modules, 145+ labs/exercises.
-    this.totalCourseModules.set(73);
-    this.totalLabs.set(145);
+    // Update when adding/removing courses: 7 courses, 98 modules, 170 labs/exercises.
+    this.totalCourseModules.set(98);
+    this.totalLabs.set(170);
     this.avgReadTime.set(Math.round(
       BLOG_POSTS.reduce((sum, p) => { const m = p.readTime.match(/(\d+)/); return sum + (m ? parseInt(m[1], 10) : 0); }, 0) / Math.max(BLOG_POSTS.length, 1)
     ));

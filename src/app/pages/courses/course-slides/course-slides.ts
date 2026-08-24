@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { COURSES } from '../../../models/course.model';
+import { loadCourseBySlug } from '../../../models/course-loader';
 import { SlidePlayerComponent, SlideData } from '../../../components/slide-player/slide-player';
 import { SeoService } from '../../../services/seo.service';
 
@@ -21,19 +21,22 @@ export class CourseSlidesComponent {
   deckTitle = signal('');
   backUrl = signal('/courses');
   private seo = inject(SeoService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   constructor() {
-    const route = inject(ActivatedRoute);
-    const router = inject(Router);
-    const moduleSlug = route.snapshot.paramMap.get('moduleSlug') ?? '';
-    const urlSegments = route.snapshot.pathFromRoot.flatMap(r => r.url.map(s => s.path));
+    const moduleSlug = this.route.snapshot.paramMap.get('moduleSlug') ?? '';
+    const urlSegments = this.route.snapshot.pathFromRoot.flatMap(r => r.url.map(s => s.path));
     const courseSlugFromUrl = urlSegments[1] || '';
-    const course = COURSES.find(c => c.slug === courseSlugFromUrl);
+    void this.loadCourse(courseSlugFromUrl, moduleSlug);
+  }
 
-    if (!course) { router.navigate(['/courses']); return; }
+  private async loadCourse(courseSlugFromUrl: string, moduleSlug: string): Promise<void> {
+    const course = await loadCourseBySlug(courseSlugFromUrl);
+    if (!course) { this.router.navigate(['/courses']); return; }
 
     const mod = course.modules.find(m => m.slug === moduleSlug);
-    if (!mod) { router.navigate(['/courses/' + course.slug]); return; }
+    if (!mod) { this.router.navigate(['/courses/' + course.slug]); return; }
 
     const usesInlineLabs = course.labDelivery === 'inline';
     const labTitle = usesInlineLabs ? 'Inline Exercises' : 'Hands-On Labs';
@@ -203,6 +206,21 @@ export class CourseSlidesComponent {
 
     // Labs slide
     if (mod.labs.length > 0) {
+      const safety = mod.labs.find(lab => lab.safety)?.safety;
+      if (safety) {
+        generatedSlides.push({
+          type: 'content',
+          eyebrow: 'Required Safety',
+          title: 'Read Before the Exercise',
+          bullets: [
+            ...safety.requiredIsolation,
+            ...(safety.artifactHashes?.map(hash => `Verify artifact SHA-256: ${hash}`) ?? []),
+            ...safety.stopConditions,
+            ...safety.prohibitedActions,
+          ],
+          narration: `This exercise has a mandatory safety contract. Required isolation: ${safety.requiredIsolation.join('. ')}.${safety.artifactHashes?.length ? ` Verify artifact SHA-256 values: ${safety.artifactHashes.join('. ')}.` : ''} Stop conditions: ${safety.stopConditions.join('. ')}. Prohibited actions: ${safety.prohibitedActions.join('. ')}.`,
+        });
+      }
       generatedSlides.push({
         type: 'grid',
         eyebrow: 'Hands-On',
@@ -241,7 +259,7 @@ export class CourseSlidesComponent {
         : 'Congratulations! You have completed the entire course.',
       narration: mod.number < course.modules.length
         ? `You have completed Module ${mod.number}. Great work! Next up is Module ${mod.number + 1}: ${course.modules[mod.number]?.title}.`
-        : `Congratulations! You have completed the entire course. You are now equipped with production-grade cloud-native security skills.`,
+        : `Congratulations! You have completed the entire course. You can now apply its production engineering methods, explain the tradeoffs, and continue practicing the defensive workflow.`,
     });
 
     this.slides.set(generatedSlides);

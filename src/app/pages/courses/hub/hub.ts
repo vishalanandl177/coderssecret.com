@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { COURSES, Course } from '../../../models/course.model';
+import { COURSE_CATALOG, CourseCatalogEntry } from '../../../models/course-catalog';
 import { SeoService } from '../../../services/seo.service';
 
 @Component({
@@ -24,7 +24,8 @@ import { SeoService } from '../../../services/seo.service';
               <h1>Learn production engineering through practical courses</h1>
               <p class="md3-course-hero-text">
                 Structured, hands-on courses for engineers building secure cloud-native systems,
-                distributed platforms, centralized authentication, production AI, and trusted analytics.
+                analyzing malware defensively, operating distributed platforms, centralizing authentication,
+                and building production AI and trusted analytics.
               </p>
 
               <div class="md3-course-actions" aria-label="Course actions">
@@ -108,7 +109,7 @@ import { SeoService } from '../../../services/seo.service';
                 </div>
 
                 <div class="md3-course-metrics" aria-label="Course facts">
-                  <span><strong>{{ course.modules.length }}</strong> modules</span>
+                  <span><strong>{{ course.moduleCount }}</strong> modules</span>
                   <span><strong>{{ labs }}</strong> {{ course.labDelivery === 'inline' ? 'exercises' : 'labs' }}</span>
                   <span>{{ course.level }}</span>
                 </div>
@@ -171,6 +172,12 @@ import { SeoService } from '../../../services/seo.service';
               <p>Turn raw warehouse tables into tested dbt models, governed metrics, and trusted dashboards.</p>
               <a routerLink="/courses/production-analytics-engineering-dbt">Open data path</a>
             </article>
+            <article class="md3-course-path-card">
+              <span class="md3-course-path-number">06</span>
+              <h3>Malware analysis and defense</h3>
+              <p>Study inert evidence, build tested detections, contain incidents, and harden software delivery without using live malware.</p>
+              <a routerLink="/courses/malware-analysis-defense">Open malware defense path</a>
+            </article>
           </div>
         </div>
       </section>
@@ -196,31 +203,28 @@ import { SeoService } from '../../../services/seo.service';
   `,
 })
 export class CoursesHubComponent {
-  courses = COURSES;
+  courses = COURSE_CATALOG;
   private seo = inject(SeoService);
-  private readonly coursesDescription = 'Free hands-on courses in cloud native security, centralized authentication, distributed systems, SPIFFE/SPIRE, Kubernetes, Zero Trust, production RAG, and analytics engineering. No signup.';
+  private readonly coursesDescription = 'Free practical courses in malware defense, cloud native security, centralized authentication, distributed systems, SPIFFE/SPIRE, production RAG, and analytics engineering. No signup.';
 
   totalModules = computed(() =>
-    this.courses.reduce((sum, c) => sum + c.modules.length, 0)
+    this.courses.reduce((sum, course) => sum + course.moduleCount, 0)
   );
 
   totalLabs = computed(() =>
-    this.courses.reduce(
-      (sum, c) => sum + c.modules.reduce((s, m) => s + m.labs.length, 0),
-      0
-    )
+    this.courses.reduce((sum, course) => sum + course.labCount, 0)
   );
 
-  totalLabsFor(course: Course): number {
-    return course.modules.reduce((sum, m) => sum + m.labs.length, 0);
+  totalLabsFor(course: CourseCatalogEntry): number {
+    return course.labCount;
   }
 
-  labCountLabel(course: Course): string {
+  labCountLabel(course: CourseCatalogEntry): string {
     const count = this.totalLabsFor(course);
     return course.labDelivery === 'inline' ? `${count} inline exercises` : `${count} labs`;
   }
 
-  courseIconLabel(course: Course): string {
+  courseIconLabel(course: CourseCatalogEntry): string {
     const labels: Record<string, string> = {
       'mastering-spiffe-spire': 'ID',
       'cloud-native-security-engineering': 'K8S',
@@ -228,6 +232,7 @@ export class CoursesHubComponent {
       'distributed-systems-engineering': 'SYS',
       'production-analytics-engineering-dbt': 'SQL',
       'centralized-authentication-authorization-envoy': 'SSO',
+      'malware-analysis-defense': 'MAL',
     };
     return labels[course.slug] ?? 'CS';
   }

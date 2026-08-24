@@ -868,7 +868,28 @@ function loadCoursesFromModel() {
     }
 
     const mod = executeTsModule(courseModelPath);
-    return Array.isArray(mod.COURSES) ? mod.COURSES : [];
+    const courses = Array.isArray(mod.COURSES) ? [...mod.COURSES] : [];
+    const malwareCoursePath = path.join(
+      __dirname,
+      '..',
+      'src',
+      'app',
+      'models',
+      'courses',
+      'malware-analysis-defense.course.ts'
+    );
+
+    if (fs.existsSync(malwareCoursePath)) {
+      const malwareModule = executeTsModule(malwareCoursePath);
+      const malwareCourse = malwareModule.MALWARE_ANALYSIS_DEFENSE_COURSE;
+      const isPublished = malwareCourse &&
+        (malwareCourse.status === undefined || malwareCourse.status === 'published');
+      if (isPublished && !courses.some(course => course.slug === malwareCourse.slug)) {
+        courses.push(malwareCourse);
+      }
+    }
+
+    return courses;
   } catch (err) {
     console.warn(`Could not load course model for sitemap: ${err.message}`);
     return [];

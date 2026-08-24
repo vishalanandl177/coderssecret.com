@@ -1,7 +1,8 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { COURSES, Course, CourseModule, CourseSeoPage } from '../../../models/course.model';
+import type { Course, CourseModule, CourseSeoPage } from '../../../models/course.model';
+import { loadCourseBySeoSlug } from '../../../models/course-loader';
 import { SeoService } from '../../../services/seo.service';
 
 @Component({
@@ -110,6 +111,8 @@ export class SeoLandingComponent {
   course = signal<Course | undefined>(undefined);
   private seo = inject(SeoService);
   private sanitizer = inject(DomSanitizer);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   courseTitle = computed(() => this.course()?.title ?? 'Mastering SPIFFE & SPIRE');
   courseSlug = computed(() => this.course()?.slug ?? 'mastering-spiffe-spire');
@@ -144,27 +147,24 @@ export class SeoLandingComponent {
   });
 
   constructor() {
-    const route = inject(ActivatedRoute);
-    const router = inject(Router);
-    const slug = route.snapshot.paramMap.get('seoSlug') ?? '';
+    const slug = this.route.snapshot.paramMap.get('seoSlug') ?? '';
+    void this.loadPage(slug);
+  }
 
-    let found: CourseSeoPage | undefined;
-    let foundCourse: Course | undefined;
-    for (const course of COURSES) {
-      found = course.seoPages.find(p => p.slug === slug);
-      if (found) {
-        foundCourse = course;
-        break;
-      }
-    }
-
-    if (found) {
+  private async loadPage(slug: string): Promise<void> {
+    const result = await loadCourseBySeoSlug(slug);
+    if (result) {
+      const { page: found, course: foundCourse } = result;
+      const malwareBanner = foundCourse.slug === 'malware-analysis-defense'
+        ? 'https://coderssecret.com/images/banners/course-malware-analysis-defense.svg'
+        : undefined;
       this.page.set(found);
       this.course.set(foundCourse);
       this.seo.update({
         title: found.title,
         description: found.description,
         url: `/courses/${found.slug}`,
+        ...(malwareBanner ? { image: malwareBanner, imageWidth: 1200, imageHeight: 480 } : {}),
         breadcrumbs: [
           { name: 'Home', url: '/' },
           { name: 'Courses', url: '/courses' },
@@ -173,7 +173,7 @@ export class SeoLandingComponent {
         ],
       });
     } else {
-      router.navigate(['/not-found']);
+      this.router.navigate(['/not-found']);
     }
   }
 }

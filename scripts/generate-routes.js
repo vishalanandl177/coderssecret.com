@@ -105,6 +105,7 @@ function makeHtml(options) {
   const fullTitle = normalizeTitleSeparators(explicitFullTitle || buildFullTitle(title));
   const canonical = absoluteUrl(normalizedUrl);
   const ogImage = image ? `${SITE_URL}${image}` : `${SITE_URL}/og-image.svg`;
+  const ogDimensions = knownImageDimensions[image] ?? { width: 1200, height: 630 };
   const safeTitle = escapeHtml(fullTitle);
   const safeDescription = escapeHtml(clampText(description, 160));
   const renderedRoute = renderRouteSource({ url: normalizedUrl, fallbackContent: content });
@@ -142,8 +143,8 @@ function makeHtml(options) {
     `  <meta property="og:url" content="${canonical}">\n` +
     `  <meta property="og:type" content="${escapeHtml(ogType)}">\n` +
     `  <meta property="og:image" content="${ogImage}">\n` +
-    `  <meta property="og:image:width" content="1200">\n` +
-    `  <meta property="og:image:height" content="630">\n` +
+    `  <meta property="og:image:width" content="${ogDimensions.width}">\n` +
+    `  <meta property="og:image:height" content="${ogDimensions.height}">\n` +
     `  <meta name="twitter:card" content="summary_large_image">\n` +
     `  <meta name="twitter:title" content="${safeTitle}">\n` +
     `  <meta name="twitter:description" content="${safeDescription}">\n` +
@@ -680,7 +681,28 @@ function loadCoursesFromModel(courseContent, sourcePath = path.join(__dirname, '
     }
 
     const mod = executeTsModule(sourcePath, courseContent);
-    return Array.isArray(mod.COURSES) ? mod.COURSES : [];
+    const courses = Array.isArray(mod.COURSES) ? [...mod.COURSES] : [];
+    const malwareCoursePath = path.join(
+      __dirname,
+      '..',
+      'src',
+      'app',
+      'models',
+      'courses',
+      'malware-analysis-defense.course.ts'
+    );
+
+    if (fs.existsSync(malwareCoursePath)) {
+      const malwareModule = executeTsModule(malwareCoursePath);
+      const malwareCourse = malwareModule.MALWARE_ANALYSIS_DEFENSE_COURSE;
+      const isPublished = malwareCourse &&
+        (malwareCourse.status === undefined || malwareCourse.status === 'published');
+      if (isPublished && !courses.some(course => course.slug === malwareCourse.slug)) {
+        courses.push(malwareCourse);
+      }
+    }
+
+    return courses;
   } catch (err) {
     console.warn(`Could not load course model for rich course hub prerender: ${err.message}`);
     return [];
@@ -1085,6 +1107,7 @@ function addHtmlAttribute(tag, name, value) {
 const knownImageDimensions = {
   '/images/blog/claude-token-cost-stack.svg': { width: 1200, height: 630 },
   '/images/blog/mcp-security-gateway-architecture.svg': { width: 1200, height: 630 },
+  '/images/banners/course-malware-analysis-defense.svg': { width: 1200, height: 480 },
   '/images/drf-api-logger/01-admin-dashboard.png': { width: 2880, height: 1800 },
   '/images/drf-api-logger/02-api-logs-list.png': { width: 2880, height: 4478 },
   '/images/drf-api-logger/03-api-log-detail-slow-sql.png': { width: 2880, height: 3180 },
@@ -1122,6 +1145,7 @@ function courseShortName(course) {
     'distributed-systems-engineering': 'Distributed Sys',
     'production-analytics-engineering-dbt': 'Analytics dbt',
     'centralized-authentication-authorization-envoy': 'Envoy Auth',
+    'malware-analysis-defense': 'Malware Defense',
   }[course.slug] || compactSeoTitle(course.title, 24);
 }
 
@@ -1133,6 +1157,7 @@ function courseSeoCourseTitle(course) {
     'distributed-systems-engineering': 'Distributed Systems Engineering Course',
     'production-analytics-engineering-dbt': 'Analytics Engineering with dbt Course',
     'centralized-authentication-authorization-envoy': 'Envoy Authentication and Authorization Course',
+    'malware-analysis-defense': 'Malware Analysis and Defense Course',
   }[course.slug] || compactSeoTitle(`${course.title} Free Course`, 52);
 }
 
@@ -1145,12 +1170,43 @@ function courseSeoDescription(course) {
   if (course.slug === 'mastering-spiffe-spire') {
     return `Free ${course.modules.length}-module SPIFFE/SPIRE course: deploy SPIRE on Kubernetes, issue SVIDs, configure mTLS, enforce OPA, federate clusters, and run ${labCount} labs.`;
   }
+  if (course.slug === 'malware-analysis-defense') {
+    return 'Free defense-first malware analysis course for developers covering safe triage, YARA, Sigma, incident response, and secure software design.';
+  }
   return clampText(`${course.excerpt} ${course.modules.length} modules, ${labCountLabelFor(course)}, free.`);
 }
 
 function moduleSeoTitle(course, mod) {
-  const title = course.slug === 'mastering-spiffe-spire' ? spiffeModuleShortTitle(mod) : mod.title;
-  return `M${mod.number}: ${compactSeoTitle(title, 42)} | ${courseShortName(course)}`;
+  const title = course.slug === 'mastering-spiffe-spire'
+    ? spiffeModuleShortTitle(mod)
+    : course.slug === 'malware-analysis-defense'
+      ? malwareModuleShortTitle(mod)
+      : mod.title;
+  const suffix = course.slug === 'malware-analysis-defense' ? 'Malware' : courseShortName(course);
+  return `M${mod.number}: ${compactSeoTitle(title, 42)} | ${suffix}`;
+}
+
+function malwareModuleShortTitle(mod) {
+  const titles = {
+    1: 'Safety and Lab Containment',
+    2: 'Malware Concepts and Taxonomy',
+    3: 'Evidence and Provenance',
+    4: 'Static Artifact Triage',
+    5: 'Assembly for Analysts',
+    6: 'Ghidra Analysis Workflow',
+    7: 'Packages and Managed Code',
+    8: 'Endpoint Behavior Evidence',
+    9: 'Offline Network Evidence',
+    10: 'Sanitized Memory Evidence',
+    11: 'ATT&CK and D3FEND Mapping',
+    12: 'YARA Detection Engineering',
+    13: 'Sigma Analytics',
+    14: 'Containment and Recovery',
+    15: 'Analysis Reporting',
+    16: 'Malware-Resistant Software',
+    17: 'Defensive Capstone',
+  };
+  return titles[mod.number] || mod.title;
 }
 
 function spiffeModuleShortTitle(mod) {
@@ -1175,10 +1231,11 @@ function spiffeModuleShortTitle(mod) {
 function moduleSeoDescription(course, mod) {
   const labLabel = mod.labs.length === 1 ? 'lab' : 'labs';
   const objectives = (mod.objectives || []).slice(0, 2).join('; ');
+  const subtitle = String(mod.subtitle || '').replace(/[.!?]+$/, '');
   const practice = mod.labs.length > 0
     ? `${mod.labs.length} hands-on ${labLabel}`
     : 'guided production practice';
-  return clampText(`Free ${courseShortName(course)} module ${mod.number}: ${mod.subtitle}. ${objectives ? `Learn ${objectives}. ` : ''}Includes ${practice}.`, 165);
+  return clampText(`Free ${courseShortName(course)} module ${mod.number}: ${subtitle}. ${objectives ? `Learn ${objectives}. ` : ''}Includes ${practice}.`, 155);
 }
 
 function courseBreadcrumbJsonLd(course, extraCrumbs = []) {
@@ -1236,7 +1293,6 @@ function courseJsonLd(course) {
     },
     'educationalLevel': course.level,
     'teaches': course.tags,
-    'numberOfCredits': course.modules.length,
     'isAccessibleForFree': true,
     'inLanguage': 'en',
     'hasPart': course.modules.map(mod => ({
@@ -1308,6 +1364,21 @@ function renderOptionalList(title, items) {
     : '';
 }
 
+function renderLabSafety(lab) {
+  if (!lab.safety) return '';
+  const safety = lab.safety;
+  return `<section aria-label="Lab safety contract">
+    <h4>Required Safety Contract</h4>
+    <p>${escapeHtml(safety.classification)} evidence. Network policy: ${escapeHtml(safety.networkPolicy)}.</p>
+    <h5>Required isolation</h5>${renderList(safety.requiredIsolation)}
+    <h5>Allowed behavior</h5>${renderList(safety.allowedBehaviors)}
+    ${safety.artifactHashes && safety.artifactHashes.length > 0 ? `<h5>Verified course artifact hashes</h5>${renderList(safety.artifactHashes)}` : ''}
+    <h5>Prohibited actions</h5>${renderList(safety.prohibitedActions)}
+    <h5>Stop conditions</h5>${renderList(safety.stopConditions)}
+    <h5>Teardown</h5>${renderList(safety.teardownSteps)}
+  </section>`;
+}
+
 function renderCourseLandingContent(course) {
   const curriculum = course.modules.map(mod => `<li>
     <a href="/courses/${course.slug}/${mod.slug}">Module ${mod.number}: ${escapeHtml(mod.title)}</a>
@@ -1320,11 +1391,22 @@ function renderCourseLandingContent(course) {
   const focusedGuides = course.seoPages && course.seoPages.length > 0
     ? `<section><h2>Focused Course Guides</h2><p>Start with the production topic you need, then continue into the relevant module and full curriculum.</p><ul>${course.seoPages.map(page => `<li><a href="/courses/${page.slug}">${escapeHtml(page.title)}</a><p>${escapeHtml(page.description)}</p></li>`).join('\n')}</ul></section>`
     : '';
+  const safety = course.safetyNotice
+    ? `<section><h2>Defense-First Safety Boundary</h2><p>${escapeHtml(course.safetyNotice)}</p></section>`
+    : '';
+  const frameworks = course.frameworkVersions && course.frameworkVersions.length > 0
+    ? `<section><h2>Version-Pinned References</h2><ul>${course.frameworkVersions.map(item => `<li><a href="${escapeHtml(item.url)}">${escapeHtml(item.name)} ${escapeHtml(item.version)}</a> - reviewed ${escapeHtml(item.reviewedAt)}</li>`).join('')}</ul></section>`
+    : '';
+  const assessments = course.assessments && course.assessments.length > 0
+    ? `<section><h2>How Defensive Work Is Evaluated</h2><p>Evaluation rewards evidence quality, reproducibility, false-positive discipline, recovery decisions, and safety.</p>${course.assessments.map(item => `<h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.type)}${item.passingScore != null ? ` - passing score ${escapeHtml(String(item.passingScore))}` : ''}${item.weight ? ` - ${escapeHtml(String(item.weight))}% course weight` : ''}${item.safetyCritical ? ' - safety-critical' : ''}</p><ul>${item.rubric.map(rubric => `<li>${escapeHtml(rubric.criterion)} (${escapeHtml(String(rubric.weight))}%): ${escapeHtml(rubric.evidence)}</li>`).join('')}</ul>`).join('')}</section>`
+    : '';
 
   return `<main>
     <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/courses">Courses</a> / ${escapeHtml(course.title)}</nav>
     <h1>${escapeHtml(course.title)}</h1>
     <p>${escapeHtml(courseSeoDescription(course))}</p>
+    ${safety}
+    ${frameworks}
     <section>
       <h2>What You Will Learn</h2>
       <p>${escapeHtml(course.description)}</p>
@@ -1340,6 +1422,7 @@ function renderCourseLandingContent(course) {
       <p>${course.tags.map(escapeHtml).join(', ')}</p>
     </section>
     ${focusedGuides}
+    ${assessments}
     <section>
       <h2>Instructor</h2>
       <h3>${escapeHtml(course.instructor.name)}</h3>
@@ -1360,7 +1443,11 @@ function renderLabs(course, mod) {
       <h3>${escapeHtml(lab.title)}</h3>
       <p>${escapeHtml(lab.objective)}</p>
       <p>${[lab.duration, lab.difficulty].filter(Boolean).map(escapeHtml).join(' - ')}</p>
+      ${renderLabSafety(lab)}
       ${renderList(lab.steps)}
+      ${lab.expectedOutput ? `<p><strong>Expected evidence:</strong> ${escapeHtml(lab.expectedOutput)}</p>` : ''}
+      ${lab.assessmentCriteria && lab.assessmentCriteria.length > 0 ? `<h4>Assessment criteria</h4>${renderList(lab.assessmentCriteria)}` : ''}
+      ${lab.resources && lab.resources.length > 0 ? `<h4>Course-owned resources</h4><ul>${lab.resources.map(resource => `<li><a href="${escapeHtml(resource.url)}">${escapeHtml(resource.label)}</a></li>`).join('')}</ul>` : ''}
       ${lab.repoPath && course.labDelivery !== 'inline' ? `<p><a href="https://github.com/vishalanandl177/${course.slug}/tree/main/${escapeHtml(lab.repoPath)}">View lab files on GitHub</a></p>` : '<p>Inline lab: complete the exercise directly in the course page.</p>'}
     </li>`).join('\n')}</ol>
   </section>`;
@@ -1461,11 +1548,16 @@ function moduleSlidesSeoTitle(course, mod) {
 }
 
 function moduleSlidesSeoDescription(course, mod) {
-  return clampText(`Slide walkthrough for Module ${mod.number} of ${course.title}: ${mod.subtitle}. Covers objectives, production notes, labs, and key takeaways.`, 155);
+  const subtitle = String(mod.subtitle || '').replace(/[.!?]+$/, '');
+  return clampText(`Slide walkthrough for Module ${mod.number} of ${course.title}: ${subtitle}. Covers objectives, production notes, labs, and key takeaways.`, 155);
 }
 
 function renderModuleSlidesContent(course, mod) {
   const outline = courseModuleSlideOutline(course, mod);
+  const safety = (mod.labs || []).find(lab => lab.safety)?.safety;
+  const safetyContent = safety
+    ? `<section><h2>Required Exercise Safety</h2><p>${escapeHtml(safety.classification)} evidence. Network policy: ${escapeHtml(safety.networkPolicy)}.</p>${renderList([...safety.requiredIsolation, ...safety.stopConditions, ...safety.prohibitedActions])}${safety.artifactHashes && safety.artifactHashes.length > 0 ? `<h3>Verified Course Artifact Hashes</h3>${renderList(safety.artifactHashes)}` : ''}</section>`
+    : '';
 
   return `<main>
     <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/courses">Courses</a> / <a href="/courses/${course.slug}">${escapeHtml(course.title)}</a> / <a href="/courses/${course.slug}/${mod.slug}">Module ${mod.number}</a> / Slides</nav>
@@ -1481,6 +1573,7 @@ function renderModuleSlidesContent(course, mod) {
         <h2>Learning Objectives</h2>
         ${renderList(mod.objectives)}
       </section>
+      ${safetyContent}
       ${mod.whyThisMatters ? `<section><h2>Why This Module Matters</h2><p>${escapeHtml(mod.whyThisMatters)}</p></section>` : ''}
       ${renderOptionalList('Production Notes', mod.productionNotes)}
       ${renderOptionalList('Common Mistakes', mod.commonMistakes)}
@@ -1617,7 +1710,7 @@ const homeContent = `
     <p>${HOME_DESCRIPTION}</p>
     <section>
       <h2>Free Production Engineering Courses</h2>
-      <p>Learn workload identity, Kubernetes security, centralized authentication, Zero Trust, DevSecOps, API security, production RAG, distributed systems, and analytics engineering through practical modules, labs, diagrams, and engineering guides.</p>
+      <p>Learn malware defense, workload identity, Kubernetes security, centralized authentication, Zero Trust, production RAG, distributed systems, and analytics engineering through practical modules, labs, diagrams, and engineering guides.</p>
       <ul>
         <li><a href="/courses/mastering-spiffe-spire">Master SPIFFE and SPIRE for Workload Identity</a> - deploy SPIRE, issue SVIDs, federate trust domains, and replace long-lived secrets.</li>
         <li><a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> - secure Kubernetes, containers, service mesh, policy-as-code, runtime detection, and CI/CD pipelines.</li>
@@ -1625,6 +1718,7 @@ const homeContent = `
         <li><a href="/courses/centralized-authentication-authorization-envoy">Centralized Authentication and Authorization with Envoy</a> - design Google-style one-login access for Kubernetes products with plain Envoy, SSO, JWT/JWKS, service tokens, and federated credentials.</li>
         <li><a href="/courses/distributed-systems-engineering">Distributed Systems Engineering</a> - learn CAP, consensus, replication, scalability, reliability, Zero Trust, observability, and Kubernetes-native architecture.</li>
         <li><a href="/courses/production-analytics-engineering-dbt">Production Analytics Engineering with dbt</a> - learn transformations, marts, tests, metrics, semantic layers, lineage, and data quality workflows.</li>
+        <li><a href="/courses/malware-analysis-defense">Malware Analysis and Defense for Developers</a> - analyze inert evidence, build tested detections, support incident recovery, and harden software delivery without live malware.</li>
       </ul>
     </section>
     <section>
@@ -2675,7 +2769,7 @@ if (courseContent) {
   const courses = loadCoursesFromModel(courseContent);
   generatedCourseModelSlugs = new Set(courses.map(course => course.slug));
   const coursesHubTitle = 'Free Production Engineering Courses';
-  const coursesHubDescription = 'Free hands-on courses in cloud native security, centralized authentication, distributed systems, SPIFFE/SPIRE, Kubernetes, Zero Trust, production RAG, and analytics engineering. No signup.';
+  const coursesHubDescription = 'Free practical courses in malware defense, cloud native security, centralized authentication, distributed systems, SPIFFE/SPIRE, production RAG, and analytics engineering. No signup.';
 
   // Course hub page
   const coursesHubDir = path.join(OUTPUT_DIR, 'courses');
@@ -2702,6 +2796,7 @@ if (courseContent) {
         <li><a href="/courses/distributed-systems-engineering">Distributed Systems Engineering</a> → <a href="/courses/production-rag-systems-engineering">Production RAG Systems Engineering</a> → <a href="/games/ai-infrastructure-security">AI Infrastructure Security Game</a></li>
         <li><a href="/courses/production-analytics-engineering-dbt">Production Analytics Engineering</a> → <a href="/blog/are-dags-dying-declarative-data-pipelines">Declarative Data Pipelines</a> → <a href="/blog/delta-lake-iceberg-s3-tables-beginner-guide">Lakehouse Table Formats</a></li>
         <li><a href="/courses/centralized-authentication-authorization-envoy">Centralized Authentication with Envoy</a> - pair cloud-native security with SSO, JWT/JWKS, service tokens, federated credentials, and API gateway policy.</li>
+        <li><a href="/courses/malware-analysis-defense">Malware Analysis and Defense</a> → <a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> → <a href="/games/incident-response-simulator">Incident Response Simulator</a></li>
       </ol>
       <h2>Practice Beyond the Courses</h2>
       <ul>

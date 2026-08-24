@@ -27,13 +27,25 @@ jobs:
 
       - run: npm ci
 
+      - run: npm test -- --watch=false
+
+      - run: npm run check:vulnerabilities
+
+      - run: npm run check:course-assets
+
       - run: node scripts/generate-banners.js
 
-      - run: npx ng build --configuration production
+      - run: npm run check:build
 
       - run: node scripts/generate-sitemap.js
 
       - run: node scripts/generate-routes.js
+
+      - run: npm run check:generated-seo
+
+      - run: npm run check:seo
+
+      - run: npm run check:ai-punctuation
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

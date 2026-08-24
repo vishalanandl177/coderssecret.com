@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { COURSES, Course, CourseModule } from '../../../models/course.model';
+import type { Course, CourseModule } from '../../../models/course.model';
+import { loadCourseBySlug } from '../../../models/course-loader';
 import { SeoService } from '../../../services/seo.service';
 
 @Component({
@@ -76,11 +77,40 @@ import { SeoService } from '../../../services/seo.service';
           </div>
         </section>
 
+        @if (c.safetyNotice) {
+          <section class="md3-section" aria-labelledby="course-safety-heading">
+            <div class="md3-container">
+              <aside class="md3-course-callout tertiary">
+                <p class="md3-course-info-kicker">Safety boundary</p>
+                <h2 id="course-safety-heading">Defense-first practice only</h2>
+                <p>{{ c.safetyNotice }}</p>
+              </aside>
+
+              @if (c.frameworkVersions && c.frameworkVersions.length > 0) {
+                <div class="md3-course-info-card">
+                  <h3>Version-pinned references</h3>
+                  <ul class="md3-course-list">
+                    @for (framework of c.frameworkVersions; track framework.name) {
+                      <li>
+                        <span class="md3-course-list-marker" aria-hidden="true">-</span>
+                        <span>
+                          <a [href]="framework.url" target="_blank" rel="noopener noreferrer">{{ framework.name }} {{ framework.version }}</a>
+                          &middot; reviewed {{ framework.reviewedAt }}
+                        </span>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+            </div>
+          </section>
+        }
+
         <section class="md3-section">
           <div class="md3-container">
             <div class="md3-course-section-heading centered">
               <p class="md3-course-eyebrow">Outcomes</p>
-              <h2>What you will be able to build and explain</h2>
+              <h2>What you will be able to do and explain</h2>
               <p>Each outcome is tied to architecture, operational judgement, or a concrete deployment habit you can reuse at work.</p>
             </div>
 
@@ -261,6 +291,36 @@ import { SeoService } from '../../../services/seo.service';
           </div>
         </section>
 
+        @if (c.assessments && c.assessments.length > 0) {
+          <section class="md3-section">
+            <div class="md3-container">
+              <div class="md3-course-section-heading">
+                <p class="md3-course-eyebrow">Assessment</p>
+                <h2>How defensive work is evaluated</h2>
+                <p>Evaluation rewards evidence quality, reproducibility, false-positive discipline, recovery decisions, and safety. It does not reward offensive capability or speed.</p>
+              </div>
+              <div class="md3-course-related-grid">
+                @for (assessment of c.assessments; track assessment.id) {
+                  <article class="md3-course-info-card">
+                    <p class="md3-course-info-kicker">{{ assessment.type }}</p>
+                    <h3>{{ assessment.title }}</h3>
+                    <p>
+                      Passing score: {{ assessment.passingScore ?? 'Not scored' }}
+                      @if (assessment.weight) { &middot; Course weight: {{ assessment.weight }}% }
+                      @if (assessment.safetyCritical) { &middot; Safety-critical }
+                    </p>
+                    <ul class="md3-course-list">
+                      @for (item of assessment.rubric; track item.criterion) {
+                        <li><span class="md3-course-list-marker" aria-hidden="true">-</span><span>{{ item.criterion }} ({{ item.weight }}%)</span></li>
+                      }
+                    </ul>
+                  </article>
+                }
+              </div>
+            </div>
+          </section>
+        }
+
         @if (c.faqs && c.faqs.length > 0) {
           <section class="md3-course-tonal-section md3-section">
             <div class="md3-container">
@@ -324,7 +384,11 @@ export class CourseLandingComponent {
 
   constructor() {
     const urlSlug = this.route.snapshot.url.map(s => s.path).pop() || '';
-    const c = COURSES.find(c => c.slug === urlSlug);
+    void this.loadCourse(urlSlug);
+  }
+
+  private async loadCourse(urlSlug: string): Promise<void> {
+    const c = await loadCourseBySlug(urlSlug);
     if (c) {
       const totalLabs = this.totalLabsFor(c);
       this.course.set(c);
@@ -370,7 +434,6 @@ export class CourseLandingComponent {
             },
             'educationalLevel': c.level,
             'about': c.tags,
-            'numberOfCredits': c.modules.length,
             'inLanguage': 'en',
             'isAccessibleForFree': true,
           },
@@ -444,6 +507,7 @@ export class CourseLandingComponent {
       'production-rag-systems-engineering': 'reliable AI retrieval systems',
       'distributed-systems-engineering': 'resilient distributed platforms',
       'production-analytics-engineering-dbt': 'trusted analytics with dbt',
+      'malware-analysis-defense': 'malware analysis, detection, and secure recovery',
     };
     return focusByCourse[course.slug] ?? course.category;
   }
@@ -455,6 +519,7 @@ export class CourseLandingComponent {
       'production-rag-systems-engineering': 'RAG',
       'distributed-systems-engineering': 'SYS',
       'production-analytics-engineering-dbt': 'SQL',
+      'malware-analysis-defense': 'MAL',
     };
     return labels[course.slug] ?? 'CS';
   }
@@ -463,12 +528,18 @@ export class CourseLandingComponent {
     if (course.slug === 'mastering-spiffe-spire') {
       return 'Mastering SPIFFE & SPIRE | Zero Trust Course';
     }
+    if (course.slug === 'malware-analysis-defense') {
+      return 'Malware Analysis and Defense | Free Course';
+    }
     return `${course.title} | Free Course`;
   }
 
   private getSeoDescription(course: Course, totalLabs: number): string {
     if (course.slug === 'mastering-spiffe-spire') {
       return `Free ${course.modules.length}-module SPIFFE/SPIRE course: deploy SPIRE on Kubernetes, issue SVIDs, configure mTLS, enforce OPA, federate clusters, and run ${totalLabs} labs.`;
+    }
+    if (course.slug === 'malware-analysis-defense') {
+      return `Free defense-first malware analysis course for developers: safe triage, evidence, YARA, Sigma, incident response, and secure software design.`;
     }
     const labLabel = course.labDelivery === 'inline' ? `${totalLabs} inline exercises` : `${totalLabs} hands-on labs`;
     return `${course.excerpt} ${course.modules.length} modules, ${labLabel}, free.`;
@@ -481,6 +552,7 @@ export class CourseLandingComponent {
       'production-rag-systems-engineering': 'https://coderssecret.com/images/banners/course-production-rag-systems-engineering.svg',
       'distributed-systems-engineering': 'https://coderssecret.com/og-image.svg',
       'production-analytics-engineering-dbt': 'https://coderssecret.com/images/banners/course-production-analytics-engineering-dbt.svg',
+      'malware-analysis-defense': 'https://coderssecret.com/images/banners/course-malware-analysis-defense.svg',
     };
     return imageByCourse[course.slug] ?? 'https://coderssecret.com/og-image.svg';
   }

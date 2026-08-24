@@ -197,6 +197,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/courses/course-landing/course-landing').then(m => m.CourseLandingComponent),
   },
   {
+    path: 'courses/malware-analysis-defense',
+    loadComponent: () => import('./pages/courses/course-landing/course-landing').then(m => m.CourseLandingComponent),
+  },
+  {
     path: 'courses/mastering-spiffe-spire/:moduleSlug/slides',
     loadComponent: () => import('./pages/courses/course-slides/course-slides').then(m => m.CourseSlidesComponent),
   },
@@ -238,6 +242,14 @@ export const routes: Routes = [
   },
   {
     path: 'courses/centralized-authentication-authorization-envoy/:moduleSlug',
+    loadComponent: () => import('./pages/courses/course-module/course-module').then(m => m.CourseModuleComponent),
+  },
+  {
+    path: 'courses/malware-analysis-defense/:moduleSlug/slides',
+    loadComponent: () => import('./pages/courses/course-slides/course-slides').then(m => m.CourseSlidesComponent),
+  },
+  {
+    path: 'courses/malware-analysis-defense/:moduleSlug',
     loadComponent: () => import('./pages/courses/course-module/course-module').then(m => m.CourseModuleComponent),
   },
   {
