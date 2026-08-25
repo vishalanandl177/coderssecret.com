@@ -1,4 +1,4 @@
-import { Component, inject, DestroyRef, AfterViewChecked, OnDestroy, ElementRef, signal, HostListener, ChangeDetectorRef, PLATFORM_ID } from '@angular/core';
+import { Component, inject, DestroyRef, AfterViewChecked, OnDestroy, ElementRef, signal, HostListener, ChangeDetectorRef, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BLOG_POSTS, CATEGORIES, BlogPost, getRelatedBlogPosts } from '../../models/blog-post.model';
@@ -11,6 +11,8 @@ import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
 @Component({
   selector: 'app-blog-post',
   imports: [RouterLink],
+  styleUrl: './blog-post.styles.css',
+  encapsulation: ViewEncapsulation.None,
   template: `
     @if (post) {
       <!-- Reading progress bar -->
@@ -19,13 +21,6 @@ import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
 
       <!-- Hero header -->
       <section id="article-start" class="md3-article-hero md3-page-hero relative overflow-hidden">
-        <div class="absolute inset-0 -z-10">
-          <div class="absolute top-[-30%] left-[20%] h-[400px] w-[400px] rounded-full blur-[120px] animate-blob"
-               aria-hidden="true"></div>
-          <div class="absolute bottom-[-30%] right-[10%] h-[350px] w-[350px] rounded-full blur-[100px] animate-blob animation-delay-2000"
-               style="background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent)"></div>
-        </div>
-
         <div class="md3-article-hero-inner container max-w-4xl mx-auto px-6 pt-12 pb-10 md:pt-16 md:pb-14">
           <!-- Breadcrumb navigation -->
           <nav aria-label="Breadcrumb" class="md3-article-breadcrumb mb-6">
@@ -374,6 +369,15 @@ import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
               Questions, corrections, or production notes? Add them here so other learners can benefit.
             </p>
           </div>
+          @if (discussionStatus() === 'idle') {
+            <div class="md3-article-discussion-fallback">
+              <h3>Comments load on demand</h3>
+              <p>To keep this article fast and private by default, the GitHub-powered discussion loads only when you reach this section.</p>
+              <button type="button" class="md3-button-tonal" (click)="loadDiscussion()">
+                Load discussion
+              </button>
+            </div>
+          }
           @if (discussionStatus() === 'loading') {
             <div class="md3-article-discussion-state" role="status" aria-live="polite">
               <span class="md3-discussion-spinner" aria-hidden="true"></span>
@@ -391,17 +395,20 @@ import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
             <div class="md3-article-discussion-fallback" role="alert">
               <h3>Discussion is unavailable</h3>
               <p>{{ discussionMessage() }}</p>
-              <a href="https://github.com/vishalanandl177/coderssecret.com/discussions"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 class="md3-button-tonal">
-                Open GitHub Discussions
-              </a>
             </div>
           }
           <div #giscus
                class="giscus-container"
                [attr.aria-busy]="discussionStatus() === 'loading' ? 'true' : null"></div>
+          <p class="mt-4 text-sm text-muted-foreground">
+            Prefer GitHub?
+            <a href="https://github.com/vishalanandl177/coderssecret.com/discussions"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="text-primary underline underline-offset-4">
+              Open the project discussions directly
+            </a>.
+          </p>
         </section>
 
         <!-- Related posts -->
@@ -491,6 +498,14 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   private giscusAdded = false;
   private discussionSlug = '';
   private discussionTimeoutId: number | undefined;
+  private discussionObserver: IntersectionObserver | undefined;
+  private discussionObserverAttempted = false;
+  private discussionFrameObserver: MutationObserver | undefined;
+  private discussionThemeObserver: MutationObserver | undefined;
+  private tocHeadingElements: HTMLElement[] = [];
+  private scrollFrame: number | undefined;
+  private activeTocFrame: number | undefined;
+  private tocIndicatorFrame: number | undefined;
   private scrollMilestones = new Set<number>();
   readingProgress = signal(0);
   activeTocId = signal('');
@@ -526,11 +541,8 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
         this.copyButtonsAdded = false;
         this.imagesProcessed = false;
         this.headingsProcessed = false;
-        this.giscusAdded = false;
-        this.discussionSlug = '';
-        this.clearDiscussionTimeout();
-        this.discussionStatus.set('idle');
-        this.discussionMessage.set('');
+        this.resetDiscussion();
+        this.resetTocRuntime();
         this.scrollMilestones.clear();
         this.stopSpeech();
         this.toc = [];
@@ -584,7 +596,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
           this.cdr.detectChanges();
           this.enhanceArticleDom();
           this.scheduleDesktopTocIndicatorRefresh();
-          this.loadDiscussion();
+          this.observeDiscussionWhenNear();
         } else {
           this.post = undefined;
           this.relatedPosts = [];
@@ -601,12 +613,22 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
 
   @HostListener('window:scroll')
   onScroll() {
+    if (!this.isBrowser || this.scrollFrame !== undefined) return;
+    const win = this.doc.defaultView;
+    if (!win) return;
+    this.scrollFrame = win.requestAnimationFrame(() => {
+      this.scrollFrame = undefined;
+      this.updateReadingProgress();
+      this.refreshActiveToc();
+    });
+  }
+
+  private updateReadingProgress() {
     const el = this.doc.documentElement;
     const scrollTop = el.scrollTop || this.doc.body.scrollTop;
     const scrollHeight = el.scrollHeight - el.clientHeight;
     const progress = scrollHeight > 0 ? Math.min((scrollTop / scrollHeight) * 100, 100) : 0;
     this.readingProgress.set(progress);
-    this.refreshActiveToc();
     // Track scroll depth milestones
     if (this.post) {
       for (const milestone of [25, 50, 75, 100]) {
@@ -621,13 +643,14 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   ngOnDestroy() {
     this.readingProgress.set(0);
     this.activeTocId.set('');
-    this.clearDiscussionTimeout();
+    this.resetDiscussion();
+    this.resetTocRuntime();
     this.stopSpeech();
   }
 
   ngAfterViewChecked() {
     this.enhanceArticleDom();
-    this.loadDiscussion();
+    this.observeDiscussionWhenNear();
   }
 
   private prepareArticleContent(content: string): { content: string; toc: { id: string; text: string; level: 2 | 3 }[] } {
@@ -763,12 +786,15 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
       }
     }
     if (this.post && !this.headingsProcessed) {
-      const headings = this.el.nativeElement.querySelectorAll('article h2, article h3');
+      const headings = Array.from(
+        this.el.nativeElement.querySelectorAll('article h2, article h3')
+      ) as HTMLElement[];
       if (headings.length > 0) {
         this.headingsProcessed = true;
         headings.forEach((heading: HTMLElement, i: number) => {
           heading.id = this.toc[i]?.id ?? `heading-${i}`;
         });
+        this.tocHeadingElements = headings;
         this.scheduleActiveTocRefresh();
       }
     }
@@ -804,11 +830,12 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
 
   @HostListener('window:resize')
   onResize() {
+    this.scheduleActiveTocRefresh();
     this.scheduleDesktopTocIndicatorRefresh();
   }
 
-  private loadDiscussion() {
-    if (!this.isBrowser || !this.post?.slug || !this.post.content) return;
+  loadDiscussion() {
+    if (!this.isBrowser || this.isPrerenderRequest() || !this.post?.slug || !this.post.content) return;
 
     const container = this.el.nativeElement.querySelector('.giscus-container') as HTMLElement | null;
     if (!container) return;
@@ -816,6 +843,8 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
     if (this.giscusAdded && this.discussionSlug === this.post.slug) return;
 
     const slug = this.post.slug;
+    this.discussionObserver?.disconnect();
+    this.discussionObserver = undefined;
     this.clearDiscussionTimeout();
     this.giscusAdded = true;
     this.discussionSlug = slug;
@@ -842,36 +871,69 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
     script.onerror = () => this.setDiscussionError(slug, 'GitHub Discussions could not be loaded. This is usually a network, ad blocker, or GitHub script availability issue.');
 
     container.appendChild(script);
-    this.pollForDiscussionFrame(container, slug);
+    this.watchForDiscussionFrame(container, slug);
   }
 
-  private pollForDiscussionFrame(container: HTMLElement, slug: string, attempt = 0) {
-    if (!this.isBrowser || this.post?.slug !== slug) return;
-
-    const frame = container.querySelector('iframe') || this.doc.querySelector('iframe.giscus-frame');
-    if (frame) {
-      this.clearDiscussionTimeout();
-      this.discussionStatus.set('ready');
-      this.discussionMessage.set('');
-      return;
-    }
-
-    if (attempt >= 18) {
-      this.setDiscussionError(slug, 'Discussion did not finish loading. You can still open the project discussions on GitHub.');
-      return;
-    }
-
+  private watchForDiscussionFrame(container: HTMLElement, slug: string) {
     const win = this.doc.defaultView;
     if (!win) return;
 
+    const markReady = () => {
+      if (!container.querySelector('iframe')) return false;
+      this.clearDiscussionTimeout();
+      this.discussionFrameObserver?.disconnect();
+      this.discussionFrameObserver = undefined;
+      this.observeDiscussionTheme(container);
+      this.discussionStatus.set('ready');
+      this.discussionMessage.set('');
+      return true;
+    };
+    if (markReady()) return;
+
+    this.discussionFrameObserver?.disconnect();
+    const Observer = win.MutationObserver;
+    this.discussionFrameObserver = new Observer(() => markReady());
+    this.discussionFrameObserver.observe(container, { childList: true, subtree: true });
     this.discussionTimeoutId = win.setTimeout(() => {
-      this.pollForDiscussionFrame(container, slug, attempt + 1);
-    }, 750);
+      this.setDiscussionError(slug, 'Discussion did not finish loading. You can still open the project discussions on GitHub.');
+    }, 14_000);
+  }
+
+  private observeDiscussionTheme(container: HTMLElement) {
+    const win = this.doc.defaultView;
+    if (!win) return;
+
+    let appliedTheme = '';
+    const syncTheme = () => {
+      const frame = container.querySelector<HTMLIFrameElement>('iframe');
+      if (!frame?.contentWindow) return;
+      const theme = this.doc.documentElement.classList.contains('dark')
+        ? 'transparent_dark'
+        : 'light';
+      if (theme === appliedTheme) return;
+      appliedTheme = theme;
+      frame.contentWindow.postMessage(
+        { giscus: { setConfig: { theme } } },
+        'https://giscus.app'
+      );
+    };
+
+    this.discussionThemeObserver?.disconnect();
+    this.discussionThemeObserver = new win.MutationObserver(syncTheme);
+    this.discussionThemeObserver.observe(this.doc.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+    syncTheme();
   }
 
   private setDiscussionError(slug: string, message: string) {
     if (this.post?.slug !== slug) return;
     this.clearDiscussionTimeout();
+    this.discussionFrameObserver?.disconnect();
+    this.discussionFrameObserver = undefined;
+    this.discussionThemeObserver?.disconnect();
+    this.discussionThemeObserver = undefined;
     this.discussionStatus.set('error');
     this.discussionMessage.set(message);
   }
@@ -882,6 +944,57 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
       win.clearTimeout(this.discussionTimeoutId);
     }
     this.discussionTimeoutId = undefined;
+  }
+
+  private observeDiscussionWhenNear() {
+    if (
+      !this.isBrowser ||
+      this.isPrerenderRequest() ||
+      !this.post?.slug ||
+      !this.post.content ||
+      this.giscusAdded ||
+      this.discussionObserverAttempted ||
+      this.discussionObserver
+    ) {
+      return;
+    }
+
+    const section = this.el.nativeElement.querySelector('.md3-article-discussion') as HTMLElement | null;
+    const win = this.doc.defaultView;
+    const Observer = win?.IntersectionObserver;
+    if (!section || !win) return;
+
+    this.discussionObserverAttempted = true;
+    if (typeof Observer !== 'function') return;
+    this.discussionObserver = new Observer(([entry]) => {
+      if (!entry.isIntersecting) return;
+      this.discussionObserver?.disconnect();
+      this.discussionObserver = undefined;
+      this.loadDiscussion();
+    }, { rootMargin: '600px 0px' });
+    this.discussionObserver.observe(section);
+  }
+
+  private isPrerenderRequest(): boolean {
+    const search = this.doc.defaultView?.location.search ?? '';
+    return new URLSearchParams(search).get('__coderssecret_prerender') === '1';
+  }
+
+  private resetDiscussion() {
+    this.discussionObserver?.disconnect();
+    this.discussionObserver = undefined;
+    this.discussionFrameObserver?.disconnect();
+    this.discussionFrameObserver = undefined;
+    this.discussionThemeObserver?.disconnect();
+    this.discussionThemeObserver = undefined;
+    this.clearDiscussionTimeout();
+    const container = this.el.nativeElement.querySelector?.('.giscus-container') as HTMLElement | null;
+    container?.replaceChildren();
+    this.giscusAdded = false;
+    this.discussionObserverAttempted = false;
+    this.discussionSlug = '';
+    this.discussionStatus.set('idle');
+    this.discussionMessage.set('');
   }
 
   toggleSpeech() {
@@ -985,20 +1098,16 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
       return;
     }
 
-    const headingElements = Array.from(
-      this.el.nativeElement.querySelectorAll('article h2[id], article h3[id]')
-    ) as HTMLElement[];
+    const headingElements = this.tocHeadingElements;
+    if (headingElements.length === 0) return;
     const activationOffset = this.tocActivationOffset();
-    const firstHeadingTop = headingElements[0]?.getBoundingClientRect().top;
-    const activeId = firstHeadingTop !== undefined && firstHeadingTop > activationOffset
+    const headingPositions = headingElements.map(heading => ({
+      id: heading.id,
+      top: heading.getBoundingClientRect().top,
+    }));
+    const activeId = headingPositions[0]?.top > activationOffset
       ? 'article-start'
-      : getActiveTocHeadingId(
-      headingElements.map(heading => ({
-        id: heading.id,
-        top: heading.getBoundingClientRect().top,
-      })),
-      activationOffset
-    );
+      : getActiveTocHeadingId(headingPositions, activationOffset);
 
     if (activeId && activeId !== this.activeTocId()) {
       this.activeTocId.set(activeId);
@@ -1009,7 +1118,11 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   private scheduleActiveTocRefresh() {
     const win = this.doc.defaultView;
     if (win?.requestAnimationFrame) {
-      win.requestAnimationFrame(() => this.refreshActiveToc());
+      if (this.activeTocFrame !== undefined) return;
+      this.activeTocFrame = win.requestAnimationFrame(() => {
+        this.activeTocFrame = undefined;
+        this.refreshActiveToc();
+      });
       return;
     }
     queueMicrotask(() => this.refreshActiveToc());
@@ -1020,7 +1133,11 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
 
     const win = this.doc.defaultView;
     if (win?.requestAnimationFrame) {
-      win.requestAnimationFrame(() => this.updateDesktopTocIndicator());
+      if (this.tocIndicatorFrame !== undefined) return;
+      this.tocIndicatorFrame = win.requestAnimationFrame(() => {
+        this.tocIndicatorFrame = undefined;
+        this.updateDesktopTocIndicator();
+      });
       return;
     }
     queueMicrotask(() => this.updateDesktopTocIndicator());
@@ -1058,6 +1175,20 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
     const viewportHeight = this.doc.defaultView?.innerHeight ?? 0;
     if (viewportHeight <= 0) return 140;
     return Math.min(180, Math.max(112, viewportHeight * 0.22));
+  }
+
+  private resetTocRuntime() {
+    const win = this.doc.defaultView;
+    this.tocHeadingElements = [];
+    for (const frame of [this.scrollFrame, this.activeTocFrame, this.tocIndicatorFrame]) {
+      if (win && frame !== undefined) {
+        win.cancelAnimationFrame(frame);
+      }
+    }
+    this.scrollFrame = undefined;
+    this.activeTocFrame = undefined;
+    this.tocIndicatorFrame = undefined;
+    this.readingProgress.set(0);
   }
 
   scrollToHeading(event: Event, id: string) {

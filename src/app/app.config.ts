@@ -14,10 +14,8 @@ export const appConfig: ApplicationConfig = {
         onViewTransitionCreated: ({ transition }) => {
           const shouldReduceMotion = typeof window !== 'undefined'
             && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          const shouldUseCustomCardTransform = typeof document !== 'undefined'
-            && document.documentElement.dataset['csCustomCardTransform'] === 'pending';
 
-          if (shouldReduceMotion || shouldUseCustomCardTransform) {
+          if (shouldReduceMotion) {
             transition.skipTransition();
           }
         },

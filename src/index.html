@@ -50,16 +50,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="format-detection" content="telephone=no">
-  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="manifest" href="manifest.json">
-  <!-- Google Analytics loads after first paint in AnalyticsService. -->
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
-  </script>
+  <!-- Google Analytics is initialized and loaded after first paint by AnalyticsService. -->
 </head>
 <body>
   <app-root></app-root>

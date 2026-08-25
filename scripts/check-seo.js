@@ -36,7 +36,8 @@ function checkIndexHtml() {
   }
 
   // Performance hints
-  if (!/rel=["']preconnect["']/.test(content)) {
+  const hasEagerExternalResource = /<(?:link|script)\b[^>]*(?:href|src)=["']https:\/\/(?!coderssecret\.com)/i.test(content);
+  if (hasEagerExternalResource && !/rel=["']preconnect["']/.test(content)) {
     warnings.push('index.html: No preconnect links found - consider adding for external domains');
   }
 

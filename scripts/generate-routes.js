@@ -250,7 +250,7 @@ function renderRouteWithBudget(routePath, budgetMs, timeoutMs) {
     `--window-size=${CHROME_WINDOW_SIZE}`,
     `--virtual-time-budget=${budgetMs}`,
     '--dump-dom',
-    `${runtime.baseUrl}${routePath}`,
+    `${runtime.baseUrl}${routePath}?__coderssecret_prerender=1`,
   ];
 
   if (!PRERENDER_ALLOW_EXTERNAL_NETWORK) {
@@ -627,7 +627,7 @@ function loadBlogModel(blogContent) {
   }
 }
 
-function loadCoursesFromModel(courseContent, sourcePath = path.join(__dirname, '..', 'src', 'app', 'models', 'course.model.ts')) {
+function loadCoursesFromModel(courseContent, sourcePath = path.join(__dirname, '..', 'src', 'app', 'models', 'courses', 'course-collection.ts')) {
   try {
     const ts = require('typescript');
     const moduleCache = new Map();
@@ -702,7 +702,9 @@ function loadCoursesFromModel(courseContent, sourcePath = path.join(__dirname, '
       }
     }
 
-    return courses;
+    return courses.filter(course =>
+      course && (course.status === undefined || course.status === 'published')
+    );
   } catch (err) {
     console.warn(`Could not load course model for rich course hub prerender: ${err.message}`);
     return [];
@@ -2761,7 +2763,7 @@ for (const cs of cheatsheets) {
 }
 
 // ── Courses pages (/courses, /courses/<course>, /courses/<course>/<module>, SEO pages) ──
-const courseModelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'course.model.ts');
+const courseModelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'courses', 'course-collection.ts');
 const courseContent = fs.existsSync(courseModelPath) ? fs.readFileSync(courseModelPath, 'utf-8') : '';
 let generatedCourseModelSlugs = new Set();
 

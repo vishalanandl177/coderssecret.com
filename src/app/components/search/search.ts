@@ -1,4 +1,4 @@
-import { Component, signal, computed, DestroyRef, HostListener, inject } from '@angular/core';
+import { Component, signal, computed, DestroyRef, ElementRef, HostListener, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { AnalyticsService } from '../../services/analytics.service';
 
@@ -15,7 +15,8 @@ type ResultGroup = { label: string; posts: SearchablePost[] };
       <div class="md3-search-shell fixed inset-0 z-[101] flex items-start justify-center overflow-y-auto px-4 py-[10vh] sm:py-[14vh]"
            [class.md3-search-shell-exit]="isClosing()"
            (click)="close()">
-        <div id="site-search-dialog"
+        <div #searchDialog
+             id="site-search-dialog"
              role="dialog"
              aria-modal="true"
              aria-labelledby="site-search-title"
@@ -49,7 +50,6 @@ type ResultGroup = { label: string; posts: SearchablePost[] };
                    class="min-h-[56px] flex-1 bg-transparent text-base text-foreground placeholder:text-muted-foreground outline-none"
                    [value]="query()"
                    (input)="onSearch($event)"
-                   (keydown.escape)="close()"
                    (keydown.enter)="navigateToFirst()"
                    (keydown.arrowDown)="moveSelection(1)"
                    (keydown.arrowUp)="moveSelection(-1)" />
@@ -123,7 +123,11 @@ export class SearchComponent {
   private postsLoaded = false;
   private analytics = inject(AnalyticsService);
   private destroyRef = inject(DestroyRef);
+  private searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
+  private searchDialog = viewChild<ElementRef<HTMLElement>>('searchDialog');
   private closeTimer: number | undefined;
+  private focusFrame: number | undefined;
+  private returnFocusElement: HTMLElement | null = null;
   private labels: Record<string, string> = {
     ai: 'AI',
     frontend: 'Frontend',
@@ -160,6 +164,10 @@ export class SearchComponent {
       if (this.closeTimer !== undefined) {
         window.clearTimeout(this.closeTimer);
       }
+      if (this.focusFrame !== undefined) {
+        window.cancelAnimationFrame(this.focusFrame);
+      }
+      this.returnFocusElement = null;
     });
   }
 
@@ -170,23 +178,18 @@ export class SearchComponent {
     this.postsLoaded = true;
   }
 
-  @HostListener('document:keydown', ['$event'])
-  handleKeyboard(event: KeyboardEvent) {
-    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-      event.preventDefault();
-      this.toggle();
-    }
-  }
-
-  async toggle() {
+  async toggle(returnFocusTo?: HTMLElement | null) {
     if (this.isOpen()) {
       this.close();
       return;
     }
-    await this.open();
+    await this.open(returnFocusTo);
   }
 
-  async open() {
+  async open(returnFocusTo?: HTMLElement | null) {
+    if (!this.isOpen()) {
+      this.returnFocusElement = returnFocusTo ?? this.getActiveElement();
+    }
     if (this.closeTimer !== undefined) {
       window.clearTimeout(this.closeTimer);
       this.closeTimer = undefined;
@@ -194,6 +197,22 @@ export class SearchComponent {
     this.isClosing.set(false);
     this.isOpen.set(true);
     await this.prepareDialog();
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleDialogKeyboard(event: KeyboardEvent) {
+    if (!this.isOpen()) return;
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.close();
+      return;
+    }
+
+    if (event.key === 'Tab') {
+      this.trapFocus(event);
+    }
   }
 
   close() {
@@ -241,9 +260,13 @@ export class SearchComponent {
     this.query.set('');
     this.selectedIndex.set(0);
     await this.loadPosts();
-    setTimeout(() => {
-      const input = document.querySelector('app-search input') as HTMLInputElement;
-      input?.focus();
+    if (!this.isOpen() || this.isClosing()) return;
+    if (this.focusFrame !== undefined) {
+      window.cancelAnimationFrame(this.focusFrame);
+    }
+    this.focusFrame = window.requestAnimationFrame(() => {
+      this.focusFrame = undefined;
+      this.searchInput()?.nativeElement.focus();
     });
   }
 
@@ -252,8 +275,54 @@ export class SearchComponent {
       window.clearTimeout(this.closeTimer);
       this.closeTimer = undefined;
     }
+    if (this.focusFrame !== undefined) {
+      window.cancelAnimationFrame(this.focusFrame);
+      this.focusFrame = undefined;
+    }
+    const returnFocusElement = this.returnFocusElement;
+    this.returnFocusElement = null;
     this.isOpen.set(false);
     this.isClosing.set(false);
     this.query.set('');
+    if (returnFocusElement) {
+      queueMicrotask(() => {
+        if (returnFocusElement.isConnected) {
+          returnFocusElement.focus({ preventScroll: true });
+        }
+      });
+    }
+  }
+
+  private trapFocus(event: KeyboardEvent) {
+    const dialog = this.searchDialog()?.nativeElement;
+    if (!dialog) return;
+
+    const focusableElements = Array.from(
+      dialog.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter(element => element.tabIndex >= 0 && element.getAttribute('aria-hidden') !== 'true');
+
+    if (focusableElements.length === 0) return;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    const activeElement = this.getActiveElement();
+
+    if (!activeElement || !dialog.contains(activeElement)) {
+      event.preventDefault();
+      firstElement.focus();
+    } else if (event.shiftKey && activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+    } else if (!event.shiftKey && activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
+    }
+  }
+
+  private getActiveElement(): HTMLElement | null {
+    if (typeof document === 'undefined') return null;
+    return document.activeElement instanceof HTMLElement ? document.activeElement : null;
   }
 }

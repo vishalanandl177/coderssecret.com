@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SeoService } from '../../services/seo.service';
 import { EXTERNAL_LINKS } from '../../shared/external-links';
@@ -21,6 +21,8 @@ type HeroTrack = {
 @Component({
   selector: 'app-home',
   imports: [RouterLink],
+  styleUrls: ['./home.styles.css', './home-secondary.styles.css'],
+  encapsulation: ViewEncapsulation.None,
   template: `
     <!-- Material 3-style hero -->
     <section class="md3-home-hero relative overflow-hidden px-3 py-3 sm:px-4 sm:py-4 lg:px-6 lg:py-6">

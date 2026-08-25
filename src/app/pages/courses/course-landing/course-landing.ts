@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import type { Course, CourseModule } from '../../../models/course.model';
-import { loadCourseBySlug } from '../../../models/course-loader';
+import type { CourseModuleOutline, CourseOutline } from '../../../models/course-outline';
+import { loadCourseOutlineBySlug } from '../../../models/course-loader';
 import { SeoService } from '../../../services/seo.service';
 
 @Component({
@@ -374,7 +374,7 @@ import { SeoService } from '../../../services/seo.service';
   `,
 })
 export class CourseLandingComponent {
-  course = signal<Course | undefined>(undefined);
+  course = signal<CourseOutline | undefined>(undefined);
   private openModulesSet = signal(new Set<number>());
   openModules = this.openModulesSet.asReadonly();
   private openFaqsSet = signal(new Set<string>());
@@ -388,7 +388,7 @@ export class CourseLandingComponent {
   }
 
   private async loadCourse(urlSlug: string): Promise<void> {
-    const c = await loadCourseBySlug(urlSlug);
+    const c = await loadCourseOutlineBySlug(urlSlug);
     if (c) {
       const totalLabs = this.totalLabsFor(c);
       this.course.set(c);
@@ -463,33 +463,33 @@ export class CourseLandingComponent {
     this.openFaqsSet.set(s);
   }
 
-  firstModuleUrl(course: Course): string {
+  firstModuleUrl(course: CourseOutline): string {
     return `/courses/${course.slug}/${course.modules[0].slug}`;
   }
 
-  firstModuleSlidesUrl(course: Course): string {
+  firstModuleSlidesUrl(course: CourseOutline): string {
     return `${this.firstModuleUrl(course)}/slides`;
   }
 
-  totalLabsFor(course: Course): number {
+  totalLabsFor(course: CourseOutline): number {
     return course.modules.reduce((sum, m) => sum + m.labs.length, 0);
   }
 
-  labCountLabel(course: Course): string {
+  labCountLabel(course: CourseOutline): string {
     const totalLabs = this.totalLabsFor(course);
     return course.labDelivery === 'inline' ? `${totalLabs} inline exercises` : `${totalLabs} hands-on labs`;
   }
 
-  moduleLabLabel(module: CourseModule, course: Course): string {
+  moduleLabLabel(module: CourseModuleOutline, course: CourseOutline): string {
     const unit = course.labDelivery === 'inline' ? 'exercises' : 'labs';
     return `${module.labs.length} ${unit}`;
   }
 
-  courseLabRepositoryUrl(course: Course): string {
+  courseLabRepositoryUrl(course: CourseOutline): string {
     return `https://github.com/vishalanandl177/${course.slug}`;
   }
 
-  courseOutcomes(course: Course): string[] {
+  courseOutcomes(course: CourseOutline): string[] {
     return course.outcomes ?? [
       'A production-style Zero Trust Kubernetes platform',
       'Secure workload identities with automatic rotation',
@@ -500,7 +500,7 @@ export class CourseLandingComponent {
     ];
   }
 
-  courseFocus(course: Course): string {
+  courseFocus(course: CourseOutline): string {
     const focusByCourse: Record<string, string> = {
       'mastering-spiffe-spire': 'workload identity and Zero Trust',
       'cloud-native-security-engineering': 'Kubernetes security operations',
@@ -512,7 +512,7 @@ export class CourseLandingComponent {
     return focusByCourse[course.slug] ?? course.category;
   }
 
-  courseIconLabel(course: Course): string {
+  courseIconLabel(course: CourseOutline): string {
     const labels: Record<string, string> = {
       'mastering-spiffe-spire': 'ID',
       'cloud-native-security-engineering': 'K8S',
@@ -524,7 +524,7 @@ export class CourseLandingComponent {
     return labels[course.slug] ?? 'CS';
   }
 
-  private getSeoTitle(course: Course): string {
+  private getSeoTitle(course: CourseOutline): string {
     if (course.slug === 'mastering-spiffe-spire') {
       return 'Mastering SPIFFE & SPIRE | Zero Trust Course';
     }
@@ -534,7 +534,7 @@ export class CourseLandingComponent {
     return `${course.title} | Free Course`;
   }
 
-  private getSeoDescription(course: Course, totalLabs: number): string {
+  private getSeoDescription(course: CourseOutline, totalLabs: number): string {
     if (course.slug === 'mastering-spiffe-spire') {
       return `Free ${course.modules.length}-module SPIFFE/SPIRE course: deploy SPIRE on Kubernetes, issue SVIDs, configure mTLS, enforce OPA, federate clusters, and run ${totalLabs} labs.`;
     }
@@ -545,7 +545,7 @@ export class CourseLandingComponent {
     return `${course.excerpt} ${course.modules.length} modules, ${labLabel}, free.`;
   }
 
-  private getCourseImage(course: Course): string {
+  private getCourseImage(course: CourseOutline): string {
     const imageByCourse: Record<string, string> = {
       'mastering-spiffe-spire': 'https://coderssecret.com/images/banners/course-mastering-spiffe-spire.svg',
       'cloud-native-security-engineering': 'https://coderssecret.com/images/banners/course-cloud-native-security-engineering.svg',

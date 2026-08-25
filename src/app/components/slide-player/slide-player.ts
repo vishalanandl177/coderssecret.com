@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, computed, input, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewEncapsulation, computed, input, signal, viewChild } from '@angular/core';
 import { ResolvedSlideFocusStep, SlideCompanionAnchor, SlideData, resolveSlideFocusSteps } from './slide-focus';
 
 export type { SlideData, SlideFocusStep } from './slide-focus';
@@ -23,6 +23,8 @@ interface RelativeRect {
 
 @Component({
   selector: 'app-slide-player',
+  styleUrl: './slide-player.styles.css',
+  encapsulation: ViewEncapsulation.None,
   standalone: true,
   template: `
     <div class="fixed inset-0 z-[100] bg-background flex flex-col overflow-hidden">
@@ -289,7 +291,15 @@ interface RelativeRect {
                   <p data-slide-focus="caption" [class.slide-focus-active]="isFocusActive('caption')" class="slide-focus-target text-base text-muted-foreground mb-6">{{ currentSlide().caption }}</p>
                 }
                 <div data-slide-focus="image" [class.slide-focus-active]="isFocusActive('image')" class="slide-focus-target rounded-xl border border-border/60 overflow-hidden bg-white">
-                  <img [src]="currentSlide().src" [alt]="currentSlide().title" (load)="scheduleCompanionPosition()" class="w-full" loading="lazy" decoding="async" />
+                  <img [src]="currentSlide().src"
+                       [alt]="currentSlide().title"
+                       [attr.width]="currentSlide().imageWidth ?? null"
+                       [attr.height]="currentSlide().imageHeight ?? null"
+                       sizes="(min-width: 1024px) 960px, calc(100vw - 3rem)"
+                       (load)="scheduleCompanionPosition()"
+                       class="w-full"
+                       loading="lazy"
+                       decoding="async" />
                 </div>
               </div>
             }

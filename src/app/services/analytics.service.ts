@@ -14,12 +14,23 @@ type LayoutShiftEntry = PerformanceEntry & {
   hadRecentInput?: boolean;
 };
 
+type LargestContentfulPaintEntry = PerformanceEntry & {
+  renderTime?: number;
+  loadTime?: number;
+};
+
+type InteractionPerformanceEntry = PerformanceEntry & {
+  duration: number;
+  interactionId?: number;
+};
+
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {
   private coreWebVitalsMonitoringStarted = false;
   private gtagConfigQueued = false;
   private gtagLoadScheduled = false;
   private gtagLoaded = false;
+  private gtagLoadTimer: number | undefined;
 
   trackEvent(action: string, category: string, label?: string, value?: number) {
     const gtag = this.getGtag(true);
@@ -75,7 +86,23 @@ export class AnalyticsService {
 
     this.coreWebVitalsMonitoringStarted = true;
     this.scheduleGtagLoad();
-    this.monitorCumulativeLayoutShift();
+    const finalizeVitals = [
+      this.monitorCumulativeLayoutShift(),
+      this.monitorLargestContentfulPaint(),
+      this.monitorInteractionToNextPaint(),
+    ].filter((finalize): finalize is () => void => typeof finalize === 'function');
+
+    const finalize = () => finalizeVitals.forEach(report => report());
+    document.addEventListener(
+      'visibilitychange',
+      () => {
+        if (document.visibilityState === 'hidden') {
+          finalize();
+        }
+      },
+      { capture: true }
+    );
+    window.addEventListener('pagehide', finalize, { capture: true, once: true });
   }
 
   private getGtag(loadImmediately = false): GtagFn | undefined {
@@ -106,13 +133,16 @@ export class AnalyticsService {
   }
 
   private scheduleGtagLoad(delayMs = 8000) {
-    if (
-      this.gtagLoaded ||
-      this.gtagLoadScheduled ||
-      typeof window === 'undefined' ||
-      typeof document === 'undefined'
-    ) {
+    if (this.gtagLoaded || typeof window === 'undefined' || typeof document === 'undefined') {
       return;
+    }
+
+    // An explicit analytics action may shorten the idle startup delay without
+    // ever moving gtag onto the initial rendering path.
+    if (this.gtagLoadScheduled) {
+      if (delayMs > 0 || this.gtagLoadTimer === undefined) return;
+      globalThis.clearTimeout(this.gtagLoadTimer);
+      this.gtagLoadTimer = undefined;
     }
 
     this.gtagLoadScheduled = true;
@@ -129,11 +159,17 @@ export class AnalyticsService {
     };
 
     if (delayMs <= 0) {
-      globalThis.setTimeout(load, 0);
+      this.gtagLoadTimer = globalThis.setTimeout(() => {
+        this.gtagLoadTimer = undefined;
+        load();
+      }, 0);
       return;
     }
 
-    globalThis.setTimeout(load, delayMs);
+    this.gtagLoadTimer = globalThis.setTimeout(() => {
+      this.gtagLoadTimer = undefined;
+      load();
+    }, delayMs);
   }
 
   private loadGtagScript() {
@@ -162,47 +198,126 @@ export class AnalyticsService {
     document.head.appendChild(script);
   }
 
-  private monitorCumulativeLayoutShift() {
-    let clsValue = 0;
-    let lastReportedValue = 0;
-
-    const report = () => {
-      if (clsValue <= lastReportedValue) return;
-      lastReportedValue = clsValue;
-      this.trackWebVital('CLS', clsValue);
-    };
+  private monitorCumulativeLayoutShift(): (() => void) | undefined {
+    let maxSessionValue = 0;
+    let sessionValue = 0;
+    let sessionStart = 0;
+    let lastShiftTime = 0;
+    let hasSession = false;
+    let reported = false;
 
     try {
-      const observer = new PerformanceObserver(list => {
-        for (const entry of list.getEntries() as LayoutShiftEntry[]) {
-          if (!entry.hadRecentInput) {
-            clsValue += entry.value;
+      const processEntries = (entries: LayoutShiftEntry[]) => {
+        for (const entry of entries) {
+          if (entry.hadRecentInput) continue;
+          const continuesSession = hasSession
+            && entry.startTime - lastShiftTime < 1000
+            && entry.startTime - sessionStart < 5000;
+          if (continuesSession) {
+            sessionValue += entry.value;
+          } else {
+            sessionValue = entry.value;
+            sessionStart = entry.startTime;
+            hasSession = true;
           }
+          lastShiftTime = entry.startTime;
+          maxSessionValue = Math.max(maxSessionValue, sessionValue);
         }
+      };
+      const observer = new PerformanceObserver(list => {
+        processEntries(list.getEntries() as LayoutShiftEntry[]);
       });
 
       observer.observe({ type: 'layout-shift', buffered: true });
-
-      document.addEventListener(
-        'visibilitychange',
-        () => {
-          if (document.visibilityState === 'hidden') {
-            report();
-          }
-        },
-        { capture: true }
-      );
-
-      window.addEventListener(
-        'pagehide',
-        () => {
-          report();
-          observer.disconnect();
-        },
-        { capture: true, once: true }
-      );
+      return () => {
+        if (reported) return;
+        reported = true;
+        processEntries(observer.takeRecords() as LayoutShiftEntry[]);
+        observer.disconnect();
+        this.trackWebVital('CLS', maxSessionValue);
+      };
     } catch {
       // Older browsers do not expose layout-shift entries.
+      return undefined;
+    }
+  }
+
+  private monitorLargestContentfulPaint(): (() => void) | undefined {
+    let lcpValue = 0;
+    let reported = false;
+    try {
+      const observer = new PerformanceObserver(list => {
+        const entry = list.getEntries().at(-1) as LargestContentfulPaintEntry | undefined;
+        if (entry) {
+          lcpValue = entry.renderTime || entry.loadTime || entry.startTime;
+        }
+      });
+      observer.observe({ type: 'largest-contentful-paint', buffered: true });
+
+      const finalize = () => {
+        if (reported) return;
+        reported = true;
+        const pending = observer.takeRecords().at(-1) as LargestContentfulPaintEntry | undefined;
+        if (pending) {
+          lcpValue = pending.renderTime || pending.loadTime || pending.startTime;
+        }
+        observer.disconnect();
+        document.removeEventListener('keydown', finalize, true);
+        document.removeEventListener('pointerdown', finalize, true);
+        if (lcpValue > 0) {
+          this.trackWebVital('LCP', lcpValue);
+        }
+      };
+
+      document.addEventListener('keydown', finalize, { capture: true, once: true });
+      document.addEventListener('pointerdown', finalize, { capture: true, once: true });
+      return finalize;
+    } catch {
+      return undefined;
+    }
+  }
+
+  private monitorInteractionToNextPaint(): (() => void) | undefined {
+    const interactions = new Map<number, number>();
+    let reported = false;
+    try {
+      const observer = new PerformanceObserver(list => {
+        for (const entry of list.getEntries() as InteractionPerformanceEntry[]) {
+          if (!entry.interactionId) continue;
+          interactions.set(
+            entry.interactionId,
+            Math.max(interactions.get(entry.interactionId) ?? 0, entry.duration)
+          );
+        }
+      });
+      observer.observe({
+        type: 'event',
+        buffered: true,
+        durationThreshold: 40,
+      } as PerformanceObserverInit);
+
+      return () => {
+        if (reported) return;
+        reported = true;
+        observer.takeRecords().forEach(entry => {
+          const interaction = entry as InteractionPerformanceEntry;
+          if (!interaction.interactionId) return;
+          interactions.set(
+            interaction.interactionId,
+            Math.max(interactions.get(interaction.interactionId) ?? 0, interaction.duration)
+          );
+        });
+        observer.disconnect();
+
+        const values = [...interactions.values()].sort((a, b) => b - a);
+        if (values.length === 0) return;
+        // INP approximates the 98th percentile by ignoring one worst
+        // interaction for each complete set of 50 interactions.
+        const percentileIndex = Math.min(values.length - 1, Math.floor(values.length / 50));
+        this.trackWebVital('INP', values[percentileIndex]);
+      };
+    } catch {
+      return undefined;
     }
   }
 
@@ -214,8 +329,9 @@ export class AnalyticsService {
       event_category: 'Web Vitals',
       event_label: name,
       metric_name: name,
-      metric_value: Math.round(value * 1000),
+      metric_value: Math.round(name === 'CLS' ? value * 1000 : value),
       metric_delta: value,
+      metric_unit: name === 'CLS' ? 'score_x1000' : 'millisecond',
       non_interaction: true,
     });
   }

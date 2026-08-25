@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DestroyRef, ElementRef, HostListener, inject, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, HostListener, effect, inject, signal, viewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -17,7 +17,7 @@ import { Md3ActiveIndicatorDirective } from '../../shared/md3/md3-active-indicat
       <button type="button"
               class="md3-rail-fab"
               [class.md3-rail-fab-launching]="searchLaunching()"
-              (click)="openSearch()"
+              (click)="openSearch($event)"
               aria-label="Search CodersSecret">
         <svg class="md3-rail-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -149,7 +149,7 @@ import { Md3ActiveIndicatorDirective } from '../../shared/md3/md3-active-indicat
 
         <div class="flex shrink-0 items-center gap-2">
           <button type="button"
-                  (click)="openSearch()"
+                  (click)="openSearch($event)"
                   aria-label="Open search"
                   aria-haspopup="dialog"
                   [attr.aria-controls]="searchComponent()?.isOpen() ? 'site-search-dialog' : null"
@@ -165,7 +165,7 @@ import { Md3ActiveIndicatorDirective } from '../../shared/md3/md3-active-indicat
           </button>
 
           <button type="button"
-                  (click)="openSearch()"
+                  (click)="openSearch($event)"
                   aria-label="Open search"
                   [class.md3-search-trigger-launching]="searchLaunching()"
                   class="md3-icon-button inline-flex h-12 w-12 items-center justify-center rounded-full md:hidden">
@@ -272,7 +272,9 @@ import { Md3ActiveIndicatorDirective } from '../../shared/md3/md3-active-indicat
       </aside>
     }
 
-    <app-search />
+    @defer (when searchRequested()) {
+      <app-search #siteSearch />
+    }
   `,
 })
 export class HeaderComponent implements AfterViewInit {
@@ -280,9 +282,10 @@ export class HeaderComponent implements AfterViewInit {
   mobileMenuOpen = signal(false);
   isDark = signal(typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
   searchLaunching = signal(false);
+  searchRequested = signal(false);
   railIndicatorTop = signal(0);
   railIndicatorVisible = signal(false);
-  searchComponent = viewChild(SearchComponent);
+  searchComponent = viewChild<SearchComponent>('siteSearch');
   railNav = viewChild<ElementRef<HTMLElement>>('railNav');
   categories = [
     { name: 'AI', slug: 'ai', color: 'var(--md-sys-color-secondary)' },
@@ -298,8 +301,19 @@ export class HeaderComponent implements AfterViewInit {
   private readonly canUseDom = typeof window !== 'undefined';
   private railRefreshFrame: number | undefined;
   private searchLaunchTimer: number | undefined;
+  private pendingSearchLauncher: HTMLElement | null = null;
 
   constructor() {
+    effect(() => {
+      if (!this.searchRequested()) return;
+      const search = this.searchComponent();
+      if (search) {
+        const launcher = this.pendingSearchLauncher;
+        this.pendingSearchLauncher = null;
+        queueMicrotask(() => void search.open(launcher));
+      }
+    });
+
     this.router.events
       .pipe(
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
@@ -321,9 +335,25 @@ export class HeaderComponent implements AfterViewInit {
     this.scheduleRailIndicatorRefresh();
   }
 
-  @HostListener('document:keydown.escape')
-  closeOpenMenus() {
-    this.mobileMenuOpen.set(false);
+  @HostListener('document:keydown', ['$event'])
+  handleGlobalKeyboard(event: KeyboardEvent) {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      this.mobileMenuOpen.set(false);
+      this.runSearchLaunchMotion();
+      const search = this.searchComponent();
+      if (search) {
+        void search.toggle(this.getSearchLauncher());
+      } else {
+        this.pendingSearchLauncher = this.getSearchLauncher();
+        this.searchRequested.set(true);
+      }
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      this.mobileMenuOpen.set(false);
+    }
   }
 
   @HostListener('window:resize')
@@ -345,10 +375,25 @@ export class HeaderComponent implements AfterViewInit {
     window.setTimeout(() => document.documentElement.classList.remove('theme-transition'), 300);
   }
 
-  openSearch() {
+  openSearch(event?: Event) {
     this.mobileMenuOpen.set(false);
     this.runSearchLaunchMotion();
-    this.searchComponent()?.open();
+    const launcher = this.getSearchLauncher(event);
+    const search = this.searchComponent();
+    if (search) {
+      void search.open(launcher);
+    } else {
+      this.pendingSearchLauncher = launcher;
+      this.searchRequested.set(true);
+    }
+  }
+
+  private getSearchLauncher(event?: Event): HTMLElement | null {
+    if (!this.canUseDom) return null;
+    if (event?.currentTarget instanceof HTMLElement) {
+      return event.currentTarget;
+    }
+    return document.activeElement instanceof HTMLElement ? document.activeElement : null;
   }
 
   private runSearchLaunchMotion() {

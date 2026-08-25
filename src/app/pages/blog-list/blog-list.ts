@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BLOG_POSTS, BlogPost, CATEGORIES } from '../../models/blog-post.model';
 import { SeoService } from '../../services/seo.service';
@@ -19,6 +19,8 @@ type CategoryRail = {
 @Component({
   selector: 'app-blog-list',
   imports: [RouterLink, Md3ActiveIndicatorDirective],
+  styleUrl: './blog-list.styles.css',
+  encapsulation: ViewEncapsulation.None,
   template: `
     <div class="md3-blog-page">
       <section class="md3-blog-hero md3-page-hero" aria-labelledby="blog-heading">

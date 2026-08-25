@@ -415,6 +415,16 @@ function validateGeneratedHtmlFiles() {
     if (/href=["']\/blog\/?\?tag=/.test(content)) {
       fail(`${relative}: generated HTML links to duplicate /blog?tag query URLs`);
     }
+    if (content.includes('__coderssecret_prerender')) {
+      fail(`${relative}: temporary prerender query marker leaked into published HTML`);
+    }
+    if (/<script\b[^>]*\bsrc=["']https:\/\/giscus\.app\/client\.js["']/i.test(content)) {
+      fail(`${relative}: third-party discussion script was serialized into published HTML`);
+    }
+    if (/<app-blog-post\b/i.test(content)
+      && !content.includes('https://github.com/vishalanandl177/coderssecret.com/discussions')) {
+      fail(`${relative}: rendered article is missing the crawlable GitHub Discussions fallback`);
+    }
 
     const urlAttrs = [
       ...extractAll(/<link\s+rel=["']canonical["']\s+href=["']([^"']+)["'][^>]*>/gi, content),

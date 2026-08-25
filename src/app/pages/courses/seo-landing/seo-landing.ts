@@ -1,7 +1,8 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import type { Course, CourseModule, CourseSeoPage } from '../../../models/course.model';
+import type { CourseSeoPage } from '../../../models/course.model';
+import type { CourseModuleOutline, CourseOutline } from '../../../models/course-outline';
 import { loadCourseBySeoSlug } from '../../../models/course-loader';
 import { SeoService } from '../../../services/seo.service';
 
@@ -108,7 +109,7 @@ import { SeoService } from '../../../services/seo.service';
 })
 export class SeoLandingComponent {
   page = signal<CourseSeoPage | undefined>(undefined);
-  course = signal<Course | undefined>(undefined);
+  course = signal<CourseOutline | undefined>(undefined);
   private seo = inject(SeoService);
   private sanitizer = inject(DomSanitizer);
   private route = inject(ActivatedRoute);
@@ -118,12 +119,12 @@ export class SeoLandingComponent {
   courseSlug = computed(() => this.course()?.slug ?? 'mastering-spiffe-spire');
   courseModuleCount = computed(() => this.course()?.modules.length ?? 13);
   totalLabs = computed(() => this.course()?.modules.reduce((sum, m) => sum + m.labs.length, 0) ?? 30);
-  targetModule = computed<CourseModule | undefined>(() => {
+  targetModule = computed<CourseModuleOutline | undefined>(() => {
     const c = this.course();
     const p = this.page();
     return c && p ? c.modules.find(module => module.number === p.ctaModule) : undefined;
   });
-  learningPath = computed<CourseModule[]>(() => {
+  learningPath = computed<CourseModuleOutline[]>(() => {
     const c = this.course();
     const target = this.targetModule();
     if (!c || !target) return [];

@@ -1,0 +1,1313 @@
+@layer components {
+  .md3-home-hero {
+    background: var(--md-sys-color-background);
+  }
+
+  .md3-hero-panel {
+    align-items: stretch;
+    border-radius: clamp(2rem, 4vw, 3.5rem);
+    background: transparent;
+    color: var(--md-sys-color-on-surface);
+    min-height: min(42rem, calc(100vh - 3rem));
+  }
+
+  .md3-home-hero-copy {
+    position: relative;
+    overflow: hidden;
+    border-radius: clamp(2rem, 4vw, 3.5rem);
+    background:
+      radial-gradient(circle at 12% 12%, color-mix(in srgb, var(--md-sys-color-primary) 10%, transparent), transparent 30%),
+      var(--md-sys-color-surface-container-high);
+    padding: clamp(2.25rem, 5vw, 4.5rem);
+    box-shadow: none;
+  }
+
+  .md3-home-hero-copy::after {
+    content: "";
+    position: absolute;
+    inset-inline: auto -4rem;
+    inset-block: auto -3.5rem;
+    width: 14rem;
+    height: 14rem;
+    border-radius: 42% 58% 49% 51%;
+    background: color-mix(in srgb, var(--md-sys-color-tertiary-container) 58%, transparent);
+    opacity: 0.7;
+    transform: rotate(12deg);
+    pointer-events: none;
+  }
+
+  .md3-display-title {
+    position: relative;
+    max-width: 11ch;
+    color: var(--md-sys-color-on-surface);
+    font-family: var(--md-ref-typeface-brand);
+    font-size: clamp(3.2rem, 5vw, 5.6rem);
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 0.94;
+  }
+
+  .md3-stat-tile {
+    min-height: 5.75rem;
+    border-radius: var(--md-sys-shape-corner-lg);
+    background: color-mix(in srgb, var(--md-sys-color-surface-container-low) 84%, transparent);
+    color: var(--md-sys-color-on-surface);
+    padding: 1rem;
+    transition:
+      background-color var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard),
+      transform var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard);
+  }
+
+  .md3-hero-stats {
+    margin-top: clamp(2rem, 4vh, 4rem) !important;
+  }
+
+  .md3-stat-tile:hover {
+    background: var(--md-sys-color-surface-container-highest);
+    transform: translateY(-2px);
+  }
+
+  .md3-stat-number {
+    font-size: clamp(1.6rem, 3vw, 2.5rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .md3-stat-label {
+    margin-top: 0.5rem;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .md3-hero-visual-stage {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    min-height: min(42rem, calc(100vh - 3rem));
+    align-items: center;
+    overflow: hidden;
+    border-radius: clamp(2rem, 4vw, 3.5rem);
+    background:
+      radial-gradient(circle at 74% 15%, color-mix(in srgb, var(--md-sys-color-secondary-container) 62%, transparent), transparent 21%),
+      radial-gradient(circle at 28% 78%, color-mix(in srgb, var(--md-sys-color-primary-container) 72%, transparent), transparent 28%),
+      var(--md-sys-color-surface-container-low);
+    padding: clamp(1rem, 3vw, 3rem);
+  }
+
+  .md3-hero-visual-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background:
+      linear-gradient(135deg, transparent 0 32%, color-mix(in srgb, var(--md-sys-color-primary) 10%, transparent) 32% 34%, transparent 34% 100%),
+      linear-gradient(35deg, transparent 0 62%, color-mix(in srgb, var(--md-sys-color-tertiary) 10%, transparent) 62% 64%, transparent 64% 100%);
+  }
+
+  .md3-floating-panel {
+    position: absolute;
+    z-index: -1;
+    border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 78%, transparent);
+    border-radius: var(--md-sys-shape-corner-xl);
+    background: color-mix(in srgb, var(--md-sys-color-surface-container-highest) 86%, transparent);
+    color: var(--md-sys-color-on-surface);
+    box-shadow: var(--md-sys-elevation-2);
+    backdrop-filter: blur(18px);
+    animation: md3-float-panel 7s var(--md-sys-motion-easing-standard) infinite;
+  }
+
+  .md3-floating-panel-a {
+    inset-block-start: 1.75rem;
+    inset-inline-end: 1.25rem;
+    width: min(17rem, 44%);
+    padding: 0.9rem;
+  }
+
+  .md3-floating-panel-b {
+    inset-block-end: 2rem;
+    inset-inline-start: 1.25rem;
+    width: min(15rem, 42%);
+    padding: 1rem;
+    animation-delay: -2.25s;
+  }
+
+  .md3-floating-title {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--md-sys-color-on-surface-variant);
+  }
+
+  .md3-floating-panel svg {
+    margin-top: 0.35rem;
+    width: 100%;
+    height: auto;
+  }
+
+  .md3-floating-panel circle {
+    fill: var(--md-sys-color-primary-container);
+    stroke: var(--md-sys-color-primary);
+    stroke-width: 2;
+  }
+
+  .md3-floating-panel text {
+    fill: var(--md-sys-color-on-primary-container);
+    font-size: 0.75rem;
+    font-weight: 800;
+  }
+
+  .md3-floating-path {
+    fill: none;
+    stroke: var(--md-sys-color-secondary);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 8 10;
+    animation: md3-flow-dash 4.5s linear infinite;
+  }
+
+  .md3-mini-stack {
+    display: grid;
+    gap: 0.45rem;
+    margin-top: 0.8rem;
+  }
+
+  .md3-mini-stack span {
+    min-height: 2rem;
+    border-radius: 999px;
+    background: var(--md-sys-color-secondary-container);
+    color: var(--md-sys-color-on-secondary-container);
+    padding: 0.45rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+  }
+
+  @keyframes md3-float-panel {
+    50% {
+      transform: translateY(-0.5rem) rotate(1deg);
+    }
+  }
+
+  .md3-cockpit-panel {
+    --track-color: var(--md-sys-color-primary);
+    align-self: center;
+    width: 100%;
+    position: relative;
+    border: 1px solid var(--md-sys-color-outline-variant);
+    border-radius: clamp(1.75rem, 3vw, 2.5rem);
+    background: color-mix(in srgb, var(--md-sys-color-surface-container) 94%, transparent);
+    color: var(--md-sys-color-on-surface);
+    padding: clamp(1.25rem, 2.6vw, 2rem);
+    box-shadow: var(--md-sys-elevation-2);
+    backdrop-filter: blur(22px);
+    transition:
+      box-shadow var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard),
+      transform var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard);
+  }
+
+  .md3-cockpit-panel:hover {
+    box-shadow: var(--md-sys-elevation-3);
+    transform: translateY(-2px);
+  }
+
+  .md3-live-dot {
+    position: relative;
+    width: 0.75rem;
+    height: 0.75rem;
+    flex: none;
+    border-radius: 999px;
+    background: var(--md-sys-color-secondary);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--md-sys-color-secondary) 35%, transparent);
+    animation: md3-live-pulse 2.4s var(--md-sys-motion-easing-standard) infinite;
+  }
+
+  @keyframes md3-live-pulse {
+    70% {
+      box-shadow: 0 0 0 0.75rem color-mix(in srgb, var(--md-sys-color-secondary) 0%, transparent);
+    }
+    100% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--md-sys-color-secondary) 0%, transparent);
+    }
+  }
+
+  .md3-cockpit-tab {
+    min-height: 2.75rem;
+    border: 1px solid var(--md-sys-color-outline-variant);
+    border-radius: var(--md-sys-shape-corner-full);
+    background: var(--md-sys-color-surface-container-low);
+    color: var(--md-sys-color-on-surface-variant);
+    padding-inline: 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition:
+      background-color var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard),
+      color var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard),
+      border-color var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard),
+      transform var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard);
+  }
+
+  .md3-cockpit-tab:hover {
+    border-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-primary);
+  }
+
+  .md3-cockpit-tab:active {
+    transform: scale(0.97);
+  }
+
+  .md3-cockpit-tab-active {
+    border-color: var(--track-color, var(--md-sys-color-primary));
+    background: color-mix(in srgb, var(--track-color, var(--md-sys-color-primary)) 22%, var(--md-sys-color-surface-container-high));
+    color: var(--md-sys-color-on-surface);
+  }
+
+  .md3-system-map {
+    position: relative;
+    min-height: clamp(12rem, 18vw, 15rem);
+    aspect-ratio: 1.18;
+    overflow: hidden;
+    border-radius: var(--md-sys-shape-corner-xl);
+    background:
+      radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--track-color) 20%, transparent), transparent 38%),
+      var(--md-sys-color-surface-container-low);
+  }
+
+  .md3-system-map svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .md3-flow-line {
+    fill: none;
+    stroke: url(#trackFlowGradient);
+    stroke-width: 7;
+    stroke-linecap: round;
+    stroke-dasharray: 16 18;
+    animation: md3-flow-dash 6s linear infinite;
+  }
+
+  .md3-flow-line-alt {
+    animation-direction: reverse;
+    opacity: 0.7;
+  }
+
+  .md3-flow-line-alt2 {
+    opacity: 0.5;
+  }
+
+  @keyframes md3-flow-dash {
+    to { stroke-dashoffset: -136; }
+  }
+
+  .md3-map-node,
+  .md3-map-core {
+    fill: var(--md-sys-color-surface-container-highest);
+    stroke: color-mix(in srgb, var(--track-color) 58%, var(--md-sys-color-outline-variant));
+    stroke-width: 3;
+  }
+
+  .md3-map-node-a { animation: md3-node-float 5s var(--md-sys-motion-easing-standard) infinite; }
+  .md3-map-node-b { animation: md3-node-float 5s var(--md-sys-motion-easing-standard) 0.5s infinite; }
+  .md3-map-node-c { animation: md3-node-float 5s var(--md-sys-motion-easing-standard) 1s infinite; }
+  .md3-map-node-d { animation: md3-node-float 5s var(--md-sys-motion-easing-standard) 1.5s infinite; }
+
+  @keyframes md3-node-float {
+    50% { transform: translateY(-4px); }
+  }
+
+  .md3-map-core {
+    fill: color-mix(in srgb, var(--track-color) 24%, var(--md-sys-color-surface-container-high));
+  }
+
+  .md3-map-core-text,
+  .md3-map-core-subtext {
+    fill: var(--md-sys-color-on-surface);
+    font-family: var(--md-ref-typeface-plain);
+    font-weight: 800;
+    justify-self: start;
+    letter-spacing: 0;
+  }
+
+  .md3-map-core-text {
+    font-size: 1.25rem;
+  }
+
+  .md3-map-core-subtext {
+    fill: var(--md-sys-color-on-surface-variant);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .md3-map-label {
+    position: absolute;
+    display: inline-flex;
+    min-height: 2rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--track-color) 18%, var(--md-sys-color-surface-container-high));
+    color: var(--md-sys-color-on-surface);
+    padding-inline: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    box-shadow: var(--md-sys-elevation-1);
+  }
+
+  .md3-map-label-a { left: 7%; top: 19%; }
+  .md3-map-label-b { right: 7%; top: 20%; }
+  .md3-map-label-c { right: 7%; bottom: 19%; }
+  .md3-map-label-d { left: 7%; bottom: 18%; }
+
+  .md3-cockpit-metric {
+    min-height: 4.25rem;
+    border-radius: var(--md-sys-shape-corner-lg);
+    background: var(--md-sys-color-surface-container-low);
+    padding: 0.85rem;
+  }
+
+  .md3-cockpit-panel h3 {
+    font-size: clamp(1.35rem, 1.8vw, 1.65rem);
+  }
+
+  @media (max-width: 1599px) and (min-width: 1024px) {
+    .md3-hero-stats {
+      display: none !important;
+    }
+
+    .md3-cockpit-panel {
+      padding: 1.35rem;
+    }
+
+    .md3-system-map {
+      min-height: 0;
+      height: clamp(10.5rem, 20vh, 13rem);
+      aspect-ratio: auto;
+    }
+
+    .md3-cockpit-metric:nth-child(n+3) {
+      display: none;
+    }
+
+    .md3-cockpit-metric {
+      min-height: 3.75rem;
+    }
+
+    .md3-cockpit-link {
+      min-height: 3rem;
+    }
+  }
+
+  .md3-cockpit-link {
+    display: inline-flex;
+    min-height: 3.25rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--track-color) 20%, var(--md-sys-color-primary-container));
+    color: var(--md-sys-color-on-primary-container);
+    padding-inline: 1.25rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition:
+      background-color var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard),
+      transform var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard),
+      box-shadow var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard);
+  }
+
+  .md3-cockpit-link:hover {
+    box-shadow: var(--md-sys-elevation-1);
+    transform: translateY(-1px);
+  }
+app-home > section:not(.md3-home-hero):not(.md3-home-os-section) {
+    position: relative;
+    overflow: clip;
+    padding-block: clamp(3.25rem, 5vw, 4.75rem) !important;
+    border-block-start: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 72%, transparent);
+    background: var(--md-sys-color-background) !important;
+  }
+
+app-home > section:nth-of-type(even):not(.md3-home-hero):not(.md3-home-os-section) {
+    background: var(--md-sys-color-surface-container-low) !important;
+  }
+
+app-home > section:nth-of-type(odd):not(.md3-home-hero):not(.md3-home-os-section) {
+    background: var(--md-sys-color-background) !important;
+  }
+
+app-home section:not(.md3-home-hero) > .container,
+  app-home section:not(.md3-home-hero) > .md3-container {
+    width: min(100% - 2rem, 75rem);
+  }
+
+app-home > section:not(.md3-home-hero) h2 {
+    color: var(--md-sys-color-on-background);
+    font-family: var(--md-ref-typeface-brand);
+    font-size: clamp(1.85rem, 3vw, 2.75rem) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.12 !important;
+  }
+
+app-home > section:not(.md3-home-hero) h3 {
+    color: var(--md-sys-color-on-surface);
+    font-family: var(--md-ref-typeface-plain);
+    font-weight: 700;
+    letter-spacing: 0 !important;
+    line-height: 1.22;
+  }
+
+app-home section p {
+    color: var(--md-sys-color-on-surface-variant);
+  }
+
+app-home > section:not(.md3-home-hero):not(.md3-home-os-section) .text-center.mb-12,
+  app-home > section:not(.md3-home-hero):not(.md3-home-os-section) .text-center.mb-14,
+  app-home > section:not(.md3-home-hero):not(.md3-home-os-section) .flex.mb-10 {
+    margin-bottom: clamp(1.75rem, 3.5vw, 2.75rem) !important;
+  }
+
+app-home article[class*="rounded-2xl"],
+  app-home article.group,
+  app-home a[class*="rounded-xl"],
+  app-home a[class*="rounded-2xl"],
+  app-home details,
+  app-home div[class*="rounded-2xl"][class*="border"],
+  app-home section[aria-labelledby="why-matters-heading"] article {
+    border-color: color-mix(in srgb, var(--md-sys-color-outline-variant) 86%, transparent) !important;
+    background: var(--md-sys-color-surface-container-low) !important;
+    color: var(--md-sys-color-on-surface);
+    box-shadow: none;
+    border-radius: var(--md-sys-shape-corner-xl) !important;
+    transition:
+      background-color var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard),
+      border-color var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard),
+      border-radius var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-emphasized),
+      box-shadow var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard),
+      transform var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard) !important;
+  }
+
+app-home article[class*="rounded-2xl"]:hover,
+  app-home article.group:hover,
+  app-home a[class*="rounded-xl"]:hover,
+  app-home a[class*="rounded-2xl"]:hover,
+  app-home details:hover,
+  app-home div[class*="rounded-2xl"][class*="border"]:hover,
+  app-home section[aria-labelledby="why-matters-heading"] article:hover {
+    border-color: color-mix(in srgb, var(--md-sys-color-primary) 45%, var(--md-sys-color-outline-variant)) !important;
+    border-radius: var(--md-sys-shape-corner-xl);
+    background: var(--md-sys-color-surface-container) !important;
+    box-shadow: var(--md-sys-elevation-2) !important;
+    transform: translateY(-2px);
+  }
+
+app-home article.group {
+    overflow: hidden;
+  }
+
+app-home article.group > a,
+  app-home article.group > a > div {
+    border-radius: inherit !important;
+  }
+
+app-home article.group > a > div {
+    background: var(--md-sys-color-surface-container-low) !important;
+  }
+
+app-home > section:not(.md3-home-hero):not(.md3-home-os-section) article[class*="p-7"],
+  app-home > section:not(.md3-home-hero):not(.md3-home-os-section) a[class*="p-5"],
+  app-home > section:not(.md3-home-hero):not(.md3-home-os-section) a[class*="p-6"] {
+    padding: clamp(1rem, 2vw, 1.5rem) !important;
+  }
+
+app-home summary {
+    min-height: 3.5rem;
+  }
+
+app-home section[aria-labelledby="why-matters-heading"] .space-y-10 {
+    display: grid;
+    gap: 1rem;
+    counter-reset: md3-why-card;
+  }
+
+@media (min-width: 1024px) {
+    app-home section[aria-labelledby="why-matters-heading"] .space-y-10 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+app-home section[aria-labelledby="why-matters-heading"] article {
+    position: relative;
+    border: 1px solid var(--md-sys-color-outline-variant);
+    padding: clamp(1.25rem, 3vw, 2rem);
+    padding-top: clamp(4.25rem, 5vw, 4.75rem);
+  }
+
+app-home section[aria-labelledby="why-matters-heading"] article::before {
+    counter-increment: md3-why-card;
+    content: "0" counter(md3-why-card);
+    position: absolute;
+    inset-block-start: 1.25rem;
+    inset-inline-start: 1.25rem;
+    display: inline-grid;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    place-items: center;
+    border-radius: var(--md-sys-shape-corner-lg);
+    background: var(--md-sys-color-tertiary-container);
+    color: var(--md-sys-color-on-tertiary-container);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+
+app-home .bg-card,
+  app-home .bg-card\/50,
+  app-home .bg-card\/60 {
+    background-color: var(--md-sys-color-surface-container-low) !important;
+  }
+
+app-home .text-muted-foreground {
+    color: var(--md-sys-color-on-surface-variant) !important;
+  }
+
+app-home .text-foreground {
+    color: var(--md-sys-color-on-surface) !important;
+  }
+
+app-home > section:not(.md3-home-hero):not(.md3-home-os-section) [class*="bg-gradient-to-br"],
+  app-home > section:not(.md3-home-hero):not(.md3-home-os-section) [class*="bg-gradient-to-r"],
+  app-home > section:not(.md3-home-hero):not(.md3-home-os-section) [class*="bg-gradient-to-l"],
+  app-home > section:not(.md3-home-hero):not(.md3-home-os-section) [class*="bg-gradient-to-b"] {
+    background-image: none !important;
+  }
+
+app-home section[class*="bg-gradient"] {
+    background-image: none !important;
+    border-color: var(--md-sys-color-outline-variant) !important;
+  }
+
+app-home [class*="bg-gradient-to-r"][class*="bg-clip-text"] {
+    background: none !important;
+    color: var(--md-sys-color-primary) !important;
+    -webkit-text-fill-color: currentColor;
+  }
+
+app-home > section:not(.md3-home-hero):not(.md3-home-os-section) .inline-block.rounded-full,
+  app-home > section:not(.md3-home-hero):not(.md3-home-os-section) span[class*="rounded-full"][class*="uppercase"] {
+    min-height: 2rem;
+    border-color: var(--md-sys-color-outline-variant) !important;
+    background: var(--md-sys-color-secondary-container) !important;
+    color: var(--md-sys-color-on-secondary-container) !important;
+    letter-spacing: 0.08em !important;
+  }
+
+app-home > section:not(.md3-home-hero):not(.md3-home-os-section) [aria-hidden="true"][class*="inline-flex"][class*="rounded"],
+  app-home > section:not(.md3-home-hero):not(.md3-home-os-section) article > div[class*="inline-flex"][class*="rounded"],
+  app-home > section:not(.md3-home-hero):not(.md3-home-os-section) a > div[class*="inline-flex"][class*="rounded"] {
+    border-radius: var(--md-sys-shape-corner-md) !important;
+    background: var(--md-sys-color-primary-container) !important;
+    color: var(--md-sys-color-on-primary-container) !important;
+    box-shadow: none !important;
+  }
+
+app-home > section:not(.md3-home-hero):not(.md3-home-os-section) a:not(.md3-button-filled):not(.md3-button-tonal):not(.md3-button-outlined) {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+app-home a.inline-flex:not(.md3-button-filled):not(.md3-button-tonal):not(.md3-button-outlined) {
+    min-height: 2.75rem;
+    align-items: center;
+  }
+
+app-home article a.inline-flex:not(.md3-button-filled):not(.md3-button-tonal):not(.md3-button-outlined),
+  app-home section a.inline-flex.rounded-full:not(.md3-button-filled):not(.md3-button-tonal):not(.md3-button-outlined) {
+    border-radius: var(--md-sys-shape-corner-full) !important;
+    padding-inline: 1rem;
+  }
+
+app-home article a.inline-flex:not([class*="border"]):not(.md3-button-filled):not(.md3-button-tonal):not(.md3-button-outlined):hover,
+  app-home article a.inline-flex:not([class*="border"]):not(.md3-button-filled):not(.md3-button-tonal):not(.md3-button-outlined):focus-visible {
+    background: color-mix(in srgb, var(--md-sys-color-primary) 10%, transparent);
+  }
+
+app-home > section:not(.md3-home-hero):not(.md3-home-os-section) [class*="hover:shadow-xl"]:hover {
+    box-shadow: var(--md-sys-elevation-2) !important;
+  }
+
+app-home .md3-home-courses-section {
+    background: var(--md-sys-color-surface-container-low) !important;
+  }
+
+app-home .md3-course-eyebrow {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    border: 0 !important;
+    background: var(--md-sys-color-secondary-container) !important;
+    color: var(--md-sys-color-on-secondary-container) !important;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--md-sys-color-secondary) 28%, transparent);
+  }
+
+app-home .md3-course-grid {
+    align-items: stretch;
+  }
+
+app-home .md3-course-card {
+    --course-accent: var(--md-sys-color-primary);
+    --course-accent-container: var(--md-sys-color-primary-container);
+    --course-on-accent-container: var(--md-sys-color-on-primary-container);
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    min-height: 31rem;
+    flex-direction: column;
+    gap: 1rem;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 78%, transparent);
+    border-radius: var(--md-sys-shape-corner-xl);
+    background: var(--md-sys-color-surface-container) !important;
+    color: var(--md-sys-color-on-surface);
+    padding: clamp(0.875rem, 1.5vw, 1rem) !important;
+    box-shadow: var(--md-sys-elevation-1);
+    transition:
+      background-color var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard),
+      border-color var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard),
+      box-shadow var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard),
+      transform var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-emphasized);
+  }
+
+app-home .md3-course-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: color-mix(in srgb, var(--course-accent) 10%, transparent);
+    opacity: 0;
+    transition: opacity var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard);
+  }
+
+app-home .md3-course-card:hover,
+  app-home .md3-course-card:focus-within {
+    border-color: color-mix(in srgb, var(--course-accent) 34%, var(--md-sys-color-outline-variant));
+    background: var(--md-sys-color-surface-container-high) !important;
+    box-shadow: var(--md-sys-elevation-2) !important;
+    transform: translateY(-2px);
+  }
+
+app-home .md3-course-card:hover::before,
+  app-home .md3-course-card:focus-within::before {
+    opacity: 1;
+  }
+
+app-home .md3-course-card-spiffe,
+  app-home .md3-course-mini-card-spiffe {
+    --course-accent: var(--md-sys-color-secondary);
+    --course-accent-container: var(--md-sys-color-secondary-container);
+    --course-on-accent-container: var(--md-sys-color-on-secondary-container);
+  }
+
+app-home .md3-course-card-kubernetes {
+    --course-accent: var(--md-sys-color-primary);
+    --course-accent-container: var(--md-sys-color-primary-container);
+    --course-on-accent-container: var(--md-sys-color-on-primary-container);
+  }
+
+app-home .md3-course-card-rag,
+  app-home .md3-course-mini-card-rag {
+    --course-accent: var(--md-sys-color-tertiary);
+    --course-accent-container: var(--md-sys-color-tertiary-container);
+    --course-on-accent-container: var(--md-sys-color-on-tertiary-container);
+  }
+
+app-home .md3-course-card-analytics,
+  app-home .md3-course-mini-card-analytics {
+    --course-accent: var(--md-sys-color-secondary);
+    --course-accent-container: var(--md-sys-color-secondary-container);
+    --course-on-accent-container: var(--md-sys-color-on-secondary-container);
+  }
+
+app-home .md3-course-card-visual {
+    display: grid;
+    min-height: 8.25rem;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--course-accent) 16%, var(--md-sys-color-outline-variant));
+    border-radius: calc(var(--md-sys-shape-corner-xl) - 0.5rem);
+    background:
+      linear-gradient(135deg,
+        color-mix(in srgb, var(--course-accent-container) 78%, var(--md-sys-color-surface-container-high)),
+        color-mix(in srgb, var(--course-accent) 14%, var(--md-sys-color-surface-container-highest)));
+    color: var(--course-on-accent-container);
+  }
+
+app-home .md3-course-svg {
+    width: min(100%, 13rem);
+    height: auto;
+    overflow: visible;
+  }
+
+app-home .md3-course-svg-line,
+  app-home .md3-course-svg-mark {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+app-home .md3-course-svg-line {
+    stroke-width: 4;
+    opacity: 0.58;
+  }
+
+app-home .md3-course-svg-mark {
+    stroke-width: 5;
+  }
+
+app-home .md3-course-svg-node {
+    fill: color-mix(in srgb, var(--course-accent-container) 78%, var(--md-sys-color-surface-container-highest));
+    stroke: currentColor;
+    stroke-width: 4;
+  }
+
+app-home .md3-course-svg-dot {
+    fill: currentColor;
+    opacity: 0.86;
+  }
+
+app-home .md3-course-meta {
+    display: flex;
+    min-height: 2rem;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+app-home .md3-course-chip {
+    display: inline-flex;
+    min-height: 2rem;
+    align-items: center;
+    border: 1px solid color-mix(in srgb, var(--course-accent) 18%, var(--md-sys-color-outline-variant));
+    border-radius: var(--md-sys-shape-corner-full);
+    background: var(--md-sys-color-surface-container-high);
+    color: var(--md-sys-color-on-surface-variant);
+    padding-inline: 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+app-home .md3-course-chip-strong {
+    border-color: transparent;
+    background: var(--course-accent-container);
+    color: var(--course-on-accent-container);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+app-home .md3-course-title {
+    margin: 0;
+    color: var(--md-sys-color-on-surface);
+    font-size: clamp(1.05rem, 1.2vw, 1.18rem);
+    font-weight: 800;
+    line-height: 1.22;
+  }
+
+app-home .md3-course-copy {
+    margin: 0 0 0.5rem;
+    color: var(--md-sys-color-on-surface-variant) !important;
+    font-size: 0.9rem;
+    line-height: 1.58;
+  }
+
+app-home .md3-course-action {
+    display: inline-flex;
+    min-height: 3.25rem;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: auto;
+    border-radius: var(--md-sys-shape-corner-full);
+    background: var(--course-accent-container);
+    color: var(--course-on-accent-container);
+    padding: 0.75rem 1rem 0.75rem 1.25rem;
+    font-size: 0.86rem;
+    font-weight: 800;
+    line-height: 1.2;
+    text-decoration: none;
+    box-shadow: none;
+    transition:
+      background-color var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard),
+      box-shadow var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard),
+      transform var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard);
+  }
+
+app-home .md3-course-action:hover,
+  app-home .md3-course-action:focus-visible {
+    background: color-mix(in srgb, var(--course-accent-container) 84%, var(--course-accent));
+    color: var(--course-on-accent-container);
+    box-shadow: var(--md-sys-elevation-1);
+    transform: translateY(-1px);
+  }
+
+app-home .md3-course-action svg {
+    flex: 0 0 auto;
+    transition: transform var(--md-sys-motion-duration-short-2) var(--md-sys-motion-easing-standard);
+  }
+
+app-home .md3-course-action:hover svg,
+  app-home .md3-course-action:focus-visible svg {
+    transform: translateX(0.125rem);
+  }
+
+app-home .md3-course-mini-card {
+    --course-accent: var(--md-sys-color-primary);
+    --course-accent-container: var(--md-sys-color-primary-container);
+    --course-on-accent-container: var(--md-sys-color-on-primary-container);
+    position: relative;
+    display: grid;
+    min-height: 8.25rem;
+    align-content: start;
+    gap: 0.45rem;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 78%, transparent);
+    border-radius: var(--md-sys-shape-corner-lg) !important;
+    background: var(--md-sys-color-surface-container) !important;
+    color: var(--md-sys-color-on-surface);
+    padding: 1rem !important;
+    text-decoration: none;
+    box-shadow: none;
+    transition:
+      background-color var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard),
+      border-color var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard),
+      box-shadow var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard),
+      transform var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard);
+  }
+
+app-home .md3-course-mini-card:hover,
+  app-home .md3-course-mini-card:focus-visible {
+    border-color: color-mix(in srgb, var(--course-accent) 34%, var(--md-sys-color-outline-variant)) !important;
+    background: var(--md-sys-color-surface-container-high) !important;
+    box-shadow: var(--md-sys-elevation-1);
+    transform: translateY(-2px);
+  }
+
+app-home .md3-course-mini-icon {
+    display: inline-flex;
+    width: fit-content;
+    min-width: 2.5rem;
+    min-height: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--md-sys-shape-corner-md);
+    background: var(--course-accent-container);
+    color: var(--course-on-accent-container);
+    padding-inline: 0.7rem;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+  }
+
+app-home .md3-course-mini-title {
+    margin: 0.35rem 0 0;
+    color: var(--md-sys-color-on-surface);
+    font-size: 0.93rem;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+app-home .md3-course-mini-copy {
+    margin: 0;
+    color: var(--md-sys-color-on-surface-variant) !important;
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+@media (max-width: 767px) {
+    app-home .md3-course-card {
+      min-height: auto;
+      border-radius: var(--md-sys-shape-corner-lg);
+    }
+
+    app-home .md3-course-card-visual {
+      min-height: 7rem;
+    }
+
+    app-home .md3-course-mini-card {
+      min-height: 9rem;
+    }
+  }
+
+app-home .md3-section-eyebrow {
+    display: inline-flex !important;
+    min-height: 2rem;
+    align-items: center;
+    justify-content: center;
+    border: 0 !important;
+    background: var(--md-sys-color-secondary-container) !important;
+    color: var(--md-sys-color-on-secondary-container) !important;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--md-sys-color-secondary) 26%, transparent);
+  }
+
+app-home .md3-info-grid,
+  app-home .md3-topic-grid,
+  app-home .md3-post-grid {
+    align-items: stretch;
+  }
+
+app-home .md3-info-card,
+  app-home .md3-topic-card,
+  app-home .md3-path-card,
+  app-home .md3-home-post-card,
+  app-home .md3-role-card,
+  app-home .md3-mini-link-card,
+  app-home .md3-why-card {
+    --section-accent: var(--md-sys-color-primary);
+    --section-accent-container: var(--md-sys-color-primary-container);
+    --section-on-accent-container: var(--md-sys-color-on-primary-container);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 78%, transparent) !important;
+    border-radius: var(--md-sys-shape-corner-xl) !important;
+    background: var(--md-sys-color-surface-container) !important;
+    color: var(--md-sys-color-on-surface);
+    box-shadow: var(--md-sys-elevation-1);
+    text-decoration: none;
+    transition:
+      background-color var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard),
+      border-color var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard),
+      box-shadow var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard),
+      transform var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-emphasized);
+  }
+
+app-home .md3-info-card::before,
+  app-home .md3-topic-card::before,
+  app-home .md3-path-card::before,
+  app-home .md3-home-post-card::before,
+  app-home .md3-role-card::before,
+  app-home .md3-mini-link-card::before,
+  app-home .md3-why-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: color-mix(in srgb, var(--section-accent) 9%, transparent);
+    opacity: 0;
+    transition: opacity var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard);
+  }
+
+app-home .md3-info-card:hover,
+  app-home .md3-info-card:focus-within,
+  app-home .md3-topic-card:hover,
+  app-home .md3-topic-card:focus-within,
+  app-home .md3-path-card:hover,
+  app-home .md3-path-card:focus-visible,
+  app-home .md3-home-post-card:hover,
+  app-home .md3-home-post-card:focus-within,
+  app-home .md3-role-card:hover,
+  app-home .md3-role-card:focus-visible,
+  app-home .md3-mini-link-card:hover,
+  app-home .md3-mini-link-card:focus-visible,
+  app-home .md3-why-card:hover,
+  app-home .md3-why-card:focus-within {
+    border-color: color-mix(in srgb, var(--section-accent) 34%, var(--md-sys-color-outline-variant)) !important;
+    background: var(--md-sys-color-surface-container-high) !important;
+    box-shadow: var(--md-sys-elevation-2) !important;
+    transform: translateY(-2px);
+  }
+
+app-home .md3-info-card:hover::before,
+  app-home .md3-info-card:focus-within::before,
+  app-home .md3-topic-card:hover::before,
+  app-home .md3-topic-card:focus-within::before,
+  app-home .md3-path-card:hover::before,
+  app-home .md3-path-card:focus-visible::before,
+  app-home .md3-home-post-card:hover::before,
+  app-home .md3-home-post-card:focus-within::before,
+  app-home .md3-role-card:hover::before,
+  app-home .md3-role-card:focus-visible::before,
+  app-home .md3-mini-link-card:hover::before,
+  app-home .md3-mini-link-card:focus-visible::before,
+  app-home .md3-why-card:hover::after,
+  app-home .md3-why-card:focus-within::after {
+    opacity: 1;
+  }
+
+app-home .md3-info-card-primary,
+  app-home .md3-topic-card-primary,
+  app-home .md3-path-card-intermediate {
+    --section-accent: var(--md-sys-color-primary);
+    --section-accent-container: var(--md-sys-color-primary-container);
+    --section-on-accent-container: var(--md-sys-color-on-primary-container);
+  }
+
+app-home .md3-info-card-secondary,
+  app-home .md3-topic-card-secondary,
+  app-home .md3-path-card-beginner {
+    --section-accent: var(--md-sys-color-secondary);
+    --section-accent-container: var(--md-sys-color-secondary-container);
+    --section-on-accent-container: var(--md-sys-color-on-secondary-container);
+  }
+
+app-home .md3-info-card-tertiary,
+  app-home .md3-topic-card-tertiary,
+  app-home .md3-path-card-advanced {
+    --section-accent: var(--md-sys-color-tertiary);
+    --section-accent-container: var(--md-sys-color-tertiary-container);
+    --section-on-accent-container: var(--md-sys-color-on-tertiary-container);
+  }
+
+app-home .md3-info-card {
+    display: flex;
+    min-height: 20rem;
+    flex-direction: column;
+    padding: clamp(1.1rem, 2vw, 1.5rem) !important;
+  }
+
+app-home .md3-home-learning-section .md3-info-card {
+    min-height: 16.25rem;
+  }
+
+app-home .md3-home-audience-section .md3-info-card {
+    min-height: 13.5rem;
+  }
+
+app-home .md3-info-icon,
+  app-home .md3-topic-icon,
+  app-home .md3-role-icon {
+    border-radius: var(--md-sys-shape-corner-md) !important;
+    background: var(--section-accent-container) !important;
+    color: var(--section-on-accent-container) !important;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--section-accent) 18%, transparent);
+    transition:
+      border-radius var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-emphasized),
+      transform var(--md-sys-motion-duration-medium-1) var(--md-sys-motion-easing-standard);
+  }
+
+app-home .md3-info-card:hover .md3-info-icon,
+  app-home .md3-topic-card:hover .md3-topic-icon,
+  app-home .md3-role-card:hover .md3-role-icon {
+    border-radius: var(--md-sys-shape-corner-full) !important;
+    transform: scale(1.04);
+  }
+
+app-home .md3-info-title,
+  app-home .md3-topic-title,
+  app-home .md3-mini-link-title {
+    color: var(--md-sys-color-on-surface);
+    line-height: 1.24;
+  }
+
+app-home .md3-info-copy,
+  app-home .md3-topic-copy,
+  app-home .md3-mini-link-copy {
+    color: var(--md-sys-color-on-surface-variant) !important;
+  }
+
+app-home .md3-info-action,
+  app-home .md3-topic-action,
+  app-home .md3-path-action {
+    width: fit-content;
+    min-height: 2.75rem;
+    margin-top: auto;
+    border-radius: var(--md-sys-shape-corner-full);
+    background: color-mix(in srgb, var(--section-accent-container) 76%, transparent);
+    color: var(--section-on-accent-container) !important;
+    padding: 0.55rem 0.9rem;
+    text-decoration: none;
+  }
+
+app-home .md3-info-action:hover,
+  app-home .md3-info-action:focus-visible,
+  app-home .md3-topic-action:hover,
+  app-home .md3-topic-action:focus-visible,
+  app-home .md3-path-action:hover,
+  app-home .md3-path-action:focus-visible {
+    background: var(--section-accent-container);
+    color: var(--section-on-accent-container) !important;
+  }
+
+app-home .md3-topic-card {
+    display: flex;
+    min-height: 22rem;
+    flex-direction: column;
+    padding: clamp(1.1rem, 2vw, 1.55rem) !important;
+  }
+
+app-home .md3-topic-icon {
+    width: 4rem !important;
+    height: 4rem !important;
+  }
+
+app-home .md3-mini-link-card {
+    display: grid;
+    min-height: 7rem;
+    align-content: start;
+    gap: 0.35rem;
+    padding: 1rem !important;
+  }
+
+app-home .md3-mini-link-card::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 1rem;
+    inset-inline-end: 1rem;
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: var(--md-sys-shape-corner-full);
+    background: var(--md-sys-color-secondary);
+    opacity: 0.65;
+  }
+
+app-home .md3-path-card {
+    display: flex;
+    min-height: 20rem;
+    flex-direction: column;
+    padding: clamp(1.1rem, 2vw, 1.5rem) !important;
+  }
+
+app-home .md3-path-badge {
+    min-height: 2rem;
+    border-color: transparent !important;
+    background: var(--section-accent-container) !important;
+    color: var(--section-on-accent-container) !important;
+    padding-inline: 0.85rem !important;
+  }
+
+app-home .md3-path-card ul {
+    margin-top: auto;
+  }
+
+app-home .md3-path-card li span {
+    background: var(--section-accent) !important;
+  }
+
+app-home .md3-home-post-card {
+    min-height: 15.5rem;
+    background: var(--md-sys-color-surface-container) !important;
+  }
+
+app-home .md3-home-post-card-latest {
+    min-height: 16.5rem;
+  }
+
+app-home .md3-home-post-card-latest.md\:flex,
+  app-home .md3-home-post-card-latest[class*="md:flex"] {
+    min-height: 13.75rem;
+  }
+
+app-home .md3-home-post-card > div:last-child {
+    position: relative;
+    z-index: 1;
+  }
+
+app-home .md3-home-rank-badge {
+    background: var(--md-sys-color-primary-container) !important;
+    color: var(--md-sys-color-on-primary-container) !important;
+    box-shadow: var(--md-sys-elevation-1);
+  }
+
+app-home .md3-home-post-category {
+    min-height: 2rem;
+    background: var(--md-sys-color-secondary-container) !important;
+    color: var(--md-sys-color-on-secondary-container) !important;
+    padding-inline: 0.75rem !important;
+    letter-spacing: 0.06em;
+  }
+
+app-home .md3-home-tag-chip {
+    min-height: 1.7rem;
+    border-color: var(--md-sys-color-outline-variant) !important;
+    background: var(--md-sys-color-surface-container-high) !important;
+    color: var(--md-sys-color-on-surface-variant) !important;
+    padding-inline: 0.65rem !important;
+  }
+
+app-home .md3-home-card-arrow {
+    opacity: 1 !important;
+    background: var(--md-sys-color-primary-container) !important;
+    color: var(--md-sys-color-on-primary-container) !important;
+  }
+
+app-home .md3-role-card {
+    display: grid;
+    min-height: 9.75rem;
+    align-content: start;
+    justify-items: center;
+    padding: 1rem !important;
+  }
+
+app-home .md3-role-icon {
+    width: 3rem !important;
+    height: 3rem !important;
+  }
+
+app-home .md3-home-why-section .container {
+    width: min(100% - 2rem, 82rem);
+  }
+
+app-home article.md3-info-card,
+  app-home div.md3-info-card,
+  app-home article.md3-topic-card,
+  app-home a.md3-path-card,
+  app-home div.md3-home-post-card,
+  app-home a.md3-role-card,
+  app-home a.md3-mini-link-card,
+  app-home article.md3-why-card {
+    border-color: color-mix(in srgb, var(--md-sys-color-outline-variant) 78%, transparent) !important;
+    background: var(--md-sys-color-surface-container) !important;
+    box-shadow: var(--md-sys-elevation-1) !important;
+  }
+
+app-home div.md3-home-post-card[class*="rounded-2xl"][class*="border"],
+  app-home section[aria-labelledby="why-matters-heading"] article.md3-why-card {
+    border-color: color-mix(in srgb, var(--md-sys-color-outline-variant) 78%, transparent) !important;
+    background: var(--md-sys-color-surface-container) !important;
+    box-shadow: var(--md-sys-elevation-1) !important;
+  }
+
+app-home article.md3-info-card:hover,
+  app-home div.md3-info-card:hover,
+  app-home article.md3-info-card:focus-within,
+  app-home div.md3-info-card:focus-within,
+  app-home article.md3-topic-card:hover,
+  app-home article.md3-topic-card:focus-within,
+  app-home a.md3-path-card:hover,
+  app-home a.md3-path-card:focus-visible,
+  app-home div.md3-home-post-card:hover,
+  app-home div.md3-home-post-card:focus-within,
+  app-home a.md3-role-card:hover,
+  app-home a.md3-role-card:focus-visible,
+  app-home a.md3-mini-link-card:hover,
+  app-home a.md3-mini-link-card:focus-visible,
+  app-home article.md3-why-card:hover,
+  app-home article.md3-why-card:focus-within {
+    border-color: color-mix(in srgb, var(--section-accent, var(--md-sys-color-primary)) 34%, var(--md-sys-color-outline-variant)) !important;
+    background: var(--md-sys-color-surface-container-high) !important;
+    box-shadow: var(--md-sys-elevation-2) !important;
+  }
+
+app-home div.md3-home-post-card[class*="rounded-2xl"][class*="border"]:hover,
+  app-home div.md3-home-post-card[class*="rounded-2xl"][class*="border"]:focus-within,
+  app-home section[aria-labelledby="why-matters-heading"] article.md3-why-card:hover,
+  app-home section[aria-labelledby="why-matters-heading"] article.md3-why-card:focus-within {
+    border-color: color-mix(in srgb, var(--section-accent, var(--md-sys-color-primary)) 34%, var(--md-sys-color-outline-variant)) !important;
+    background: var(--md-sys-color-surface-container-high) !important;
+    box-shadow: var(--md-sys-elevation-2) !important;
+  }
+
+app-home .md3-why-grid {
+    display: grid !important;
+    gap: 1rem;
+    counter-reset: md3-why-card;
+  }
+
+}

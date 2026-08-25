@@ -174,6 +174,8 @@ export class DrfApiLoggerSlidesComponent {
       title: 'Analytics overview',
       caption: 'The admin homepage shows request volume over time - spot trends, traffic spikes, and failure patterns at a glance.',
       src: '/images/slides/drf-api-logger/graph.png',
+      imageWidth: 1293,
+      imageHeight: 558,
       narration: "Here's the admin dashboard. This is the overview page - request volume over time.",
     },
     // Slide 14
@@ -183,6 +185,8 @@ export class DrfApiLoggerSlidesComponent {
       title: 'Log list view',
       caption: 'Every row is one API call. Filter by date, status code, method, or search across body, headers, and URL.',
       src: '/images/slides/drf-api-logger/lists.png',
+      imageWidth: 1563,
+      imageHeight: 531,
       narration: "This is the log list view. Every row is one API call.",
     },
     // Slide 15
@@ -192,6 +196,8 @@ export class DrfApiLoggerSlidesComponent {
       title: 'Log detail view',
       caption: 'Full request detail - headers, body, response, client IP, and execution time.',
       src: '/images/slides/drf-api-logger/details.png',
+      imageWidth: 640,
+      imageHeight: 814,
       narration: "Click into any row and you get the full detail view.",
     },
     // Slide 16

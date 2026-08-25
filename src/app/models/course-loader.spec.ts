@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { COURSE_CATALOG, findCourseCatalogEntry, toCourseCatalogEntry } from './course-catalog';
-import { loadCourseBySeoSlug, loadCourseBySlug, loadCourses } from './course-loader';
+import {
+  loadCourseBySeoSlug,
+  loadCourseBySlug,
+  loadCourseOutlineBySlug,
+  loadCourseOutlines,
+  loadCourses,
+} from './course-loader';
+import { toCourseOutline } from './course-outline';
 
 describe('course loader and lightweight catalog', () => {
   it('keeps the public catalog unique without importing full course content', () => {
@@ -22,6 +29,23 @@ describe('course loader and lightweight catalog', () => {
     expect(missing).toBeUndefined();
   });
 
+  it('loads compact landing outlines without lesson or lab implementation content', async () => {
+    const [outline, fullCourse, missing] = await Promise.all([
+      loadCourseOutlineBySlug('distributed-systems-engineering'),
+      loadCourseBySlug('distributed-systems-engineering'),
+      loadCourseOutlineBySlug('missing-course'),
+    ]);
+
+    expect(outline).toEqual(fullCourse ? toCourseOutline(fullCourse) : undefined);
+    expect(missing).toBeUndefined();
+    expect(outline?.modules).toHaveLength(12);
+    expect(outline?.modules[0]).not.toHaveProperty('content');
+    expect(outline?.modules[0]).not.toHaveProperty('svgDiagram');
+    expect(outline?.modules[0].labs[0]).toEqual({
+      title: fullCourse?.modules[0].labs[0].title,
+    });
+  });
+
   it('loads an SEO guide from its owning course only', async () => {
     const result = await loadCourseBySeoSlug('malware-detection-engineering');
 
@@ -30,11 +54,13 @@ describe('course loader and lightweight catalog', () => {
   });
 
   it('keeps catalog metadata aligned with loaded courses', async () => {
-    const courses = await loadCourses();
+    const [courses, outlines] = await Promise.all([loadCourses(), loadCourseOutlines()]);
     expect(courses).toHaveLength(COURSE_CATALOG.length);
+    expect(outlines).toHaveLength(COURSE_CATALOG.length);
 
     for (const course of courses) {
       expect(toCourseCatalogEntry(course)).toEqual(findCourseCatalogEntry(course.slug));
+      expect(outlines.find(outline => outline.slug === course.slug)).toEqual(toCourseOutline(course));
     }
   });
 });

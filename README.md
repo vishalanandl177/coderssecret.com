@@ -256,8 +256,8 @@ The blog route dynamically imports the matching content module, so a normal arti
 
 ### Add or update a course
 
-- Course interfaces, the registry, and most course content live in [`src/app/models/course.model.ts`](src/app/models/course.model.ts).
-- Larger separated course definitions live under [`src/app/models/courses/`](src/app/models/courses/).
+- Course interfaces live in [`src/app/models/course.model.ts`](src/app/models/course.model.ts); runtime loading is mapped in [`src/app/models/course-loader.ts`](src/app/models/course-loader.ts).
+- Full course definitions and the build-only `COURSES` registry live under [`src/app/models/courses/`](src/app/models/courses/), with compact landing-page data under `courses/outlines/`.
 - Add a primary course route before the generic `courses/:seoSlug` route in [`src/app/app.routes.ts`](src/app/app.routes.ts), and confirm module and slide routes for the course slug.
 - The sitemap and route generators load the exported `COURSES` registry, including local course-module imports.
 - Update the manually maintained course summary copy and totals in [`src/app/pages/home/home.ts`](src/app/pages/home/home.ts) whenever courses, modules, labs, or inline exercises change. Recalculate from the live course registry rather than copying an older total.
@@ -311,7 +311,8 @@ Routes for games, cheat sheets, legal pages, slides, and other page types are no
 |   |   |   |-- blog-content/      # One TypeScript content module per article
 |   |   |   |-- courses/           # Separated course definitions
 |   |   |   |-- blog-post.model.ts # Article metadata registry
-|   |   |   |-- course.model.ts    # Course interfaces, registry, and content
+|   |   |   |-- course.model.ts    # Course interfaces
+|   |   |   |-- course-loader.ts   # Route-level full course and outline loaders
 |   |   |   `-- glossary.model.ts  # Glossary registry
 |   |   |-- pages/
 |   |   |   |-- blog-list/         # Article catalog and filters

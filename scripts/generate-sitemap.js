@@ -813,7 +813,7 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
 `;
 
 function loadCoursesFromModel() {
-  const courseModelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'course.model.ts');
+  const courseModelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'courses', 'course-collection.ts');
   if (!fs.existsSync(courseModelPath)) return [];
 
   try {
@@ -889,7 +889,9 @@ function loadCoursesFromModel() {
       }
     }
 
-    return courses;
+    return courses.filter(course =>
+      course && (course.status === undefined || course.status === 'published')
+    );
   } catch (err) {
     console.warn(`Could not load course model for sitemap: ${err.message}`);
     return [];

@@ -102,6 +102,8 @@ export class ClaudeTokenCostsSlidesComponent {
       title: 'The request has layers',
       caption: 'Claude cost is a stack: input context, tools, session history, thinking, and visible output.',
       src: '/images/blog/claude-token-cost-stack.svg',
+      imageWidth: 1200,
+      imageHeight: 630,
       narration:
         'This picture is the whole article in one frame. Input context builds up from instructions, tools, session history, files, and your latest prompt. Then output cost comes from the answer and, when enabled, thinking. Prompt caching can make repeated input cheaper, but it does not remove those tokens from the context window.',
     },

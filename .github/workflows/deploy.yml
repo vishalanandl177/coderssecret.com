@@ -37,6 +37,8 @@ jobs:
 
       - run: npm run check:build
 
+      - run: npm run check:performance
+
       - run: node scripts/generate-sitemap.js
 
       - run: node scripts/generate-routes.js

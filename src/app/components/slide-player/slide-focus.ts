@@ -21,6 +21,8 @@ export interface SlideData {
   lang?: string;
   items?: { title: string; desc: string }[];
   src?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   caption?: string;
   links?: { label: string; value: string }[];
   narration: string;

@@ -1,24 +1,21 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { Component, DestroyRef, HostListener, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, HostListener, inject, OnInit, PLATFORM_ID, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './components/header/header';
 import { FooterComponent } from './components/footer/footer';
 import { AnalyticsService } from './services/analytics.service';
 
-type RouteTransitionPattern = 'top-level' | 'container' | 'forward' | 'back' | 'lateral' | 'slides';
+type RouteTransitionPattern = 'top-level' | 'forward' | 'back' | 'lateral' | 'slides';
 type RouteInteractionSource = 'unknown' | 'nav' | 'card' | 'filter' | 'toc' | 'action';
-type ActiveContainerTransform = {
-  clone: HTMLElement;
-  sourceRect: DOMRect;
-  animation?: Animation;
-  cleanupTimer?: number;
-};
 
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, HeaderComponent, FooterComponent],
   template: `
+    <span #backToTopSentinel
+          class="pointer-events-none absolute left-0 top-0 h-px w-px"
+          aria-hidden="true"></span>
     <div class="md3-app-shell flex min-h-screen flex-col bg-background text-foreground"
          [class.md3-app-shell-slides]="isSlideRoute()">
       @if (!isSlideRoute()) {
@@ -66,7 +63,7 @@ type ActiveContainerTransform = {
     }
   `,
 })
-export class App implements OnInit {
+export class App implements OnInit, AfterViewInit {
   private analytics = inject(AnalyticsService);
   private destroyRef = inject(DestroyRef);
   private document = inject(DOCUMENT);
@@ -75,13 +72,14 @@ export class App implements OnInit {
 
   private lastNavigationUrl = '/';
   private lastInteractionSource: RouteInteractionSource = 'unknown';
-  private activeSourceElement: HTMLElement | undefined;
   private routeTransitionTimer: number | undefined;
   private interactionCleanupTimer: number | undefined;
-  private activeContainerTransform: ActiveContainerTransform | undefined;
+  private backToTopObserver: IntersectionObserver | undefined;
+  private backToTopFallbackFrame: number | undefined;
+  private removeBackToTopFallback: (() => void) | undefined;
+  private readonly backToTopSentinel = viewChild<ElementRef<HTMLElement>>('backToTopSentinel');
   private readonly transitionClasses = [
     'cs-transition-top-level',
-    'cs-transition-container',
     'cs-transition-forward',
     'cs-transition-back',
     'cs-transition-lateral',
@@ -132,23 +130,24 @@ export class App implements OnInit {
         if (event instanceof NavigationEnd) {
           this.lastNavigationUrl = event.urlAfterRedirects || event.url || this.lastNavigationUrl;
           this.isSlideRoute.set(this.isSlideUrl(this.lastNavigationUrl));
-          this.finishContainerTransform();
           this.scheduleRouteTransitionClear(750);
           return;
         }
 
-    if (event instanceof NavigationCancel || event instanceof NavigationError) {
-      this.isSlideRoute.set(this.isSlideUrl(this.lastNavigationUrl));
-      this.clearRouteTransitionClasses();
-      this.clearInteractionSource();
-      this.clearContainerTransform();
-    }
+        if (event instanceof NavigationCancel || event instanceof NavigationError) {
+          this.isSlideRoute.set(this.isSlideUrl(this.lastNavigationUrl));
+          this.clearRouteTransitionClasses();
+          this.clearInteractionSource();
+        }
       });
+
+    this.destroyRef.onDestroy(() => this.teardownBackToTopVisibility());
   }
 
-  @HostListener('window:scroll')
-  onScroll() {
-    this.showBackToTop.set(window.scrollY > 400);
+  ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.observeBackToTopVisibility();
+    }
   }
 
   @HostListener('document:pointerdown', ['$event'])
@@ -158,6 +157,9 @@ export class App implements OnInit {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
+    // Pointer activation is captured earlier by pointerdown so NavigationStart
+    // sees the interaction source. Keep click only for keyboard/synthetic links.
+    if (event.detail !== 0) return;
     this.trackRouteInteraction(event);
   }
 
@@ -204,11 +206,11 @@ export class App implements OnInit {
     }
 
     if (destination.pathname === win.location.pathname && destination.hash) {
-      this.setInteractionSource('toc', anchor);
+      this.setInteractionSource('toc');
       return;
     }
 
-    this.setInteractionSource(this.classifyInteractionSource(anchor), anchor);
+    this.setInteractionSource(this.classifyInteractionSource(anchor));
   }
 
   private prepareRouteTransition(nextUrl: string) {
@@ -225,10 +227,6 @@ export class App implements OnInit {
     }
 
     const pattern = this.getRouteTransitionPattern(this.lastNavigationUrl, nextUrl);
-    const shouldUseCardTransform = pattern === 'container'
-      && this.lastInteractionSource === 'card'
-      && !!this.activeSourceElement
-      && this.isBlogListToDetail(this.lastNavigationUrl, nextUrl);
 
     root.classList.add(`cs-transition-${pattern}`);
     root.dataset['csTransition'] = pattern;
@@ -236,10 +234,6 @@ export class App implements OnInit {
     if (this.lastInteractionSource !== 'unknown') {
       root.classList.add(`cs-transition-from-${this.lastInteractionSource}`);
       root.dataset['csInteraction'] = this.lastInteractionSource;
-    }
-
-    if (shouldUseCardTransform && this.activeSourceElement) {
-      this.startContainerTransform(this.activeSourceElement);
     }
 
     this.scheduleRouteTransitionClear(2400);
@@ -282,106 +276,6 @@ export class App implements OnInit {
     }, delay);
   }
 
-  private startContainerTransform(sourceElement: HTMLElement) {
-    const win = this.document.defaultView;
-    if (!win || win.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      return;
-    }
-
-    const sourceRect = sourceElement.getBoundingClientRect();
-    if (sourceRect.width < 1 || sourceRect.height < 1) {
-      return;
-    }
-
-    this.clearContainerTransform();
-
-    const clone = sourceElement.cloneNode(true) as HTMLElement;
-    clone.querySelectorAll('[id]').forEach(element => element.removeAttribute('id'));
-    clone.setAttribute('aria-hidden', 'true');
-    clone.classList.add('md3-route-container-clone');
-    clone.style.setProperty('--md3-route-container-left', `${sourceRect.left}px`);
-    clone.style.setProperty('--md3-route-container-top', `${sourceRect.top}px`);
-    clone.style.setProperty('--md3-route-container-width', `${sourceRect.width}px`);
-    clone.style.setProperty('--md3-route-container-height', `${sourceRect.height}px`);
-
-    this.document.body.appendChild(clone);
-    this.document.documentElement.classList.add('cs-custom-card-transform-running');
-    this.document.documentElement.dataset['csCustomCardTransform'] = 'pending';
-    this.activeContainerTransform = { clone, sourceRect };
-  }
-
-  private finishContainerTransform() {
-    const win = this.document.defaultView;
-    const transform = this.activeContainerTransform;
-    if (!win || !transform) {
-      this.clearContainerTransform();
-      return;
-    }
-
-    win.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-
-    win.requestAnimationFrame(() => {
-      win.requestAnimationFrame(() => {
-        const target = this.document.querySelector<HTMLElement>('app-blog-post .md3-article-hero');
-        const currentTransform = this.activeContainerTransform;
-        if (!target || !currentTransform) {
-          this.clearContainerTransform();
-          return;
-        }
-
-        const targetRect = target.getBoundingClientRect();
-        const dx = targetRect.left - currentTransform.sourceRect.left;
-        const dy = targetRect.top - currentTransform.sourceRect.top;
-        const scaleX = targetRect.width / currentTransform.sourceRect.width;
-        const scaleY = Math.min(targetRect.height / currentTransform.sourceRect.height, 2.75);
-        const duration = 560;
-        const easing = 'cubic-bezier(0.2, 0, 0, 1)';
-
-        target.classList.add('md3-route-container-target');
-        target.animate(
-          [
-            { opacity: 0.08, transform: 'scale(0.985)' },
-            { opacity: 0.08, transform: 'scale(0.985)', offset: 0.42 },
-            { opacity: 1, transform: 'scale(1)' },
-          ],
-          { duration, easing, fill: 'both' }
-        );
-
-        currentTransform.animation = currentTransform.clone.animate(
-          [
-            {
-              opacity: 1,
-              transform: 'translate3d(0, 0, 0) scale(1, 1)',
-              borderRadius: 'var(--md-sys-shape-corner-xl)',
-            },
-            {
-              opacity: 0.96,
-              transform: `translate3d(${dx}px, ${dy}px, 0) scale(${scaleX}, ${scaleY})`,
-              borderRadius: 'var(--md-sys-shape-corner-lg)',
-              offset: 0.76,
-            },
-            {
-              opacity: 0,
-              transform: `translate3d(${dx}px, ${dy}px, 0) scale(${scaleX}, ${scaleY})`,
-              borderRadius: 'var(--md-sys-shape-corner-lg)',
-            },
-          ],
-          { duration, easing, fill: 'both' }
-        );
-
-        currentTransform.animation.onfinish = () => {
-          target.classList.remove('md3-route-container-target');
-          this.clearContainerTransform();
-        };
-
-        currentTransform.cleanupTimer = win.setTimeout(() => {
-          target.classList.remove('md3-route-container-target');
-          this.clearContainerTransform();
-        }, duration + 180);
-      });
-    });
-  }
-
   private classifyInteractionSource(anchor: HTMLAnchorElement): RouteInteractionSource {
     if (anchor.closest('app-header') || anchor.closest('.md3-top-app-bar')) {
       return 'nav';
@@ -408,7 +302,7 @@ export class App implements OnInit {
     return 'unknown';
   }
 
-  private setInteractionSource(source: RouteInteractionSource, anchor?: HTMLAnchorElement) {
+  private setInteractionSource(source: RouteInteractionSource) {
     const win = this.document.defaultView;
     const root = this.document.documentElement;
 
@@ -418,16 +312,6 @@ export class App implements OnInit {
     if (source !== 'unknown') {
       root.classList.add(`cs-transition-from-${source}`);
       root.dataset['csInteraction'] = source;
-    }
-
-    if (source === 'card' && anchor) {
-      const sourceElement = anchor.closest(this.sourceCardSelector) as HTMLElement | null;
-      sourceElement?.classList.add('cs-motion-source-pressed');
-      if (this.shouldUseSelectedCardTransition(anchor)) {
-        sourceElement?.style.setProperty('view-transition-name', 'cs-selected-card');
-        root.dataset['csCustomCardTransform'] = 'pending';
-      }
-      this.activeSourceElement = sourceElement ?? undefined;
     }
 
     if (win) {
@@ -444,15 +328,6 @@ export class App implements OnInit {
     root.classList.remove(...this.interactionClasses);
     delete root.dataset['csInteraction'];
     this.lastInteractionSource = 'unknown';
-
-    this.activeSourceElement?.classList.remove('cs-motion-source-pressed');
-    this.activeSourceElement?.style.removeProperty('view-transition-name');
-    this.activeSourceElement = undefined;
-
-    if (!this.activeContainerTransform) {
-      delete root.dataset['csCustomCardTransform'];
-      root.classList.remove('cs-custom-card-transform-running');
-    }
 
     if (clearTimer && win && this.interactionCleanupTimer !== undefined) {
       win.clearTimeout(this.interactionCleanupTimer);
@@ -480,7 +355,7 @@ export class App implements OnInit {
 
     if (fromSegments[0] === 'blog' && toSegments[0] === 'blog') {
       if (fromSegments.length <= 1 && toSegments.length > 1) {
-        return 'container';
+        return 'forward';
       }
 
       if (fromSegments.length > 1 && toSegments.length <= 1) {
@@ -540,41 +415,43 @@ export class App implements OnInit {
       && toSegments.length > 1;
   }
 
-  private shouldUseSelectedCardTransition(anchor: HTMLAnchorElement): boolean {
+  private observeBackToTopVisibility() {
     const win = this.document.defaultView;
-    if (!win) {
-      return false;
+    const sentinel = this.backToTopSentinel()?.nativeElement;
+    if (!win || !sentinel) return;
+
+    this.showBackToTop.set(win.scrollY > 400);
+    const Observer = (win as unknown as {
+      IntersectionObserver?: typeof IntersectionObserver;
+    }).IntersectionObserver;
+    if (typeof Observer === 'function') {
+      this.backToTopObserver = new Observer(([entry]) => {
+        this.showBackToTop.set(!entry.isIntersecting);
+      }, { rootMargin: '400px 0px 0px 0px' });
+      this.backToTopObserver.observe(sentinel);
+      return;
     }
 
-    let destination: URL;
-    try {
-      destination = new URL(anchor.href, win.location.origin);
-    } catch {
-      return false;
-    }
-
-    if (destination.origin !== win.location.origin) {
-      return false;
-    }
-
-    const fromSegments = this.toSegments(this.toPath(win.location.pathname));
-    const toSegments = this.toSegments(this.toPath(destination.pathname));
-
-    return this.isBlogListToDetail(win.location.pathname, destination.pathname);
+    const refresh = () => {
+      if (this.backToTopFallbackFrame !== undefined) return;
+      this.backToTopFallbackFrame = win.requestAnimationFrame(() => {
+        this.backToTopFallbackFrame = undefined;
+        this.showBackToTop.set(win.scrollY > 400);
+      });
+    };
+    win.addEventListener('scroll', refresh, { passive: true });
+    this.removeBackToTopFallback = () => win.removeEventListener('scroll', refresh);
   }
 
-  private clearContainerTransform() {
+  private teardownBackToTopVisibility() {
     const win = this.document.defaultView;
-    const transform = this.activeContainerTransform;
-
-    if (transform?.cleanupTimer !== undefined && win) {
-      win.clearTimeout(transform.cleanupTimer);
+    this.backToTopObserver?.disconnect();
+    this.backToTopObserver = undefined;
+    this.removeBackToTopFallback?.();
+    this.removeBackToTopFallback = undefined;
+    if (win && this.backToTopFallbackFrame !== undefined) {
+      win.cancelAnimationFrame(this.backToTopFallbackFrame);
+      this.backToTopFallbackFrame = undefined;
     }
-
-    transform?.animation?.cancel();
-    transform?.clone.remove();
-    this.activeContainerTransform = undefined;
-    this.document.documentElement.classList.remove('cs-custom-card-transform-running');
-    delete this.document.documentElement.dataset['csCustomCardTransform'];
   }
 }
