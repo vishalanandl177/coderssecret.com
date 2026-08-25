@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Google's <strong>Gemma 4</strong> is one of the most capable open-weight language models available - and you can run it <strong>entirely on your own computer</strong> without any cloud API, internet connection, or subscription. Your data stays local, latency is zero, and it's completely free. This guide covers every method to get Gemma 4 running on Windows, macOS, and Linux.</p>
+      <p>Google's <strong>Gemma 4</strong> is one of the most capable open-weight language models available - and you can <a href="/blog/local-ai-app-rag-agents-no-cloud">run it as part of an entirely local AI application stack</a> without any cloud API, internet connection, or subscription. Your data stays local, latency is zero, and it's completely free. This guide covers every method to get Gemma 4 running on Windows, macOS, and Linux; the <a href="/courses/production-rag-systems-engineering/introduction-ai-rag-systems">AI and RAG systems foundations module</a> explains where a local model fits in a larger application.</p>
 
       <h2>Gemma 4 Model Variants</h2>
       <p>Gemma 4 comes in several sizes. Choose based on your hardware:</p>

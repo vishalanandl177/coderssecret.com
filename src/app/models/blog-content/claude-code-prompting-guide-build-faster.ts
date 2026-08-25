@@ -1,7 +1,7 @@
 export const CONTENT = `
       <p>I built this entire blog - 35+ articles, 6 interactive games, 5 cheat sheets, SEO optimization, GitHub Pages deployment, Giscus comments - using Claude Code in a single session. Not by luck. By learning how to prompt it properly. The difference between a vague prompt and a precise one is the difference between "it kind of works" and "ship it to production."</p>
 
-      <p>This tutorial teaches you the prompting patterns that actually work, with real examples from building real software. No theory - just what works.</p>
+      <p>This tutorial teaches you the prompting patterns that actually work, with real examples from building real software. For API-side applications of the same ideas, start with these <a href="/blog/prompt-engineering-patterns-developers-guide">production prompt engineering patterns</a>. No theory - just what works.</p>
 
       <h2>The Fundamental Rule</h2>
 
@@ -41,7 +41,7 @@ export const CONTENT = `
 
       <h2>Pattern 1: The Context-First Prompt</h2>
 
-      <p>Always start with context. Claude Code doesn't know your project's history, your tech stack, or your business requirements unless you tell it. Front-load the important stuff.</p>
+      <p>Always start with context. Claude Code doesn't know your project's history, your tech stack, or your business requirements unless you tell it. Front-load the important stuff, while remembering that repeated project context contributes to the <a href="/blog/claude-tokens-hidden-costs-optimization-guide">Claude Code token budget</a>.</p>
 
       <pre><code># &#x274C; BAD: No context
 "Add a comments section"
@@ -65,7 +65,7 @@ navigating between blog posts so each post gets its own discussion."</code></pre
 
       <h2>Pattern 2: The Screenshot Prompt</h2>
 
-      <p>When something looks wrong visually, <strong>show it</strong>. Claude Code can read screenshots. Instead of trying to describe a layout issue in words, paste a screenshot and say "this card is misaligned - the left column is too narrow and text is wrapping."</p>
+      <p>When something looks wrong visually, <strong>show it</strong>. Claude Code can read screenshots. Instead of trying to describe a layout issue in words, paste a screenshot and say "this card is misaligned - the left column is too narrow and text is wrapping." For a workflow that creates the interactive mockup before handoff, see how <a href="/blog/claude-design-ai-design-tool-guide">Claude Design moves from prompt to prototype</a>.</p>
 
       <pre><code># &#x274C; BAD: Vague visual description
 "The auth quick reference section looks weird on the page"

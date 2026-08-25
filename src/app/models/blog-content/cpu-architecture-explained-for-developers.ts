@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>You write code every day that runs on a CPU, but do you actually know what happens inside that chip when your <code>for</code> loop executes? Understanding CPU architecture doesn't just satisfy curiosity - it explains <em>why</em> certain code patterns are fast and others are slow. This guide gives you a developer-friendly mental model of how modern CPUs work, without requiring an electrical engineering degree.</p>
+      <p>You write code every day that runs on a CPU, but do you actually know what happens inside that chip when your <code>for</code> loop executes? Understanding <a href="/blog/x86-vs-arm-architecture-comparison" class="text-primary underline">CPU architecture</a> doesn't just satisfy curiosity - it explains <em>why</em> certain code patterns are fast and others are slow. This guide gives you a developer-friendly mental model of how modern CPUs work, without requiring an electrical engineering degree.</p>
 
       <h2>The Big Picture: What a CPU Does</h2>
       <p>At its core (pun intended), a CPU does exactly three things, billions of times per second:</p>
@@ -162,5 +162,5 @@ _mm256_store_ps(a, vc);
         </div>
       </div>
 
-      <p>You don't need to think about this for every line of code. But for performance-critical paths - inner loops, data pipelines, real-time systems - understanding your CPU is the difference between "fast enough" and "10x faster than the competition."</p>
+      <p>You don't need to think about this for every line of code. But for <a href="/blog/cpu-cache-layers-l1-l2-l3-practical-guide" class="text-primary underline">performance-critical paths</a> - inner loops, data pipelines, real-time systems - understanding your CPU is the difference between "fast enough" and "10x faster than the competition."</p>
     `;

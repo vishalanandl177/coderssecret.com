@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Windows still powers 70%+ of desktop computers worldwide. Whether you want to build a productivity tool for yourself, ship software to millions of users, or automate tasks at your company - knowing how to build Windows software is a superpower. This guide shows you the <strong>practical options</strong>, when to use each, and includes a complete Python project you can build in 30 minutes.</p>
+      <p>Windows still powers 70%+ of desktop computers worldwide. Whether you want to build a productivity tool for yourself, ship software to millions of users, or automate tasks at your company - knowing how to build Windows software is a superpower. Use the <a href="/blog/build-python-cli-tool-click-typer-pypi">Python CLI packaging guide</a> when the app does not need a GUI, the <a href="/cheatsheets/python">Python cheatsheet</a> while building the example, and the <a href="/blog/git-internals-how-git-works-under-hood">Git internals guide</a> when versioning and recovering the project. This guide shows you the <strong>practical options</strong>, when to use each, and includes a complete Python project you can build in 30 minutes.</p>
 
       <h2>Language Options for Windows Development</h2>
       <p>Windows supports almost every programming language ever made. Here are the practical choices in 2026:</p>

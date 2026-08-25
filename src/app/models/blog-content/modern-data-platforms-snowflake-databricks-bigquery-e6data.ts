@@ -101,7 +101,7 @@ export const CONTENT = `
         </div>
       </div>
 
-      <p>Snowflake tends to make the warehouse the center. Databricks tends to make the lakehouse and compute workspace the center. BigQuery makes the managed serverless query service the center, especially on GCP. e6data is more likely to sit as a compute layer over data that already lives in object storage and open formats. None of those shapes is universally better. The right shape is the one that lets your team operate the flow without unclear ownership.</p>
+      <p>Snowflake tends to make the warehouse the center. Databricks tends to make the lakehouse and compute workspace the center. BigQuery makes the managed serverless query service the center, especially on GCP. e6data is more likely to sit as a compute layer over data that already lives in object storage and open formats. None of those shapes is universally better. The right shape is the one that lets your team operate the flow without unclear ownership. The <a href="/blog/data-mesh-vs-lakehouse-architecture-ownership-governance">data mesh versus lakehouse guide</a> separates that ownership decision from the storage and compute architecture.</p>
 
       <h2>Evaluate by Workload, Not by Feature Checklist</h2>
 

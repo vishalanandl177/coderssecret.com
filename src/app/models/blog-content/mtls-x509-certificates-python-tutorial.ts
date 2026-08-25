@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Regular TLS (HTTPS) only verifies the <em>server's</em> identity - the client checks the server's certificate, but the server has no idea who the client is. <strong>Mutual TLS (mTLS)</strong> adds client verification: both sides present certificates and verify each other. It's the gold standard for <strong>zero-trust service-to-service communication</strong>, used by service meshes (Istio, Linkerd), banking systems, and any environment where API keys aren't secure enough.</p>
+      <p>Regular TLS (HTTPS) only verifies the <em>server's</em> identity - the client checks the server's certificate, but the server has no idea who the client is. <strong>Mutual TLS (mTLS)</strong> adds client verification: both sides present certificates and verify each other. Review the <a href="/blog/encryption-hashing-cryptography-practical-guide">encryption and digital-signature foundations</a> before implementing the handshake, and use the <a href="/glossary/mtls">mTLS glossary reference</a> for the core identity terms. It's the gold standard for <strong>zero-trust service-to-service communication</strong>, used by service meshes (Istio, Linkerd), banking systems, and any environment where API keys aren't secure enough.</p>
 
       <h2>How TLS vs mTLS Works</h2>
 

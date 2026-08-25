@@ -92,8 +92,8 @@ type HeroTrack = {
               <div class="md3-stat-label">Course Modules</div>
             </div>
             <div class="md3-stat-tile">
-              <div class="md3-stat-number">{{ totalLabs() }}+</div>
-              <div class="md3-stat-label">Hands-On Labs</div>
+              <div class="md3-stat-number">{{ totalLabs() }}</div>
+              <div class="md3-stat-label">Labs &amp; Exercises</div>
             </div>
           </div>
         </div>
@@ -1067,11 +1067,11 @@ type HeroTrack = {
         <div class="md3-home-proof-panel">
           <div class="text-center mb-10">
             <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Built for Engineers, by an Engineer</h2>
-            <p class="mt-3 text-muted-foreground max-w-2xl mx-auto">Real production knowledge, not surface-level tutorials. Every article is written from hands-on experience and tested against real-world systems.</p>
+            <p class="mt-3 text-muted-foreground max-w-2xl mx-auto">Engineering guides grounded in production constraints and reviewed for practical use.</p>
           </div>
           <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
             <div class="text-center md3-home-proof-metric">
-              <div class="md3-home-proof-number">{{ totalPosts() }}+</div>
+              <div class="md3-home-proof-number">{{ totalPosts() }}</div>
               <div class="mt-2 text-sm text-muted-foreground">In-Depth Articles</div>
             </div>
             <div class="text-center md3-home-proof-metric">
@@ -1079,12 +1079,12 @@ type HeroTrack = {
               <div class="mt-2 text-sm text-muted-foreground">Avg Read Time (min)</div>
             </div>
             <div class="text-center md3-home-proof-metric">
-              <div class="md3-home-proof-number">{{ uniqueTags() }}+</div>
+              <div class="md3-home-proof-number">{{ uniqueTags() }}</div>
               <div class="mt-2 text-sm text-muted-foreground">Topics Covered</div>
             </div>
             <div class="text-center md3-home-proof-metric">
-              <div class="md3-home-proof-number">{{ totalPosts() }}</div>
-              <div class="mt-2 text-sm text-muted-foreground">Slide Tutorials</div>
+              <div class="md3-home-proof-number">{{ totalCourseModules() }}</div>
+              <div class="mt-2 text-sm text-muted-foreground">Course Modules</div>
             </div>
             <div class="text-center md3-home-proof-metric">
               <div class="md3-home-proof-number">100%</div>

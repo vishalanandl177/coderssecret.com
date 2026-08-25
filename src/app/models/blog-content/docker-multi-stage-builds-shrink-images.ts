@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Run <code>docker images</code> right now. If your production image is over 500MB, you are shipping build tools, package managers, source code, and dev dependencies straight to production. That is wasted bandwidth, slower deployments, a larger attack surface, and higher cloud bills.</p>
+      <p>Run <code>docker images</code> right now. If your production image is over 500MB, you are shipping build tools, package managers, source code, and dev dependencies straight to production. That is wasted bandwidth, slower deployments, a larger attack surface, and higher cloud bills. The <a href="/blog/software-supply-chain-security-explained">software supply-chain security guide</a> covers trust from source through deployment, while the <a href="/blog/types-of-malware-and-their-risks">malware risk guide</a> explains the payload types a compromised image or dependency could deliver. Keep the <a href="/cheatsheets/docker">Docker cheatsheet</a> nearby for build and runtime commands.</p>
 
       <p>Docker multi-stage builds solve this by separating the <strong>build environment</strong> from the <strong>runtime environment</strong>. You compile in one stage and copy only the final artifact to a minimal base image. The result: images that are 5-50x smaller.</p>
 

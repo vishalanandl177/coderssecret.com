@@ -429,7 +429,7 @@ with DAG(
         <li><strong>Cell-based architecture</strong>: pre-partition tenants across clusters; each tenant lives in a single cell. No cross-cluster scheduling needed at runtime - the placement is decided at tenant-onboarding time.</li>
       </ul>
 
-      <p>The cross-cluster identity layer matters for security: a workload that can move between clusters needs an identity that travels with it. <a href="/glossary/spiffe" class="text-primary underline">SPIFFE</a> workload identity solves this - the same SPIFFE ID is valid across federated clusters, so cross-cluster scheduling does not require credential re-issuance. See the <a href="/courses/mastering-spiffe-spire/spiffe-spire-deep-dive" class="text-primary underline">SPIFFE/SPIRE Deep Dive module</a> in the Cloud Native Security Engineering course for the full pattern.</p>
+      <p>The cross-cluster identity layer matters for security: a workload that can move between clusters needs an identity that travels with it. <a href="/glossary/spiffe" class="text-primary underline">SPIFFE</a> workload identity solves this - the same SPIFFE ID is valid across federated clusters, so cross-cluster scheduling does not require credential re-issuance. See the <a href="/courses/cloud-native-security-engineering/spiffe-spire-deep-dive" class="text-primary underline">SPIFFE/SPIRE Deep Dive module</a> in the Cloud Native Security Engineering course for the full pattern.</p>
 
       <h2>Common Pitfalls</h2>
 

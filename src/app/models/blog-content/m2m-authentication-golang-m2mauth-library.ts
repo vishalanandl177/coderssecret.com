@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>When your microservices talk to each other, how do you ensure that only <strong>authorized services</strong> can make those calls? API keys leak. JWTs expire and need refresh infrastructure. The most robust solution is <strong>certificate-based M2M authentication</strong> - and there's a Go library that makes it straightforward: <a href="https://github.com/vishalanandl177/m2mauth" target="_blank" rel="noopener noreferrer"><strong>m2mauth</strong></a>.</p>
+      <p>When your microservices talk to each other, how do you ensure that only <strong>authorized services</strong> can make those calls? API keys leak. JWTs expire and need refresh infrastructure. The most robust solution is <strong><a href="/blog/m2m-authentication-service-to-service" class="text-primary underline">certificate-based M2M authentication</a></strong> - and there's a Go library that makes it straightforward: <a href="https://github.com/vishalanandl177/m2mauth" target="_blank" rel="noopener noreferrer"><strong>m2mauth</strong></a>.</p>
 
       <h2>Why m2mauth?</h2>
       <p>Building mTLS from scratch in Go means dealing with TLS config, certificate loading, peer verification, and error handling yourself. The <code>m2mauth</code> library wraps all of this into a clean API focused specifically on service-to-service authentication.</p>
@@ -252,7 +252,7 @@ spec:
 
       <h2>What is SPIFFE?</h2>
 
-      <p><strong>SPIFFE</strong> (Secure Production Identity Framework for Everyone) is not a tool - it's an <strong>open standard</strong> (a set of specifications) that defines how workloads identify themselves to each other. Think of it like how HTTPS is a standard that defines secure web connections. SPIFFE is a standard that defines secure workload identity.</p>
+      <p><strong><a href="/glossary/spiffe" class="text-primary underline">SPIFFE</a></strong> (Secure Production Identity Framework for Everyone) is not a tool - it's an <strong>open standard</strong> (a set of specifications) that defines how workloads identify themselves to each other. Think of it like how HTTPS is a standard that defines secure web connections. SPIFFE is a standard that defines secure workload identity.</p>
 
       <p>SPIFFE answers three questions:</p>
       <ul>

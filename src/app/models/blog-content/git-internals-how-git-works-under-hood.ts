@@ -1,7 +1,7 @@
 export const CONTENT = `
       <p>Most developers use Git daily but treat it as a black box. They memorize commands without understanding what happens underneath. This leads to panic during rebases, confusion during merge conflicts, and fear of <code>git reflog</code>.</p>
 
-      <p>Once you understand Git internals, the scary commands become ordinary data-structure operations. A branch is a movable reference. A commit is an immutable object in a graph. The index is the next snapshot being prepared. The reflog is a local record of where references used to point. This guide walks through those pieces and shows how Git stores, names, moves, compresses, and recovers your code.</p>
+      <p>Once you understand Git internals, the scary commands become ordinary data-structure operations. A branch is a movable reference. A commit is an immutable object in a graph. The index is the next snapshot being prepared. The reflog is a local record of where references used to point. This guide walks through those pieces and shows how Git stores, names, moves, compresses, and recovers your code. Apply that model in automated delivery with the <a href="/blog/github-actions-ci-cd-pipelines-mastery">GitHub Actions pipeline guide</a>, and use the <a href="/cheatsheets/git">Git command cheatsheet</a> for day-to-day operations.</p>
 
       <h2>The Four Pieces Git Manages</h2>
 

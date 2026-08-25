@@ -159,7 +159,7 @@ print(f"Rows: {table.num_rows}, Columns: {table.num_columns}")
 print(f"Memory: {table.nbytes} bytes")  # Exact memory usage</code></pre>
 
       <h2>Arrow Compute Functions</h2>
-      <p>Arrow provides 200+ vectorized compute functions that operate directly on columnar data - no Python loops, no conversion overhead:</p>
+      <p>Arrow provides <a href="/blog/improving-python-code-performance" class="text-primary underline">200+ vectorized compute functions</a> that operate directly on columnar data - no Python loops, no conversion overhead:</p>
       <pre><code>import pyarrow.compute as pc
 
 # ── Filtering ──────────────────────────────────
@@ -459,5 +459,5 @@ result = duckdb.sql("""
         <li><strong>As a pandas backend:</strong> Use <code>dtype_backend="pyarrow"</code> for better null handling, faster strings, and lower memory.</li>
       </ul>
 
-      <p>Apache Arrow is one of the most impactful infrastructure projects in the data ecosystem. It's invisible to most users - you don't "install Arrow" and use it directly. Instead, it powers the tools you already use: pandas, Polars, DuckDB, Spark, Snowflake, BigQuery, and dozens more. Understanding Arrow helps you make better architectural decisions and squeeze maximum performance out of your data pipelines.</p>
+      <p>Apache Arrow is one of the most impactful infrastructure projects in the data ecosystem. It's invisible to most users - you don't "install Arrow" and use it directly. Instead, it powers the tools you already use: pandas, Polars, DuckDB, Spark, Snowflake, BigQuery, and dozens more. Understanding Arrow helps you make better architectural decisions and squeeze maximum performance out of your <a href="/courses/production-analytics-engineering-dbt" class="text-primary underline">data pipelines</a>.</p>
     `;

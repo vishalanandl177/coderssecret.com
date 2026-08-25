@@ -13,10 +13,11 @@
     "check:build": "ng build --configuration production --stats-json",
     "check:performance": "node scripts/check-performance-budgets.js",
     "check:seo": "node scripts/check-seo.js",
+    "check:internal-links": "node scripts/check-internal-content-links.js",
     "check:generated-seo": "node scripts/validate-generated-seo.js",
     "check:course-assets": "node scripts/validate-malware-course-assets.js",
     "check:ai-punctuation": "node scripts/check-ai-punctuation.js",
-    "precommit": "run-s check:vulnerabilities check:course-assets test:ci build:prod check:performance check:seo check:ai-punctuation"
+    "precommit": "run-s check:vulnerabilities check:course-assets test:ci build:prod check:performance check:seo check:internal-links check:ai-punctuation"
   },
   "private": true,
   "packageManager": "npm@10.9.7",

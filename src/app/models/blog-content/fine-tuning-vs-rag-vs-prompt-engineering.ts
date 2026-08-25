@@ -277,5 +277,5 @@ Always cite the documentation section you referenced."""
         <li><strong>Measure before you optimize</strong> - if prompt engineering gives 95% accuracy, the extra 3% from fine-tuning may not justify the cost</li>
       </ul>
 
-      <p>The biggest mistake in AI engineering is reaching for fine-tuning first. It is the most expensive, slowest to iterate, and hardest to maintain approach. Start with prompts, add RAG when you outgrow the context window, and fine-tune only when you have proven that the other approaches cannot achieve the quality you need. Most production systems never need fine-tuning at all.</p>
+      <p>The biggest mistake in AI engineering is reaching for fine-tuning first. It is the most expensive, slowest to iterate, and hardest to maintain approach. Start with prompts, add <a href="/blog/vector-databases-embeddings-similarity-search">RAG with a retrieval and vector-search layer</a> when you outgrow the context window, and fine-tune only when you have proven that the other approaches cannot achieve the quality you need. The <a href="/courses/production-rag-systems-engineering/building-basic-rag-systems">basic RAG systems module</a> shows how that middle option fits together. Most production systems never need fine-tuning at all.</p>
     `;

@@ -336,13 +336,6 @@ export class BlogListComponent {
   readonly categories = CATEGORIES;
   readonly totalPosts = BLOG_POSTS.length;
   readonly topTags = this.computeTopTags();
-  readonly generatedCoverMissingSlugs = new Set([
-    'distributed-systems-algorithms-production-guide',
-    'rate-limiting-algorithms-production-guide',
-    'caching-strategies-production-guide',
-    'scheduling-systems-production-guide',
-  ]);
-
   readonly activeTopic = signal('all');
   readonly activeTag = signal('');
   readonly searchQuery = signal('');
@@ -514,10 +507,6 @@ export class BlogListComponent {
   coverImageFor(post: BlogPost): string | null {
     if (post.coverImage) {
       return post.coverImage;
-    }
-
-    if (this.generatedCoverMissingSlugs.has(post.slug)) {
-      return null;
     }
 
     return `/images/banners/${post.slug}.svg`;

@@ -2,7 +2,7 @@ export const CONTENT = `
       <p>Before gRPC existed, Facebook needed a way for their services - written in Python, C++, Java, PHP, and Erlang - to talk to each other efficiently. They built <strong>Apache Thrift</strong>, an RPC framework that generates client and server code in <strong>28+ languages</strong> from a single interface definition. Thrift has been battle-tested at Facebook scale (billions of RPC calls per second) and remains a strong choice for heterogeneous microservice architectures.</p>
 
       <h2>What is Apache Thrift?</h2>
-      <p>Thrift is a <strong>cross-language RPC framework</strong> with three key components:</p>
+      <p>Thrift is a <strong><a href="/courses/distributed-systems-engineering/networking-distributed-communication" class="text-primary underline">cross-language RPC framework</a></strong> with three key components:</p>
       <ul>
         <li><strong>Interface Definition Language (IDL):</strong> A .thrift file that defines your data types and services - like a .proto file for gRPC.</li>
         <li><strong>Code Generator:</strong> Generates client/server stubs in your target language(s) from the IDL.</li>
@@ -256,5 +256,5 @@ transport.close()</code></pre>
         <li><strong>Starting fresh:</strong> If you're building a new system, gRPC is the safer bet for long-term ecosystem support.</li>
       </ul>
 
-      <p>Apache Thrift remains a powerful, production-proven RPC framework. Its pluggable architecture and unmatched language support make it ideal for heterogeneous environments. If you're already in the Thrift ecosystem or need extreme flexibility in transport and serialization, Thrift is an excellent choice. For greenfield projects, evaluate both Thrift and gRPC against your specific needs - you can't go wrong with either.</p>
+      <p>Apache Thrift remains a powerful, production-proven RPC framework. Its pluggable architecture and unmatched language support make it ideal for heterogeneous environments. If you're already in the Thrift ecosystem or need extreme flexibility in transport and serialization, Thrift is an excellent choice. For greenfield projects, <a href="/blog/api-design-rest-graphql-grpc-compared" class="text-primary underline">evaluate both Thrift and gRPC</a> against your specific needs - you can't go wrong with either.</p>
     `;

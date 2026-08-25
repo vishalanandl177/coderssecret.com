@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>If you run APIs in Django REST Framework, you eventually need answers that normal application logs do not give you quickly: which endpoint failed, what payload arrived, what status code was returned, how long the request took, whether sensitive data was masked, and whether the same endpoint is getting slower over time. <strong>DRF API Logger</strong> exists for that exact gap. It adds request and response observability to a DRF project without forcing every view to write custom logging code.</p>
+      <p>If you run APIs in Django REST Framework, you eventually need answers that normal application logs do not give you quickly: which endpoint failed, what payload arrived, what status code was returned, how long the request took, whether sensitive data was masked, and whether the same endpoint is getting slower over time. <strong>DRF API Logger</strong> exists for that exact gap. It adds request and response observability to a DRF project without forcing every view to write custom logging code. The <a href="/blog/observability-opentelemetry-logs-metrics-traces">OpenTelemetry observability guide</a> shows how these API records complement service-level logs, metrics, and traces.</p>
 
       <p>This guide targets the modern <strong>v1.2.x</strong> line, including the documentation update for <strong>v1.2.1</strong>. The package is published under the <strong>Apache 2.0 license</strong>, supports Python 3.6 and newer, and the current documentation highlights request/response logging, sensitive-data masking, database logging, signal-based logging, admin analytics, queue-based background processing, request tracing, content-type controls, and per-request API profiling.</p>
 
@@ -314,7 +314,7 @@ class Command(BaseCommand):
         self.stdout.write(f'Deleted {deleted} old API log rows')</code></pre>
 
       <h2>Production Database Design</h2>
-      <p>For small applications, storing logs in the default database may be acceptable. For high-traffic systems, use a dedicated logging database so API log writes and log searches do not compete with customer-facing transactional data.</p>
+      <p>For small applications, storing logs in the default database may be acceptable. For high-traffic systems, use a dedicated logging database so API log writes and log searches do not compete with customer-facing transactional data. Apply the same workload-first reasoning from the <a href="/blog/database-indexing-secrets-slow-queries-fix">database indexing guide</a> before adding indexes to the log table.</p>
       <pre><code>DRF_API_LOGGER_DEFAULT_DATABASE = 'logs_db'</code></pre>
       <p>Then configure a Django database router or run migrations against the chosen database, depending on how your project handles multiple databases.</p>
       <p>Add indexes based on your real query patterns. Common examples:</p>
@@ -328,7 +328,7 @@ CREATE INDEX idx_api_logs_status_added_on
 ON drf_api_logs(status_code, added_on);</code></pre>
 
       <h2>Security and Privacy Checklist</h2>
-      <p>API logging is powerful, but it can become a liability if you log the wrong data. Treat API logs as sensitive production data.</p>
+      <p>API logging is powerful, but it can become a liability if you log the wrong data. Treat API logs as sensitive production data, and use the <a href="/cheatsheets/api-security">API security checklist</a> to review authentication, authorization, validation, rate limits, and audit controls around the endpoints.</p>
       <ul>
         <li><strong>Mask secrets:</strong> Add every credential-like key to <code>DRF_API_LOGGER_EXCLUDE_KEYS</code>.</li>
         <li><strong>Limit payload size:</strong> Use max request and response body settings before enabling production logging.</li>

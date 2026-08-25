@@ -14,7 +14,6 @@ const modelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'blog-post.
 const modelContent = fs.readFileSync(modelPath, 'utf-8');
 
 // Extract slugs and dates from the model
-const slugRegex = /slug:\s*'([^']+)'/g;
 const dateRegex = /date:\s*'([^']+)'/g;
 const categoryRegex = /category:\s*'([^']+)'/g;
 
@@ -42,14 +41,24 @@ while ((match = blogSlugRegex.exec(blogSection)) !== null) {
 while ((match = dateRegex.exec(blogSection)) !== null) {
   dates.push(match[1]);
 }
-
 const today = new Date().toISOString().split('T')[0];
+const blogLastmods = new Map(slugs.map((slug, index) => [
+  `${SITE_URL}/blog/${slug}`,
+  dates[index],
+]));
 
 function normalizeSitemapXml(sitemapXml) {
   return sitemapXml
     .replace(/\n\s*<changefreq>[^<]*<\/changefreq>/g, '')
     .replace(/\n\s*<priority>[^<]*<\/priority>/g, '')
-    .replace(new RegExp(`\\n\\s*<lastmod>${today}<\\/lastmod>`, 'g'), '');
+    .replace(/<url>[\s\S]*?<\/url>/g, block => {
+      const loc = block.match(/<loc>(.*?)<\/loc>/)?.[1];
+      if (loc && noindexCourseGuideUrls.has(loc)) return '';
+      const isVerifiedBlogDate = loc && blogLastmods.get(loc) === today;
+      return isVerifiedBlogDate
+        ? block
+        : block.replace(new RegExp(`\\n\\s*<lastmod>${today}<\\/lastmod>`, 'g'), '');
+    });
 }
 
 let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -912,13 +921,20 @@ function appendUrl(urlPath, priority = '0.8') {
 `;
 }
 
-for (const course of loadCoursesFromModel()) {
+const publishedCourses = loadCoursesFromModel();
+const noindexCourseGuideUrls = new Set(publishedCourses.flatMap(course => (
+  (course.seoPages || [])
+    .filter(page => page.indexable !== true)
+    .map(page => `${SITE_URL}/courses/${page.slug}`)
+)));
+
+for (const course of publishedCourses) {
   appendUrl(`/courses/${course.slug}`, '0.9');
   for (const mod of course.modules || []) {
     appendUrl(`/courses/${course.slug}/${mod.slug}`, '0.8');
   }
   for (const page of course.seoPages || []) {
-    appendUrl(`/courses/${page.slug}`, '0.8');
+    if (page.indexable === true) appendUrl(`/courses/${page.slug}`, '0.8');
   }
 }
 
@@ -936,11 +952,10 @@ for (const cat of categories) {
 // Blog post pages. Slide decks remain available to users, but they are
 // noindex supporting pages and are intentionally excluded from the sitemap.
 for (let i = 0; i < slugs.length; i++) {
-  const date = dates[i] || today;
+  const date = dates[i];
   xml += `  <url>
     <loc>${SITE_URL}/blog/${slugs[i]}</loc>
-    <lastmod>${date}</lastmod>
-    <changefreq>monthly</changefreq>
+${date ? `    <lastmod>${date}</lastmod>\n` : ''}    <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 `;

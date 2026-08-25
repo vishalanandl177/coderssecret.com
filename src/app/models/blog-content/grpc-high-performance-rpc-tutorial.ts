@@ -1,8 +1,8 @@
 export const CONTENT = `
-      <p>REST has been the default for APIs for over a decade, but it wasn't designed for microservices talking to each other millions of times per second. <strong>gRPC</strong> (Google Remote Procedure Call) was built exactly for this - high-throughput, low-latency, strongly-typed communication between services. It's used by Google, Netflix, Slack, Square, and most serious microservice architectures.</p>
+      <p>REST has been the default for APIs for over a decade, but it wasn't designed for microservices talking to each other millions of times per second. <strong>gRPC</strong> (Google Remote Procedure Call) was built exactly for this - high-throughput, low-latency, <a href="/blog/apache-thrift-cross-language-rpc" class="text-primary underline">strongly-typed communication between services</a>. It's used by Google, Netflix, Slack, Square, and most serious microservice architectures.</p>
 
       <h2>What is gRPC?</h2>
-      <p>gRPC is an open-source RPC (Remote Procedure Call) framework that uses <strong>HTTP/2</strong> for transport and <strong>Protocol Buffers (protobuf)</strong> for serialization. Instead of sending JSON over HTTP/1.1 like REST, gRPC sends compact binary data over multiplexed HTTP/2 connections.</p>
+      <p>gRPC is an open-source RPC (Remote Procedure Call) framework that uses <strong><a href="/courses/distributed-systems-engineering/networking-distributed-communication" class="text-primary underline">HTTP/2</a></strong> for transport and <strong>Protocol Buffers (protobuf)</strong> for serialization. Instead of sending JSON over HTTP/1.1 like REST, gRPC sends compact binary data over multiplexed HTTP/2 connections.</p>
 
       <!-- gRPC vs REST -->
       <div class="flow-diagram">

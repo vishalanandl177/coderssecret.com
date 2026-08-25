@@ -127,7 +127,7 @@ jobs:
 
   related: RelatedLink[] = [
     { label: 'Cloud Native Security Engineering - Supply Chain module', href: '/courses/cloud-native-security-engineering/supply-chain-security', description: 'Module: secure CI/CD, signing, attestation, and the gates that close the supply-chain gap.' },
-    { label: 'Kubernetes Supply Chain Security guide', href: '/courses/kubernetes-supply-chain-security', description: 'End-to-end signing and verification for Kubernetes deployments.' },
+    { label: 'Software Supply Chain Security Explained', href: '/blog/software-supply-chain-security-explained', description: 'Connect source control, CI runners, dependencies, artifacts, SBOMs, provenance, signing, and deployment policy.' },
     { label: 'Secure CI/CD Pipelines module', href: '/courses/cloud-native-security-engineering/secure-cicd-pipelines', description: 'Module: hardened CI runners, secret management, and policy gates.' },
     { label: 'Sigstore glossary entry', href: '/glossary/sigstore', description: 'What Sigstore is and how cosign + Fulcio + Rekor compose.' },
   ];

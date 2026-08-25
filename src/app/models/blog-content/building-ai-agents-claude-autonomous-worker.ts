@@ -1,7 +1,7 @@
 export const CONTENT = `
       <p>A chatbot answers questions. An agent <strong>takes actions</strong>. It reads databases, calls APIs, writes files, makes decisions, and executes multi-step plans - all autonomously. The difference is not the model. It is the architecture around it.</p>
 
-      <p>This guide builds an AI agent from scratch using Claude, starting with a simple tool-calling loop and progressively adding memory, error recovery, and multi-step orchestration.</p>
+      <p>This guide builds an AI agent from scratch using Claude, starting with a simple <a href="/blog/mcp-servers-ai-agents-tutorial">tool-calling loop that connects agents to external systems</a> and progressively adding memory, error recovery, and multi-step orchestration. The <a href="/courses/production-rag-systems-engineering/ai-agents-agentic-rag">AI agents and agentic RAG module</a> places the same loop inside a broader retrieval architecture.</p>
 
       <h2>The Agent Loop: Core Architecture</h2>
 

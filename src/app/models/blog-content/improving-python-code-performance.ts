@@ -47,7 +47,7 @@ def process_data():
 # Run with: kernprof -l -v your_script.py</code></pre>
 
       <h2>Use Built-in Functions and Data Structures</h2>
-      <p>Python's built-in functions are implemented in C and are dramatically faster than pure Python equivalents.</p>
+      <p><a href="/cheatsheets/python" class="text-primary underline">Python's built-in functions</a> are implemented in C and are dramatically faster than pure Python equivalents.</p>
       <pre><code># SLOW: Manual loop
 total = 0
 for x in numbers:
@@ -136,7 +136,7 @@ for name, score in data:
 lines = [f"Name: {name}, Score: {score}" for name, score in data]</code></pre>
 
       <h2>Leverage NumPy for Numerical Work</h2>
-      <p>For numerical computation, NumPy's vectorized operations are 50-100x faster than pure Python loops:</p>
+      <p>For numerical computation, <a href="/blog/apache-arrow-columnar-format-tutorial" class="text-primary underline">NumPy's vectorized operations</a> are 50-100x faster than pure Python loops:</p>
       <pre><code>import numpy as np
 
 # SLOW: Pure Python - ~2 seconds for 10M elements

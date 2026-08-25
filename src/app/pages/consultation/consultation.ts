@@ -197,6 +197,19 @@ export class ConsultationComponent {
         { name: 'Home', url: '/' },
         { name: 'Consultation', url: '/consultation' },
       ],
+      jsonLd: {
+        '@context': 'https://schema.org',
+        '@type': 'Service',
+        'name': 'Technical Consultation',
+        'description': 'Focused technical consultation for production engineering, architecture, Kubernetes, backend systems, security, and AI infrastructure.',
+        'provider': {
+          '@type': 'Person',
+          'name': 'Vishal Anand',
+          'url': 'https://coderssecret.com/about',
+        },
+        'areaServed': 'Worldwide',
+        'url': 'https://coderssecret.com/consultation',
+      },
     });
   }
 }

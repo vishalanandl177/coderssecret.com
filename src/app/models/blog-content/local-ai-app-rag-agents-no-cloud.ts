@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>You've installed Ollama and Gemma 4 from our <a href="/blog/run-gemma-4-locally-windows-macos-linux">previous guide</a>. Now what? A chatbot is fun for 5 minutes, but real AI applications need <strong>access to your data</strong> (RAG), <strong>ability to call tools</strong> (function calling), and <strong>autonomous reasoning</strong> (agents). This guide shows you how to build all three - entirely offline, no cloud APIs, no data leaving your machine.</p>
+      <p>You've installed Ollama and Gemma 4 from our <a href="/blog/run-gemma-4-locally-windows-macos-linux">previous guide</a>. Now what? A chatbot is fun for 5 minutes, but real AI applications need <strong>access to your data</strong> (RAG), <strong>ability to call tools</strong> (function calling), and <a href="/blog/building-ai-agents-claude-autonomous-worker"><strong>autonomous agent reasoning</strong></a>. This guide shows you how to build all three - entirely offline, no cloud APIs, no data leaving your machine. For the architecture behind retrieval, continue with the <a href="/courses/production-rag-systems-engineering/introduction-ai-rag-systems">introduction to production AI and RAG systems</a>.</p>
 
       <h2>What We're Building</h2>
 

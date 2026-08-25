@@ -43,6 +43,8 @@ export interface CourseModule {
 
 export interface CourseSeoPage {
   slug: string;
+  /** Only focused guides with distinct, substantive search intent belong in the sitemap. */
+  indexable?: boolean;
   title: string;
   description: string;
   content: string;

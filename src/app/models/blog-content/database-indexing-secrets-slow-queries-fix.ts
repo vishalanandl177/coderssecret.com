@@ -1,7 +1,7 @@
 export const CONTENT = `
       <p>You added an index. The query is still slow. Sound familiar? Most developers treat indexes like magic - add one and hope for the best. But indexes are data structures with specific rules, and violating those rules means your &ldquo;indexed&rdquo; query is still doing a full table scan.</p>
 
-      <p>This guide covers what your senior dev never explained: how indexes actually work internally, why column order in composite indexes matters more than you think, and how to read EXPLAIN ANALYZE output like a database engineer.</p>
+      <p>This guide covers what your senior dev never explained: <a href="/courses/distributed-systems-engineering/distributed-data-management" class="text-primary underline">how indexes actually work internally</a>, why column order in composite indexes matters more than you think, and how to read EXPLAIN ANALYZE output like a database engineer.</p>
 
       <h2>How Databases Find Your Data</h2>
 
@@ -219,7 +219,7 @@ CREATE INDEX idx_users_active ON users(created_at) WHERE is_active = true;</code
 
       <h3>3. Over-Indexing</h3>
 
-      <p>Every index slows down INSERT, UPDATE, and DELETE operations because the database must update every affected index. A table with 15 indexes means every single write operation triggers 15 index updates. Only create indexes that serve actual query patterns.</p>
+      <p><a href="/blog/zero-downtime-database-migrations-expand-contract" class="text-primary underline">Every index slows down INSERT, UPDATE, and DELETE operations</a> because the database must update every affected index. A table with 15 indexes means every single write operation triggers 15 index updates. Only create indexes that serve actual query patterns.</p>
 
       <h3>4. Implicit Type Casting</h3>
 

@@ -37,7 +37,7 @@ export const GLOSSARY: GlossaryEntry[] = [
         <tr><td>Open standard</td><td>CNCF</td><td>K8s-only</td><td>Proprietary</td></tr>
       </tbody></table>
       <h2>Learn SPIFFE</h2>
-      <p>Our free <a href="/courses/mastering-spiffe-spire">Mastering SPIFFE & SPIRE</a> course covers SPIFFE from fundamentals to production federation across 13 modules with 30+ hands-on labs.</p>
+      <p>Our free <a href="/courses/mastering-spiffe-spire">Mastering SPIFFE & SPIRE</a> course covers SPIFFE from fundamentals to production federation across 13 modules with 30 hands-on labs.</p>
     `,
   },
   {
@@ -45,7 +45,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     title: 'What is SPIRE? SPIFFE Runtime Environment Explained',
     description: 'SPIRE is the production implementation of the SPIFFE specification - a CNCF graduated project that automatically issues, rotates, and manages cryptographic workload identities.',
     relatedCourses: [{ slug: 'mastering-spiffe-spire', title: 'Mastering SPIFFE & SPIRE' }],
-    relatedTerms: ['spiffe', 'svid', 'workload-identity', 'attestation'],
+    relatedTerms: ['spiffe', 'svid', 'workload-identity'],
     content: `
       <h1>What is SPIRE?</h1>
       <p><strong>SPIRE</strong> (SPIFFE Runtime Environment) is the reference implementation of the <a href="/glossary/spiffe">SPIFFE</a> specification. It is a CNCF graduated project used by Bloomberg, Uber, Pinterest, and ByteDance at massive scale.</p>
@@ -73,7 +73,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     title: 'What is Zero Trust Security? Architecture and Principles Explained',
     description: 'Zero Trust is a security architecture where every request is verified cryptographically, regardless of network location. Never trust, always verify.',
     relatedCourses: [{ slug: 'cloud-native-security-engineering', title: 'Cloud Native Security Engineering' }],
-    relatedTerms: ['mtls', 'workload-identity', 'spiffe', 'microsegmentation'],
+    relatedTerms: ['mtls', 'workload-identity', 'spiffe'],
     content: `
       <h1>What is Zero Trust Security?</h1>
       <p><strong>Zero Trust</strong> is a security architecture that eliminates implicit trust. Every request - regardless of where it comes from - must be authenticated, encrypted, and authorized before processing.</p>
@@ -86,7 +86,7 @@ export const GLOSSARY: GlossaryEntry[] = [
         <li><strong>Verify continuously:</strong> Not just at connection establishment - on every request</li>
       </ol>
       <h2>Zero Trust in Kubernetes</h2>
-      <p>Kubernetes <a href="/glossary/network-policy">NetworkPolicies</a> restrict traffic by labels but do not encrypt or authenticate. True Zero Trust requires <a href="/glossary/mtls">mTLS</a> (encryption + authentication) and <a href="/glossary/workload-identity">workload identity</a> (cryptographic proof of who is making the request).</p>
+      <p>Kubernetes <a href="/cheatsheets/kubernetes-security">NetworkPolicies</a> restrict traffic by labels but do not encrypt or authenticate. True Zero Trust requires <a href="/glossary/mtls">mTLS</a> (encryption + authentication) and <a href="/glossary/workload-identity">workload identity</a> (cryptographic proof of who is making the request).</p>
       <h2>Learn Zero Trust</h2>
       <p>Start with <a href="/courses/cloud-native-security-engineering/zero-trust-security-fundamentals">Module 5: Zero Trust Fundamentals</a> in our free Cloud Native Security course.</p>
     `,
@@ -151,7 +151,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     title: 'What is OPA? Open Policy Agent for Kubernetes Explained',
     description: 'OPA is a CNCF graduated policy engine that enables policy-as-code. Use it with Gatekeeper for Kubernetes admission control or with Envoy for runtime authorization.',
     relatedCourses: [{ slug: 'cloud-native-security-engineering', title: 'Cloud Native Security Engineering' }],
-    relatedTerms: ['kyverno', 'gatekeeper', 'rego', 'zero-trust'],
+    relatedTerms: ['zero-trust'],
     content: `
       <h1>What is OPA (Open Policy Agent)?</h1>
       <p><strong>OPA</strong> is a general-purpose policy engine that decouples policy decisions from application code. Policies are written in <strong>Rego</strong>, a declarative language designed for evaluating structured data.</p>
@@ -174,7 +174,6 @@ export const GLOSSARY: GlossaryEntry[] = [
     title: 'What is Falco? Kubernetes Runtime Security Explained',
     description: 'Falco is a CNCF graduated runtime security tool that monitors Linux syscalls and alerts on suspicious container behavior - shell execution, sensitive file access, unexpected network connections.',
     relatedCourses: [{ slug: 'cloud-native-security-engineering', title: 'Cloud Native Security Engineering' }],
-    relatedTerms: ['tetragon', 'ebpf', 'runtime-security'],
     content: `
       <h1>What is Falco?</h1>
       <p><strong>Falco</strong> is a CNCF graduated project for runtime threat detection in Kubernetes. It monitors Linux syscalls and alerts when containers exhibit suspicious behavior.</p>
@@ -189,7 +188,7 @@ export const GLOSSARY: GlossaryEntry[] = [
         <li>Container escape via nsenter or chroot</li>
       </ul>
       <h2>Falco vs Tetragon</h2>
-      <p>Falco <strong>detects</strong> threats and sends alerts. <a href="/glossary/tetragon">Tetragon</a> can <strong>block</strong> threats in real-time using eBPF enforcement. Many teams use both: Falco for broad detection, Tetragon for critical enforcement.</p>
+      <p>Falco <strong>detects</strong> threats and sends alerts. The <a href="/cheatsheets/runtime-security">runtime security reference</a> explains how Tetragon can <strong>block</strong> threats in real-time using eBPF enforcement. Many teams use both: Falco for broad detection, Tetragon for critical enforcement.</p>
       <h2>Learn More</h2>
       <p>See <a href="/courses/cloud-native-security-engineering/runtime-security-threat-detection">Module 10: Runtime Security</a>.</p>
     `,
@@ -199,7 +198,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     title: 'What is a Service Mesh? Istio, Envoy, and Linkerd Explained',
     description: 'A service mesh is an infrastructure layer of sidecar proxies that handles service-to-service communication - providing automatic mTLS, load balancing, observability, and traffic management.',
     relatedCourses: [{ slug: 'cloud-native-security-engineering', title: 'Cloud Native Security Engineering' }],
-    relatedTerms: ['mtls', 'zero-trust', 'spiffe', 'envoy'],
+    relatedTerms: ['mtls', 'zero-trust', 'spiffe'],
     content: `
       <h1>What is a Service Mesh?</h1>
       <p>A <strong>service mesh</strong> adds a sidecar proxy (typically <strong>Envoy</strong>) to every pod. The proxy handles mTLS, load balancing, retries, circuit breaking, and observability - transparently, without application code changes.</p>
@@ -221,7 +220,6 @@ export const GLOSSARY: GlossaryEntry[] = [
     title: 'What is Sigstore? Container Image Signing and Verification',
     description: 'Sigstore provides keyless container image signing via OIDC identity. Cosign signs images, Rekor provides transparency logging, and Fulcio issues ephemeral signing certificates.',
     relatedCourses: [{ slug: 'cloud-native-security-engineering', title: 'Cloud Native Security Engineering' }],
-    relatedTerms: ['cosign', 'slsa', 'sbom', 'supply-chain-security'],
     content: `
       <h1>What is Sigstore?</h1>
       <p><strong>Sigstore</strong> is an open-source project for signing, verifying, and protecting software. It makes software supply chain security accessible by providing keyless signing - no GPG keys to manage.</p>

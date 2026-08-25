@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Angular has come a long way from its AngularJS roots. With <strong>Angular 21</strong> (released 2026), the framework is faster, simpler, and more developer-friendly than ever - while retaining the batteries-included architecture that makes it the top choice for large-scale enterprise applications. If you've dismissed Angular as "too complex" or "too heavy," it's time for a fresh look.</p>
+      <p>Angular has come a long way from its AngularJS roots. With <strong>Angular 21</strong> (released 2026), the framework is faster, simpler, and more developer-friendly than ever - while retaining the batteries-included architecture that makes it the top choice for large-scale enterprise applications. Teams that need independent UI deployments should also compare the <a href="/blog/micro-frontends-module-federation-guide">micro-frontend and Module Federation architecture</a>. If you've dismissed Angular as "too complex" or "too heavy," it's time for a fresh look.</p>
 
       <h2>What's New in Angular 21</h2>
       <p>Angular 21 represents the culmination of a multi-year modernization effort. Here are the headline features:</p>
@@ -21,7 +21,7 @@ export const CONTENT = `
       </div>
 
       <h2>Signals: The Reactivity Revolution</h2>
-      <p>Signals replace the zone.js-based change detection with <strong>fine-grained reactivity</strong>. Instead of checking the entire component tree on every event, Angular now tracks exactly which values changed and updates only those DOM nodes.</p>
+      <p>Signals replace the zone.js-based change detection with <strong>fine-grained reactivity</strong>. The <a href="/blog/angular-signals-deep-dive-replacing-rxjs">Angular Signals deep dive</a> explains where observables still fit, while the <a href="/blog/angular-state-management-ngrx-signals-services">Angular state-management comparison</a> maps signals to application-scale choices. Instead of checking the entire component tree on every event, Angular now tracks exactly which values changed and updates only those DOM nodes.</p>
       <pre><code>import { Component, signal, computed, effect } from '@angular/core';
 
 @Component({

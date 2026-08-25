@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Most developers know a dozen Linux commands and Google the rest. That works until production is on fire at 2 AM and you need to find which process is holding a file lock, which socket is stuck in CLOSE_WAIT, or which log entry appeared right before the crash. These commands are your firefighting toolkit.</p>
+      <p>Most developers know a dozen Linux commands and Google the rest. That works until production is on fire at 2 AM and you need to find which process is holding a file lock, which socket is stuck in CLOSE_WAIT, or which log entry appeared right before the crash. These commands are your firefighting toolkit. When the failure is inside a cluster, continue with the <a href="/blog/kubernetes-debugging-toolkit-kubectl-guide">Kubernetes debugging toolkit</a>; when the command must run on a schedule, use the <a href="/blog/cron-jobs-complete-guide-with-examples">cron jobs guide</a>. The <a href="/games/linux-challenge">Linux command challenge</a> provides a practical way to rehearse the same tools.</p>
 
       <h2>Text Processing: awk, sed, cut</h2>
 

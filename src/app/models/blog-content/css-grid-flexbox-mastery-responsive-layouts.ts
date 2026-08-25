@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Most developers learn just enough Flexbox to center a div and just enough Grid to feel confused. Then they reach for a CSS framework. But Flexbox and Grid together handle every layout you will ever need - sidebars, card grids, holy grail layouts, responsive navigation - without a single framework dependency.</p>
+      <p>Most developers learn just enough Flexbox to center a div and just enough Grid to feel confused. Then they reach for a CSS framework. But Flexbox and Grid together handle every layout you will ever need - sidebars, card grids, holy grail layouts, responsive navigation - without a single framework dependency. Those primitives become reusable when they are captured in a <a href="/blog/build-your-own-design-system-guide">production design system</a>, and they stay usable when you test their effect on <a href="/blog/web-performance-core-web-vitals-optimization">Core Web Vitals and responsive performance</a>.</p>
 
       <h2>The One Rule: Grid for Layout, Flexbox for Alignment</h2>
 

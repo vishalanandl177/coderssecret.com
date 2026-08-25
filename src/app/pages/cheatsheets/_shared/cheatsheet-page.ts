@@ -46,6 +46,7 @@ export interface CheatsheetHeader {
                 <span class="md3-learning-eyebrow">{{ header.badge }}</span>
                 <h1>{{ header.title }}</h1>
                 <p class="md3-learning-lede">{{ header.intro }}</p>
+                <p class="md3-learning-lede">Maintained by <a routerLink="/about">Vishal Anand</a>.</p>
                 <div class="md3-learning-chip-row" aria-label="Reference features">
                   <span class="md3-chip-selected">Command-first</span>
                   <span class="md3-chip">Production notes</span>

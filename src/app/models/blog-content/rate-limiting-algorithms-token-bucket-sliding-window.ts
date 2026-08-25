@@ -1,7 +1,7 @@
 export const CONTENT = `
-      <p>Every API needs rate limiting. Without it, a single misbehaving client can overwhelm your servers, a bot can scrape your entire database, or a billing exploit can cost you thousands. But not all rate limiters are equal - each algorithm has distinct tradeoffs in accuracy, memory usage, and burst handling.</p>
+      <p>Every API needs <a href="/blog/rate-limiting-algorithms-production-guide" class="text-primary underline">rate limiting</a>. Without it, a single misbehaving client can overwhelm your servers, a bot can scrape your entire database, or a billing exploit can cost you thousands. But not all rate limiters are equal - each algorithm has distinct tradeoffs in accuracy, memory usage, and burst handling.</p>
 
-      <p>This guide implements three production-grade algorithms from scratch, explains when to use each, and shows how to deploy them with Redis for distributed systems.</p>
+      <p>This guide implements three production-grade algorithms from scratch, explains when to use each, and shows how to <a href="/courses/distributed-systems-engineering/scalability-engineering" class="text-primary underline">deploy them with Redis for distributed systems</a>.</p>
 
       <h2>Why Rate Limiting Matters</h2>
 

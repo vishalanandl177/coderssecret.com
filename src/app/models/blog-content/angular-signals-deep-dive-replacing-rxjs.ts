@@ -1,7 +1,7 @@
 export const CONTENT = `
       <p>Angular Signals landed as stable in Angular 17 and have matured significantly through Angular 21. The community reaction has been polarized: some developers want to replace every Observable with a signal, while others cling to RxJS for everything. Both extremes are wrong.</p>
 
-      <p>This guide explains what signals actually are under the hood, when they genuinely replace RxJS, and when observables remain the better tool.</p>
+      <p>This guide explains what signals actually are under the hood, when they genuinely replace RxJS, and when observables remain the better tool. Apply that distinction with the <a href="/blog/angular-state-management-ngrx-signals-services">NgRx, Signals, and services state-management comparison</a>, then see how it affects rendering in <a href="/blog/angular-21-large-scale-applications-comparison">Angular 21 applications</a>.</p>
 
       <h2>What Signals Actually Are</h2>
 

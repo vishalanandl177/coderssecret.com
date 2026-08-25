@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Your laptop probably runs x86 (Intel or AMD). Your phone definitely runs ARM (Qualcomm, Apple, MediaTek). Your cloud server might be either. The M4 MacBook runs ARM. AWS Graviton runs ARM. Windows runs on both. These two architectures power every computing device on the planet - and understanding the difference helps you make better decisions about hardware, cloud instances, and even how to write your code.</p>
+      <p>Your laptop probably runs x86 (Intel or AMD). Your phone definitely runs ARM (Qualcomm, Apple, MediaTek). Your cloud server might be either. The M4 MacBook runs ARM. AWS Graviton runs ARM. Windows runs on both. These two architectures power every computing device on the planet - and <a href="/blog/cpu-architecture-explained-for-developers" class="text-primary underline">understanding the difference</a> helps you make better decisions about hardware, cloud instances, and even how to write your code.</p>
 
       <h2>The Fundamental Difference: CISC vs RISC</h2>
 
@@ -187,5 +187,5 @@ aarch64-linux-gnu-gcc -o myapp-arm64 main.c
         <li><strong>x86 isn't dying</strong> - it still dominates gaming, legacy enterprise, and high-frequency trading. But it's no longer the default.</li>
       </ul>
 
-      <p>The best architecture is the one that fits your workload. x86 still wins for raw single-thread speed and legacy compatibility. ARM wins for power efficiency and cost. But the gap is closing fast - and for most cloud workloads in 2026, ARM (Graviton, Ampere) is the smarter default choice.</p>
+      <p>The best architecture is the one that fits your workload. x86 still wins for <a href="/blog/cpu-cache-layers-l1-l2-l3-practical-guide" class="text-primary underline">raw single-thread speed</a> and legacy compatibility. ARM wins for power efficiency and cost. But the gap is closing fast - and for most cloud workloads in 2026, ARM (Graviton, Ampere) is the smarter default choice.</p>
     `;

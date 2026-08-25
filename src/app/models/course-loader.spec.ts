@@ -63,4 +63,20 @@ describe('course loader and lightweight catalog', () => {
       expect(outlines.find(outline => outline.slug === course.slug)).toEqual(toCourseOutline(course));
     }
   });
+
+  it('indexes only focused course guides with distinct editorial intent', async () => {
+    const courses = await loadCourses();
+    const indexableGuideSlugs = courses
+      .flatMap(course => course.seoPages)
+      .filter(page => page.indexable === true)
+      .map(page => page.slug)
+      .sort();
+
+    expect(indexableGuideSlugs).toEqual([
+      'building-malware-resistant-software',
+      'machine-identity-management',
+      'malware-analysis-for-developers',
+      'malware-detection-engineering',
+    ]);
+  });
 });

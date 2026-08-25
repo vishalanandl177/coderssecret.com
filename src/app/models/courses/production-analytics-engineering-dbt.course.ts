@@ -480,7 +480,7 @@ export const ANALYTICS_ENGINEERING_COURSE: Course = {
       'Focuses on beginner-friendly explanations without hiding production realities',
     ],
   },
-  totalDuration: '28+ hours',
+  totalDuration: 'About 28 hours',
   level: 'Beginner to Intermediate',
   category: 'data-engineering',
   labDelivery: 'inline',

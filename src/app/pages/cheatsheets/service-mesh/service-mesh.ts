@@ -142,6 +142,7 @@ spec: { mtls: { mode: STRICT } }
     { label: 'SPIFFE/SPIRE integration with service mesh', href: '/courses/mastering-spiffe-spire/spire-integrations-service-mesh', description: 'How SPIRE-issued SVIDs power Istio/Envoy mTLS.' },
     { label: 'Service mesh glossary entry', href: '/glossary/service-mesh', description: 'What service mesh is and what it solves.' },
     { label: 'mTLS glossary entry', href: '/glossary/mtls', description: 'Mutual TLS - the universal handshake for service-to-service trust.' },
+    { label: 'Envoy Proxy and xDS', href: '/blog/envoy-proxy-xds-server-guide', description: 'Understand the proxy and dynamic control-plane model beneath an Envoy-based service mesh.' },
   ];
 
   constructor() {

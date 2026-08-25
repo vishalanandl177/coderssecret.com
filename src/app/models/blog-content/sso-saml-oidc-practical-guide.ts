@@ -153,7 +153,7 @@ def saml_acs(request):
         return HttpResponse(f'SAML Error: {errors}', status=400)</code></pre>
 
       <h2>OpenID Connect (OIDC) - The Modern Standard</h2>
-      <p>OIDC is built on top of OAuth 2.0 and uses JSON/JWT instead of XML. It was designed in 2014 as a simpler, more developer-friendly alternative to SAML.</p>
+      <p><a href="/blog/oauth2-openid-connect-developer-guide" class="text-primary underline">OIDC is built on top of OAuth 2.0</a> and uses JSON/JWT instead of XML. It was designed in 2014 as a simpler, more developer-friendly alternative to SAML.</p>
 
       <h2>OIDC Authorization Code Flow</h2>
       <pre><code>1. User visits https://app.example.com
@@ -245,7 +245,7 @@ def saml_acs(request):
 
 
       <h2>The ID Token</h2>
-      <p>The key differentiator of OIDC is the <strong>ID Token</strong> - a JWT containing the authenticated user's identity:</p>
+      <p>The key differentiator of OIDC is the <strong>ID Token</strong> - a <a href="/courses/centralized-authentication-authorization-envoy/auth-vocabulary-sso-saml-oidc-jwt-jwks-tokens" class="text-primary underline">JWT containing the authenticated user's identity</a>:</p>
 
       <!-- JWT Anatomy (Interactive) -->
       <div class="flow-diagram">

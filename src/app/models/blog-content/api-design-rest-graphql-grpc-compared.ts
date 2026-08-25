@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Every new project faces the same question: how should services communicate? REST is the default choice, but GraphQL and gRPC exist for good reasons. Picking the wrong protocol means either over-fetching data across slow mobile connections or wrestling with complex schemas for a simple CRUD API.</p>
+      <p>Every new project faces the same question: <a href="/courses/distributed-systems-engineering/networking-distributed-communication" class="text-primary underline">how should services communicate</a>? REST is the default choice, but GraphQL and gRPC exist for good reasons. Picking the wrong protocol means either over-fetching data across slow mobile connections or wrestling with complex schemas for a simple CRUD API.</p>
 
       <p>This guide gives you the knowledge to make the right choice for each situation, with real examples and honest tradeoffs.</p>
 
@@ -168,7 +168,7 @@ query PostDetail {
 
       <h2>gRPC: High-Performance Service Communication</h2>
 
-      <p>gRPC uses Protocol Buffers (binary serialization) over HTTP/2. It is designed for <strong>service-to-service</strong> communication where performance and type safety matter more than human readability.</p>
+      <p><a href="/blog/grpc-high-performance-rpc-tutorial" class="text-primary underline">gRPC uses Protocol Buffers (binary serialization) over HTTP/2</a>. It is designed for <strong>service-to-service</strong> communication where performance and type safety matter more than human readability.</p>
 
       <h3>Protocol Buffer Schema</h3>
 

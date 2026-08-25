@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Every database query needs a connection. Opening a connection takes 50-100ms (TCP handshake, SSL negotiation, authentication). Without pooling, your app opens and closes a connection for every single request. At 100 concurrent users, that is 100 simultaneous connections - and PostgreSQL defaults to a maximum of 100. Connection number 101 gets rejected, your app crashes, and your users see a 500 error.</p>
+      <p>Every <a href="/blog/database-indexing-secrets-slow-queries-fix" class="text-primary underline">database query</a> needs a connection. Opening a connection takes 50-100ms (TCP handshake, SSL negotiation, authentication). Without pooling, your app opens and closes a connection for every single request. At 100 concurrent users, that is 100 simultaneous connections - and PostgreSQL defaults to a maximum of 100. Connection number 101 gets rejected, your app crashes, and your users see a 500 error.</p>
 
       <h2>How Connection Pooling Works</h2>
 
@@ -98,7 +98,7 @@ engine = create_engine(
 
       <h2>External Pooling: PgBouncer</h2>
 
-      <p>PgBouncer sits between your app and PostgreSQL as a lightweight proxy. It is the production standard for PostgreSQL connection pooling, especially with multiple app servers.</p>
+      <p>PgBouncer sits between your app and PostgreSQL as a lightweight proxy. It is the production standard for PostgreSQL connection pooling, especially with <a href="/courses/distributed-systems-engineering/scalability-engineering" class="text-primary underline">multiple app servers</a>.</p>
 
       <pre><code># /etc/pgbouncer/pgbouncer.ini
 

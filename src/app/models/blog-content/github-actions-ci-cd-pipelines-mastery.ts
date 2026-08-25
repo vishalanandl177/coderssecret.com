@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>GitHub Actions is the most popular CI/CD platform for open source and increasingly for enterprise. But most teams use it like a simple script runner - one workflow, no caching, no parallelism, 20-minute builds. This guide shows you the patterns that make CI/CD fast, reliable, and maintainable.</p>
+      <p>GitHub Actions is the most popular CI/CD platform for open source and increasingly for enterprise. But most teams use it like a simple script runner - one workflow, no caching, no parallelism, 20-minute builds. This guide shows you the patterns that make CI/CD fast, reliable, and maintainable. Treat the workflow as a security boundary by reviewing the <a href="/blog/common-cicd-attack-paths">common CI/CD attack paths</a>.</p>
 
       <div class="pipeline-diagram">
         <div class="pipeline-title">Optimized CI/CD Pipeline Architecture</div>
@@ -125,6 +125,8 @@ jobs:
 # With cache:   npm ci skipped, build uses incremental cache
 # Total savings: 60-80% of build time</code></pre>
 
+      <p>When the build produces a container, combine dependency and layer caching with the <a href="/blog/docker-multi-stage-builds-shrink-images">multi-stage Docker build patterns</a> so the final artifact stays small and excludes build-only tooling.</p>
+
       <h2>Reusable Workflows</h2>
 
       <pre><code># .github/workflows/reusable-deploy.yml
@@ -179,6 +181,8 @@ jobs:
       app-name: myapp
     secrets: inherit</code></pre>
 
+      <p>Reusable workflows are especially useful for <a href="/blog/terraform-infrastructure-as-code-production-guide">production Terraform automation</a>, where plan, approval, and apply behavior should stay consistent across repositories and environments.</p>
+
       <h2>Secrets Management</h2>
 
       <pre><code># Secrets are encrypted and masked in logs
@@ -201,6 +205,8 @@ jobs:
           role-to-assume: arn:aws:iam::123456789:role/github-actions
           aws-region: us-east-1
           # No access keys! Uses temporary OIDC tokens</code></pre>
+
+      <p>Use the <a href="/cheatsheets/devsecops">DevSecOps cheatsheet</a> during workflow review to keep secret handling, dependency scanning, artifact signing, and deployment checks visible.</p>
 
       <h2>Monorepo Strategies</h2>
 

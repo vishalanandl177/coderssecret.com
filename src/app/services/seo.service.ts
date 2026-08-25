@@ -75,6 +75,7 @@ export class SeoService {
     this.meta.updateTag({ name: 'twitter:site', content: '@coderssecret' });
 
     // Article-specific OG tags
+    this.clearArticleMeta();
     if (config.article) {
       if (config.article.author) {
         this.meta.updateTag({ property: 'article:author', content: config.article.author });
@@ -86,8 +87,8 @@ export class SeoService {
         this.meta.updateTag({ property: 'article:section', content: config.article.section });
       }
       if (config.article.tags) {
-        config.article.tags.forEach(tag => {
-          this.meta.updateTag({ property: 'article:tag', content: tag });
+        [...new Set(config.article.tags)].forEach(tag => {
+          this.meta.addTag({ property: 'article:tag', content: tag }, true);
         });
       }
     }
@@ -111,7 +112,7 @@ export class SeoService {
         'author': {
           '@type': 'Person',
           'name': config.article.author,
-          'url': this.siteUrl,
+          'url': `${this.siteUrl}/about`,
         },
         'publisher': {
           '@type': 'Organization',
@@ -153,11 +154,6 @@ export class SeoService {
         'name': this.siteName,
         'url': this.siteUrl,
         'description': this.defaultDescription,
-        'potentialAction': {
-          '@type': 'SearchAction',
-          'target': `${this.siteUrl}/blog?q={search_term_string}`,
-          'query-input': 'required name=search_term_string',
-        },
       });
     }
 
@@ -206,7 +202,7 @@ export class SeoService {
     }
 
     if (schemas.length > 0) {
-      this.updateJsonLd(schemas.length === 1 ? schemas[0] : schemas);
+      this.updateJsonLd(schemas.length === 1 ? schemas[0] : schemas, url);
     } else {
       this.removeJsonLd();
     }
@@ -244,6 +240,19 @@ export class SeoService {
     link.setAttribute('href', url);
   }
 
+  private clearArticleMeta() {
+    const selectors = [
+      'property="article:author"',
+      'property="article:published_time"',
+      'property="article:modified_time"',
+      'property="article:section"',
+      'property="article:tag"',
+    ];
+    selectors.forEach(selector => {
+      this.meta.getTags(selector).forEach(tag => this.meta.removeTagElement(tag));
+    });
+  }
+
   private normalizeCanonicalPath(path: string): string {
     const pathOnly = String(path || '/').split(/[?#]/)[0] || '/';
     const normalized = `/${pathOnly.replace(/^\/+/, '')}`.replace(/\/+$/, '');
@@ -255,14 +264,84 @@ export class SeoService {
     return normalizedPath === '/' ? this.siteUrl : `${this.siteUrl}${normalizedPath}`;
   }
 
-  private updateJsonLd(data: Record<string, unknown> | Record<string, unknown>[]) {
+  private updateJsonLd(
+    data: Record<string, unknown> | Record<string, unknown>[],
+    pageUrl: string,
+  ) {
     let script: HTMLScriptElement | null = this.doc.querySelector('script[type="application/ld+json"]');
+    const existingSchemas = this.readJsonLd(script);
+    const preservedSchemas = existingSchemas.filter(schema => this.schemaOwnerUrl(schema) === pageUrl);
+    const nextSchemas = Array.isArray(data) ? data : [data];
+    const mergedSchemas = new Map<string, Record<string, unknown>>();
+
+    for (const schema of [...preservedSchemas, ...nextSchemas]) {
+      const identity = this.schemaIdentity(schema);
+      mergedSchemas.set(identity, { ...(mergedSchemas.get(identity) || {}), ...schema });
+    }
+
     if (!script) {
       script = this.doc.createElement('script');
       script.setAttribute('type', 'application/ld+json');
       this.doc.head.appendChild(script);
     }
-    script.textContent = JSON.stringify(data);
+    const merged = [...mergedSchemas.values()];
+    script.textContent = JSON.stringify(merged.length === 1 ? merged[0] : merged);
+  }
+
+  private readJsonLd(script: HTMLScriptElement | null): Record<string, unknown>[] {
+    if (!script?.textContent) return [];
+    try {
+      const parsed: unknown = JSON.parse(script.textContent);
+      const entries = Array.isArray(parsed) ? parsed : [parsed];
+      return entries.filter((entry): entry is Record<string, unknown> => (
+        typeof entry === 'object' && entry !== null && !Array.isArray(entry)
+      ));
+    } catch {
+      return [];
+    }
+  }
+
+  private schemaIdentity(schema: Record<string, unknown>): string {
+    const type = Array.isArray(schema['@type'])
+      ? schema['@type'].join(',')
+      : String(schema['@type'] || 'Thing');
+    return `${type}|${this.schemaOwnerUrl(schema) || ''}`;
+  }
+
+  private schemaOwnerUrl(schema: Record<string, unknown>): string | undefined {
+    const directUrl = this.stringValue(schema['url']) || this.stringValue(schema['@id']);
+    if (directUrl) return this.normalizeSchemaUrl(directUrl);
+
+    const mainEntity = schema['mainEntityOfPage'];
+    const mainEntityUrl = this.stringValue(mainEntity)
+      || (this.isRecord(mainEntity) ? this.stringValue(mainEntity['@id']) : undefined);
+    if (mainEntityUrl) return this.normalizeSchemaUrl(mainEntityUrl);
+
+    if (schema['@type'] === 'BreadcrumbList' && Array.isArray(schema['itemListElement'])) {
+      const lastItem = [...schema['itemListElement']].reverse().find(this.isRecord);
+      const itemUrl = lastItem && (this.stringValue(lastItem['item']) || this.stringValue(lastItem['url']));
+      if (itemUrl) return this.normalizeSchemaUrl(itemUrl);
+    }
+
+    return undefined;
+  }
+
+  private normalizeSchemaUrl(value: string): string | undefined {
+    try {
+      const parsed = new URL(value, this.siteUrl);
+      const pathname = this.normalizeCanonicalPath(parsed.pathname);
+      return pathname === '/' ? parsed.origin : `${parsed.origin}${pathname}`;
+    } catch {
+      return undefined;
+    }
+  }
+
+  private stringValue(value: unknown): string | undefined {
+    return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+  }
+
+  private isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
   }
 
   private removeJsonLd() {

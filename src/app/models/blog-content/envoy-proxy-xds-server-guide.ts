@@ -2,7 +2,7 @@ export const CONTENT = `
       <p>You've probably used Envoy without knowing it. If you've deployed to Istio, used AWS App Mesh, or run Consul Connect - Envoy was the proxy doing the actual work. It's the most important piece of infrastructure in the cloud-native world that most developers never interact with directly. Let's change that.</p>
 
       <h2>What is Envoy?</h2>
-      <p>Envoy is a <strong>high-performance, programmable L4/L7 proxy</strong> designed for modern microservice architectures. Unlike nginx or HAProxy which are configured via static config files, Envoy is designed to be <strong>dynamically configured at runtime</strong> via APIs - no restarts needed.</p>
+      <p>Envoy is a <strong>high-performance, programmable L4/L7 proxy</strong> designed for modern microservice architectures. Unlike nginx or HAProxy which are configured via static config files, Envoy is designed to be <strong>dynamically configured at runtime</strong> via APIs - no restarts needed. Place it in context with the <a href="/blog/kubernetes-networking-services-ingress-load-balancer">Kubernetes Services and Ingress guide</a>, then instrument its request path with the <a href="/blog/observability-opentelemetry-logs-metrics-traces">OpenTelemetry logs, metrics, and traces guide</a>. The <a href="/glossary/service-mesh">service mesh glossary</a> explains how Envoy is commonly deployed alongside applications.</p>
 
       <!-- Envoy vs Traditional -->
       <div class="flow-diagram">

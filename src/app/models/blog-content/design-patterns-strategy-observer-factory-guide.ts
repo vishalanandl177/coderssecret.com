@@ -1,7 +1,7 @@
 export const CONTENT = `
       <p>Design patterns have a reputation problem. The Gang of Four book describes 23 patterns, most developers memorize a few for interviews, and then never consciously use them. But the truth is you use design patterns every day - you just do not call them by name.</p>
 
-      <p>This guide covers the 7 patterns that genuinely appear in production code, with practical examples in Python and TypeScript.</p>
+      <p>This guide covers the 7 patterns that genuinely appear in production code, with practical examples in Python and TypeScript. Use the <a href="/blog/solid-principles-practical-examples">SOLID principles refactoring examples</a> to judge class boundaries, and the <a href="/blog/separation-of-concerns-architecture-guide">separation-of-concerns architecture guide</a> to place each pattern at the right layer.</p>
 
       <h2>1. Strategy Pattern: Swappable Algorithms</h2>
 

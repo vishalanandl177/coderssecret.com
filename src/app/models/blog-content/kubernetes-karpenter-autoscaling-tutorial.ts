@@ -2,7 +2,7 @@ export const CONTENT = `
       <p>If you've ever waited 5-10 minutes for Kubernetes Cluster Autoscaler to spin up new nodes while your pods sat in <code>Pending</code> state, you know the pain. <strong>Karpenter</strong> is AWS's open-source node provisioner that replaces Cluster Autoscaler with something dramatically faster and smarter. It provisions the <em>right</em> nodes in <strong>under 60 seconds</strong>, handles spot interruptions automatically, and can cut your compute costs by 40-60%.</p>
 
       <h2>What is Karpenter?</h2>
-      <p>Karpenter is an open-source, high-performance Kubernetes node lifecycle manager. Unlike Cluster Autoscaler (which works with pre-defined node groups), Karpenter directly provisions compute capacity from the cloud provider based on the actual requirements of your pending pods.</p>
+      <p>Karpenter is an open-source, high-performance Kubernetes node lifecycle manager. Unlike Cluster Autoscaler (which works with pre-defined node groups), Karpenter directly provisions compute capacity from the cloud provider based on the actual requirements of your pending pods. If a pod stays Pending after capacity arrives, use the <a href="/blog/kubernetes-debugging-toolkit-kubectl-guide">Kubernetes debugging toolkit</a> to inspect scheduling events. When you enable mixed architectures, use the <a href="/blog/x86-vs-arm-architecture-comparison">x86 and ARM architecture guide</a> to check workload and image compatibility, and keep the <a href="/cheatsheets/kubernetes">Kubernetes cheatsheet</a> available for cluster commands.</p>
 
       <!-- Karpenter vs Cluster Autoscaler -->
       <div class="flow-diagram">

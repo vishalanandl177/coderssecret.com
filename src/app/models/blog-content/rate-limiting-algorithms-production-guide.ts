@@ -1,7 +1,7 @@
 export const CONTENT = `
       <p>Rate limiting is one of the few infrastructure controls that simultaneously protects you from <strong>cost overruns</strong>, <strong>abuse</strong>, <strong>cascading failure</strong>, and <strong>noisy neighbours</strong>. Get it right and a single misbehaving client&apos;s burst is absorbed before it touches your application. Get it wrong and you either DDoS yourself with retries or open the door to credential stuffing, scraping, and inference-cost bombs.</p>
 
-      <p>This guide is a production walk through the rate-limiting algorithms used in real API gateways, edge proxies, and service meshes - what each algorithm gets right, where it falls down, and how distributed systems implement these controls without becoming a coordination bottleneck themselves. Examples are grounded in Redis, Envoy, NGINX, Kubernetes ingress, and the patterns Cloudflare and Fastly publish about their edge networks.</p>
+      <p>This guide is a production walk through the <a href="/blog/rate-limiting-algorithms-token-bucket-sliding-window" class="text-primary underline">rate-limiting algorithms</a> used in real API gateways, edge proxies, and service meshes - what each algorithm gets right, where it falls down, and how distributed systems implement these controls without becoming a coordination bottleneck themselves. Examples are grounded in Redis, Envoy, NGINX, Kubernetes ingress, and the patterns Cloudflare and Fastly publish about their edge networks.</p>
 
       <h2>Why Rate Limiting Matters in Production</h2>
 

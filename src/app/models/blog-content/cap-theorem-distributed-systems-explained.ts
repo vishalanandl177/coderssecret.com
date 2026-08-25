@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>If you build anything that runs on more than one server, you will eventually hit the <strong>CAP theorem</strong>. It is the single most important constraint in distributed systems design, and every database, message queue, and microservice architecture is shaped by it - whether the engineers who built it know it or not.</p>
+      <p>If you build anything that runs on more than one server, you will eventually hit the <strong><a href="/blog/distributed-systems-algorithms-production-guide" class="text-primary underline">CAP theorem</a></strong>. It is the single most important constraint in <a href="/courses/distributed-systems-engineering/foundations-distributed-systems" class="text-primary underline">distributed systems design</a>, and every database, message queue, and microservice architecture is shaped by it - whether the engineers who built it know it or not.</p>
 
       <p>The CAP theorem says: <strong>a distributed system can deliver at most two of three guarantees - Consistency, Availability, and Partition Tolerance</strong>. You cannot have all three at the same time. This is not an opinion or a best practice. It was proven mathematically by Seth Gilbert and Nancy Lynch at MIT in 2002, based on a conjecture by Eric Brewer in 2000.</p>
 

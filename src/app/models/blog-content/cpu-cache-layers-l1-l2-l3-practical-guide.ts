@@ -37,7 +37,7 @@ export const CONTENT = `
         </div>
       </div>
 
-      <p>Notice one thing - RAM is <strong>100 times slower</strong> than L1. So if your program is fetching data from RAM instead of cache, you are paying a 100x penalty for every access. That's why the same algorithm on the same CPU can give you very different performance depending on how cache-friendly your code is.</p>
+      <p>Notice one thing - RAM is <strong>100 times slower</strong> than L1. So if your program is fetching data from RAM instead of cache, you are paying a 100x penalty for every access. That's why <a href="/blog/cpu-architecture-explained-for-developers" class="text-primary underline">the same algorithm on the same CPU</a> can give you very different performance depending on how cache-friendly your code is.</p>
 
       <h2>How Cache Actually Works - The Cache Line</h2>
 
@@ -182,7 +182,7 @@ int main() {
 
       <h2>False Sharing - The Sneaky Killer</h2>
 
-      <p>Now I will tell you about a problem that will make you pull your hair out if you don't know about it. It's called <strong>false sharing</strong>, and it only happens in multi-threaded code.</p>
+      <p>Now I will tell you about a problem that will make you pull your hair out if you don't know about it. It's called <strong>false sharing</strong>, and it only happens in <a href="/blog/python-threading-vs-multiprocessing-tutorial" class="text-primary underline">multi-threaded code</a>.</p>
 
       <p>Remember I said cache lines are 64 bytes? Here's the thing - when multiple CPU cores want to work on the same cache line, they have to coordinate. If Core 1 writes to one part of the line and Core 2 writes to another part, the cache lines have to be invalidated and synchronized between cores. This is called "cache coherence protocol" (MESI protocol, if you want to look it up).</p>
 

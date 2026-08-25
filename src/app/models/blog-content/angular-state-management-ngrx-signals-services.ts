@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Every Angular team eventually debates state management. One developer wants NgRx for &ldquo;proper architecture.&rdquo; Another says signals make everything simpler. A third argues that injectable services with BehaviorSubjects work fine. They are all right - for different scenarios.</p>
+      <p>Every Angular team eventually debates state management. One developer wants NgRx for &ldquo;proper architecture.&rdquo; Another says signals make everything simpler. A third argues that injectable services with BehaviorSubjects work fine. They are all right - for different scenarios. Start with the <a href="/blog/angular-signals-deep-dive-replacing-rxjs">signals-versus-observables mental model</a>, then judge the choice in the context of a <a href="/blog/angular-21-large-scale-applications-comparison">large-scale Angular 21 application</a>.</p>
 
       <h2>The Three Approaches</h2>
 

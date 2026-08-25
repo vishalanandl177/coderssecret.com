@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>The Python ecosystem has thousands of CLI tools. Most of them die at the &ldquo;it works on my machine&rdquo; stage. The gap between a working script and a tool people actually install and use is: proper argument parsing, helpful error messages, colored output, documentation, packaging, and distribution. This guide bridges that gap.</p>
+      <p>The <a href="/cheatsheets/python" class="text-primary underline">Python ecosystem</a> has thousands of CLI tools. Most of them die at the &ldquo;it works on my machine&rdquo; stage. The gap between a working script and a tool people actually install and use is: proper argument parsing, helpful error messages, colored output, documentation, packaging, and distribution. This guide bridges that gap.</p>
 
       <h2>Choosing Your Framework: Click vs Typer</h2>
 
@@ -430,5 +430,5 @@ mytool --install-completion fish
         <li><strong>Ship shell completions</strong> - they dramatically improve the user experience</li>
       </ul>
 
-      <p>The difference between a script and a tool is polish. Argument parsing, error handling, colored output, documentation, and distribution turn your 50-line script into something that gets starred on GitHub and installed by thousands. The tools exist - Typer, Rich, pyproject.toml, GitHub Actions - use them.</p>
+      <p>The difference between a script and a tool is polish. Argument parsing, error handling, colored output, documentation, and distribution turn your 50-line script into something that <a href="/blog/contributing-open-source-first-pull-request" class="text-primary underline">gets starred on GitHub and installed by thousands</a>. The tools exist - Typer, Rich, pyproject.toml, GitHub Actions - use them.</p>
     `;

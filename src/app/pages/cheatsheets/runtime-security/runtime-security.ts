@@ -131,7 +131,7 @@ falco --modern-bpf`,
   ];
 
   related: RelatedLink[] = [
-    { label: 'Kubernetes Runtime Security course', href: '/courses/kubernetes-runtime-security', description: 'Deep dive on Falco, Tetragon, and eBPF for Kubernetes runtime security.' },
+    { label: 'Kubernetes Security Explained', href: '/blog/kubernetes-security-explained', description: 'Place Falco, Tetragon, and eBPF inside the wider Kubernetes protection model.' },
     { label: 'Cloud Native Security Engineering - Runtime module', href: '/courses/cloud-native-security-engineering/runtime-security-threat-detection', description: 'Module: detection engineering, signal-to-noise tuning, and alert routing.' },
     { label: 'Falco glossary entry', href: '/glossary/falco', description: 'What Falco is and where it fits in a cloud-native security architecture.' },
   ];

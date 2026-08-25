@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Every time you click &ldquo;Create Instance&rdquo; in the AWS console, you are creating infrastructure that cannot be reproduced, reviewed, or rolled back. Terraform replaces console clicking with code - declarative configuration files that describe your entire infrastructure and can be version-controlled, peer-reviewed, and applied automatically.</p>
+      <p>Every time you click &ldquo;Create Instance&rdquo; in the AWS console, you are creating infrastructure that cannot be reproduced, reviewed, or rolled back. Terraform replaces console clicking with code - declarative configuration files that describe your entire infrastructure and can be <a href="/cheatsheets/git">version-controlled with Git</a>, peer-reviewed, and applied automatically. Use the <a href="/blog/cloud-iam-aws-gcp-azure-compared">AWS, GCP, and Azure IAM comparison</a> before encoding permissions, then automate plans and applies with the patterns in the <a href="/blog/github-actions-ci-cd-pipelines-mastery">GitHub Actions CI/CD guide</a>.</p>
 
       <div class="pipeline-diagram">
         <div class="pipeline-title">Terraform Workflow: Code &rarr; Plan &rarr; Apply</div>

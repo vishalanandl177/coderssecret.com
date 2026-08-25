@@ -257,7 +257,7 @@ export class OrderComponent {
 
       <h2>SoC Beyond Code: The Software Lifecycle</h2>
 
-      <p>Most articles stop at code-level SoC. But separation of concerns shapes <em>everything</em> in the software lifecycle - from how teams are organised, to how you deploy, to how you handle incidents at 3 AM.</p>
+      <p>Most articles stop at code-level SoC. But separation of concerns shapes <em>everything</em> in the software lifecycle - from <a href="/blog/monorepo-vs-polyrepo-codebase-structure" class="text-primary underline">how teams are organised</a>, to how you deploy, to how you handle incidents at 3 AM.</p>
 
       <!-- SoC Lifecycle -->
       <div class="flow-diagram">
@@ -273,7 +273,7 @@ export class OrderComponent {
 
       <h2>SoC in Team Structure</h2>
 
-      <p>Conway's Law says: <em>"Organizations design systems that mirror their communication structures."</em> If your frontend team and backend team sit in different buildings, you'll get a frontend-backend separation in your architecture. SoC in teams directly shapes SoC in code.</p>
+      <p>Conway's Law says: <em>"Organizations design systems that mirror their communication structures."</em> If your frontend team and backend team sit in different buildings, you'll get a <a href="/blog/headless-api-vs-programmatic-api" class="text-primary underline">frontend-backend separation</a> in your architecture. SoC in teams directly shapes SoC in code.</p>
 
       <pre><code># &#x274C; BAD: One "full-stack" team does everything
 Team: does product design + frontend + backend + database + DevOps + testing + on-call

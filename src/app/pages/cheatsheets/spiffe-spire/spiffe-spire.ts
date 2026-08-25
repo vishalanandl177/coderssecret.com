@@ -132,6 +132,7 @@ spire-server bundle set \\
     { label: 'Zero Trust Network Builder simulator', href: '/games/zero-trust-network-builder', description: 'Interactive SPIFFE/SPIRE design challenges - six production scenarios, four-choice format.' },
     { label: 'Run SPIRE on Kubernetes', href: '/courses/mastering-spiffe-spire/running-spire-on-kubernetes', description: 'Module: deploy SPIRE Server + Agent on Kubernetes from scratch.' },
     { label: 'Working with SVIDs (Workload API)', href: '/courses/mastering-spiffe-spire/working-with-svids-workload-api', description: 'Module: SVID issuance, rotation, and the SDK patterns that survive production.' },
+    { label: 'Kubernetes Secrets vs Vault vs Workload Identity', href: '/blog/kubernetes-secrets-vault-workload-identity', description: 'Compare credential storage with short-lived, attested workload identity.' },
   ];
 
   constructor() {

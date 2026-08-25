@@ -1,11 +1,11 @@
 export const CONTENT = `
       <p>You need to rename a column, add a NOT NULL constraint, or change a data type. In development, you run the migration and it takes 200 milliseconds. In production with 50 million rows, that same migration locks the table for 45 minutes and your app goes down.</p>
 
-      <p>This guide teaches the <strong>expand-contract pattern</strong> - the industry-standard approach to zero-downtime schema changes used by companies like GitHub, Shopify, and Stripe.</p>
+      <p>This guide teaches the <strong>expand-contract pattern</strong> - the industry-standard approach to <a href="/courses/distributed-systems-engineering/distributed-data-management" class="text-primary underline">zero-downtime schema changes</a> used by companies like GitHub, Shopify, and Stripe.</p>
 
       <h2>Why Migrations Cause Downtime</h2>
 
-      <p>Most schema changes in PostgreSQL and MySQL acquire <strong>exclusive locks</strong> on the table. While the lock is held, no reads or writes can proceed. On large tables, the migration itself can take minutes or hours.</p>
+      <p>Most schema changes in PostgreSQL and MySQL acquire <strong>exclusive locks</strong> on the table. While the lock is held, no reads or writes can proceed. On <a href="/blog/database-indexing-secrets-slow-queries-fix" class="text-primary underline">large tables</a>, the migration itself can take minutes or hours.</p>
 
       <pre><code>-- This innocent-looking migration:
 ALTER TABLE orders ADD COLUMN discount_code VARCHAR(50) NOT NULL DEFAULT '';

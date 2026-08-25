@@ -1,9 +1,9 @@
 export const CONTENT = `
-      <p>Kubernetes does not tell you what is wrong - it tells you what <em>state</em> things are in. Your job is to interpret the state, trace the root cause, and fix it. This guide covers the debugging commands and patterns that platform engineers use daily, organized by the problems you actually encounter.</p>
+      <p>Kubernetes does not tell you what is wrong - it tells you what <em>state</em> things are in. Your job is to interpret the state, trace the root cause, and fix it. This guide covers the debugging commands and patterns that platform engineers use daily, organized by the problems you actually encounter. Use the <a href="/blog/kubernetes-networking-services-ingress-load-balancer">Kubernetes networking guide</a> when Services or Ingress are involved; if Pending pods reflect missing EKS capacity, continue with the <a href="/blog/kubernetes-karpenter-autoscaling-tutorial">Karpenter autoscaling tutorial</a>. For failures inside a custom controller, the <a href="/blog/kubernetes-operators-build-your-own-with-golang">Kubernetes Operators guide</a> explains the reconciliation loop you are inspecting.</p>
 
       <h2>Essential Debugging Commands</h2>
 
-      <p>Before diving into specific problems, master these five commands. They solve 80% of issues:</p>
+      <p>Before diving into specific problems, master these five commands. They solve 80% of issues, while the <a href="/cheatsheets/kubernetes">Kubernetes cheatsheet</a> keeps the broader command reference close.</p>
 
       <pre><code># 1. What is happening right now?
 kubectl get pods -n my-namespace -o wide

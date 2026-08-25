@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>You need to rank products by sales within each category. Or calculate a running total of revenue by month. Or compare each row to the previous one. Without window functions, you write correlated subqueries or self-joins that are slow and unreadable. With window functions, each of these is a single, elegant expression.</p>
+      <p>You need to rank products by sales within each category. Or calculate a running total of revenue by month. Or compare each row to the previous one. These are common transformations in <a href="/blog/bronze-silver-gold-data-layers-explained">silver and gold analytics data layers</a>. Without window functions, you write correlated subqueries or self-joins that are slow and unreadable. With window functions, each of these is a single, elegant expression. Pair the examples with the <a href="/blog/database-indexing-secrets-slow-queries-fix">database indexing guide for slow queries</a> and the concise <a href="/cheatsheets/sql">SQL cheatsheet</a>.</p>
 
       <h2>What Is a Window Function?</h2>
 

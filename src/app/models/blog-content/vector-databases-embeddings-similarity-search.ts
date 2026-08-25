@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Traditional databases find exact matches: &ldquo;find all users where email = alice@example.com.&rdquo; Vector databases find <strong>similar</strong> matches: &ldquo;find documents most similar to this question.&rdquo; This capability powers every RAG pipeline, semantic search engine, recommendation system, and image similarity feature built with AI.</p>
+      <p>Traditional databases find exact matches: &ldquo;find all users where email = alice@example.com.&rdquo; <a href="/courses/production-rag-systems-engineering/vector-databases-engineering">Vector databases find <strong>similar</strong> matches</a>: &ldquo;find documents most similar to this question.&rdquo; This capability powers every <a href="/blog/fine-tuning-vs-rag-vs-prompt-engineering">RAG pipeline</a>, semantic search engine, recommendation system, and image similarity feature built with AI.</p>
 
       <h2>What Are Embeddings?</h2>
 

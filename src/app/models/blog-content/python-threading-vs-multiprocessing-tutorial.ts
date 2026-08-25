@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>You wrote a Python script that processes 10,000 files, but it takes 30 minutes because it handles them one by one. You've heard about "threading" and "multiprocessing" but you're not sure which to use - or what the difference even is. This guide explains Python's concurrency models from the ground up, with diagrams and real code you can run.</p>
+      <p>You wrote a Python script that processes 10,000 files, but it takes 30 minutes because it handles them one by one. You've heard about "threading" and "multiprocessing" but you're not sure which to use - or what the difference even is. This guide explains <a href="/blog/python-concurrency-threads-async-multiprocessing" class="text-primary underline">Python's concurrency models</a> from the ground up, with diagrams and real code you can run.</p>
 
       <h2>First: What Does "Concurrency" Mean?</h2>
       <p>Imagine a restaurant kitchen. <strong>Sequential processing</strong> means one chef does everything - chops vegetables, then cooks meat, then plates the dish. <strong>Concurrency</strong> means multiple tasks make progress at the same time. But there are two ways to achieve this:</p>
@@ -132,7 +132,7 @@ print(f"Threaded: {time.time() - start:.1f}s")
       </div>
 
       <h2>ThreadPoolExecutor: The Modern Way</h2>
-      <p>Instead of manually creating threads, use <code>concurrent.futures.ThreadPoolExecutor</code> - it manages a pool of reusable threads and returns results cleanly:</p>
+      <p>Instead of manually creating threads, use <a href="/cheatsheets/python" class="text-primary underline"><code>concurrent.futures.ThreadPoolExecutor</code></a> - it manages a pool of reusable threads and returns results cleanly:</p>
       <pre><code>from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 import time

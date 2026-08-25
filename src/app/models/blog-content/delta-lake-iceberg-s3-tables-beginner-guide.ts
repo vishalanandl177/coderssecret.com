@@ -41,7 +41,7 @@ export const CONTENT = `
         </div>
       </div>
 
-      <p>Think of it this way: <strong>a table format is a layer of intelligence that sits on top of files</strong>. The files are still Parquet files on S3 - but the table format adds a transaction log, schema tracking, and metadata that makes these files behave like a database table.</p>
+      <p>Think of it this way: <strong>a table format is a layer of intelligence that sits on top of files</strong>. The files are still Parquet files on S3 - but the table format adds a transaction log, schema tracking, and metadata that makes these files behave like a <a href="/courses/production-analytics-engineering-dbt/tables-grain-dashboard-lies" class="text-primary underline">database table</a>.</p>
 
       <h2>Why Can't We Just Use a Database?</h2>
 
@@ -76,7 +76,7 @@ export const CONTENT = `
 
       <h2>How Table Formats Actually Work (Under the Hood)</h2>
 
-      <p>Every table format works the same basic way. Instead of just dumping files, they maintain a <strong>metadata layer</strong> - usually a log file or a set of manifest files - that tracks which data files belong to the table, what the schema is, and what version of the data you're looking at.</p>
+      <p>Every table format works the same basic way. Instead of just dumping files, they maintain a <strong><a href="/blog/metastore-hive-glue-unity-catalog-guide" class="text-primary underline">metadata layer</a></strong> - usually a log file or a set of manifest files - that tracks which data files belong to the table, what the schema is, and what version of the data you're looking at.</p>
 
       <!-- How It Works -->
       <div class="flow-diagram">

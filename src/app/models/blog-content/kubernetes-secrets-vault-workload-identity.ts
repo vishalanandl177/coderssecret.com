@@ -33,7 +33,7 @@ stringData:
 
       <h2>Workload Identity: Stop Handing Out Shared Secrets</h2>
 
-      <p>Workload identity means the platform can prove which workload is calling, then issue access based on that identity. In Kubernetes this can involve projected service account tokens, cloud workload identity integrations, SPIFFE/SPIRE SVIDs, service mesh identity, or OIDC federation.</p>
+      <p>Workload identity means the platform can prove which workload is calling, then issue access based on that identity. In Kubernetes this can involve projected service account tokens, cloud workload identity integrations, SPIFFE/SPIRE SVIDs, service mesh identity, or OIDC federation. The <a href="/blog/oidc-workload-federation-secretless-service-access">OIDC workload federation guide</a> explains how that trust exchange removes stored cloud keys.</p>
 
       <p>The goal is to replace static credentials with short-lived, scoped, auditable credentials. A Pod should not need an AWS access key stored in a Secret if it can use a federated identity to obtain temporary permissions.</p>
 

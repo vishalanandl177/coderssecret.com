@@ -5,8 +5,8 @@ export const MASTERING_SPIFFE_SPIRE_COURSE: Course = {
     title: 'Mastering SPIFFE & SPIRE: Zero Trust for Cloud Native Systems',
     slug: 'mastering-spiffe-spire',
     subtitle: 'Learn modern cloud-native identity security and become the engineer who secures production Kubernetes clusters - for free.',
-    excerpt: 'Go from "what is workload identity?" to deploying production-grade SPIRE on Kubernetes with mTLS, OPA policy enforcement, and multi-cluster federation. 13 modules, 30+ labs, completely free.',
-    description: 'Replace secret sprawl with workload identity. The most comprehensive free course on SPIFFE and SPIRE - the CNCF standard for machine identity in cloud-native systems. Learn zero trust architecture, PKI fundamentals, Kubernetes workload identity, service mesh integration, and production operations through 30+ hands-on labs and real-world architecture patterns. Go from shared secrets and manual certificates to automatic, cryptographic workload identity.',
+    excerpt: 'Go from "what is workload identity?" to deploying production-grade SPIRE on Kubernetes with mTLS, OPA policy enforcement, and multi-cluster federation. 13 modules, 30 labs, completely free.',
+    description: 'Replace secret sprawl with workload identity in a free, production-focused SPIFFE and SPIRE course. Learn Zero Trust architecture, PKI fundamentals, Kubernetes workload identity, service mesh integration, and production operations through 30 hands-on labs and real-world architecture patterns.',
     instructor: {
       name: 'Vishal Anand',
       title: 'Senior Product Engineer & Open Source Contributor',
@@ -63,7 +63,7 @@ export const MASTERING_SPIFFE_SPIRE_COURSE: Course = {
 
           <h2>Start Learning for Free</h2>
 
-          <p>Our <strong>Mastering SPIFFE &amp; SPIRE</strong> course covers everything from zero trust fundamentals to production operations across 13 modules and 30+ hands-on labs. No paywall, no signup wall - just practical education for engineers who secure real infrastructure.</p>
+          <p>Our <strong>Mastering SPIFFE &amp; SPIRE</strong> course covers everything from zero trust fundamentals to production operations across 13 modules and 30 hands-on labs. No paywall, no signup wall - just practical education for engineers who secure real infrastructure.</p>
         `,
       },
       {
@@ -249,6 +249,7 @@ export const MASTERING_SPIFFE_SPIRE_COURSE: Course = {
       },
       {
         slug: 'machine-identity-management',
+        indexable: true,
         title: 'Machine Identity Management: SPIFFE vs Vault vs Cloud IAM',
         description: 'Compare workload identity approaches: SPIFFE/SPIRE vs HashiCorp Vault PKI vs Kubernetes Service Accounts vs Cloud IAM roles. Understand the tradeoffs for machine identity at scale.',
         ctaModule: 4,
@@ -271,17 +272,17 @@ export const MASTERING_SPIFFE_SPIRE_COURSE: Course = {
           <ul>
             <li>Strong secret storage and certificate management</li>
             <li>Rich policy system for secret access</li>
-            <li>Requires Vault token distribution (creates its own secret management problem)</li>
-            <li>Not a workload identity system - does not attest workloads</li>
+            <li>Needs a trusted authentication method or agent plus an operated policy lifecycle</li>
+            <li>PKI issues certificates; workload attestation depends on the selected auth method and integration</li>
           </ul>
 
           <h2>Kubernetes Service Accounts</h2>
           <p><strong>Best for:</strong> Simple single-cluster Kubernetes deployments.</p>
           <ul>
             <li>Built into Kubernetes - no extra infrastructure</li>
-            <li>Limited to one cluster - no federation</li>
-            <li>Not cryptographic certificates - cannot be used for mTLS</li>
-            <li>Tokens were long-lived before Kubernetes 1.24</li>
+            <li>Cluster-scoped unless another trust or federation layer accepts the issuer</li>
+            <li>JWT identity by default; workload-to-workload mTLS needs a separate certificate layer</li>
+            <li>Projected bound tokens are short-lived; legacy Secret-backed tokens remain risky</li>
           </ul>
 
           <h2>Cloud IAM (AWS IAM, GCP Workload Identity)</h2>
@@ -289,8 +290,8 @@ export const MASTERING_SPIFFE_SPIRE_COURSE: Course = {
           <ul>
             <li>Deep integration with cloud provider services</li>
             <li>No infrastructure to manage</li>
-            <li>Locked to one cloud provider - breaks in multi-cloud</li>
-            <li>Not designed for service-to-service mTLS</li>
+            <li>Provider-specific permissions, though federation can bridge approved external identities</li>
+            <li>Primarily grants cloud API access; workload-to-workload mTLS is a separate design</li>
           </ul>
 
           <h2>Comparison Table</h2>
@@ -298,13 +299,13 @@ export const MASTERING_SPIFFE_SPIRE_COURSE: Course = {
           <table>
             <thead><tr><th>Feature</th><th>SPIFFE/SPIRE</th><th>Vault PKI</th><th>K8s Service Accounts</th><th>Cloud IAM</th></tr></thead>
             <tbody>
-              <tr><td>Workload attestation</td><td>Yes</td><td>No</td><td>Limited</td><td>Cloud-specific</td></tr>
-              <tr><td>mTLS certificates</td><td>Yes (X.509-SVID)</td><td>Yes</td><td>No</td><td>No</td></tr>
-              <tr><td>Automatic rotation</td><td>Yes</td><td>Yes (with agent)</td><td>Partial (1.24+)</td><td>Yes</td></tr>
-              <tr><td>Multi-cloud</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td></tr>
-              <tr><td>Federation</td><td>Yes (native)</td><td>Manual</td><td>No</td><td>Cross-account only</td></tr>
-              <tr><td>VM + Kubernetes</td><td>Yes</td><td>Yes</td><td>No</td><td>Partial</td></tr>
-              <tr><td>Open standard</td><td>CNCF (SPIFFE)</td><td>Proprietary</td><td>K8s-native</td><td>Proprietary</td></tr>
+              <tr><td>Workload attestation</td><td>Native</td><td>Auth-method dependent</td><td>Pod-bound identity</td><td>Provider-specific</td></tr>
+              <tr><td>mTLS certificates</td><td>Yes (X.509-SVID)</td><td>Yes</td><td>Separate layer</td><td>Provider/product-specific</td></tr>
+              <tr><td>Automatic rotation</td><td>Yes</td><td>Yes (with agent)</td><td>Yes (projected tokens)</td><td>Yes</td></tr>
+              <tr><td>Multi-cloud</td><td>Yes</td><td>Yes</td><td>Needs external trust</td><td>Via federation</td></tr>
+              <tr><td>Federation</td><td>Native</td><td>Integration-dependent</td><td>Issuer-dependent</td><td>Provider-specific</td></tr>
+              <tr><td>VM + Kubernetes</td><td>Yes</td><td>Yes</td><td>Needs external trust</td><td>Provider-specific</td></tr>
+              <tr><td>Portable specification</td><td>CNCF (SPIFFE)</td><td>Vault API</td><td>Kubernetes API</td><td>Provider APIs/OIDC</td></tr>
             </tbody>
           </table>
 
@@ -312,14 +313,17 @@ export const MASTERING_SPIFFE_SPIRE_COURSE: Course = {
 
           <p>Use <strong>SPIFFE/SPIRE</strong> when you need cross-platform, multi-cloud, or multi-cluster workload identity. Use <strong>Vault</strong> when secret management is the primary concern. Use <strong>K8s Service Accounts</strong> for simple single-cluster deployments. Use <strong>Cloud IAM</strong> for cloud-native services within a single provider.</p>
 
-          <p>For most organizations adopting zero trust, SPIFFE/SPIRE provides the most comprehensive and portable solution. Our free course teaches it from the ground up.</p>
+          <p>SPIFFE/SPIRE is a strong fit when portable workload identity and mutual authentication are the primary requirements. Vault may be the better operational center when secrets and private PKI dominate; Kubernetes or cloud identity may be sufficient when the trust boundary is intentionally narrow.</p>
+
+          <h2>Verify Capabilities Against Current Documentation</h2>
+          <p>Identity platforms evolve, so validate the decision against the official <a href="https://spiffe.io/docs/latest/spiffe-about/overview/" target="_blank" rel="noopener noreferrer">SPIFFE overview</a>, <a href="https://developer.hashicorp.com/vault/docs/secrets/pki/setup" target="_blank" rel="noopener noreferrer">Vault PKI documentation</a>, <a href="https://kubernetes.io/docs/concepts/security/service-accounts/" target="_blank" rel="noopener noreferrer">Kubernetes ServiceAccount guidance</a>, and your provider's workload identity documentation. Recheck token lifetime, audience, attestation, federation, certificate, and revocation behavior before production use.</p>
         `,
       },
     ],
     faqs: [
       { question: 'What is SPIFFE?', answer: 'SPIFFE (Secure Production Identity Framework For Everyone) is a CNCF standard that defines how workloads identify themselves to each other using cryptographic certificates, independent of network location.' },
       { question: 'What is SPIRE?', answer: 'SPIRE (SPIFFE Runtime Environment) is the production implementation of SPIFFE. It automatically issues, rotates, and manages cryptographic identities for every workload in your infrastructure.' },
-      { question: 'Is this course really free?', answer: 'Yes, 100% free. 13 modules, 30+ hands-on labs, all course content, and the companion GitHub repository are completely free with no paywalls or upsells.' },
+      { question: 'Is this course really free?', answer: 'Yes, 100% free. All 13 modules, 30 hands-on labs, course content, and the companion GitHub repository are free with no paywalls or upsells.' },
       { question: 'Who is this course for?', answer: 'Platform engineers, DevOps engineers, security engineers, SREs, Kubernetes engineers, and backend developers who want to learn production-grade workload identity and Zero Trust security.' },
       { question: 'Do I need prior SPIFFE experience?', answer: 'No. The course starts from Zero Trust fundamentals and builds up to production SPIRE deployments, federation, and AI infrastructure security.' },
       { question: 'What is workload identity?', answer: 'Workload identity gives every service, container, or process a unique cryptographic identity - like a passport for machines. It replaces shared secrets, API keys, and IP-based trust with automatic, short-lived certificates.' },

@@ -20,6 +20,7 @@ const { spawn, spawnSync } = require('child_process');
 
 const SITE_NAME = 'CodersSecret';
 const SITE_URL = 'https://coderssecret.com';
+const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 const YOUTUBE_URL = 'https://www.youtube.com/@CodersSecret';
 const SPOTIFY_PODCAST_URL = 'https://open.spotify.com/show/033dhxk8tNClX2r4XduVyb';
 const GITHUB_REPO_URL = 'https://github.com/vishalanandl177/coderssecret.com';
@@ -72,6 +73,7 @@ function normalizeBuiltShell(html) {
     .replace(/\s*<link rel="alternate" hreflang="en"[^>]*>\n?/gi, '')
     .replace(/\s*<meta name="robots" content="[^"]*">\n?/gi, '')
     .replace(/\s*<meta property="og:[^"]+" content="[^"]*">\n?/gi, '')
+    .replace(/\s*<meta property="article:[^"]+" content="[^"]*">\n?/gi, '')
     .replace(/\s*<meta name="twitter:[^"]+" content="[^"]*">\n?/gi, '')
     .replace(/\s*<script type="application\/ld\+json">[\s\S]*?<\/script>\n?/gi, '');
 }
@@ -104,16 +106,17 @@ function makeHtml(options) {
   const normalizedUrl = normalizeCanonicalPath(url);
   const fullTitle = normalizeTitleSeparators(explicitFullTitle || buildFullTitle(title));
   const canonical = absoluteUrl(normalizedUrl);
-  const ogImage = image ? `${SITE_URL}${image}` : `${SITE_URL}/og-image.svg`;
-  const ogDimensions = knownImageDimensions[image] ?? { width: 1200, height: 630 };
+  const ogImagePath = image || '/og-image.svg';
+  const ogImage = /^https?:\/\//i.test(ogImagePath) ? ogImagePath : `${SITE_URL}${ogImagePath}`;
+  const ogDimensions = imageDimensionsFor(ogImagePath);
   const safeTitle = escapeHtml(fullTitle);
-  const safeDescription = escapeHtml(clampText(description, 160));
+  const safeDescription = escapeHtml(clampText(description, 200));
   const renderedRoute = renderRouteSource({ url: normalizedUrl, fallbackContent: content });
   const appRootHtml = renderedRoute.appRootHtml;
   const structuredData = structuredDataForPage({
     jsonLd,
     fullTitle,
-    description: clampText(description, 160),
+    description: clampText(description, 200),
     canonical,
     ogImage,
   });
@@ -143,8 +146,9 @@ function makeHtml(options) {
     `  <meta property="og:url" content="${canonical}">\n` +
     `  <meta property="og:type" content="${escapeHtml(ogType)}">\n` +
     `  <meta property="og:image" content="${ogImage}">\n` +
-    `  <meta property="og:image:width" content="${ogDimensions.width}">\n` +
-    `  <meta property="og:image:height" content="${ogDimensions.height}">\n` +
+    `  <meta property="og:site_name" content="${SITE_NAME}">\n` +
+    (ogDimensions ? `  <meta property="og:image:width" content="${ogDimensions.width}">\n` : '') +
+    (ogDimensions ? `  <meta property="og:image:height" content="${ogDimensions.height}">\n` : '') +
     `  <meta name="twitter:card" content="summary_large_image">\n` +
     `  <meta name="twitter:title" content="${safeTitle}">\n` +
     `  <meta name="twitter:description" content="${safeDescription}">\n` +
@@ -811,8 +815,19 @@ function clampText(text, maxLength = 155) {
   const normalized = stripHtml(text);
   if (normalized.length <= maxLength) return normalized;
   const clipped = normalized.slice(0, maxLength - 1);
-  const lastBreak = Math.max(clipped.lastIndexOf('.'), clipped.lastIndexOf(','), clipped.lastIndexOf(' '));
-  return `${clipped.slice(0, lastBreak > 80 ? lastBreak : clipped.length).trim()}...`;
+  const sentenceBreak = Math.max(clipped.lastIndexOf('. '), clipped.lastIndexOf('! '), clipped.lastIndexOf('? '));
+  if (sentenceBreak >= Math.floor(maxLength * 0.55)) {
+    return clipped.slice(0, sentenceBreak + 1).trim();
+  }
+  const clauseBreak = Math.max(clipped.lastIndexOf('; '), clipped.lastIndexOf(', '));
+  if (clauseBreak >= Math.floor(maxLength * 0.6)) {
+    return `${clipped.slice(0, clauseBreak).replace(/[,:;\-\s]+$/g, '').trim()}.`;
+  }
+  const lastSpace = clipped.lastIndexOf(' ');
+  return clipped
+    .slice(0, lastSpace > 80 ? lastSpace : clipped.length)
+    .replace(/[,:;\-\s]+$/g, '')
+    .trim();
 }
 
 function wordCountFor(html) {
@@ -1035,7 +1050,7 @@ function claudeTokenSlidesPrerender(post) {
 
 function compactSeoTitle(title, maxLength) {
   const normalized = stripHtml(title);
-  if (normalized.length <= maxLength) return normalized;
+  if (normalized.length <= maxLength) return stripDanglingTitleWords(normalized);
 
   const separators = [': ', ' - ', ' | '];
   for (const separator of separators) {
@@ -1049,6 +1064,7 @@ function compactSeoTitle(title, maxLength) {
       candidate = next;
     }
 
+    candidate = stripDanglingTitleWords(candidate);
     if (candidate.length >= 28 || /\bguide$/i.test(candidate)) return candidate;
     const guided = `${candidate} Guide`;
     return guided.length <= maxLength ? guided : candidate;
@@ -1060,7 +1076,17 @@ function compactSeoTitle(title, maxLength) {
 function trimAtWord(text, maxLength) {
   const clipped = text.slice(0, maxLength);
   const lastSpace = clipped.lastIndexOf(' ');
-  return clipped.slice(0, lastSpace >= Math.floor(maxLength * 0.55) ? lastSpace : clipped.length).trim();
+  return stripDanglingTitleWords(
+    clipped.slice(0, lastSpace >= Math.floor(maxLength * 0.55) ? lastSpace : clipped.length),
+  );
+}
+
+function stripDanglingTitleWords(text) {
+  let cleaned = String(text || '').replace(/[,:;\-|\s]+$/g, '').trim();
+  while (/\b(?:a|an|and|for|in|of|or|the|to|with)$/i.test(cleaned)) {
+    cleaned = cleaned.replace(/\s+\S+$/, '').replace(/[,:;\-|\s]+$/g, '').trim();
+  }
+  return cleaned;
 }
 
 function loadBlogPostContent(slug) {
@@ -1118,6 +1144,31 @@ const knownImageDimensions = {
   '/images/drf-api-logger/06-api-log-detail-echo-masked.png': { width: 2880, height: 2344 },
 };
 
+function imageDimensionsFor(src) {
+  const normalizedSrc = String(src || '').replace(SITE_URL, '').split(/[?#]/)[0];
+  if (knownImageDimensions[normalizedSrc]) return knownImageDimensions[normalizedSrc];
+  if (!normalizedSrc.startsWith('/')) return undefined;
+
+  const assetPath = path.resolve(PUBLIC_DIR, `.${normalizedSrc}`);
+  if (!assetPath.startsWith(`${path.resolve(PUBLIC_DIR)}${path.sep}`) || !fs.existsSync(assetPath)) {
+    return undefined;
+  }
+
+  if (path.extname(assetPath).toLowerCase() !== '.svg') return undefined;
+  const svg = fs.readFileSync(assetPath, 'utf-8').slice(0, 4096);
+  const openingTag = svg.match(/<svg\b[^>]*>/i)?.[0] || '';
+  const width = Number(openingTag.match(/\bwidth=["']([0-9.]+)(?:px)?["']/i)?.[1]);
+  const height = Number(openingTag.match(/\bheight=["']([0-9.]+)(?:px)?["']/i)?.[1]);
+  if (width > 0 && height > 0) return { width, height };
+
+  const viewBox = openingTag.match(/\bviewBox=["']\s*[-0-9.]+\s+[-0-9.]+\s+([0-9.]+)\s+([0-9.]+)\s*["']/i);
+  const viewBoxWidth = Number(viewBox?.[1]);
+  const viewBoxHeight = Number(viewBox?.[2]);
+  return viewBoxWidth > 0 && viewBoxHeight > 0
+    ? { width: viewBoxWidth, height: viewBoxHeight }
+    : undefined;
+}
+
 function totalLabsFor(course) {
   return course.modules.reduce((sum, mod) => sum + mod.labs.length, 0);
 }
@@ -1136,6 +1187,9 @@ function moduleLabLabelFor(course, mod) {
 }
 
 function courseImagePath(course) {
+  if (course.slug === 'distributed-systems-engineering') {
+    return '/og-image.svg';
+  }
   return `/images/banners/course-${course.slug}.svg`;
 }
 
@@ -1175,6 +1229,14 @@ function courseSeoDescription(course) {
   if (course.slug === 'malware-analysis-defense') {
     return 'Free defense-first malware analysis course for developers covering safe triage, YARA, Sigma, incident response, and secure software design.';
   }
+  const descriptions = {
+    'cloud-native-security-engineering': `Free ${course.modules.length}-module cloud native security course covering Kubernetes, Zero Trust, OPA, Falco, Sigstore, Vault, and ${labCount} labs.`,
+    'production-rag-systems-engineering': `Free ${course.modules.length}-module production RAG course covering embeddings, hybrid retrieval, reranking, agents, evaluation, observability, security, and ${labCount} labs.`,
+    'distributed-systems-engineering': `Free ${course.modules.length}-module distributed systems course covering CAP, consensus, data, reliability, Zero Trust, observability, Kubernetes, and ${labCount} labs.`,
+    'production-analytics-engineering-dbt': `Free ${course.modules.length}-module analytics engineering course covering dbt, metrics, semantic layers, lineage, testing, CI/CD, and ${labCountLabelFor(course)}.`,
+    'centralized-authentication-authorization-envoy': `Free ${course.modules.length}-module Envoy authentication course covering SSO, OIDC, SAML, JWT/JWKS, ext_authz, Kubernetes, and ${labCountLabelFor(course)}.`,
+  };
+  if (descriptions[course.slug]) return descriptions[course.slug];
   return clampText(`${course.excerpt} ${course.modules.length} modules, ${labCountLabelFor(course)}, free.`);
 }
 
@@ -1231,13 +1293,13 @@ function spiffeModuleShortTitle(mod) {
 }
 
 function moduleSeoDescription(course, mod) {
-  const labLabel = mod.labs.length === 1 ? 'lab' : 'labs';
-  const objectives = (mod.objectives || []).slice(0, 2).join('; ');
-  const subtitle = String(mod.subtitle || '').replace(/[.!?]+$/, '');
+  const practiceType = course.labDelivery === 'inline' ? 'inline exercise' : 'hands-on lab';
+  const practiceLabel = mod.labs.length === 1 ? practiceType : `${practiceType}s`;
   const practice = mod.labs.length > 0
-    ? `${mod.labs.length} hands-on ${labLabel}`
+    ? `${mod.labs.length} ${practiceLabel}`
     : 'guided production practice';
-  return clampText(`Free ${courseShortName(course)} module ${mod.number}: ${subtitle}. ${objectives ? `Learn ${objectives}. ` : ''}Includes ${practice}.`, 155);
+  const topic = compactSeoTitle(mod.title, 55).replace(/[.!?]+$/, '');
+  return `Free ${courseShortName(course)} module ${mod.number}: ${topic}. Includes ${practice}.`;
 }
 
 function courseBreadcrumbJsonLd(course, extraCrumbs = []) {
@@ -1287,7 +1349,6 @@ function courseJsonLd(course) {
     'hasCourseInstance': {
       '@type': 'CourseInstance',
       'courseMode': 'online',
-      'courseWorkload': course.totalDuration,
       'instructor': {
         '@type': 'Person',
         'name': course.instructor.name,
@@ -1313,6 +1374,7 @@ function courseModuleItemListJsonLd(course) {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     'name': `${course.title} curriculum`,
+    'url': `${SITE_URL}/courses/${course.slug}`,
     'itemListElement': course.modules.map(mod => ({
       '@type': 'ListItem',
       'position': mod.number,
@@ -1333,7 +1395,6 @@ function moduleJsonLd(course, mod) {
     'isAccessibleForFree': true,
     'inLanguage': 'en',
     'position': mod.number,
-    'timeRequired': mod.duration,
     'teaches': mod.objectives,
     'about': course.tags,
     'provider': {
@@ -1393,6 +1454,7 @@ function renderCourseLandingContent(course) {
   const focusedGuides = course.seoPages && course.seoPages.length > 0
     ? `<section><h2>Focused Course Guides</h2><p>Start with the production topic you need, then continue into the relevant module and full curriculum.</p><ul>${course.seoPages.map(page => `<li><a href="/courses/${page.slug}">${escapeHtml(page.title)}</a><p>${escapeHtml(page.description)}</p></li>`).join('\n')}</ul></section>`
     : '';
+  const relatedArticles = renderCourseRelatedArticles(course);
   const safety = course.safetyNotice
     ? `<section><h2>Defense-First Safety Boundary</h2><p>${escapeHtml(course.safetyNotice)}</p></section>`
     : '';
@@ -1424,6 +1486,7 @@ function renderCourseLandingContent(course) {
       <p>${course.tags.map(escapeHtml).join(', ')}</p>
     </section>
     ${focusedGuides}
+    ${relatedArticles}
     ${assessments}
     <section>
       <h2>Instructor</h2>
@@ -1434,6 +1497,61 @@ function renderCourseLandingContent(course) {
     </section>
     ${faq}
   </main>`;
+}
+
+const courseRelatedArticles = {
+  'mastering-spiffe-spire': [
+    ['Kubernetes Secrets vs Vault vs Workload Identity', '/blog/kubernetes-secrets-vault-workload-identity'],
+    ['OIDC Workload Federation', '/blog/oidc-workload-federation-secretless-service-access'],
+    ['mTLS and X.509 Certificates', '/blog/mtls-x509-certificates-python-tutorial'],
+    ['M2M Authentication', '/blog/m2m-authentication-service-to-service'],
+  ],
+  'cloud-native-security-engineering': [
+    ['Kubernetes Security Explained', '/blog/kubernetes-security-explained'],
+    ['Software Supply Chain Security', '/blog/software-supply-chain-security-explained'],
+    ['Common CI/CD Attack Paths', '/blog/common-cicd-attack-paths'],
+    ['API Security Attacks and Defenses', '/blog/api-security-attacks-defense-guide'],
+  ],
+  'production-rag-systems-engineering': [
+    ['Fine-Tuning vs RAG vs Prompt Engineering', '/blog/fine-tuning-vs-rag-vs-prompt-engineering'],
+    ['Vector Databases and Embeddings', '/blog/vector-databases-embeddings-similarity-search'],
+    ['Build Local RAG and Agent Applications', '/blog/local-ai-app-rag-agents-no-cloud'],
+    ['MCP Security in Production', '/blog/mcp-security-production-ai-agents-oauth-gateways'],
+  ],
+  'distributed-systems-engineering': [
+    ['Distributed Systems Algorithms', '/blog/distributed-systems-algorithms-production-guide'],
+    ['Caching Strategies', '/blog/caching-strategies-production-guide'],
+    ['Rate Limiting Algorithms', '/blog/rate-limiting-algorithms-token-bucket-sliding-window'],
+    ['Scheduling Systems', '/blog/scheduling-systems-production-guide'],
+  ],
+  'centralized-authentication-authorization-envoy': [
+    ['Envoy Proxy and xDS', '/blog/envoy-proxy-xds-server-guide'],
+    ['SSO, SAML, and OIDC', '/blog/sso-saml-oidc-practical-guide'],
+    ['OAuth2 and OpenID Connect', '/blog/oauth2-openid-connect-developer-guide'],
+    ['M2M Authentication in Go', '/blog/m2m-authentication-golang-m2mauth-library'],
+  ],
+  'production-analytics-engineering-dbt': [
+    ['Bronze, Silver, and Gold Data Layers', '/blog/bronze-silver-gold-data-layers-explained'],
+    ['Why Spark Jobs Become Slow', '/blog/why-spark-jobs-become-slow-shuffle-skew-partitions-memory'],
+    ['Delta Lake, Iceberg, and S3 Tables', '/blog/delta-lake-iceberg-s3-tables-beginner-guide'],
+    ['Modern Data Platforms Compared', '/blog/modern-data-platforms-snowflake-databricks-bigquery-e6data'],
+  ],
+  'malware-analysis-defense': [
+    ['Types of Malware and Their Risks', '/blog/types-of-malware-and-their-risks'],
+    ['Software Supply Chain Security', '/blog/software-supply-chain-security-explained'],
+    ['Common CI/CD Attack Paths', '/blog/common-cicd-attack-paths'],
+    ['API Security Attacks and Defenses', '/blog/api-security-attacks-defense-guide'],
+  ],
+};
+
+function renderCourseRelatedArticles(course) {
+  const articles = courseRelatedArticles[course.slug] || [];
+  if (articles.length === 0) return '';
+  return `<section>
+    <h2>Related Engineering Guides</h2>
+    <p>Connect the course to adjacent architecture choices, failure modes, and implementation tradeoffs.</p>
+    <ul>${articles.map(([title, url]) => `<li><a href="${url}">${escapeHtml(title)}</a></li>`).join('')}</ul>
+  </section>`;
 }
 
 function renderLabs(course, mod) {
@@ -1647,6 +1765,7 @@ function renderSeoLandingContent(course, page) {
   return `<main>
     <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/courses">Courses</a> / <a href="/courses/${course.slug}">${escapeHtml(course.title)}</a> / ${escapeHtml(page.title)}</nav>
     <article>${page.content}</article>
+    <p>Maintained by <a href="/about">${escapeHtml(course.instructor.name)}</a>.</p>
     <section>
       <h2>How to Use This Topic</h2>
       <p>This page is a focused entry point into the larger course. Use it to understand the vocabulary, the production problem, and the first practical module to open next.</p>
@@ -1687,7 +1806,7 @@ function seoLandingJsonLd(course, page) {
       'author': {
         '@type': 'Person',
         'name': course.instructor.name,
-        'url': course.instructor.github,
+        'url': `${SITE_URL}/about`,
       },
       'publisher': {
         '@type': 'Organization',
@@ -1784,11 +1903,6 @@ const homeJsonLd = [
     'name': 'CodersSecret',
     'url': SITE_URL,
     'description': HOME_DESCRIPTION,
-    'potentialAction': {
-      '@type': 'SearchAction',
-      'target': `${SITE_URL}/blog?q={search_term_string}`,
-      'query-input': 'required name=search_term_string',
-    },
   },
   {
     '@context': 'https://schema.org',
@@ -1986,7 +2100,6 @@ for (const post of posts) {
     'description': post.excerpt,
     'url': `${SITE_URL}/blog/${post.slug}`,
     'datePublished': post.date || '',
-    'dateModified': post.date || '',
     'author': {
       '@type': 'Person',
       'name': authorName,
@@ -2017,7 +2130,18 @@ for (const post of posts) {
     'itemListElement': [
       { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': SITE_URL },
       { '@type': 'ListItem', 'position': 2, 'name': 'Blog', 'item': `${SITE_URL}/blog` },
-      { '@type': 'ListItem', 'position': 3, 'name': post.title, 'item': `${SITE_URL}/blog/${post.slug}` },
+      ...(post.category ? [{
+        '@type': 'ListItem',
+        'position': 3,
+        'name': categoryNames[post.category] || post.category,
+        'item': `${SITE_URL}/category/${post.category}`,
+      }] : []),
+      {
+        '@type': 'ListItem',
+        'position': post.category ? 4 : 3,
+        'name': post.title,
+        'item': `${SITE_URL}/blog/${post.slug}`,
+      },
     ],
   };
 
@@ -2030,9 +2154,9 @@ for (const post of posts) {
     image: bannerUrl,
     ogType: 'article',
     extraHead: [
+      `  <meta property="article:author" content="${escapeHtml(authorName)}">\n`,
       post.date ? `  <meta property="article:published_time" content="${escapeHtml(post.date)}">\n` : '',
-      post.date ? `  <meta property="article:modified_time" content="${escapeHtml(post.date)}">\n` : '',
-      post.category ? `  <meta property="article:section" content="${escapeHtml(post.category)}">\n` : '',
+      post.category ? `  <meta property="article:section" content="${escapeHtml(categoryNames[post.category] || post.category)}">\n` : '',
       ...tags.map(tag => `  <meta property="article:tag" content="${escapeHtml(tag)}">\n`),
     ].join(''),
   }));
@@ -2081,6 +2205,41 @@ function categoryHubDetails(slug, name) {
   };
 }
 
+function categoryJsonLd(slug, name, description, categoryPosts) {
+  const categoryUrl = `${SITE_URL}/category/${slug}`;
+  const pageName = slug === 'tutorials'
+    ? 'Engineering Tutorials and Guides'
+    : `${name} Tutorials and Guides`;
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      'itemListElement': [
+        { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': SITE_URL },
+        { '@type': 'ListItem', 'position': 2, 'name': 'Blog', 'item': `${SITE_URL}/blog` },
+        { '@type': 'ListItem', 'position': 3, 'name': name, 'item': categoryUrl },
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      'name': pageName,
+      'description': description,
+      'url': categoryUrl,
+      'mainEntity': {
+        '@type': 'ItemList',
+        'numberOfItems': categoryPosts.length,
+        'itemListElement': categoryPosts.map((post, index) => ({
+          '@type': 'ListItem',
+          'position': index + 1,
+          'name': post.title,
+          'url': `${SITE_URL}/blog/${post.slug}`,
+        })),
+      },
+    },
+  ];
+}
+
 for (const cat of categories) {
   const dir = path.join(OUTPUT_DIR, 'category', cat);
   fs.mkdirSync(dir, { recursive: true });
@@ -2091,9 +2250,12 @@ for (const cat of categories) {
   const hub = categoryHubDetails(cat, catName);
 
   const description = hub.description;
+  const pageName = cat === 'tutorials'
+    ? 'Engineering Tutorials and Guides'
+    : `${catName} Tutorials and Guides`;
 
   const content = `
-    <h1>${escapeHtml(catName)} Tutorials and Guides</h1>
+    <h1>${escapeHtml(pageName)}</h1>
     <p>${escapeHtml(hub.description)}</p>
     <section>
       <h2>What This Category Covers</h2>
@@ -2113,10 +2275,11 @@ for (const cat of categories) {
   `;
 
   fs.writeFileSync(path.join(dir, 'index.html'), makeHtml({
-    title: `${catName} Tutorials and Guides`,
+    title: pageName,
     description,
     url: `/category/${cat}`,
     content,
+    jsonLd: categoryJsonLd(cat, catName, description, catPosts),
   }));
   created++;
 }
@@ -2460,6 +2623,7 @@ function gameJsonLd(game, allGames) {
         '@type': 'ItemList',
         'name': game.heading,
         'description': gameDescription(game),
+        'url': `${SITE_URL}/games`,
         'itemListElement': allGames.filter(item => item.slug).map((item, index) => ({
           '@type': 'ListItem',
           'position': index + 1,
@@ -2568,6 +2732,7 @@ function renderCheatsheetContent(cs, allCheatsheets) {
     <article>
       <h1>${escapeHtml(cs.name)}</h1>
       <p>${escapeHtml(description)}</p>
+      <p>Maintained by <a href="/about">Vishal Anand</a>.</p>
       ${renderCheatsheetDetailContent(detail, cs.slug)}
       <section>
         <h2>What This Reference Covers</h2>
@@ -2715,6 +2880,7 @@ function cheatsheetJsonLd(cs, allCheatsheets) {
         '@type': 'ItemList',
         'name': cs.name,
         'description': cheatsheetDescription(cs),
+        'url': `${SITE_URL}/cheatsheets`,
         'itemListElement': allCheatsheets.filter(item => item.slug).map((item, index) => ({
           '@type': 'ListItem',
           'position': index + 1,
@@ -2835,6 +3001,7 @@ if (courseContent) {
       '@type': 'ItemList',
       'name': coursesHubTitle,
       'description': coursesHubDescription,
+      'url': `${SITE_URL}/courses`,
       'numberOfItems': courses.length,
       'itemListElement': courses.map((course, i) => ({
         '@type': 'ListItem',
@@ -2869,7 +3036,6 @@ if (courseContent) {
           'hasCourseInstance': {
             '@type': 'CourseInstance',
             'courseMode': 'online',
-            'courseWorkload': course.totalDuration,
             'instructor': {
               '@type': 'Person',
               'name': course.instructor.name,
@@ -2905,9 +3071,10 @@ if (courseContent) {
         courseBreadcrumbJsonLd(spiffeCourse),
         courseJsonLd(spiffeCourse),
         courseModuleItemListJsonLd(spiffeCourse),
-        ...(spiffeCourse.faqs ? [{
-          '@context': 'https://schema.org',
-          '@type': 'FAQPage',
+          ...(spiffeCourse.faqs ? [{
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            'url': `${SITE_URL}/courses/${spiffeCourse.slug}`,
           'mainEntity': spiffeCourse.faqs.map(faq => ({
             '@type': 'Question',
             'name': faq.question,
@@ -2932,6 +3099,7 @@ if (courseContent) {
         image: courseImagePath(spiffeCourse),
         content: renderSeoLandingContent(spiffeCourse, page),
         jsonLd: seoLandingJsonLd(spiffeCourse, page),
+        extraHead: page.indexable === true ? '' : NOINDEX_FOLLOW_META,
       }));
       created++;
     });
@@ -2959,6 +3127,7 @@ if (courseContent) {
           ...(course.faqs ? [{
             '@context': 'https://schema.org',
             '@type': 'FAQPage',
+            'url': `${SITE_URL}/courses/${course.slug}`,
             'mainEntity': course.faqs.map(faq => ({
               '@type': 'Question',
               'name': faq.question,
@@ -2983,6 +3152,7 @@ if (courseContent) {
           image: courseImagePath(course),
           content: renderSeoLandingContent(course, page),
           jsonLd: seoLandingJsonLd(course, page),
+          extraHead: page.indexable === true ? '' : NOINDEX_FOLLOW_META,
         }));
         created++;
       });
@@ -2994,10 +3164,10 @@ if (courseContent) {
   fs.mkdirSync(cnsDir, { recursive: true });
   fs.writeFileSync(path.join(cnsDir, 'index.html'), makeHtml({
     title: 'Cloud Native Security Engineering - Free Course',
-    description: 'The most practical cloud-native security course. 16 modules covering Kubernetes security, Zero Trust, SPIFFE/SPIRE, OPA, Falco, eBPF, Sigstore, Vault, and AI infrastructure security. 50+ hands-on labs, 100% free.',
+    description: 'Free cloud-native security course with 16 modules and 32 labs covering Kubernetes security, Zero Trust, SPIFFE/SPIRE, OPA, Falco, eBPF, Sigstore, Vault, and AI infrastructure security.',
     url: '/courses/cloud-native-security-engineering',
     content: `<h1>Cloud Native Security Engineering</h1>
-      <p>Securing Kubernetes, Workloads, APIs & Zero Trust Systems. 16 modules, 50+ labs, completely free.</p>
+      <p>Securing Kubernetes, Workloads, APIs & Zero Trust Systems. 16 modules, 32 labs, completely free.</p>
       <h2>Curriculum</h2>
       <ol>
         <li><a href="/courses/cloud-native-security-engineering/introduction-cloud-native-security">Introduction to Cloud Native Security</a></li>
@@ -3065,6 +3235,7 @@ if (courseContent) {
       description: seo.desc,
       url: `/courses/${seo.slug}`,
       content: `<h1>${seo.title}</h1><p>${seo.desc}</p><p>Start the free <a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> course.</p>`,
+      extraHead: NOINDEX_FOLLOW_META,
     }));
     created++;
   });
@@ -3283,6 +3454,7 @@ created++;
       description: seo.title,
       url: `/courses/${seo.slug}`,
       content: `<h1>${seo.title}</h1><p><a href="/courses/production-rag-systems-engineering">Start the free RAG course</a></p>`,
+      extraHead: NOINDEX_FOLLOW_META,
     }));
     created++;
   });

@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Python has three concurrency models, and most developers use the wrong one. They reach for threading when they need multiprocessing, or multiprocessing when they need asyncio. The choice depends on one question: <strong>is your bottleneck I/O or CPU?</strong></p>
+      <p>Python has three concurrency models, and most developers use the wrong one. They reach for threading when they need multiprocessing, or multiprocessing when they need asyncio. Start with the focused <a href="/blog/python-threading-vs-multiprocessing-tutorial">threading-versus-multiprocessing comparison</a>, keep the <a href="/cheatsheets/python">Python cheatsheet</a> nearby for core syntax, and consider a <a href="/blog/python-c-extensions-workshop">Python C extension</a> when a CPU-bound hot path needs native execution. The choice depends on one question: <strong>is your bottleneck I/O or CPU?</strong></p>
 
       <h2>The GIL: What It Actually Means</h2>
 

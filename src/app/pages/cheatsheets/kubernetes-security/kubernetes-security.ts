@@ -348,6 +348,11 @@ env:
       href: '/glossary',
       description: 'Definitions for SPIFFE, SVID, OPA, Falco, mTLS, and other cloud-native security vocabulary.',
     },
+    {
+      label: 'Kubernetes Security Explained',
+      href: '/blog/kubernetes-security-explained',
+      description: 'Use the long-form guide to connect the reference commands into one production security model.',
+    },
   ];
 
   constructor() {

@@ -1,7 +1,7 @@
 export const CONTENT = `
       <p>Google uses Core Web Vitals as a ranking factor. A slow site does not just frustrate users - it literally pushes you down in search results. Yet most developers treat performance as an afterthought, adding a lazy loading directive and calling it done.</p>
 
-      <p>This guide takes you from red Lighthouse scores to green with concrete, measurable optimizations for each Core Web Vital.</p>
+      <p>This guide takes you from red Lighthouse scores to green with concrete, measurable optimizations for each Core Web Vital. Layout work starts with the <a href="/blog/css-grid-flexbox-mastery-responsive-layouts">responsive Grid and Flexbox foundations</a>, while framework-specific rendering decisions are covered in the <a href="/blog/angular-21-large-scale-applications-comparison">Angular 21 performance comparison</a>.</p>
 
       <h2>The Three Core Web Vitals</h2>
 

@@ -92,7 +92,7 @@ import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
 
             <!-- Author + tags -->
             <div class="md3-article-author-row mt-6 flex flex-col sm:flex-row sm:items-center gap-4">
-              <div class="md3-article-author flex items-center gap-3">
+              <a routerLink="/about" class="md3-article-author flex items-center gap-3" aria-label="About the author">
                 <div class="md3-article-avatar flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 text-white text-sm font-bold">
                   {{ post.author.charAt(0) }}
                 </div>
@@ -100,15 +100,13 @@ import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
                   <div class="text-sm font-semibold">{{ post.author }}</div>
                   <div class="text-xs text-muted-foreground">Author</div>
                 </div>
-              </div>
+              </a>
 
               <div class="md3-article-tag-list sm:ml-auto flex flex-wrap gap-1.5">
                 @for (tag of post.tags; track tag) {
-                  <a routerLink="/blog"
-                     [attr.aria-label]="'Browse CodersSecret blog guides related to ' + tag"
-                     class="inline-flex items-center rounded-full border border-border/40 bg-muted/50 px-3 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground hover:border-primary cursor-pointer">
+                  <span class="inline-flex items-center rounded-full border border-border/40 bg-muted/50 px-3 py-1 text-[11px] font-medium text-muted-foreground">
                     {{ tag }}
-                  </a>
+                  </span>
                 }
               </div>
             </div>
@@ -163,7 +161,7 @@ import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
             <span>{{ toc.length }} sections</span>
           </summary>
           <nav aria-label="On this page">
-            <a href="#article-start"
+            <a [href]="'/blog/' + post.slug + '#article-start'"
                class="md3-article-toc-overview md3-article-toc-overview-mobile"
                [attr.aria-current]="activeTocId() === 'article-start' ? 'location' : null"
                [class.md3-article-toc-link-active]="activeTocId() === 'article-start'"
@@ -173,7 +171,7 @@ import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
             <ul>
               @for (item of toc; track item.id) {
                 <li>
-                  <a [href]="'#' + item.id"
+                  <a [href]="'/blog/' + post.slug + '#' + item.id"
                      class="md3-article-toc-link"
                      [class.md3-article-toc-link-nested]="item.level === 3"
                      [attr.aria-current]="activeTocId() === item.id ? 'location' : null"
@@ -232,7 +230,7 @@ import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
                  aria-label="On this page">
               <div class="md3-article-toc-panel sticky top-20">
                 <div class="md3-article-toc-kicker">On this page</div>
-                <a href="#article-start"
+                <a [href]="'/blog/' + post.slug + '#article-start'"
                    class="md3-article-toc-overview"
                    [attr.title]="post.title"
                    [attr.aria-current]="activeTocId() === 'article-start' ? 'location' : null"
@@ -247,7 +245,7 @@ import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
                       [style.opacity]="tocIndicatorOpacity()"></li>
                   @for (item of desktopToc; track item.id) {
                     <li>
-                      <a [href]="'#' + item.id"
+                      <a [href]="'/blog/' + post.slug + '#' + item.id"
                          (click)="scrollToHeading($event, item.id)"
                          class="md3-article-toc-link block w-full text-left px-4 py-1.5 text-[13px] leading-snug text-muted-foreground transition-colors hover:text-foreground hover:border-l-primary border-l-2 border-transparent -ml-[2px] cursor-pointer"
                          [class.md3-article-toc-link-nested]="item.level === 3"
@@ -525,13 +523,6 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   desktopTocTitle = '';
   categoryName = '';
   categoryColor = md3CategoryAccent('');
-  readonly generatedCoverMissingSlugs = new Set([
-    'distributed-systems-algorithms-production-guide',
-    'rate-limiting-algorithms-production-guide',
-    'caching-strategies-production-guide',
-    'scheduling-systems-production-guide',
-  ]);
-
   constructor() {
     this.route.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -578,6 +569,8 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
             url: `/blog/${this.post.slug}`,
             type: 'article',
             image: `https://coderssecret.com/images/banners/${this.post.slug}.svg`,
+            imageWidth: 1200,
+            imageHeight: this.bannerHeightFor(this.post),
             article: {
               author: this.post.author,
               publishedTime: this.post.date,
@@ -1235,10 +1228,6 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
       return post.coverImage;
     }
 
-    if (this.generatedCoverMissingSlugs.has(post.slug)) {
-      return null;
-    }
-
     return `/images/banners/${post.slug}.svg`;
   }
 
@@ -1390,7 +1379,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
 
   private compactSeoTitle(title: string, maxLength: number): string {
     const normalized = title.replace(/\s+/g, ' ').trim();
-    if (normalized.length <= maxLength) return normalized;
+    if (normalized.length <= maxLength) return this.stripDanglingTitleWords(normalized);
 
     const separators = [': ', ' - ', ' | '];
     for (const separator of separators) {
@@ -1404,7 +1393,8 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
         candidate = next;
       }
 
-      if (candidate.length >= 28) return candidate;
+      candidate = this.stripDanglingTitleWords(candidate);
+      if (candidate.length >= 28 || /\bguide$/i.test(candidate)) return candidate;
       const guided = `${candidate} Guide`;
       return guided.length <= maxLength ? guided : candidate;
     }
@@ -1415,7 +1405,15 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   private trimAtWord(text: string, maxLength: number): string {
     const clipped = text.slice(0, maxLength);
     const lastSpace = clipped.lastIndexOf(' ');
-    return clipped.slice(0, lastSpace > 30 ? lastSpace : clipped.length).trim();
+    return this.stripDanglingTitleWords(clipped.slice(0, lastSpace > 30 ? lastSpace : clipped.length));
+  }
+
+  private stripDanglingTitleWords(title: string): string {
+    let cleaned = title.replace(/[,:;\-|\s]+$/g, '').trim();
+    while (/\b(?:a|an|and|for|in|of|or|the|to|with)$/i.test(cleaned)) {
+      cleaned = cleaned.replace(/\s+\S+$/, '').replace(/[,:;\-|\s]+$/g, '').trim();
+    }
+    return cleaned;
   }
 
   private getKnownImageSize(src: string): { width: number; height: number } | undefined {

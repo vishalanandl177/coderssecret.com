@@ -25,7 +25,7 @@ export const CONTENT = `
 
       <h2>Step 1: Define Your Design Principles</h2>
 
-      <p>Before you touch a single pixel or write a line of CSS, answer these questions with your team. Write the answers down. These become your design principles - the north star for every decision:</p>
+      <p>Before you touch a single pixel or write a line of CSS, answer these questions with your team. Write the answers down. These become your design principles - the north star for every decision. The <a href="/blog/css-grid-flexbox-mastery-responsive-layouts">Grid and Flexbox layout guide</a> provides the implementation foundation for the spacing and composition rules that follow.</p>
 
       <ul>
         <li><strong>Who are your users?</strong> Internal tools for developers? Consumer-facing app for non-tech people? Both?</li>
@@ -275,7 +275,7 @@ export function Button({
 
       <h2>Step 4: The Component Checklist</h2>
 
-      <p>Before any component ships to the design system, it must pass this checklist. I'm serious - tape this to your monitor:</p>
+      <p>Before any component ships to the design system, it must pass this checklist. Include the same component in your <a href="/blog/web-performance-core-web-vitals-optimization">Core Web Vitals performance checks</a> so the shared library does not multiply a rendering problem across every page. I'm serious - tape this to your monitor:</p>
 
       <!-- Component Checklist -->
       <div class="flow-diagram">
@@ -486,7 +486,7 @@ npx changeset publish       # Publish to npm
 
       <h2>Step 10: Measuring Success</h2>
 
-      <p>How do you know if your design system is working? Not by counting components - by measuring adoption:</p>
+      <p>How do you know if your design system is working? Not by counting components - by measuring adoption. These measures can become concrete <a href="/blog/okr-objectives-key-results-practical-guide">engineering OKRs with observable key results</a>:</p>
 
       <pre><code># Metrics that actually matter:
 

@@ -253,8 +253,11 @@ export class CategoryComponent {
       const desc = this.categoryHub().description || this.categoryDescriptions[slug]
         || `Browse ${count} article${count !== 1 ? 's' : ''} about ${name} on CodersSecret.`;
       const posts = this.filteredPosts();
+      const pageTitle = slug === 'tutorials'
+        ? 'Engineering Tutorials and Guides'
+        : `${name} Tutorials and Guides`;
       this.seo.update({
-        title: `${name} Tutorials and Guides | CodersSecret`,
+        title: pageTitle,
         description: desc,
         url: `/category/${slug}`,
         breadcrumbs: [

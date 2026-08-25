@@ -5,9 +5,9 @@ export const CLOUD_NATIVE_SECURITY_ENGINEERING_COURSE: Course = {
     title: 'Cloud Native Security Engineering: Securing Kubernetes, Workloads, APIs & Zero Trust Systems',
     slug: 'cloud-native-security-engineering',
     subtitle: 'From passwords and perimeter trust to workload identity, Zero Trust, runtime protection, and production cloud-native security architecture',
-    excerpt: 'Secure Kubernetes from attack to defense. Learn workload identity (SPIFFE/SPIRE), Zero Trust (mTLS), policy-as-code (OPA/Kyverno), runtime protection (Falco/eBPF), and supply chain security (Sigstore/SLSA). 16 modules, 50+ labs, completely free.',
-    description: 'The most practical beginner-to-advanced cloud-native security course available publicly. Replace secret sprawl and perimeter trust with workload identity, Zero Trust architecture, policy-as-code, runtime protection, and supply chain security. 16 modules, 50+ hands-on labs, completely free. Covers Kubernetes, SPIFFE/SPIRE, OPA, Falco, Sigstore, Vault, Envoy, Istio, eBPF, and AI infrastructure security.',
-    totalDuration: '60+ hours',
+    excerpt: 'Secure Kubernetes from attack to defense. Learn workload identity (SPIFFE/SPIRE), Zero Trust (mTLS), policy-as-code (OPA/Kyverno), runtime protection (Falco/eBPF), and supply chain security (Sigstore/SLSA). 16 modules, 32 labs, completely free.',
+    description: 'A beginner-to-advanced cloud-native security course that replaces secret sprawl and perimeter trust with workload identity, Zero Trust architecture, policy-as-code, runtime protection, and supply chain security. Includes 16 modules and 32 hands-on labs covering Kubernetes, SPIFFE/SPIRE, OPA, Falco, Sigstore, Vault, Envoy, Istio, eBPF, and AI infrastructure security.',
+    totalDuration: '50+ hours',
     level: 'Beginner to Advanced',
     category: 'devops',
     tags: ['Cloud Native Security', 'Kubernetes Security', 'Zero Trust', 'Workload Identity', 'SPIFFE', 'SPIRE', 'OPA', 'Falco', 'eBPF', 'Sigstore', 'Supply Chain Security', 'Service Mesh', 'Istio', 'Envoy', 'Vault', 'Runtime Security', 'Policy-as-Code', 'Platform Security', 'Machine Identity', 'AI Infrastructure Security', 'CNCF', 'mTLS', 'Container Security', 'CI/CD Security'],
@@ -51,7 +51,7 @@ export const CLOUD_NATIVE_SECURITY_ENGINEERING_COURSE: Course = {
             <li><strong>Supply Chain Security:</strong> Verify every artifact from source to deployment (Sigstore, SLSA, SBOM)</li>
           </ul>
           <h2>Learn Cloud Native Security - Free</h2>
-          <p>Our free <a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> course takes you from beginner to production-ready across all five pillars. 16 modules, 50+ hands-on labs, zero paywalls.</p>
+          <p>Our free <a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> course takes you from beginner to production-ready across all five pillars. 16 modules, 32 hands-on labs, zero paywalls.</p>
         `,
       },
       {
@@ -112,7 +112,7 @@ export const CLOUD_NATIVE_SECURITY_ENGINEERING_COURSE: Course = {
     faqs: [
       { question: 'What is cloud native security?', answer: 'Cloud native security is a comprehensive approach to securing containerized, orchestrated, and microservice-based systems. It covers workload identity, Zero Trust networking, policy-as-code, runtime threat detection, and supply chain security.' },
       { question: 'Is this course beginner-friendly?', answer: 'Yes. The course starts with security fundamentals and Kubernetes basics, then progressively builds to advanced topics like SPIFFE federation, eBPF runtime security, and AI infrastructure protection.' },
-      { question: 'Is this course free?', answer: 'Yes, 100% free. 16 modules, 50+ hands-on labs, companion GitHub repositories, and all course content are completely free.' },
+      { question: 'Is this course free?', answer: 'Yes, 100% free. All 16 modules, 32 hands-on labs, companion GitHub repositories, and course content are completely free.' },
       { question: 'What tools does this course cover?', answer: 'Kubernetes, SPIFFE/SPIRE, OPA, Kyverno, Gatekeeper, Falco, Tetragon, eBPF, Sigstore, Cosign, SLSA, HashiCorp Vault, Istio, Envoy, OpenTelemetry, and GitHub Actions security.' },
       { question: 'What is the difference between this course and the SPIFFE & SPIRE course?', answer: 'The SPIFFE & SPIRE course goes deep on workload identity specifically. This Cloud Native Security Engineering course covers the full security stack - identity is one of five pillars alongside Zero Trust, policy, runtime protection, and supply chain security.' },
       { question: 'What is OPA vs Kyverno?', answer: 'OPA (Open Policy Agent) uses the Rego language for powerful policy expressions. Kyverno uses Kubernetes-native YAML for easier adoption. Both enforce security policies via admission control. The course covers both so you can choose.' },

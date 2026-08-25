@@ -340,7 +340,7 @@ resource "azurerm_role_assignment" "sql_access" {
 
       <h2>Machine Identity: The Most Important Concept</h2>
 
-      <p>If there's ONE thing you take from this article, let it be this: <strong>never give your applications long-lived credentials</strong>. Every cloud has a way to give workloads temporary, auto-rotated identity without you managing any secrets.</p>
+      <p>If there's ONE thing you take from this article, let it be this: <strong>never give your applications long-lived credentials</strong>. Every cloud has a way to give workloads temporary, auto-rotated identity without you managing any secrets. Start with the <a href="/glossary/workload-identity">workload identity definition</a>, use the <a href="/blog/oidc-workload-federation-secretless-service-access">OIDC workload federation guide</a> for secretless service access, and encode the resulting roles and policies with the <a href="/blog/terraform-infrastructure-as-code-production-guide">production Terraform workflow</a>.</p>
 
       <!-- Machine Identity Comparison -->
       <div class="flow-diagram">

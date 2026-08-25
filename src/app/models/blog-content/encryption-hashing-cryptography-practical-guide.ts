@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Every time you log in, make a payment, or send a message, cryptography is silently protecting you. But most developers treat it as a black box - "just use HTTPS and bcrypt." This guide gives you a <strong>practical understanding</strong> of how encryption, hashing, and digital signatures actually work, with Python code for every concept and clear guidance on when to use what.</p>
+      <p>Every time you log in, make a payment, or send a message, cryptography is silently protecting you. But most developers treat it as a black box - "just use HTTPS and bcrypt." This guide gives you a <strong>practical understanding</strong> of how encryption, hashing, and digital signatures actually work, with Python code for every concept and clear guidance on when to use what. Continue with the <a href="/blog/mtls-x509-certificates-python-tutorial">mTLS and X.509 Python tutorial</a> for a protocol-level application, the <a href="/courses/mastering-spiffe-spire/cryptography-pki-foundations">cryptography and PKI foundations module</a> for machine identity, and the <a href="/blog/ethical-hacking-beginners-tutorial">authorized ethical hacking workflow</a> for the defensive testing perspective.</p>
 
       <h2>The Three Pillars of Cryptography</h2>
 

@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>System design interviews and architecture decisions share the same core knowledge: understanding how each layer of a modern web system works, when to introduce it, and what breaks when you get it wrong. This guide walks through every layer from the user&rsquo;s browser to the database, and ties it all together with a complete URL shortener design.</p>
+      <p>System design interviews and architecture decisions share the same core knowledge: understanding how each layer of a modern web system works, when to introduce it, and what breaks when you get it wrong. This guide walks through every layer from the user&rsquo;s browser to the database, and ties it all together with a complete URL shortener design. The <a href="/blog/api-design-rest-graphql-grpc-compared">REST, GraphQL, and gRPC API comparison</a> helps choose the service interface, while the <a href="/courses/distributed-systems-engineering/foundations-distributed-systems">distributed systems foundations module</a> extends the failure model beyond one process.</p>
 
       <h2>The Framework: How to Think About System Design</h2>
 

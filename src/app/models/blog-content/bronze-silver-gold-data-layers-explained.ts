@@ -39,7 +39,7 @@ export const CONTENT = `
 
       <h2>Gold: Business-Ready Data Products</h2>
 
-      <p>The gold layer is where you publish datasets that answer real business questions. Gold tables power dashboards, finance reports, ML features, reverse ETL jobs, and operational reporting. They should have strong ownership, documented semantics, freshness expectations, and quality checks.</p>
+      <p>The gold layer is where you publish datasets that answer real business questions. Gold tables power dashboards, finance reports, ML features, reverse ETL jobs, and operational reporting, often using <a href="/blog/sql-window-functions-rank-lag-running-totals">SQL window functions for rankings and time-based comparisons</a>. They should have strong ownership, documented semantics, freshness expectations, and quality checks.</p>
 
       <pre><code>gold.daily_revenue
 - revenue_date

@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Passwords are fundamentally broken. Users reuse them across sites, phishing steals them daily, and even hashed databases get breached. Passkeys replace passwords entirely with cryptographic key pairs stored on the user&rsquo;s device, authenticated with biometrics (fingerprint, face) or a device PIN. No password to remember, no password to steal.</p>
+      <p>Passwords are fundamentally broken. Users reuse them across sites, phishing steals them daily, and even hashed databases get breached. Passkeys replace passwords entirely with cryptographic key pairs stored on the user&rsquo;s device, authenticated with biometrics (fingerprint, face) or a device PIN. The <a href="/blog/encryption-hashing-cryptography-practical-guide">encryption, hashing, and cryptography guide</a> explains the primitives behind that key-pair model, while the <a href="/cheatsheets/api-security">API security cheatsheet</a> covers the server-side controls around authentication endpoints. No password to remember, no password to steal.</p>
 
       <h2>How Passkeys Work</h2>
 
@@ -8,7 +8,7 @@ export const CONTENT = `
         <li><strong>Authentication:</strong> Your server sends a random challenge. The device signs it with the private key (after biometric verification). Your server verifies the signature with the stored public key.</li>
       </ol>
 
-      <p>The private key is protected by the device&rsquo;s secure enclave (TPM, Secure Enclave, Android Keystore). Even if your server is breached, attackers get only public keys - which are useless without the device.</p>
+      <p>The private key is protected by the device&rsquo;s secure enclave (TPM, Secure Enclave, Android Keystore). Even if your server is breached, attackers get only public keys - which are useless without the device. Passkeys authenticate an existing account; <a href="/blog/scim-user-provisioning-tutorial">SCIM provisioning and deprovisioning</a> handles the separate enterprise account-lifecycle problem.</p>
 
       <h2>WebAuthn API: Registration</h2>
 

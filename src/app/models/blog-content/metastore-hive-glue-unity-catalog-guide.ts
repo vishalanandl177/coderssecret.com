@@ -269,7 +269,7 @@ aws lakeformation grant-permissions \\
 
       <h2>Databricks Unity Catalog - The Governance-First Approach</h2>
 
-      <p>Databricks Unity Catalog takes a fundamentally different approach. Instead of bolting governance onto an existing catalogue (like Lake Formation does with Glue), Unity Catalog was <strong>built from the ground up for governance</strong>. It provides a three-level namespace, centralised access control, data lineage, and cross-workspace sharing.</p>
+      <p>Databricks Unity Catalog takes a fundamentally different approach. Instead of bolting governance onto an existing catalogue (like Lake Formation does with Glue), Unity Catalog was <strong>built from the ground up for governance</strong>. It provides a three-level namespace, centralised access control, <a href="/courses/production-analytics-engineering-dbt/lineage-dbt-artifacts" class="text-primary underline">data lineage</a>, and cross-workspace sharing.</p>
 
       <!-- Unity Catalog Namespace -->
       <div class="flow-diagram">
@@ -410,7 +410,7 @@ spark.sql("SELECT * FROM polaris.sales.revenue WHERE year = 2025")</code></pre>
 
       <h2>The Modern Lakehouse Architecture</h2>
 
-      <p>The modern data stack has converged on a pattern called the <strong>lakehouse</strong>. Instead of separate data lakes and data warehouses, you have one storage layer (S3/ADLS/GCS) with a table format (Delta Lake, Iceberg, Hudi) that provides warehouse-like features (ACID transactions, schema enforcement, time travel) on top of a data lake. The metastore is the <strong>central nervous system</strong> of this architecture.</p>
+      <p>The modern data stack has converged on a pattern called the <strong>lakehouse</strong>. Instead of separate data lakes and data warehouses, you have one storage layer (S3/ADLS/GCS) with a <a href="/blog/delta-lake-iceberg-s3-tables-beginner-guide" class="text-primary underline">table format (Delta Lake, Iceberg, Hudi)</a> that provides warehouse-like features (ACID transactions, schema enforcement, time travel) on top of a data lake. The metastore is the <strong>central nervous system</strong> of this architecture.</p>
 
       <!-- Lakehouse Architecture -->
       <div class="flow-diagram">

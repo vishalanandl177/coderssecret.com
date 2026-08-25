@@ -2,7 +2,7 @@ export const CONTENT = `
       <p>You've built a great product. Then legal says "we need SOC 2 before we can close this enterprise deal" or "HIPAA compliance is required to handle patient data." Suddenly you're reading 300-page PDFs full of legalese. This guide cuts through the noise - here's what each compliance framework <strong>actually requires from your engineering team</strong>, with practical implementation details.</p>
 
       <h2>Why Compliance Matters for Developers</h2>
-      <p>Compliance isn't just a checkbox for sales. It's a structured way to prove your software is <strong>secure, reliable, and trustworthy</strong>. Every framework boils down to the same core questions:</p>
+      <p>Compliance isn't just a checkbox for sales. It's a structured way to prove your software is <strong><a href="/blog/api-security-attacks-defense-guide" class="text-primary underline">secure</a>, reliable, and trustworthy</strong>. Every framework boils down to the same core questions:</p>
       <ul>
         <li>Who can access what data?</li>
         <li>How is data protected at rest and in transit?</li>
@@ -445,5 +445,5 @@ deny[msg] {
         </div>
       </div>
 
-      <p>Compliance is not a one-time project - it's a continuous process. The best engineering teams build compliance into their development workflow: infrastructure as code, automated evidence collection, security scanning in CI/CD, and regular access reviews. Start with the framework your customers require, implement the universal controls first, and expand from there. The overlap between frameworks means your second certification is always easier than your first.</p>
+      <p>Compliance is not a one-time project - it's a continuous process. The best engineering teams build compliance into their development workflow: infrastructure as code, automated evidence collection, <a href="/cheatsheets/devsecops" class="text-primary underline">security scanning in CI/CD</a>, and regular access reviews. Start with the framework your customers require, implement the universal controls first, and expand from there. The overlap between frameworks means your second certification is always easier than your first.</p>
     `;

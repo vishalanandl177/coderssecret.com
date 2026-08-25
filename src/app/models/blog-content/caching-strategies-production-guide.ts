@@ -424,7 +424,7 @@ def update_user(user_id, data):
 
       <h2>Eviction Policies</h2>
 
-      <p>Caches have finite memory. When full, an eviction policy decides what to discard. Common choices:</p>
+      <p>Caches have <a href="/blog/compression-algorithms-benchmarks-guide" class="text-primary underline">finite memory</a>. When full, an eviction policy decides what to discard. Common choices:</p>
 
       <ul>
         <li><strong>LRU (Least Recently Used)</strong>: evict the entry that has not been accessed for the longest time. The default in most caches. Approximated in Redis (full LRU is too expensive at scale; Redis samples a small subset and evicts the LRU among them).</li>

@@ -1,8 +1,8 @@
 export const CONTENT = `
-      <p>In modern software architecture, the word "API" gets thrown around a lot - but not all APIs serve the same purpose. Two terms that often cause confusion are <strong>headless APIs</strong> and <strong>programmatic APIs</strong>. They overlap in some ways, but they solve fundamentally different problems. Understanding the distinction will help you make better architectural decisions.</p>
+      <p>In modern software architecture, the word "API" gets thrown around a lot - but not all APIs serve the same purpose. Two terms that often cause confusion are <strong>headless APIs</strong> and <strong>programmatic APIs</strong>. They overlap in some ways, but they solve fundamentally different problems. Understanding the distinction will help you make better <a href="/games/secure-architecture-builder" class="text-primary underline">architectural decisions</a>.</p>
 
       <h2>What is a Headless API?</h2>
-      <p>A <strong>headless API</strong> is the backend of a system that has been <em>decoupled from its frontend</em> (the "head"). The API serves content or functionality without dictating how it's presented. The term comes from "headless CMS" but applies broadly to any system where the presentation layer is separated from the data/logic layer.</p>
+      <p>A <strong>headless API</strong> is the backend of a system that has been <em><a href="/blog/separation-of-concerns-architecture-guide" class="text-primary underline">decoupled from its frontend</a></em> (the "head"). The API serves content or functionality without dictating how it's presented. The term comes from "headless CMS" but applies broadly to any system where the presentation layer is separated from the data/logic layer.</p>
       <p>In a traditional (monolithic) architecture, the backend renders HTML pages directly. In a headless architecture, the backend only exposes APIs - and any frontend (web app, mobile app, kiosk, smartwatch) can consume them independently.</p>
 
       <!-- Headless vs Traditional -->

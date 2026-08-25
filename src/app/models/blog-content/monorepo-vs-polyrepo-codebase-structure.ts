@@ -3,7 +3,7 @@ export const CONTENT = `
 
       <h2>What Is a Monorepo?</h2>
 
-      <p>A monorepo stores all projects, services, and libraries in a <strong>single Git repository</strong>. This does not mean a monolith - the code is still modular, but lives in one repository with shared tooling.</p>
+      <p>A monorepo stores all projects, services, and libraries in a <strong><a href="/blog/git-internals-how-git-works-under-hood" class="text-primary underline">single Git repository</a></strong>. This does not mean a monolith - the code is still modular, but lives in one repository with shared tooling.</p>
 
       <pre><code># Monorepo structure
 mycompany/
@@ -26,7 +26,7 @@ mycompany/
 
       <h2>What Is a Polyrepo?</h2>
 
-      <p>Each project, service, or library gets its own Git repository. Teams have full autonomy over their repository, tooling, and deployment.</p>
+      <p>Each project, service, or library gets its own <a href="/cheatsheets/git" class="text-primary underline">Git repository</a>. Teams have full autonomy over their repository, tooling, and deployment.</p>
 
       <pre><code># Polyrepo structure (each is a separate Git repo)
 mycompany/web          # Frontend app repo

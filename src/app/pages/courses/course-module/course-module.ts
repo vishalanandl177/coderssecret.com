@@ -523,7 +523,7 @@ export class CourseModuleComponent {
           url: moduleUrl,
           image: this.getCourseImage(c),
           imageWidth: 1200,
-          imageHeight: 480,
+          imageHeight: this.getCourseImageHeight(c),
           breadcrumbs: [
             { name: 'Home', url: '/' },
             { name: 'Courses', url: '/courses' },
@@ -540,7 +540,6 @@ export class CourseModuleComponent {
             'isAccessibleForFree': true,
             'inLanguage': 'en',
             'position': m.number,
-            'timeRequired': m.duration,
             'teaches': m.objectives,
             'about': c.tags,
             'provider': {
@@ -568,13 +567,37 @@ export class CourseModuleComponent {
   }
 
   private getModuleSeoTitle(course: Course, module: CourseModule): string {
-    if (course.slug === 'mastering-spiffe-spire') {
-      return `Module ${module.number}: ${this.getSpiffeModuleShortTitle(module)} | SPIFFE`;
+    const title = course.slug === 'mastering-spiffe-spire'
+      ? this.getSpiffeModuleShortTitle(module)
+      : course.slug === 'malware-analysis-defense'
+        ? this.getMalwareModuleShortTitle(module)
+        : module.title;
+    const suffixByCourse: Record<string, string> = {
+      'mastering-spiffe-spire': 'SPIFFE',
+      'cloud-native-security-engineering': 'Cloud Security',
+      'production-rag-systems-engineering': 'RAG Systems',
+      'distributed-systems-engineering': 'Distributed Sys',
+      'production-analytics-engineering-dbt': 'Analytics dbt',
+      'centralized-authentication-authorization-envoy': 'Envoy Auth',
+      'malware-analysis-defense': 'Malware',
+    };
+    return `M${module.number}: ${this.compactSeoTitle(title, 42)} | ${suffixByCourse[course.slug] ?? 'Course'}`;
+  }
+
+  private compactSeoTitle(title: string, maxLength: number): string {
+    const normalized = title.replace(/\s+/g, ' ').trim();
+    if (normalized.length <= maxLength) return this.stripDanglingTitleWords(normalized);
+    const clipped = normalized.slice(0, maxLength);
+    const lastSpace = clipped.lastIndexOf(' ');
+    return this.stripDanglingTitleWords(clipped.slice(0, lastSpace > 24 ? lastSpace : clipped.length));
+  }
+
+  private stripDanglingTitleWords(title: string): string {
+    let cleaned = title.replace(/[,:;\-|\s]+$/g, '').trim();
+    while (/\b(?:a|an|and|for|in|of|or|the|to|with)$/i.test(cleaned)) {
+      cleaned = cleaned.replace(/\s+\S+$/, '').replace(/[,:;\-|\s]+$/g, '').trim();
     }
-    if (course.slug === 'malware-analysis-defense') {
-      return `Module ${module.number}: ${this.getMalwareModuleShortTitle(module)} | Malware Defense`;
-    }
-    return `Module ${module.number}: ${module.title} | ${course.title}`;
+    return cleaned;
   }
 
   private getMalwareModuleShortTitle(module: CourseModule): string {
@@ -623,17 +646,17 @@ export class CourseModuleComponent {
     const unit = course.labDelivery === 'inline' ? 'exercise' : 'lab';
     const labLabel = module.labs.length === 1 ? unit : `${unit}s`;
     const practiceType = course.labDelivery === 'inline' ? 'inline' : 'hands-on';
-    const courseName = course.slug === 'mastering-spiffe-spire'
-      ? 'SPIFFE/SPIRE'
-      : course.slug === 'malware-analysis-defense'
-        ? 'malware defense'
-        : course.title;
-    const subtitle = module.subtitle.replace(/[.!?]+$/, '');
-    const description = `Module ${module.number} of the free ${courseName} course: ${subtitle}. ${module.labs.length} ${practiceType} ${labLabel}.`;
-    if (description.length <= 158) return description;
-    const clipped = description.slice(0, 155);
-    const lastSpace = clipped.lastIndexOf(' ');
-    return `${clipped.slice(0, lastSpace > 100 ? lastSpace : clipped.length).trim()}...`;
+    const courseNames: Record<string, string> = {
+      'mastering-spiffe-spire': 'SPIFFE',
+      'cloud-native-security-engineering': 'Cloud Security',
+      'production-rag-systems-engineering': 'RAG Systems',
+      'distributed-systems-engineering': 'Distributed Systems',
+      'production-analytics-engineering-dbt': 'Analytics dbt',
+      'centralized-authentication-authorization-envoy': 'Envoy Auth',
+      'malware-analysis-defense': 'Malware Defense',
+    };
+    const topic = this.compactSeoTitle(module.title, 55).replace(/[.!?]+$/, '');
+    return `Free ${courseNames[course.slug] ?? 'engineering'} module ${module.number}: ${topic}. Includes ${module.labs.length} ${practiceType} ${labLabel}.`;
   }
 
   private getCourseImage(course: Course): string {
@@ -643,8 +666,16 @@ export class CourseModuleComponent {
       'production-rag-systems-engineering': 'https://coderssecret.com/images/banners/course-production-rag-systems-engineering.svg',
       'distributed-systems-engineering': 'https://coderssecret.com/og-image.svg',
       'production-analytics-engineering-dbt': 'https://coderssecret.com/images/banners/course-production-analytics-engineering-dbt.svg',
+      'centralized-authentication-authorization-envoy': 'https://coderssecret.com/images/banners/course-centralized-authentication-authorization-envoy.svg',
       'malware-analysis-defense': 'https://coderssecret.com/images/banners/course-malware-analysis-defense.svg',
     };
     return imageByCourse[course.slug] ?? 'https://coderssecret.com/og-image.svg';
+  }
+
+  private getCourseImageHeight(course: Course): number {
+    return course.slug === 'distributed-systems-engineering'
+      || course.slug === 'centralized-authentication-authorization-envoy'
+      ? 630
+      : 480;
   }
 }

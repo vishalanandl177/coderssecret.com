@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Contributing to open source is the fastest way to level up as a developer. You read production code, get feedback from experienced maintainers, and build a public portfolio. But most developers never start because the process feels intimidating. This guide makes your first contribution painless.</p>
+      <p>Contributing to open source is the fastest way to level up as a developer. You read production code, get feedback from experienced maintainers, and <a href="/blog/build-python-cli-tool-click-typer-pypi" class="text-primary underline">build a public portfolio</a>. But most developers never start because the process feels intimidating. This guide makes your first contribution painless.</p>
 
       <h2>Step 1: Find a Beginner-Friendly Issue</h2>
 
@@ -264,5 +264,5 @@ git push --force-with-lease origin fix/typo-in-readme</code></pre>
         <li><strong>Consistency beats size</strong> - regular small contributions build your reputation and skills faster than one large PR</li>
       </ul>
 
-      <p>The open source community is full of people who started exactly where you are now - nervous about their first PR. Every maintainer remembers their first contribution. The hardest part is not the code. It is clicking &ldquo;Create Pull Request.&rdquo; Once you do it once, it becomes routine. Start today.</p>
+      <p>The open source community is full of people who started exactly where you are now - nervous about their first PR. Every maintainer remembers their first contribution. The hardest part is not the code. It is clicking <a href="/cheatsheets/git" class="text-primary underline">&ldquo;Create Pull Request.&rdquo;</a> Once you do it once, it becomes routine. Start today.</p>
     `;

@@ -1,7 +1,7 @@
 export const CONTENT = `
-      <p>You can get Claude to write a poem in the playground. But building a production system that reliably classifies support tickets, generates structured JSON, or orchestrates tool calls? That requires <strong>engineering</strong>, not just prompting.</p>
+      <p>You can get Claude to write a poem in the playground. But building a production system that reliably classifies support tickets, generates structured JSON, or <a href="/blog/mcp-servers-ai-agents-tutorial">orchestrates tool calls through MCP servers</a>? That requires <strong>engineering</strong>, not just prompting.</p>
 
-      <p>This guide covers 8 patterns that separate playground experiments from production AI systems. Every pattern includes real Python code using the Anthropic SDK that you can copy and adapt.</p>
+      <p>This guide covers 8 patterns that separate playground experiments from production AI systems. Every pattern includes real Python code using the Anthropic SDK that you can copy and adapt; the <a href="/blog/claude-code-prompting-guide-build-faster">Claude Code prompting guide</a> applies the same context-first discipline to coding workflows.</p>
 
       <h2>Pattern 1: Chain-of-Thought Reasoning</h2>
 

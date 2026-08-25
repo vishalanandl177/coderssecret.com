@@ -4,6 +4,57 @@ import type { CourseModuleOutline, CourseOutline } from '../../../models/course-
 import { loadCourseOutlineBySlug } from '../../../models/course-loader';
 import { SeoService } from '../../../services/seo.service';
 
+interface CourseRelatedArticle {
+  title: string;
+  url: string;
+  description: string;
+}
+
+const COURSE_RELATED_ARTICLES: Readonly<Record<string, readonly CourseRelatedArticle[]>> = {
+  'mastering-spiffe-spire': [
+    { title: 'Kubernetes Secrets vs Vault vs Workload Identity', url: '/blog/kubernetes-secrets-vault-workload-identity', description: 'Choose the right credential and identity model for Kubernetes workloads.' },
+    { title: 'OIDC Workload Federation', url: '/blog/oidc-workload-federation-secretless-service-access', description: 'Understand short-lived, secretless access across cloud trust boundaries.' },
+    { title: 'mTLS and X.509 Certificates', url: '/blog/mtls-x509-certificates-python-tutorial', description: 'Build the certificate foundation used for mutual workload authentication.' },
+    { title: 'M2M Authentication', url: '/blog/m2m-authentication-service-to-service', description: 'Compare service authentication patterns before choosing an identity platform.' },
+  ],
+  'cloud-native-security-engineering': [
+    { title: 'Kubernetes Security Explained', url: '/blog/kubernetes-security-explained', description: 'Map cluster security from API access and RBAC through runtime detection.' },
+    { title: 'Software Supply Chain Security', url: '/blog/software-supply-chain-security-explained', description: 'Connect source, CI, artifacts, provenance, signing, and admission policy.' },
+    { title: 'Common CI/CD Attack Paths', url: '/blog/common-cicd-attack-paths', description: 'Review the trust boundaries attackers commonly exploit in delivery pipelines.' },
+    { title: 'API Security Attacks and Defenses', url: '/blog/api-security-attacks-defense-guide', description: 'Apply practical controls to authentication, authorization, input, and abuse risks.' },
+  ],
+  'production-rag-systems-engineering': [
+    { title: 'Fine-Tuning vs RAG vs Prompt Engineering', url: '/blog/fine-tuning-vs-rag-vs-prompt-engineering', description: 'Choose the right adaptation strategy before building the retrieval stack.' },
+    { title: 'Vector Databases and Embeddings', url: '/blog/vector-databases-embeddings-similarity-search', description: 'Understand similarity search, indexing, and vector-store tradeoffs.' },
+    { title: 'Build Local RAG and Agent Applications', url: '/blog/local-ai-app-rag-agents-no-cloud', description: 'Practice the application flow locally before operating a production system.' },
+    { title: 'MCP Security in Production', url: '/blog/mcp-security-production-ai-agents-oauth-gateways', description: 'Protect agent tools with scoped identity, gateways, and observable policy.' },
+  ],
+  'distributed-systems-engineering': [
+    { title: 'Distributed Systems Algorithms', url: '/blog/distributed-systems-algorithms-production-guide', description: 'Connect coordination algorithms to the production failures they prevent.' },
+    { title: 'Caching Strategies', url: '/blog/caching-strategies-production-guide', description: 'Design cache access patterns, invalidation, and failure containment.' },
+    { title: 'Rate Limiting Algorithms', url: '/blog/rate-limiting-algorithms-token-bucket-sliding-window', description: 'Compare token bucket, leaky bucket, and sliding-window behavior.' },
+    { title: 'Scheduling Systems', url: '/blog/scheduling-systems-production-guide', description: 'Understand queues, leases, retries, fairness, and distributed coordination.' },
+  ],
+  'centralized-authentication-authorization-envoy': [
+    { title: 'Envoy Proxy and xDS', url: '/blog/envoy-proxy-xds-server-guide', description: 'Learn the data-plane and control-plane model behind Envoy configuration.' },
+    { title: 'SSO, SAML, and OIDC', url: '/blog/sso-saml-oidc-practical-guide', description: 'Compare the identity protocols that feed centralized authentication.' },
+    { title: 'OAuth2 and OpenID Connect', url: '/blog/oauth2-openid-connect-developer-guide', description: 'Separate delegated authorization from identity and session concerns.' },
+    { title: 'M2M Authentication in Go', url: '/blog/m2m-authentication-golang-m2mauth-library', description: 'See service authentication evolve from mTLS helpers to workload identity.' },
+  ],
+  'production-analytics-engineering-dbt': [
+    { title: 'Bronze, Silver, and Gold Data Layers', url: '/blog/bronze-silver-gold-data-layers-explained', description: 'Separate raw, cleaned, and business-ready data with explicit contracts.' },
+    { title: 'Why Spark Jobs Become Slow', url: '/blog/why-spark-jobs-become-slow-shuffle-skew-partitions-memory', description: 'Diagnose shuffle, skew, partitions, file layout, and memory pressure.' },
+    { title: 'Delta Lake, Iceberg, and S3 Tables', url: '/blog/delta-lake-iceberg-s3-tables-beginner-guide', description: 'Understand the table-format layer beneath modern analytics workflows.' },
+    { title: 'Modern Data Platforms Compared', url: '/blog/modern-data-platforms-snowflake-databricks-bigquery-e6data', description: 'Compare platform architecture, governance, cost, and workload fit.' },
+  ],
+  'malware-analysis-defense': [
+    { title: 'Types of Malware and Their Risks', url: '/blog/types-of-malware-and-their-risks', description: 'Classify malware by delivery, behavior, impact, evidence, and defensive response.' },
+    { title: 'Software Supply Chain Security', url: '/blog/software-supply-chain-security-explained', description: 'Reduce trusted-delivery risk across source, CI, dependencies, and artifacts.' },
+    { title: 'Common CI/CD Attack Paths', url: '/blog/common-cicd-attack-paths', description: 'Understand how compromised automation can become a malware delivery path.' },
+    { title: 'API Security Attacks and Defenses', url: '/blog/api-security-attacks-defense-guide', description: 'Harden application boundaries that malware and compromised identities abuse.' },
+  ],
+};
+
 @Component({
   selector: 'app-course-landing',
   imports: [RouterLink],
@@ -43,7 +94,7 @@ import { SeoService } from '../../../services/seo.service';
                       <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
                     </svg>
                   </a>
-                  <a href="#curriculum" class="md3-button-tonal md3-button-large">View curriculum</a>
+                  <a [href]="'/courses/' + c.slug + '#curriculum'" class="md3-button-tonal md3-button-large">View curriculum</a>
                   @if (c.labDelivery !== 'inline') {
                     <a [href]="courseLabRepositoryUrl(c)" target="_blank" rel="noopener noreferrer" class="md3-button-outlined md3-button-large">
                       Lab repository
@@ -273,6 +324,27 @@ import { SeoService } from '../../../services/seo.service';
           </section>
         }
 
+        @if (relatedArticles(c).length > 0) {
+          <section class="md3-section">
+            <div class="md3-container">
+              <div class="md3-course-section-heading">
+                <p class="md3-course-eyebrow">Related engineering guides</p>
+                <h2>Connect the course to production decisions</h2>
+                <p>Use these articles to review adjacent architecture choices, failure modes, and implementation tradeoffs.</p>
+              </div>
+              <div class="md3-course-related-grid">
+                @for (article of relatedArticles(c); track article.url) {
+                  <a [routerLink]="article.url" class="md3-course-related-card">
+                    <p class="md3-course-info-kicker">Engineering guide</p>
+                    <h3>{{ article.title }}</h3>
+                    <p>{{ article.description }}</p>
+                  </a>
+                }
+              </div>
+            </div>
+          </section>
+        }
+
         <section class="md3-section">
           <div class="md3-container">
             <div class="md3-course-resource-panel">
@@ -387,6 +459,10 @@ export class CourseLandingComponent {
     void this.loadCourse(urlSlug);
   }
 
+  relatedArticles(course: CourseOutline): readonly CourseRelatedArticle[] {
+    return COURSE_RELATED_ARTICLES[course.slug] ?? [];
+  }
+
   private async loadCourse(urlSlug: string): Promise<void> {
     const c = await loadCourseOutlineBySlug(urlSlug);
     if (c) {
@@ -398,7 +474,7 @@ export class CourseLandingComponent {
         url: '/courses/' + c.slug,
         image: this.getCourseImage(c),
         imageWidth: 1200,
-        imageHeight: 480,
+        imageHeight: this.getCourseImageHeight(c),
         breadcrumbs: [
           { name: 'Home', url: '/' },
           { name: 'Courses', url: '/courses' },
@@ -410,10 +486,12 @@ export class CourseLandingComponent {
             '@type': 'Course',
             'name': c.title,
             'description': this.getSeoDescription(c, totalLabs),
+            'url': `https://coderssecret.com/courses/${c.slug}`,
+            'image': this.getCourseImage(c),
             'provider': {
               '@type': 'Organization',
               'name': 'CodersSecret',
-              'sameAs': 'https://coderssecret.com',
+              'url': 'https://coderssecret.com',
             },
             'instructor': {
               '@type': 'Person',
@@ -430,16 +508,35 @@ export class CourseLandingComponent {
             'hasCourseInstance': {
               '@type': 'CourseInstance',
               'courseMode': 'online',
-              'courseWorkload': c.totalDuration,
             },
             'educationalLevel': c.level,
             'about': c.tags,
             'inLanguage': 'en',
             'isAccessibleForFree': true,
+            'hasPart': c.modules.map(module => ({
+              '@type': 'LearningResource',
+              'name': `Module ${module.number}: ${module.title}`,
+              'url': `https://coderssecret.com/courses/${c.slug}/${module.slug}`,
+              'position': module.number,
+              'isAccessibleForFree': true,
+            })),
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            'name': `${c.title} curriculum`,
+            'url': `https://coderssecret.com/courses/${c.slug}`,
+            'itemListElement': c.modules.map(module => ({
+              '@type': 'ListItem',
+              'position': module.number,
+              'url': `https://coderssecret.com/courses/${c.slug}/${module.slug}`,
+              'name': `Module ${module.number}: ${module.title}`,
+            })),
           },
           ...(c.faqs ? [{
             '@context': 'https://schema.org',
             '@type': 'FAQPage',
+            'url': `https://coderssecret.com/courses/${c.slug}`,
             'mainEntity': c.faqs.map(faq => ({
               '@type': 'Question',
               'name': faq.question,
@@ -507,6 +604,7 @@ export class CourseLandingComponent {
       'production-rag-systems-engineering': 'reliable AI retrieval systems',
       'distributed-systems-engineering': 'resilient distributed platforms',
       'production-analytics-engineering-dbt': 'trusted analytics with dbt',
+      'centralized-authentication-authorization-envoy': 'centralized authentication and authorization',
       'malware-analysis-defense': 'malware analysis, detection, and secure recovery',
     };
     return focusByCourse[course.slug] ?? course.category;
@@ -519,19 +617,23 @@ export class CourseLandingComponent {
       'production-rag-systems-engineering': 'RAG',
       'distributed-systems-engineering': 'SYS',
       'production-analytics-engineering-dbt': 'SQL',
+      'centralized-authentication-authorization-envoy': 'SSO',
       'malware-analysis-defense': 'MAL',
     };
     return labels[course.slug] ?? 'CS';
   }
 
   private getSeoTitle(course: CourseOutline): string {
-    if (course.slug === 'mastering-spiffe-spire') {
-      return 'Mastering SPIFFE & SPIRE | Zero Trust Course';
-    }
-    if (course.slug === 'malware-analysis-defense') {
-      return 'Malware Analysis and Defense | Free Course';
-    }
-    return `${course.title} | Free Course`;
+    const titles: Record<string, string> = {
+      'mastering-spiffe-spire': 'SPIFFE & SPIRE Zero Trust Course',
+      'cloud-native-security-engineering': 'Cloud Native Security Free Course',
+      'production-rag-systems-engineering': 'Production RAG Engineering Course',
+      'distributed-systems-engineering': 'Distributed Systems Engineering Course',
+      'production-analytics-engineering-dbt': 'Analytics Engineering with dbt Course',
+      'centralized-authentication-authorization-envoy': 'Envoy Authentication and Authorization Course',
+      'malware-analysis-defense': 'Malware Analysis and Defense Course',
+    };
+    return titles[course.slug] ?? `${course.title} Free Course`;
   }
 
   private getSeoDescription(course: CourseOutline, totalLabs: number): string {
@@ -542,6 +644,14 @@ export class CourseLandingComponent {
       return `Free defense-first malware analysis course for developers: safe triage, evidence, YARA, Sigma, incident response, and secure software design.`;
     }
     const labLabel = course.labDelivery === 'inline' ? `${totalLabs} inline exercises` : `${totalLabs} hands-on labs`;
+    const descriptions: Record<string, string> = {
+      'cloud-native-security-engineering': `Free ${course.modules.length}-module cloud native security course covering Kubernetes, Zero Trust, OPA, Falco, Sigstore, Vault, and ${totalLabs} labs.`,
+      'production-rag-systems-engineering': `Free ${course.modules.length}-module production RAG course covering embeddings, hybrid retrieval, reranking, agents, evaluation, observability, security, and ${totalLabs} labs.`,
+      'distributed-systems-engineering': `Free ${course.modules.length}-module distributed systems course covering CAP, consensus, data, reliability, Zero Trust, observability, Kubernetes, and ${totalLabs} labs.`,
+      'production-analytics-engineering-dbt': `Free ${course.modules.length}-module analytics engineering course covering dbt, metrics, semantic layers, lineage, testing, CI/CD, and ${labLabel}.`,
+      'centralized-authentication-authorization-envoy': `Free ${course.modules.length}-module Envoy authentication course covering SSO, OIDC, SAML, JWT/JWKS, ext_authz, Kubernetes, and ${labLabel}.`,
+    };
+    if (descriptions[course.slug]) return descriptions[course.slug];
     return `${course.excerpt} ${course.modules.length} modules, ${labLabel}, free.`;
   }
 
@@ -552,8 +662,16 @@ export class CourseLandingComponent {
       'production-rag-systems-engineering': 'https://coderssecret.com/images/banners/course-production-rag-systems-engineering.svg',
       'distributed-systems-engineering': 'https://coderssecret.com/og-image.svg',
       'production-analytics-engineering-dbt': 'https://coderssecret.com/images/banners/course-production-analytics-engineering-dbt.svg',
+      'centralized-authentication-authorization-envoy': 'https://coderssecret.com/images/banners/course-centralized-authentication-authorization-envoy.svg',
       'malware-analysis-defense': 'https://coderssecret.com/images/banners/course-malware-analysis-defense.svg',
     };
     return imageByCourse[course.slug] ?? 'https://coderssecret.com/og-image.svg';
+  }
+
+  private getCourseImageHeight(course: CourseOutline): number {
+    return course.slug === 'distributed-systems-engineering'
+      || course.slug === 'centralized-authentication-authorization-envoy'
+      ? 630
+      : 480;
   }
 }

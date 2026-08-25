@@ -1,7 +1,7 @@
 export const CONTENT = `
       <p>Your service is slow. Is it the database? The cache? A downstream API? Without observability, you are guessing. With it, you can trace a single request from the browser through every service, see exactly where the 2 seconds were spent, and correlate it with system metrics and error logs.</p>
 
-      <p>This guide builds a complete observability stack with <strong>OpenTelemetry</strong> (the CNCF standard), covering all three pillars: logs, metrics, and distributed traces.</p>
+      <p>This guide builds a complete observability stack with <strong>OpenTelemetry</strong> (the CNCF standard), covering all three pillars: logs, metrics, and distributed traces. For a concrete long-term metrics backend, follow the <a href="/blog/greptimedb-grafana-observability-tutorial">GreptimeDB and Grafana tutorial</a>; for proxy-level telemetry, see how the <a href="/blog/envoy-proxy-xds-server-guide">Envoy and xDS control plane</a> fits into a service path. The <a href="/courses/cloud-native-security-engineering/observability-security-monitoring">security observability module</a> extends the same signals to audit and detection use cases.</p>
 
       <h2>The Three Pillars</h2>
 

@@ -1,7 +1,7 @@
 export const CONTENT = `
-      <p><strong>Short answer:</strong> Claude token cost is not just the message you type. In the raw Claude API, you pay for input tokens, output tokens, tool definitions, tool results, cache writes, cache reads, and thinking tokens when thinking is enabled. In Claude Code, there is extra project context on top: conversation history, CLAUDE.md, skills, tools, MCP context, file reads, and command output.</p>
+      <p><strong>Short answer:</strong> Claude token cost is not just the message you type. In the raw Claude API, you pay for input tokens, output tokens, tool definitions, tool results, cache writes, cache reads, and thinking tokens when thinking is enabled. In Claude Code, there is extra project context on top: conversation history, CLAUDE.md, skills, tools, <a href="/blog/mcp-servers-ai-agents-tutorial">MCP server context</a>, file reads, and command output.</p>
 
-      <p>This guide separates <strong>Claude API</strong>, <strong>Claude Code</strong>, and <strong>claude.ai</strong> so you can estimate cost correctly instead of blaming one mysterious "hidden prompt" for everything.</p>
+      <p>This guide separates <strong>Claude API</strong>, <a href="/blog/claude-code-prompting-guide-build-faster"><strong>Claude Code prompting workflows</strong></a>, and <strong>claude.ai</strong> so you can estimate cost correctly instead of blaming one mysterious "hidden prompt" for everything.</p>
 
       <img src="/images/blog/claude-token-cost-stack.svg" alt="Diagram showing Claude token cost layers across input context, tools, thinking tokens, and output tokens" width="1200" height="630" loading="lazy" decoding="async" />
 

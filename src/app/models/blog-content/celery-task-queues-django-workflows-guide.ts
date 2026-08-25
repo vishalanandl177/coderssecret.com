@@ -1,7 +1,7 @@
 export const CONTENT = `
-      <p>Your Django view takes 30 seconds because it sends emails, generates PDFs, and calls three external APIs. Your users are staring at a loading spinner. The fix is not faster code - it is moving slow work to a background task queue.</p>
+      <p>Your Django view takes 30 seconds because it sends emails, generates PDFs, and calls three external APIs. Your users are staring at a loading spinner. The fix is not faster code - it is moving slow work to a <a href="/blog/event-driven-architecture-kafka-cqrs-guide" class="text-primary underline">background task queue</a>.</p>
 
-      <p>Celery is the standard solution for Python. This guide takes you from basic tasks to production-grade workflows with retries, chains, monitoring, and the gotchas that bite every team.</p>
+      <p>Celery is the standard solution for Python. This guide takes you from basic tasks to production-grade workflows with retries, chains, monitoring, and the gotchas that bite every team. If the same Django service also needs structured request and response visibility, pair the worker telemetry with the <a href="/blog/drf-api-logger-django-rest-framework">DRF API Logger guide</a>.</p>
 
       <div class="pipeline-diagram">
         <div class="pipeline-title">Celery Task Queue Architecture</div>
@@ -272,5 +272,5 @@ CELERY_TASK_ALWAYS_EAGER = False        # Never True in production!</code></pre>
         <li><strong>Design tasks to be idempotent</strong> - they will be retried, and that must be safe</li>
       </ul>
 
-      <p>Celery transforms your Django app from a synchronous request-response system into an asynchronous workflow engine. The key is starting simple - one task, one worker, one queue - and adding complexity (chains, chords, multiple queues) only when your workload demands it.</p>
+      <p>Celery transforms your Django app from a synchronous request-response system into an <a href="/courses/distributed-systems-engineering/event-driven-asynchronous-systems" class="text-primary underline">asynchronous workflow engine</a>. The key is starting simple - one task, one worker, one queue - and adding complexity (chains, chords, multiple queues) only when your workload demands it.</p>
     `;

@@ -86,7 +86,7 @@ KR4: Achieve mean-time-to-recovery (MTTR) under 15 minutes for all Sev1 incident
 
       <h2>Real-World Example 2: Frontend Team</h2>
 
-      <p><strong>Context:</strong> The web app feels sluggish. Users drop off during onboarding. The team wants to fix performance and improve the first-time user experience.</p>
+      <p><strong>Context:</strong> The web app feels sluggish. Users drop off during onboarding. The team wants to fix performance and improve the first-time user experience. The <a href="/blog/web-performance-core-web-vitals-optimization">Core Web Vitals optimization guide</a> shows how to turn this objective into measurable engineering work.</p>
 
       <pre><code>OBJECTIVE: Deliver a fast, delightful user experience
 
@@ -99,7 +99,7 @@ KR4: Achieve a Core Web Vitals "Good" rating on 90%+ of pages</code></pre>
 
       <h2>Real-World Example 3: DevOps / Platform Team</h2>
 
-      <p><strong>Context:</strong> Developers complain the CI/CD pipeline is slow. Deployments are risky and manual. The platform team wants to make shipping safe and fast.</p>
+      <p><strong>Context:</strong> Developers complain the CI/CD pipeline is slow. Deployments are risky and manual. The platform team wants to make shipping safe and fast; the <a href="/blog/github-actions-ci-cd-pipelines-mastery">GitHub Actions CI/CD guide</a> provides concrete implementation options behind those key results.</p>
 
       <pre><code>OBJECTIVE: Make deploying to production boring (in a good way)
 

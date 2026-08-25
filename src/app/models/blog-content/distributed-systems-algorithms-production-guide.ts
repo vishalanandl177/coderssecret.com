@@ -5,7 +5,7 @@ export const CONTENT = `
 
       <h2>The CAP Theorem - What Your System Can Promise</h2>
 
-      <p>Eric Brewer&apos;s CAP theorem (formalised by Gilbert and Lynch in 2002) states that a distributed system can guarantee at most two of three properties at any moment: <strong>Consistency</strong> (every read sees the latest write), <strong>Availability</strong> (every request gets a response), and <strong>Partition tolerance</strong> (the system continues operating even when the network drops messages between nodes).</p>
+      <p>Eric Brewer&apos;s <a href="/blog/cap-theorem-distributed-systems-explained" class="text-primary underline">CAP theorem</a> (formalised by Gilbert and Lynch in 2002) states that a distributed system can guarantee at most two of three properties at any moment: <strong>Consistency</strong> (every read sees the latest write), <strong>Availability</strong> (every request gets a response), and <strong>Partition tolerance</strong> (the system continues operating even when the network drops messages between nodes).</p>
 
       <p>Network partitions are a real-world inevitability - cables get cut, NICs fail, packet loss spikes during deploys. So you do not get to opt out of P. The real choice in CAP is between C and A <em>during a partition</em>:</p>
 

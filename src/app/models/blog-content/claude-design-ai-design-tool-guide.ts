@@ -103,7 +103,7 @@ export const CONTENT = `
 
       <h2>Design System Integration</h2>
 
-      <p>For teams, Claude Design can apply your <strong>design system</strong> to every project automatically. Upload your brand guidelines - colours, typography, spacing, component styles - and Claude ensures consistency across all output. This means your prototypes already look like your production product, not a generic wireframe.</p>
+      <p>For teams, Claude Design can apply your <a href="/blog/build-your-own-design-system-guide"><strong>design system and reusable component rules</strong></a> to every project automatically. Upload your brand guidelines - colours, typography, spacing, component styles - and Claude ensures consistency across all output. This means your prototypes already look like your production product, not a generic wireframe.</p>
 
       <h2>Export and Handoff</h2>
 
@@ -119,7 +119,7 @@ export const CONTENT = `
         <div class="pipeline-step"><span class="pipeline-label">Shareable URL</span><span class="pipeline-desc">Internal link for team review</span></div>
       </div>
 
-      <p>The <strong>Claude Code handoff</strong> is the standout feature. When your design is ready to build, Claude packages everything - layout, components, interactions, assets - into a handoff bundle. Pass it to Claude Code with a single instruction and it converts the design into production-ready code. This is the most integrated <strong>AI-to-AI design-to-code pipeline</strong> available today.</p>
+      <p>The <strong>Claude Code handoff</strong> is the standout feature. When your design is ready to build, Claude packages everything - layout, components, interactions, assets - into a handoff bundle. Pass it to Claude Code with a <a href="/blog/claude-code-prompting-guide-build-faster">specific, context-first implementation prompt</a> and it converts the design into production-ready code. This is the most integrated <strong>AI-to-AI design-to-code pipeline</strong> available today.</p>
 
       <p>The <strong>Canva integration</strong> is equally notable. Anthropic partnered with Canva to allow direct export. Your Claude Design output becomes a fully editable Canva design - collaborative, with access to Canva's asset library, templates, and sharing features.</p>
 

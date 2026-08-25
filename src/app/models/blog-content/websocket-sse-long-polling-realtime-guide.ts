@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Your product manager wants &ldquo;real-time updates.&rdquo; Before you reach for WebSocket, stop. The right choice depends on your data flow direction, scale requirements, and infrastructure. Picking the wrong protocol means either over-engineering a simple notification feed or under-engineering a chat system that collapses at scale.</p>
+      <p>Your product manager wants &ldquo;real-time updates.&rdquo; Before you reach for WebSocket, stop. The right choice depends on your data flow direction, scale requirements, and infrastructure. The <a href="/blog/network-layers-practical-mastery-guide">network-layers debugging guide</a> provides the transport foundation, and the <a href="/courses/distributed-systems-engineering/networking-distributed-communication">distributed communication module</a> covers the wider reliability trade-offs. Picking the wrong protocol means either over-engineering a simple notification feed or under-engineering a chat system that collapses at scale.</p>
 
       <p>This guide breaks down the three main approaches with real code, honest tradeoffs, and a decision framework you can actually use.</p>
 
@@ -367,5 +367,5 @@ redisSub.on('message', (channel, data) => {
         <li><strong>Start with SSE, upgrade to WebSocket only when you hit its limitations</strong> - premature WebSocket is a common source of unnecessary complexity</li>
       </ul>
 
-      <p>The best real-time architecture is the simplest one that meets your requirements. Do not let the appeal of WebSocket trick you into over-engineering a notification bell.</p>
+      <p>The best real-time architecture is the simplest one that meets your requirements. Do not let the appeal of WebSocket trick you into over-engineering a notification bell; for a managed data-synchronization alternative, compare the <a href="/blog/firebase-realtime-database-tutorial">Firebase Realtime Database architecture</a>.</p>
     `;

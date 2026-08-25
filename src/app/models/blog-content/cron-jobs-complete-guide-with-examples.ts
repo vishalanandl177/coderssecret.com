@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>If you've ever wanted your computer to automatically run a task - like backing up a database every night, sending a report every Monday, or clearing temp files every hour - <strong>cron jobs</strong> are how you do it. Cron is one of the most powerful and widely-used scheduling tools in the Linux/Unix world, and once you understand it, you'll wonder how you ever lived without it.</p>
+      <p>If you've ever wanted your computer to automatically run a task - like backing up a database every night, sending a report every Monday, or clearing temp files every hour - <strong>cron jobs</strong> are how you do it. Cron is one of the most powerful and widely-used scheduling tools in the Linux/Unix world, and once you understand it, you'll wonder how you ever lived without it. For scheduling beyond one host, compare the trade-offs in the <a href="/blog/scheduling-systems-production-guide">production scheduling systems guide</a>.</p>
 
       <h2>What is a Cron Job?</h2>
       <p>A <strong>cron job</strong> is a scheduled task that runs automatically at specified times or intervals on Unix-based systems (Linux, macOS). The word "cron" comes from the Greek word <em>chronos</em>, meaning time. The cron daemon (<code>crond</code>) runs in the background and checks every minute if there's a job to execute.</p>
@@ -536,6 +536,8 @@ spec:
         </div>
       </div>
 
+      <p>Cron is a good fit for an independent scheduled command. When the work has dependencies, retries, data assets, or several coordinated steps, compare it with the <a href="/blog/are-dags-dying-declarative-data-pipelines">declarative data pipelines guide</a>.</p>
+
       <h2>Common Mistakes to Avoid</h2>
       <ul>
         <li><strong>Forgetting the full path:</strong> Cron runs with a minimal environment. Always use absolute paths like <code>/usr/bin/python3</code> instead of just <code>python3</code>.</li>
@@ -568,5 +570,5 @@ spec:
 0 6,18 * * *        At 6 AM and 6 PM
 0 0 1,15 * *        1st and 15th of each month</code></pre>
 
-      <p>Cron jobs are one of those tools that, once mastered, become an essential part of your DevOps toolkit. Whether you're automating backups, scheduling reports, managing deployments, or monitoring systems, cron has been doing it reliably for over 40 years - and it's not going anywhere.</p>
+      <p>Cron jobs are one of those tools that, once mastered, become an essential part of your DevOps toolkit. Use the <a href="/blog/linux-commands-developer-debugging-guide">Linux debugging commands guide</a> when a job fails under cron's restricted environment, then rehearse the underlying shell tools in the <a href="/games/linux-challenge">Linux command challenge</a>. Whether you're automating backups, scheduling reports, managing deployments, or monitoring systems, cron has been doing it reliably for over 40 years - and it's not going anywhere.</p>
     `;

@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Python is wonderful for productivity, but sometimes you hit a wall - a tight loop that needs to run 100x faster, a C library you need to wrap, or a data structure that doesn't exist in pure Python. That's when <strong>C extensions</strong> come in. This workshop takes you from "never written a C extension" to "shipping a production-quality module" - step by step, with code you can run at each stage.</p>
+      <p>Python is wonderful for productivity, but sometimes you hit a wall - a tight loop that needs to run 100x faster, a C library you need to wrap, or a data structure that doesn't exist in pure Python. That's when <strong>C extensions</strong> come in. First confirm that the bottleneck is not better solved by a different <a href="/blog/python-concurrency-threads-async-multiprocessing">Python concurrency or parallelism model</a>, and use the <a href="/blog/improving-python-code-performance">Python performance guide</a> to measure the hot path. This workshop takes you from "never written a C extension" to "shipping a production-quality module" - step by step, with code you can run at each stage.</p>
 
       <!-- Python/C Boundary -->
       <div class="flow-diagram">
@@ -589,5 +589,5 @@ PYTHONMALLOC=debug python -c "import fastutils; ..."</code></pre>
         <li><strong>Profile before extending:</strong> Only write C extensions for proven bottlenecks. Profile first, optimize second.</li>
       </ul>
 
-      <p>C extensions are the ultimate escape hatch when Python isn't fast enough. They're used by every major Python library - NumPy, pandas, Pillow, cryptography, uvloop - and now you know how to build them yourself. Start small, respect the reference counting rules, and you'll be writing production-grade C extensions in no time.</p>
+      <p>C extensions are the ultimate escape hatch when Python isn't fast enough. They're used by every major Python library - NumPy, pandas, Pillow, cryptography, uvloop - and now you know how to build them yourself. Start small, respect the reference counting rules, and use the <a href="/blog/build-windows-software-python-tutorial">Windows Python software guide</a> when packaging the native module inside a desktop application.</p>
     `;

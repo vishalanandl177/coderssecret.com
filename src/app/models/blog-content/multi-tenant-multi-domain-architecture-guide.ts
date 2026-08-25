@@ -187,7 +187,7 @@ MIDDLEWARE = ['django_tenants.middleware.TenantSubdomainMiddleware', ...]</code>
 
       <h2>Model 3: Separate Database per Tenant</h2>
 
-      <p>The nuclear option. Each tenant gets their own database instance. Maximum isolation but maximum operational complexity.</p>
+      <p>The nuclear option. Each tenant gets their own <a href="/blog/database-connection-pooling-pgbouncer-guide" class="text-primary underline">database instance</a>. Maximum isolation but maximum operational complexity.</p>
 
       <pre><code># Separate database per tenant - connection routing
 import os
@@ -398,7 +398,7 @@ async def resolve_tenant(request: Request):
 
       <h2>The Noisy Neighbour Problem</h2>
 
-      <p>In shared infrastructure, one tenant's heavy workload can degrade performance for everyone else. A single tenant running a massive report at 3 PM shouldn't slow down every other tenant's dashboard.</p>
+      <p>In <a href="/courses/distributed-systems-engineering/scalability-engineering" class="text-primary underline">shared infrastructure</a>, one tenant's heavy workload can degrade performance for everyone else. A single tenant running a massive report at 3 PM shouldn't slow down every other tenant's dashboard.</p>
 
       <pre><code># Solutions for noisy neighbours:
 

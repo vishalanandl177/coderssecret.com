@@ -351,5 +351,5 @@ Set-Cookie: access_token=eyJ...; HttpOnly; Secure; SameSite=Strict; Path=/api; M
         </div>
       </div>
 
-      <p>API security is not a feature you add at the end - it's a practice you embed from day one. The attacks in this guide are not theoretical - they happen every day to real APIs. Start with the critical items: parameterized queries, ownership checks, rate limiting, and proper authentication. Then layer on WAF, security headers, and monitoring. Every defense you add makes the attacker's job exponentially harder.</p>
+      <p><a href="/cheatsheets/api-security" class="text-primary underline">API security</a> is not a feature you add at the end - it's a practice you embed from day one. The attacks in this guide are not theoretical - they happen every day to real APIs. Start with the critical items: parameterized queries, <a href="/blog/multi-tenant-multi-domain-architecture-guide" class="text-primary underline">ownership checks</a>, rate limiting, and proper authentication. Then layer on WAF, <a href="/blog/software-compliance-hipaa-soc2-pci-gdpr-guide" class="text-primary underline">security headers</a>, and monitoring. Every defense you add makes the attacker's job exponentially harder.</p>
     `;

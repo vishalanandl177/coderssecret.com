@@ -307,5 +307,5 @@ re.DOTALL       (re.S)   . matches newlines too</code></pre>
         <li><strong>Keep patterns simple</strong> - if a regex is unreadable, split the validation into multiple simpler checks</li>
       </ul>
 
-      <p>Regex is a tool, not a test of intelligence. If you can read the 10 basic symbols, you can understand any regex by reading it character by character. The fear goes away the moment you stop trying to read patterns as a whole and start reading them left to right, one token at a time.</p>
+      <p>Regex is a tool, not a test of intelligence. If you can read the 10 basic symbols, you can understand any regex by reading it character by character. The fear goes away the moment you stop trying to read patterns as a whole and start reading them left to right, one token at a time. Apply the technique in the <a href="/blog/linux-commands-developer-debugging-guide">Linux text-processing and debugging workflow</a>, and keep the <a href="/cheatsheets/python">Python cheatsheet</a> nearby when implementing patterns with <code>re</code>.</p>
     `;

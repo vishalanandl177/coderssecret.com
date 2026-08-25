@@ -10,7 +10,7 @@ import { SeoService } from '../../services/seo.service';
   template: `
     @if (entry(); as e) {
     <div class="container max-w-4xl mx-auto px-6 py-16">
-      <nav class="mb-8 text-sm text-muted-foreground">
+      <nav aria-label="Breadcrumb" class="mb-8 text-sm text-muted-foreground">
         <a routerLink="/" class="hover:text-foreground transition-colors">Home</a>
         <span class="mx-2">/</span>
         <a routerLink="/glossary" class="hover:text-foreground transition-colors">Glossary</a>
@@ -21,14 +21,14 @@ import { SeoService } from '../../services/seo.service';
       <article class="course-content max-w-none" [innerHTML]="safeContent()"></article>
 
       <!-- Related Terms -->
-      @if (e.relatedTerms && e.relatedTerms.length > 0) {
+      @if (relatedEntries().length > 0) {
         <div class="mt-10 rounded-xl border border-border/60 bg-card p-6">
           <h2 class="font-semibold text-foreground mb-3">Related Terms</h2>
           <div class="flex flex-wrap gap-2">
-            @for (term of e.relatedTerms; track term) {
-              <a [routerLink]="'/glossary/' + term"
+            @for (term of relatedEntries(); track term.slug) {
+              <a [routerLink]="'/glossary/' + term.slug"
                  class="rounded-full bg-accent border border-border/40 px-3 py-1 text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors">
-                {{ getTermName(term) }}
+                {{ term.term }}
               </a>
             }
           </div>
@@ -53,7 +53,7 @@ import { SeoService } from '../../services/seo.service';
     </div>
     } @else if (isHub()) {
     <div class="container max-w-6xl mx-auto px-6 py-16">
-      <nav class="mb-8 text-sm text-muted-foreground">
+      <nav aria-label="Breadcrumb" class="mb-8 text-sm text-muted-foreground">
         <a routerLink="/" class="hover:text-foreground transition-colors">Home</a>
         <span class="mx-2">/</span>
         <span class="text-foreground">Glossary</span>
@@ -96,6 +96,13 @@ export class GlossaryComponent {
     return this.sanitizer.bypassSecurityTrustHtml(e.content);
   });
 
+  relatedEntries = computed(() => {
+    const relatedTerms = this.entry()?.relatedTerms ?? [];
+    return relatedTerms
+      .map(slug => GLOSSARY.find(item => item.slug === slug))
+      .filter((item): item is GlossaryEntry => Boolean(item));
+  });
+
   constructor() {
     const route = inject(ActivatedRoute);
     const router = inject(Router);
@@ -107,6 +114,15 @@ export class GlossaryComponent {
         title: 'Cloud Native Security Glossary - CodersSecret',
         description: 'Definitions for SPIFFE, SPIRE, Zero Trust, workload identity, mTLS, OPA, Falco, service mesh, Sigstore, and more cloud-native security terms.',
         url: '/glossary',
+        breadcrumbs: [
+          { name: 'Home', url: '/' },
+          { name: 'Glossary', url: '/glossary' },
+        ],
+        itemList: GLOSSARY.map(item => ({
+          name: item.term,
+          url: `/glossary/${item.slug}`,
+          description: item.description,
+        })),
       });
       return;
     }
@@ -118,6 +134,11 @@ export class GlossaryComponent {
         title: entry.title + ' - CodersSecret',
         description: entry.description,
         url: '/glossary/' + entry.slug,
+        breadcrumbs: [
+          { name: 'Home', url: '/' },
+          { name: 'Glossary', url: '/glossary' },
+          { name: entry.term, url: `/glossary/${entry.slug}` },
+        ],
         jsonLd: [{
           '@context': 'https://schema.org',
           '@type': 'DefinedTerm',
@@ -130,9 +151,5 @@ export class GlossaryComponent {
     } else {
       router.navigate(['/glossary']);
     }
-  }
-
-  getTermName(slug: string): string {
-    return GLOSSARY.find(g => g.slug === slug)?.term || slug;
   }
 }

@@ -41,6 +41,8 @@ jobs:
 
       - run: node scripts/generate-sitemap.js
 
+      - run: npm run check:internal-links
+
       - run: node scripts/generate-routes.js
 
       - run: npm run check:generated-seo

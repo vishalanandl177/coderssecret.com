@@ -29,6 +29,7 @@ import { SeoService } from '../../../services/seo.service';
               <p class="md3-course-eyebrow">Course guide</p>
               <h1>{{ p.title }}</h1>
               <p class="md3-course-seo-text">{{ p.description }}</p>
+              <p class="md3-course-seo-text">Maintained by <a routerLink="/about">Vishal Anand</a>.</p>
             </div>
           </div>
         </section>
@@ -156,25 +157,66 @@ export class SeoLandingComponent {
     const result = await loadCourseBySeoSlug(slug);
     if (result) {
       const { page: found, course: foundCourse } = result;
-      const malwareBanner = foundCourse.slug === 'malware-analysis-defense'
-        ? 'https://coderssecret.com/images/banners/course-malware-analysis-defense.svg'
-        : undefined;
+      const image = this.courseImage(foundCourse.slug);
+      const imageHeight = foundCourse.slug === 'distributed-systems-engineering'
+        || foundCourse.slug === 'centralized-authentication-authorization-envoy'
+        ? 630
+        : 480;
       this.page.set(found);
       this.course.set(foundCourse);
       this.seo.update({
         title: found.title,
         description: found.description,
         url: `/courses/${found.slug}`,
-        ...(malwareBanner ? { image: malwareBanner, imageWidth: 1200, imageHeight: 480 } : {}),
+        image,
+        imageWidth: 1200,
+        imageHeight,
+        ...(found.indexable === true ? {} : { robots: 'noindex,follow' }),
         breadcrumbs: [
           { name: 'Home', url: '/' },
           { name: 'Courses', url: '/courses' },
           ...(foundCourse ? [{ name: foundCourse.title, url: `/courses/${foundCourse.slug}` }] : []),
           { name: found.title, url: `/courses/${found.slug}` },
         ],
+        jsonLd: {
+          '@context': 'https://schema.org',
+          '@type': 'TechArticle',
+          'headline': found.title,
+          'description': found.description,
+          'url': `https://coderssecret.com/courses/${found.slug}`,
+          'isPartOf': {
+            '@type': 'Course',
+            'name': foundCourse.title,
+            'url': `https://coderssecret.com/courses/${foundCourse.slug}`,
+          },
+          'author': {
+            '@type': 'Person',
+            'name': 'Vishal Anand',
+            'url': 'https://coderssecret.com/about',
+          },
+          'publisher': {
+            '@type': 'Organization',
+            'name': 'CodersSecret',
+            'url': 'https://coderssecret.com',
+          },
+          'inLanguage': 'en',
+        },
       });
     } else {
       this.router.navigate(['/not-found']);
     }
+  }
+
+  private courseImage(courseSlug: string): string {
+    const images: Record<string, string> = {
+      'mastering-spiffe-spire': '/images/banners/course-mastering-spiffe-spire.svg',
+      'cloud-native-security-engineering': '/images/banners/course-cloud-native-security-engineering.svg',
+      'production-rag-systems-engineering': '/images/banners/course-production-rag-systems-engineering.svg',
+      'distributed-systems-engineering': '/og-image.svg',
+      'production-analytics-engineering-dbt': '/images/banners/course-production-analytics-engineering-dbt.svg',
+      'centralized-authentication-authorization-envoy': '/images/banners/course-centralized-authentication-authorization-envoy.svg',
+      'malware-analysis-defense': '/images/banners/course-malware-analysis-defense.svg',
+    };
+    return `https://coderssecret.com${images[courseSlug] ?? '/og-image.svg'}`;
   }
 }

@@ -10,7 +10,7 @@ export const CONTENT = `
         <li><strong>Authentication (OpenID Connect):</strong> &ldquo;This user is alice@example.com&rdquo;</li>
       </ul>
 
-      <p>If you use OAuth 2.0 alone for login, you are doing it wrong. You need OpenID Connect (OIDC), which is a thin identity layer built on top of OAuth 2.0.</p>
+      <p>If you use OAuth 2.0 alone for login, you are doing it wrong. You need <a href="/blog/sso-saml-oidc-practical-guide" class="text-primary underline">OpenID Connect (OIDC)</a>, which is a thin identity layer built on top of OAuth 2.0.</p>
 
       <h2>The Key Players</h2>
 
@@ -88,7 +88,7 @@ code_challenge = base64.urlsafe_b64encode(
 
       <h2>OpenID Connect: Adding Identity</h2>
 
-      <p>OIDC adds an <code>id_token</code> to the OAuth 2.0 response. This is a JWT containing user identity claims.</p>
+      <p>OIDC adds an <code>id_token</code> to the OAuth 2.0 response. This is a <a href="/courses/centralized-authentication-authorization-envoy/auth-vocabulary-sso-saml-oidc-jwt-jwks-tokens" class="text-primary underline">JWT containing user identity claims</a>.</p>
 
       <pre><code># Decoded id_token payload:
 {

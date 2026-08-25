@@ -119,7 +119,7 @@ compressor = zstd.ZstdCompressor(dict_data=dict_data)
 # zstd --train *.json -o dict  # Train dictionary</code></pre>
 
       <h2>Brotli - The Web Optimization King</h2>
-      <p><strong>Born:</strong> 2015 (Google). <strong>Algorithm:</strong> LZ77 + Huffman + 2nd-order context modeling + static dictionary of common web strings. <strong>Designed specifically for web content.</strong> Built-in dictionary includes common HTML, CSS, JS, and JSON patterns - compresses web assets 15-25% better than gzip.</p>
+      <p><strong>Born:</strong> 2015 (Google). <strong>Algorithm:</strong> LZ77 + Huffman + 2nd-order context modeling + static dictionary of common web strings. <strong>Designed specifically for web content.</strong> Built-in dictionary includes common HTML, CSS, JS, and JSON patterns - <a href="/blog/web-performance-core-web-vitals-optimization" class="text-primary underline">compresses web assets</a> 15-25% better than gzip.</p>
       <pre><code># pip install brotli
 import brotli
 
@@ -141,7 +141,7 @@ print(f"Brotli (q1):  {len(compressed_fast):,} bytes")
 # Response: Content-Encoding: br</code></pre>
 
       <h2>LZ4 - The Speed Demon</h2>
-      <p><strong>Born:</strong> 2011. <strong>Algorithm:</strong> LZ77 variant optimized for speed. <strong>The fastest compression algorithm available.</strong> Compresses at 500+ MB/s and decompresses at 3+ GB/s. Used when speed matters more than ratio - real-time logging, in-memory caches, network protocols.</p>
+      <p><strong>Born:</strong> 2011. <strong>Algorithm:</strong> LZ77 variant optimized for speed. <strong>The fastest compression algorithm available.</strong> Compresses at 500+ MB/s and decompresses at 3+ GB/s. Used when speed matters more than ratio - real-time logging, <a href="/blog/caching-strategies-production-guide" class="text-primary underline">in-memory caches</a>, network protocols.</p>
       <pre><code># pip install lz4
 import lz4.frame
 

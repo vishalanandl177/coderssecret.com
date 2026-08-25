@@ -125,6 +125,7 @@ echo | openssl s_client -connect api.example.com:443 -servername api.example.com
     { label: 'Cloud Native Security Engineering', href: '/courses/cloud-native-security-engineering', description: 'Free 16-module course covering networking-aware security from PodSecurity to service mesh.' },
     { label: 'Service Mesh Security module', href: '/courses/cloud-native-security-engineering/service-mesh-security', description: 'How Linux networking primitives compose into a service-mesh data plane.' },
     { label: 'Kubernetes Security Cheatsheet', href: '/cheatsheets/kubernetes-security', description: 'NetworkPolicy patterns for the cluster-scoped equivalent of a firewall.' },
+    { label: 'Kubernetes Networking Services and Ingress', href: '/blog/kubernetes-networking-services-ingress-load-balancer', description: 'Connect Linux packet flow to ClusterIP, NodePort, LoadBalancer, Ingress, and cloud routing.' },
   ];
 
   constructor() {

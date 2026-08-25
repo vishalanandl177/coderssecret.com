@@ -81,7 +81,7 @@ def create_order(data):
         </tbody>
       </table>
 
-      <p><strong>Rule of thumb:</strong> Use RabbitMQ for task queues and simple messaging. Use Kafka when you need event replay, high throughput, or event sourcing.</p>
+      <p><strong>Rule of thumb:</strong> Use RabbitMQ for <a href="/blog/celery-task-queues-django-workflows-guide" class="text-primary underline">task queues and simple messaging</a>. Use Kafka when you need event replay, high throughput, or event sourcing.</p>
 
       <h2>Event Design</h2>
 
@@ -258,5 +258,5 @@ class IdempotentConsumer:
         <li><strong>Migrate incrementally</strong> - start with events inside your monolith before splitting services</li>
       </ul>
 
-      <p>Event-driven architecture is not about technology - it is about designing systems where services communicate through facts rather than commands. When Service A says &ldquo;an order was created&rdquo; instead of &ldquo;charge this customer,&rdquo; you get a system that is more resilient, more scalable, and easier to evolve. Start with the events. The architecture follows.</p>
+      <p>Event-driven architecture is not about technology - it is about <a href="/courses/distributed-systems-engineering/event-driven-asynchronous-systems" class="text-primary underline">designing systems where services communicate through facts rather than commands</a>. When Service A says &ldquo;an order was created&rdquo; instead of &ldquo;charge this customer,&rdquo; you get a system that is more resilient, more scalable, and easier to evolve. Start with the events. The architecture follows.</p>
     `;

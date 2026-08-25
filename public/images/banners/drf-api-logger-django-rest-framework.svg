@@ -31,9 +31,8 @@
   <text x="100" y="110" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="800" fill="#f472b6" letter-spacing="2">OPEN SOURCE</text>
 
   <!-- Title -->
-  <text x="80" y="184" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="800" fill="#ffffff">DRF API Logger: Effortless</text>
-    <text x="80" y="224" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="800" fill="#ffffff">API Logging for Django REST</text>
-    <text x="80" y="264" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="800" fill="#ffffff">Framework</text>
+  <text x="80" y="194" font-family="system-ui, -apple-system, sans-serif" font-size="44" font-weight="800" fill="#ffffff">DRF API Logger for Django</text>
+    <text x="80" y="243" font-family="system-ui, -apple-system, sans-serif" font-size="44" font-weight="800" fill="#ffffff">REST Framework</text>
 
   <!-- Bottom brand -->
   <text x="80" y="420" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#ffffff" opacity="0.5">coderssecret.com</text>

@@ -256,6 +256,7 @@ export class CoursesHubComponent {
       '@type': 'ItemList',
       'name': 'Free Production Engineering Courses',
       'description': this.coursesDescription,
+      'url': 'https://coderssecret.com/courses',
       'numberOfItems': this.courses.length,
       'itemListElement': this.courses.map((course, i) => ({
         '@type': 'ListItem',
@@ -290,7 +291,6 @@ export class CoursesHubComponent {
           'hasCourseInstance': {
             '@type': 'CourseInstance',
             'courseMode': 'online',
-            'courseWorkload': course.totalDuration,
             'instructor': {
               '@type': 'Person',
               'name': course.instructor.name,

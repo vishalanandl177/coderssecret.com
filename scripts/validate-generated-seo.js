@@ -48,28 +48,51 @@ const REQUIRED_URLS = [
   `${SITE_URL}/cheatsheets`,
   `${SITE_URL}/glossary/opa`,
   `${SITE_URL}/courses/cloud-native-security-engineering`,
-  `${SITE_URL}/courses/data-lineage-dbt-course`,
-  `${SITE_URL}/courses/dbt-course-beginner`,
-  `${SITE_URL}/courses/dbt-data-quality-testing-course`,
-  `${SITE_URL}/courses/distributed-systems-engineering-explained`,
   `${SITE_URL}/courses/distributed-systems-engineering/distributed-security-zero-trust`,
   `${SITE_URL}/courses/distributed-systems-engineering/foundations-distributed-systems`,
   `${SITE_URL}/courses/distributed-systems-engineering/observability-debugging`,
-  `${SITE_URL}/courses/how-distributed-systems-work`,
   `${SITE_URL}/courses/malware-analysis-defense`,
   `${SITE_URL}/courses/malware-analysis-defense/authorization-ethics-lab-containment`,
   `${SITE_URL}/courses/malware-analysis-defense/controlled-endpoint-behavioral-analysis`,
   `${SITE_URL}/courses/malware-analysis-defense/mitre-attack-d3fend-mapping`,
   `${SITE_URL}/courses/malware-analysis-defense/yara-detection-as-code`,
   `${SITE_URL}/courses/malware-analysis-defense/capstone-synthetic-developer-tool-incident`,
+  `${SITE_URL}/courses/machine-identity-management`,
   `${SITE_URL}/courses/malware-analysis-for-developers`,
   `${SITE_URL}/courses/malware-detection-engineering`,
   `${SITE_URL}/courses/building-malware-resistant-software`,
-  `${SITE_URL}/courses/metrics-layer-course`,
   `${SITE_URL}/courses/production-rag-systems-engineering`,
   `${SITE_URL}/courses/production-rag-systems-engineering/production-rag-architecture`,
-  `${SITE_URL}/courses/semantic-layer-course`,
 ];
+
+const REQUIRED_NOINDEX_URLS = [
+  '/courses/spiffe-spire',
+  '/courses/what-is-spire',
+  '/courses/workload-identity',
+  '/courses/zero-trust-kubernetes',
+  '/courses/spire-kubernetes-tutorial',
+  '/courses/spiffe-mtls-service-mesh',
+  '/courses/cloud-native-security-explained',
+  '/courses/kubernetes-runtime-security',
+  '/courses/kubernetes-supply-chain-security',
+  '/courses/secure-service-to-service-communication',
+  '/courses/what-is-rag',
+  '/courses/vector-database-comparison',
+  '/courses/hybrid-search-explained',
+  '/courses/ai-agents-explained',
+  '/courses/distributed-systems-engineering-explained',
+  '/courses/how-distributed-systems-work',
+  '/courses/centralized-authentication-envoy-course',
+  '/courses/envoy-jwt-jwks-course',
+  '/courses/sso-envoy-kubernetes-course',
+  '/courses/kubernetes-product-auth-architecture',
+  '/courses/analytics-engineering-course',
+  '/courses/dbt-course-beginner',
+  '/courses/semantic-layer-course',
+  '/courses/metrics-layer-course',
+  '/courses/data-lineage-dbt-course',
+  '/courses/dbt-data-quality-testing-course',
+].map(pathname => `${SITE_URL}${pathname}`);
 
 const DISALLOWED_PATH_SEGMENTS = [
   '/admin',
@@ -181,6 +204,78 @@ function extractAll(regex, content) {
   return [...content.matchAll(regex)].map(match => match[1].trim());
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function extractHead(content) {
+  return extractFirst(/<head\b[^>]*>([\s\S]*?)<\/head>/i, content);
+}
+
+function extractTags(content, tagName) {
+  return content.match(new RegExp(`<${tagName}\\b[^>]*>`, 'gi')) || [];
+}
+
+function extractTagAttribute(tag, attributeName) {
+  const escapedName = escapeRegExp(attributeName);
+  const match = tag.match(new RegExp(`(?:^|\\s)${escapedName}\\s*=\\s*(["'])([\\s\\S]*?)\\1`, 'i'));
+  return match ? match[2].trim() : '';
+}
+
+function extractMetaContents(content, attributeName, attributeValue) {
+  return extractTags(content, 'meta')
+    .filter(tag => extractTagAttribute(tag, attributeName).toLowerCase() === attributeValue.toLowerCase())
+    .map(tag => extractTagAttribute(tag, 'content'))
+    .filter(Boolean);
+}
+
+function extractHeadTitles(content) {
+  return extractAll(/<title\b[^>]*>([\s\S]*?)<\/title>/gi, extractHead(content));
+}
+
+function documentBaseUrl(content, canonicalUrl) {
+  const baseTag = extractTags(extractHead(content), 'base')[0];
+  const baseHref = baseTag ? extractTagAttribute(baseTag, 'href') : '';
+  const documentUrl = isCanonicalSiteUrl(canonicalUrl) ? canonicalUrl : SITE_URL;
+  try {
+    return new URL(baseHref || documentUrl, documentUrl).href;
+  } catch {
+    return documentUrl;
+  }
+}
+
+function parseSameOriginReference(value, baseUrl) {
+  if (!value || /^(?:data|blob|mailto|tel|javascript):/i.test(value)) return null;
+
+  try {
+    const parsed = new URL(value, baseUrl || SITE_URL);
+    return parsed.origin === SITE_URL ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function localFileForPathname(pathname) {
+  let decodedPath;
+  try {
+    decodedPath = decodeURIComponent(pathname);
+  } catch {
+    return '';
+  }
+
+  if (!decodedPath.startsWith('/') || decodedPath.includes('\0')) return '';
+  const distRoot = path.resolve(DIST_DIR);
+  const candidate = path.resolve(distRoot, `.${decodedPath}`);
+  if (candidate !== distRoot && !candidate.startsWith(`${distRoot}${path.sep}`)) return '';
+  return candidate;
+}
+
+function isNonemptyFile(filePath) {
+  if (!filePath || !fs.existsSync(filePath)) return false;
+  const stat = fs.statSync(filePath);
+  return stat.isFile() && stat.size > 0;
+}
+
 function visibleText(html) {
   return html
     .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
@@ -231,6 +326,360 @@ function validateJsonLd(content, relativePath, expectedUrl) {
   }
 }
 
+function parseJsonLdData(content) {
+  const scripts = extractAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi, content);
+  const values = [];
+  for (const script of scripts) {
+    try {
+      values.push(JSON.parse(script));
+    } catch {
+      // Parse errors are reported by validateJsonLd; callers here only inspect valid blocks.
+    }
+  }
+  return values;
+}
+
+function collectObjectNodes(value, nodes = []) {
+  if (Array.isArray(value)) {
+    value.forEach(item => collectObjectNodes(item, nodes));
+  } else if (value && typeof value === 'object') {
+    nodes.push(value);
+    Object.values(value).forEach(item => collectObjectNodes(item, nodes));
+  }
+  return nodes;
+}
+
+function collectStringValues(value, strings = []) {
+  if (typeof value === 'string') {
+    strings.push(value);
+  } else if (Array.isArray(value)) {
+    value.forEach(item => collectStringValues(item, strings));
+  } else if (value && typeof value === 'object') {
+    Object.values(value).forEach(item => collectStringValues(item, strings));
+  }
+  return strings;
+}
+
+const JSON_LD_ASSET_KEYS = new Set([
+  'associatedmedia',
+  'contenturl',
+  'embedurl',
+  'encoding',
+  'image',
+  'logo',
+  'primaryimageofpage',
+  'screenshot',
+  'thumbnail',
+  'thumbnailurl',
+]);
+
+const JSON_LD_MEDIA_URL_KEYS = new Set([
+  'contenturl',
+  'embedurl',
+  'url',
+]);
+
+function collectJsonLdAssetValues(value, assetValues = []) {
+  if (Array.isArray(value)) {
+    value.forEach(item => collectJsonLdAssetValues(item, assetValues));
+    return assetValues;
+  }
+  if (!value || typeof value !== 'object') return assetValues;
+
+  const schemaTypes = Array.isArray(value['@type']) ? value['@type'] : [value['@type']];
+  const isMediaObject = schemaTypes.some(type => typeof type === 'string' && /(?:Image|Media|Video|Audio)Object$/.test(type));
+
+  for (const [key, entry] of Object.entries(value)) {
+    const normalizedKey = key.toLowerCase();
+    if (JSON_LD_ASSET_KEYS.has(normalizedKey)
+      || (isMediaObject && JSON_LD_MEDIA_URL_KEYS.has(normalizedKey))) {
+      collectJsonLdAssetField(entry, assetValues);
+    } else if (entry && typeof entry === 'object') {
+      collectJsonLdAssetValues(entry, assetValues);
+    }
+  }
+  return assetValues;
+}
+
+function collectJsonLdAssetField(value, assetValues) {
+  if (typeof value === 'string') {
+    assetValues.push(value);
+  } else if (Array.isArray(value)) {
+    value.forEach(item => collectJsonLdAssetField(item, assetValues));
+  } else if (value && typeof value === 'object') {
+    for (const [key, entry] of Object.entries(value)) {
+      const normalizedKey = key.toLowerCase();
+      if (normalizedKey === '@id' || JSON_LD_MEDIA_URL_KEYS.has(normalizedKey)
+        || JSON_LD_ASSET_KEYS.has(normalizedKey)) {
+        collectJsonLdAssetField(entry, assetValues);
+      } else if (entry && typeof entry === 'object') {
+        collectJsonLdAssetValues(entry, assetValues);
+      }
+    }
+  }
+}
+
+function hasSchemaType(value, expectedType) {
+  if (!value || typeof value !== 'object') return false;
+  const types = Array.isArray(value['@type']) ? value['@type'] : [value['@type']];
+  return types.includes(expectedType);
+}
+
+function validateCategoryStructuredData(content, relativePath, url) {
+  if (!new URL(url).pathname.startsWith('/category/')) return;
+
+  const data = parseJsonLdData(content);
+  const nodes = data.flatMap(value => collectObjectNodes(value));
+  const breadcrumb = nodes.find(node => hasSchemaType(node, 'BreadcrumbList'));
+  if (!breadcrumb) {
+    fail(`${relativePath}: category page is missing BreadcrumbList structured data`);
+  } else {
+    const items = breadcrumb.itemListElement;
+    if (!Array.isArray(items) || items.length < 2) {
+      fail(`${relativePath}: category BreadcrumbList must contain at least two ListItem entries`);
+    }
+    const breadcrumbUrls = collectStringValues(breadcrumb);
+    if (!breadcrumbUrls.some(value => value === url || value.startsWith(`${url}#`))) {
+      fail(`${relativePath}: category BreadcrumbList does not reference its canonical URL (${url})`);
+    }
+  }
+
+  const collectionPage = nodes.find(node => hasSchemaType(node, 'CollectionPage'));
+  if (!collectionPage) {
+    fail(`${relativePath}: category page is missing CollectionPage structured data`);
+    return;
+  }
+  const collectionUrls = collectStringValues(collectionPage);
+  if (!collectionUrls.some(value => value === url || value.startsWith(`${url}#`))) {
+    fail(`${relativePath}: category CollectionPage does not reference its canonical URL (${url})`);
+  }
+
+  let itemList = collectObjectNodes(collectionPage.mainEntity || [])
+    .find(node => hasSchemaType(node, 'ItemList'));
+  if (!itemList && collectionPage.mainEntity && collectionPage.mainEntity['@id']) {
+    itemList = nodes.find(node => hasSchemaType(node, 'ItemList')
+      && node['@id'] === collectionPage.mainEntity['@id']);
+  }
+  if (!itemList) {
+    fail(`${relativePath}: category CollectionPage must expose an ItemList as mainEntity`);
+  } else if (!Array.isArray(itemList.itemListElement) || itemList.itemListElement.length === 0) {
+    fail(`${relativePath}: category CollectionPage ItemList must contain at least one item`);
+  }
+}
+
+function splitSrcset(value) {
+  if (!value || value.trim().startsWith('data:')) return [];
+  return value
+    .split(',')
+    .map(candidate => candidate.trim().split(/\s+/)[0])
+    .filter(Boolean);
+}
+
+function validateSameOriginAssets(content, relativePath, canonicalUrl) {
+  const baseUrl = documentBaseUrl(content, canonicalUrl);
+  const references = [];
+  const addReference = (value, kind) => {
+    if (value) references.push({ value, kind });
+  };
+
+  const sourceAttributes = [
+    ['img', 'src'],
+    ['image', 'href'],
+    ['image', 'xlink:href'],
+    ['input', 'src'],
+    ['source', 'src'],
+    ['track', 'src'],
+    ['video', 'src'],
+    ['video', 'poster'],
+    ['audio', 'src'],
+    ['script', 'src'],
+    ['object', 'data'],
+    ['embed', 'src'],
+  ];
+  for (const [tagName, attributeName] of sourceAttributes) {
+    for (const tag of extractTags(content, tagName)) {
+      addReference(extractTagAttribute(tag, attributeName), `<${tagName}> ${attributeName}`);
+    }
+  }
+
+  for (const tagName of ['img', 'source']) {
+    for (const tag of extractTags(content, tagName)) {
+      for (const value of splitSrcset(extractTagAttribute(tag, 'srcset'))) {
+        addReference(value, `<${tagName}> srcset`);
+      }
+    }
+  }
+
+  const assetLinkRels = new Set([
+    'apple-touch-icon',
+    'icon',
+    'image_src',
+    'manifest',
+    'mask-icon',
+    'modulepreload',
+    'preload',
+    'stylesheet',
+  ]);
+  for (const tag of extractTags(content, 'link')) {
+    const href = extractTagAttribute(tag, 'href');
+    const rels = extractTagAttribute(tag, 'rel').toLowerCase().split(/\s+/).filter(Boolean);
+    const parsed = parseSameOriginReference(href, baseUrl);
+    const hasAssetExtension = parsed && ASSET_EXTENSIONS.has(path.extname(parsed.pathname).toLowerCase());
+    if (rels.some(rel => assetLinkRels.has(rel)) || hasAssetExtension) {
+      addReference(href, `<link rel="${rels.join(' ')}"> href`);
+    }
+  }
+
+  const metadataAssetKeys = new Set([
+    'og:image',
+    'og:image:secure_url',
+    'og:image:url',
+    'image',
+    'msapplication-tileimage',
+    'thumbnailurl',
+    'twitter:image',
+    'twitter:image:src',
+  ]);
+  for (const tag of extractTags(extractHead(content), 'meta')) {
+    const key = (extractTagAttribute(tag, 'property')
+      || extractTagAttribute(tag, 'name')
+      || extractTagAttribute(tag, 'itemprop')).toLowerCase();
+    if (metadataAssetKeys.has(key)) {
+      addReference(extractTagAttribute(tag, 'content'), `<meta ${key}> content`);
+    }
+  }
+
+  for (const data of parseJsonLdData(content)) {
+    for (const value of collectJsonLdAssetValues(data)) {
+      const parsed = parseSameOriginReference(value, baseUrl);
+      if (parsed) {
+        addReference(value, 'JSON-LD asset');
+      }
+    }
+  }
+
+  const seen = new Set();
+  for (const { value, kind } of references) {
+    const parsed = parseSameOriginReference(value, baseUrl);
+    if (!parsed) continue;
+    const key = parsed.href;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    const filePath = localFileForPathname(parsed.pathname);
+    if (!filePath) {
+      fail(`${relativePath}: ${kind} has an unsafe or invalid local path (${value})`);
+      continue;
+    }
+    if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+      fail(`${relativePath}: ${kind} references a missing same-origin asset (${value})`);
+    } else if (fs.statSync(filePath).size === 0) {
+      fail(`${relativePath}: ${kind} references an empty same-origin asset (${value})`);
+    }
+  }
+}
+
+function validateOgImageDimensions(content, relativePath, canonicalUrl) {
+  const head = extractHead(content);
+  const image = extractMetaContents(head, 'property', 'og:image')[0];
+  const widthValue = extractMetaContents(head, 'property', 'og:image:width')[0];
+  const heightValue = extractMetaContents(head, 'property', 'og:image:height')[0];
+  if (!widthValue && !heightValue) return;
+  if (!image) {
+    fail(`${relativePath}: og:image dimensions are supplied without an og:image`);
+    return;
+  }
+
+  const parsed = parseSameOriginReference(image, documentBaseUrl(content, canonicalUrl));
+  if (!parsed || path.extname(parsed.pathname).toLowerCase() !== '.svg') return;
+  const filePath = localFileForPathname(parsed.pathname);
+  if (!isNonemptyFile(filePath)) return;
+
+  const viewBoxMatch = read(filePath).match(/\bviewBox\s*=\s*["']([^"']+)["']/i);
+  const viewBox = viewBoxMatch
+    ? viewBoxMatch[1].trim().split(/[\s,]+/).map(Number)
+    : [];
+  if (viewBox.length !== 4 || viewBox.some(value => !Number.isFinite(value))
+    || viewBox[2] <= 0 || viewBox[3] <= 0) {
+    fail(`${relativePath}: local SVG og:image has no valid viewBox for dimension validation (${image})`);
+    return;
+  }
+
+  const dimensions = [
+    ['width', widthValue, viewBox[2]],
+    ['height', heightValue, viewBox[3]],
+  ];
+  for (const [name, suppliedValue, expectedValue] of dimensions) {
+    if (!suppliedValue) continue;
+    const suppliedNumber = Number(suppliedValue);
+    if (!Number.isFinite(suppliedNumber) || suppliedNumber <= 0) {
+      fail(`${relativePath}: og:image:${name} is not a positive number (${suppliedValue})`);
+    } else if (Math.abs(suppliedNumber - expectedValue) > 0.01) {
+      fail(`${relativePath}: og:image:${name} (${suppliedValue}) does not match local SVG viewBox ${name} (${expectedValue}) for ${image}`);
+    }
+  }
+}
+
+function findGeneratedDestination(pathname) {
+  const exactPath = localFileForPathname(pathname);
+  if (exactPath && fs.existsSync(exactPath) && fs.statSync(exactPath).isFile()) {
+    return exactPath;
+  }
+
+  let decodedPath;
+  try {
+    decodedPath = decodeURIComponent(pathname);
+  } catch {
+    return '';
+  }
+  const normalizedPath = decodedPath === '/' ? '/' : decodedPath.replace(/\/+$/, '');
+  if (normalizedPath === '/') {
+    const indexPath = path.join(DIST_DIR, 'index.html');
+    return fs.existsSync(indexPath) ? indexPath : '';
+  }
+
+  const route = normalizedPath.replace(/^\/+/, '');
+  const candidates = [
+    path.join(DIST_DIR, `${route}.html`),
+    path.join(DIST_DIR, route, 'index.html'),
+  ];
+  return candidates.find(candidate => fs.existsSync(candidate) && fs.statSync(candidate).isFile()) || '';
+}
+
+function hasFragmentDestination(content, fragment) {
+  let decodedFragment;
+  try {
+    decodedFragment = decodeURIComponent(fragment);
+  } catch {
+    return false;
+  }
+  if (!decodedFragment || decodedFragment.startsWith(':~:text=')) return true;
+
+  const attributePattern = /\s(?:id|name)\s*=\s*(["'])([\s\S]*?)\1/gi;
+  return [...content.matchAll(attributePattern)].some(match => match[2] === decodedFragment);
+}
+
+function validateInternalAnchorDestination(href, relativePath, content, canonicalUrl) {
+  if (!href || /^(?:mailto|tel|javascript|data|blob):/i.test(href)) return;
+  const parsed = parseSameOriginReference(href, documentBaseUrl(content, canonicalUrl));
+  if (!parsed) return;
+
+  const destination = findGeneratedDestination(parsed.pathname);
+  if (!destination) {
+    fail(`${relativePath}: internal anchor destination does not resolve to generated output (${href})`);
+    return;
+  }
+  if (!isNonemptyFile(destination)) {
+    fail(`${relativePath}: internal anchor destination is empty (${href})`);
+    return;
+  }
+
+  if (parsed.hash && path.extname(destination).toLowerCase() === '.html'
+    && !hasFragmentDestination(read(destination), parsed.hash.slice(1))) {
+    fail(`${relativePath}: internal anchor fragment does not exist in the generated destination (${href})`);
+  }
+}
+
 function validateSitemapXml() {
   if (!fs.existsSync(SITEMAP_PATH)) {
     fail('sitemap.xml is missing from generated output');
@@ -256,6 +705,24 @@ function validateSitemapXml() {
 
   const locs = extractAll(/<loc>([^<]+)<\/loc>/g, sitemap);
   const seen = new Set();
+
+  for (const block of sitemap.match(/<url>[\s\S]*?<\/url>/g) || []) {
+    const loc = extractFirst(/<loc>([^<]+)<\/loc>/i, block);
+    const lastmods = extractAll(/<lastmod>([^<]+)<\/lastmod>/gi, block);
+    if (lastmods.length > 1) {
+      fail(`sitemap.xml: URL has multiple lastmod values (${loc})`);
+      continue;
+    }
+    if (lastmods.length === 1) {
+      const value = lastmods[0];
+      const parsed = Date.parse(value);
+      if (!/^\d{4}-\d{2}-\d{2}(?:T[^\s]+)?$/.test(value) || !Number.isFinite(parsed)) {
+        fail(`sitemap.xml: invalid lastmod value (${loc}: ${value})`);
+      } else if (parsed > Date.now() + 24 * 60 * 60 * 1000) {
+        fail(`sitemap.xml: future lastmod value (${loc}: ${value})`);
+      }
+    }
+  }
 
   for (const loc of locs) {
     if (seen.has(loc)) fail(`sitemap.xml: duplicate URL (${loc})`);
@@ -285,6 +752,11 @@ function validateSitemapXml() {
   for (const requiredUrl of REQUIRED_URLS) {
     if (!seen.has(requiredUrl)) {
       fail(`sitemap.xml: missing required public URL (${requiredUrl})`);
+    }
+  }
+  for (const noindexUrl of REQUIRED_NOINDEX_URLS) {
+    if (seen.has(noindexUrl)) {
+      fail(`sitemap.xml: noindex supporting guide must not be included (${noindexUrl})`);
     }
   }
 
@@ -355,8 +827,28 @@ function validatePageForSitemapUrl(url) {
   }
 }
 
+function validateRequiredNoindexPages() {
+  for (const url of REQUIRED_NOINDEX_URLS) {
+    const { primary, route } = htmlFileForUrl(url);
+    if (!fs.existsSync(primary)) {
+      fail(`${route}: required supporting noindex page is missing (${url})`);
+      continue;
+    }
+
+    const content = read(primary);
+    const canonical = extractAll(/<link\s+rel=["']canonical["']\s+href=["']([^"']+)["'][^>]*>/gi, content);
+    if (canonical.length !== 1 || canonical[0] !== url) {
+      fail(`${route}: noindex supporting page must keep one self-canonical (${url})`);
+    }
+    if (!/<meta[^>]+name=["']robots["'][^>]+content=["'][^"']*noindex[^"']*follow/i.test(content)) {
+      fail(`${route}: supporting guide must be marked noindex,follow (${url})`);
+    }
+  }
+}
+
 function validateCanonicalPageFile(filePath, relativePath, url) {
   const content = read(filePath);
+  const head = extractHead(content);
   const canonicalLinks = extractAll(/<link\s+rel=["']canonical["']\s+href=["']([^"']+)["'][^>]*>/gi, content);
   if (canonicalLinks.length !== 1) {
     fail(`${relativePath}: expected exactly one canonical link, found ${canonicalLinks.length}`);
@@ -371,12 +863,41 @@ function validateCanonicalPageFile(filePath, relativePath, url) {
     fail(`${relativePath}: sitemap page uses a meta refresh redirect`);
   }
 
-  const title = extractFirst(/<title>([^<]+)<\/title>/i, content);
-  if (!title) fail(`${relativePath}: missing title`);
+  const titles = extractHeadTitles(content);
+  if (titles.length !== 1 || !visibleText(titles[0])) {
+    fail(`${relativePath}: expected exactly one nonempty title in <head>, found ${titles.length}`);
+  }
 
-  const description = extractFirst(/<meta\s+name=["']description["']\s+content=["']([^"']+)["'][^>]*>/i, content);
+  const description = extractMetaContents(head, 'name', 'description')[0] || '';
   if (!description || description.length < 40) {
     fail(`${relativePath}: missing or thin meta description`);
+  }
+  if (/(?:\.\.\.|…)\s*$/u.test(description)) {
+    fail(`${relativePath}: meta description ends with a mechanically clipped ellipsis`);
+  }
+
+  const siteNames = extractMetaContents(head, 'property', 'og:site_name');
+  if (siteNames.length !== 1 || siteNames[0] !== 'CodersSecret') {
+    fail(`${relativePath}: expected one og:site_name set to CodersSecret`);
+  }
+
+  const articleProperties = ['author', 'published_time', 'modified_time', 'section'];
+  for (const property of articleProperties) {
+    const values = extractMetaContents(head, 'property', `article:${property}`);
+    if (values.length > 1) {
+      fail(`${relativePath}: duplicate article:${property} metadata (${values.join(', ')})`);
+    }
+  }
+  const articleTags = extractMetaContents(head, 'property', 'article:tag');
+  if (new Set(articleTags).size !== articleTags.length) {
+    fail(`${relativePath}: duplicate article:tag metadata`);
+  }
+  if (extractMetaContents(head, 'property', 'og:type')[0] === 'article') {
+    for (const requiredProperty of ['author', 'published_time', 'section']) {
+      if (extractMetaContents(head, 'property', `article:${requiredProperty}`).length !== 1) {
+        fail(`${relativePath}: article page must expose exactly one article:${requiredProperty}`);
+      }
+    }
   }
 
   const h1Count = (content.match(/<h1\b/gi) || []).length;
@@ -400,6 +921,64 @@ function validateCanonicalPageFile(filePath, relativePath, url) {
   }
 
   validateJsonLd(content, relativePath, url);
+  validateCategoryStructuredData(content, relativePath, url);
+}
+
+function normalizeMetadataValue(value) {
+  const namedEntities = {
+    amp: '&',
+    apos: "'",
+    gt: '>',
+    lt: '<',
+    quot: '"',
+  };
+  const decodeCodePoint = (code, radix) => {
+    const number = parseInt(code, radix);
+    return Number.isInteger(number) && number >= 0 && number <= 0x10ffff
+      ? String.fromCodePoint(number)
+      : '';
+  };
+  return value
+    .replace(/&#(\d+);/g, (_, code) => decodeCodePoint(code, 10))
+    .replace(/&#x([\da-f]+);/gi, (_, code) => decodeCodePoint(code, 16))
+    .replace(/&(amp|apos|gt|lt|quot);/gi, (_, name) => namedEntities[name.toLowerCase()])
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function validateUniqueSitemapMetadata(sitemapUrls) {
+  const titlePages = new Map();
+  const descriptionPages = new Map();
+
+  const addPage = (groups, value, url) => {
+    const normalized = normalizeMetadataValue(value);
+    if (!normalized) return;
+    if (!groups.has(normalized)) groups.set(normalized, []);
+    groups.get(normalized).push(url);
+  };
+
+  for (const url of new Set(sitemapUrls)) {
+    const { primary } = htmlFileForUrl(url);
+    if (!fs.existsSync(primary)) continue;
+    const content = read(primary);
+    const head = extractHead(content);
+    const title = extractHeadTitles(content)[0] || '';
+    const description = extractMetaContents(head, 'name', 'description')[0] || '';
+    addPage(titlePages, visibleText(title), url);
+    addPage(descriptionPages, description, url);
+  }
+
+  for (const [title, urls] of titlePages) {
+    if (urls.length > 1) {
+      fail(`metadata: duplicate <title> across sitemap pages ("${title.slice(0, 120)}": ${urls.join(', ')})`);
+    }
+  }
+  for (const [description, urls] of descriptionPages) {
+    if (urls.length > 1) {
+      fail(`metadata: duplicate meta description across sitemap pages ("${description.slice(0, 120)}": ${urls.join(', ')})`);
+    }
+  }
 }
 
 function validateGeneratedHtmlFiles() {
@@ -442,9 +1021,14 @@ function validateGeneratedHtmlFiles() {
     }
 
     validateJsonLd(content, relative, urlAttrs[0] || SITE_URL);
+    validateSameOriginAssets(content, relative, urlAttrs[0] || SITE_URL);
+    validateOgImageDimensions(content, relative, urlAttrs[0] || SITE_URL);
 
-    const hrefs = extractAll(/<a\b[^>]*\shref=["']([^"']+)["'][^>]*>/gi, content);
+    const hrefs = extractTags(content, 'a')
+      .map(tag => extractTagAttribute(tag, 'href'))
+      .filter(Boolean);
     for (const href of hrefs) {
+      validateInternalAnchorDestination(href, relative, content, urlAttrs[0] || SITE_URL);
       if (!href.startsWith('/') || href === '/' || href.startsWith('/#') || href.startsWith('//')) {
         continue;
       }
@@ -536,7 +1120,9 @@ if (!fs.existsSync(DIST_DIR)) {
   validateStaticRedirectRules();
   validateGeneratedHtmlFiles();
   validateNoEmptyRouteDirectories();
+  validateRequiredNoindexPages();
   sitemapUrls.forEach(validatePageForSitemapUrl);
+  validateUniqueSitemapMetadata(sitemapUrls);
   validateSitemapInternalLinks(sitemapUrls);
 }
 

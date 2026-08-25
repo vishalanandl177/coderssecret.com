@@ -19,7 +19,7 @@ export const PRODUCTION_ANALYTICS_ENGINEERING_DBT_OUTLINE: CourseOutline = {
       "Focuses on beginner-friendly explanations without hiding production realities"
     ]
   },
-  "totalDuration": "28+ hours",
+  "totalDuration": "About 28 hours",
   "level": "Beginner to Intermediate",
   "category": "data-engineering",
   "labDelivery": "inline",

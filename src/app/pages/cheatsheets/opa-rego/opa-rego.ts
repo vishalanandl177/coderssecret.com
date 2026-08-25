@@ -132,6 +132,7 @@ spec:
     { label: 'Cloud Native Security Engineering - Policy as Code module', href: '/courses/cloud-native-security-engineering/policy-as-code-security', description: 'Module: design and ship OPA policy across admission, ingress, and microservice authz.' },
     { label: 'Kubernetes Security Simulator', href: '/games/kubernetes-security-simulator', description: 'Practice spotting RBAC/admission misconfigurations including policy-as-code coverage.' },
     { label: 'OPA glossary entry', href: '/glossary/opa', description: 'Definition and how OPA fits into a cloud-native security architecture.' },
+    { label: 'Kubernetes Security Explained', href: '/blog/kubernetes-security-explained', description: 'See where admission policy fits alongside RBAC, Pod Security, network controls, and runtime detection.' },
   ];
 
   constructor() {

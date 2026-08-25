@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>Your frontend started as a small React or Angular app. Now it has 200+ components, multiple teams working on different features, and a single deployment pipeline that bottlenecks everyone. Micro-frontends solve this by splitting the UI into independently deployable pieces, each owned by a different team.</p>
+      <p>Your frontend started as a small React or Angular app. Now it has 200+ components, multiple teams working on different features, and a single deployment pipeline that bottlenecks everyone. Micro-frontends solve this by splitting the UI into independently deployable pieces, each owned by a different team. Before splitting, compare that organizational boundary with a <a href="/blog/monorepo-vs-polyrepo-codebase-structure">monorepo or polyrepo codebase structure</a> and the built-in conventions of <a href="/blog/angular-21-large-scale-applications-comparison">Angular 21 for large applications</a>.</p>
 
       <p>But micro-frontends add real complexity. This guide covers the architecture patterns, Module Federation implementation, and the honest tradeoffs so you can decide if the complexity is worth it for your team.</p>
 

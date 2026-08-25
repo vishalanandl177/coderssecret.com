@@ -1,5 +1,5 @@
 export const CONTENT = `
-      <p>In a microservices world, services constantly talk to each other - fetching user data, processing payments, sending notifications. But how do you ensure that only <strong>authorized services</strong> can make these calls? That's where <strong>Machine-to-Machine (M2M) authentication</strong> comes in.</p>
+      <p>In a microservices world, services constantly talk to each other - fetching user data, processing payments, sending notifications. But how do you ensure that only <strong>authorized services</strong> can make these calls? That's where <strong><a href="/blog/m2m-authentication-golang-m2mauth-library" class="text-primary underline">Machine-to-Machine (M2M) authentication</a></strong> comes in.</p>
 
       <h2>What is M2M Authentication?</h2>
       <p>M2M authentication is the process of verifying the identity of a <strong>service or application</strong> (not a human user) when it communicates with another service. Unlike user authentication where someone types a password, M2M auth happens programmatically, without any human interaction.</p>
@@ -43,7 +43,7 @@ export const CONTENT = `
       </div>
 
       <h2>OAuth 2.0 Client Credentials Flow</h2>
-      <p>The most widely adopted standard for M2M auth is the <strong>OAuth 2.0 Client Credentials Grant</strong>. Here's how it works:</p>
+      <p>The most widely adopted standard for M2M auth is the <strong><a href="/blog/oauth2-private-key-jwt-client-authentication" class="text-primary underline">OAuth 2.0 Client Credentials Grant</a></strong>. Here's how it works:</p>
       <pre><code># Step 1: Service requests an access token from the auth server
 curl -X POST https://auth.example.com/oauth/token \\
   -H "Content-Type: application/x-www-form-urlencoded" \\
@@ -116,7 +116,7 @@ client = M2MClient(
 users = client.request('GET', 'https://api.example.com/users').json()</code></pre>
 
       <h2>Mutual TLS (mTLS)</h2>
-      <p>For the highest level of security, especially within a service mesh, <strong>mutual TLS</strong> provides two-way certificate-based authentication:</p>
+      <p>For the highest level of security, especially within a service mesh, <strong><a href="/courses/distributed-systems-engineering/distributed-security-zero-trust" class="text-primary underline">mutual TLS</a></strong> provides two-way certificate-based authentication:</p>
       <pre><code># Both client and server present certificates
 import requests
 

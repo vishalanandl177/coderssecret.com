@@ -135,7 +135,6 @@ function checkSeoService() {
   if (!/BreadcrumbList/.test(content)) warnings.push('seo.service.ts: Missing BreadcrumbList schema');
   if (!/['"]ItemList['"]/.test(content)) errors.push('seo.service.ts: Missing ItemList schema for blog list / category pages (required for collection SEO)');
   if (!/['"]CollectionPage['"]/.test(content)) warnings.push('seo.service.ts: Missing CollectionPage schema (pairs with ItemList)');
-  if (!/SearchAction/.test(content)) warnings.push('seo.service.ts: Missing SearchAction schema - site search box in Google disabled');
 
   // Article metadata
   if (!/article:section/.test(content)) warnings.push('seo.service.ts: Missing article:section OG tag');
@@ -218,7 +217,7 @@ function checkKeywordTargeting() {
           warnings.push(`${page}/${file}: Meta description too short (${desc.length} chars) - aim for 120-160 chars`);
         }
         if (desc.length > 200) {
-          warnings.push(`${page}/${file}: Meta description too long (${desc.length} chars) - Google truncates after 160`);
+          warnings.push(`${page}/${file}: Meta description is very long (${desc.length} chars) - keep it concise and page-specific`);
         }
         // Check for weak/generic phrases
         const weakPatterns = [
