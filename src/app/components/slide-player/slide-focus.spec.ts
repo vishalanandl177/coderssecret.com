@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { SlideData, getSlideFocusTargets, resolveSlideFocusSteps, splitSlideNarration } from './slide-focus';
+import { SlideData, SlideLink, getSlideFocusTargets, resolveSlideFocusSteps, splitSlideNarration } from './slide-focus';
 
 describe('splitSlideNarration', () => {
   it('keeps every sentence in its original order', () => {
@@ -16,6 +16,38 @@ describe('splitSlideNarration', () => {
 });
 
 describe('resolveSlideFocusSteps', () => {
+  it('keeps legacy and actionable end-slide links valid focus targets', () => {
+    const links: SlideLink[] = [
+      { label: 'Legacy docs', value: 'docs.example.com' },
+      {
+        label: 'Package',
+        value: 'pypi.org/project/drf-api-logger',
+        href: 'https://pypi.org/project/drf-api-logger/',
+        external: true,
+        analyticsResource: 'pypi',
+      },
+      {
+        label: 'Install',
+        value: 'pip install drf-api-logger',
+        copyValue: 'pip install drf-api-logger',
+        analyticsAction: 'install',
+      },
+    ];
+    const slide: SlideData = {
+      type: 'end',
+      title: 'Keep learning',
+      links,
+      narration: 'Use the resources to keep learning.',
+    };
+
+    expect(getSlideFocusTargets(slide).map(target => target.key)).toEqual([
+      'title',
+      'link:0',
+      'link:1',
+      'link:2',
+    ]);
+  });
+
   it('spreads content narration from the title through the final bullet', () => {
     const slide: SlideData = {
       type: 'content',

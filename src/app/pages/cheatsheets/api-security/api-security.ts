@@ -136,6 +136,7 @@ app.use(cors({
     { label: 'API Attack & Defense simulator', href: '/games/api-attack-defense', description: 'Six API security scenarios - JWT, OAuth, mass assignment, CORS, webhooks, rate limiting.' },
     { label: 'Cloud Native Security Engineering', href: '/courses/cloud-native-security-engineering', description: 'Free 16-module course covering API + machine identity end-to-end.' },
     { label: 'M2M Authentication for Service-to-Service APIs', href: '/blog/m2m-authentication-service-to-service', description: 'Compare shared secrets, signed assertions, mTLS, and workload identity for service authentication.' },
+    { label: 'Safe DRF API request logging', href: '/blog/drf-api-logger-django-rest-framework', description: 'Mask secrets, bound payload capture, and set retention for investigation evidence. Logging helps detection and debugging; it does not prevent an attack.' },
   ];
 
   constructor() {

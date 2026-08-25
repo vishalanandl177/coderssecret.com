@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { BLOG_POSTS, BlogPost, CATEGORIES } from '../../models/blog-post.model';
+import { BLOG_POSTS, BlogPost, CATEGORIES, getBlogPostSlidePath, sortBlogPostsByPublishedDate } from '../../models/blog-post.model';
 import { SeoService } from '../../services/seo.service';
 import { Md3ActiveIndicatorDirective } from '../../shared/md3/md3-active-indicator';
 
@@ -129,7 +129,7 @@ type CategoryRail = {
                       <a [routerLink]="['/blog', post.slug]" class="md3-button-filled" [attr.aria-label]="'Read article: ' + post.title">
                         Read article
                       </a>
-                      <a [routerLink]="['/slides', post.slug]" class="md3-button-outlined" [attr.aria-label]="'Watch as slides: ' + post.title">
+                      <a [routerLink]="getSlidePath(post)" class="md3-button-outlined" [attr.aria-label]="'Watch as slides: ' + post.title">
                         Watch as Slides
                       </a>
                     </div>
@@ -154,7 +154,7 @@ type CategoryRail = {
                           <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
                         </svg>
                       </a>
-                      <a [routerLink]="['/slides', post.slug]" class="md3-blog-text-action md3-blog-text-action-tonal" [attr.aria-label]="'Watch as slides: ' + post.title">
+                      <a [routerLink]="getSlidePath(post)" class="md3-blog-text-action md3-blog-text-action-tonal" [attr.aria-label]="'Watch as slides: ' + post.title">
                         Slides
                       </a>
                     </div>
@@ -300,7 +300,7 @@ type CategoryRail = {
                             <a [routerLink]="['/blog', post.slug]" class="md3-blog-read-link" [attr.aria-label]="'Read article: ' + post.title">
                               Read article
                             </a>
-                            <a [routerLink]="['/slides', post.slug]" class="md3-blog-slide-link" [attr.aria-label]="'Watch as slides: ' + post.title">
+                            <a [routerLink]="getSlidePath(post)" class="md3-blog-slide-link" [attr.aria-label]="'Watch as slides: ' + post.title">
                               Watch as Slides
                             </a>
                           </div>
@@ -334,6 +334,7 @@ export class BlogListComponent {
   private route = inject(ActivatedRoute);
 
   readonly categories = CATEGORIES;
+  readonly postsByPublishedDate = sortBlogPostsByPublishedDate(BLOG_POSTS);
   readonly totalPosts = BLOG_POSTS.length;
   readonly topTags = this.computeTopTags();
   readonly activeTopic = signal('all');
@@ -353,9 +354,9 @@ export class BlogListComponent {
     { label: 'Career', key: 'career', hint: 'Engineering career, compensation, OKRs, and communication guides' },
   ];
 
-  readonly latestPost = computed(() => BLOG_POSTS[0]);
-  readonly featuredPosts = computed(() => BLOG_POSTS.filter(post => post.featured).slice(0, 4));
-  readonly startHerePost = computed(() => this.featuredPosts()[0] ?? BLOG_POSTS[0]);
+  readonly latestPost = computed(() => this.postsByPublishedDate[0]);
+  readonly featuredPosts = computed(() => this.postsByPublishedDate.filter(post => post.featured).slice(0, 4));
+  readonly startHerePost = computed(() => this.featuredPosts()[0] ?? this.postsByPublishedDate[0]);
   readonly supportingFeatured = computed(() => {
     const primary = this.startHerePost();
     return this.featuredPosts().filter(post => post.slug !== primary.slug).slice(0, 3);
@@ -365,7 +366,7 @@ export class BlogListComponent {
   });
 
   readonly allFilteredPosts = computed(() => {
-    let posts = BLOG_POSTS;
+    let posts = this.postsByPublishedDate;
     const topic = this.activeTopic();
     const tag = this.activeTag();
     const query = this.searchQuery().trim().toLowerCase();
@@ -431,7 +432,7 @@ export class BlogListComponent {
         { name: 'Home', url: '/' },
         { name: 'Blog', url: '/blog' },
       ],
-      itemList: BLOG_POSTS.slice(0, 24).map(post => ({
+      itemList: this.postsByPublishedDate.slice(0, 24).map(post => ({
         name: post.title,
         url: `/blog/${post.slug}`,
         description: post.excerpt,
@@ -441,6 +442,10 @@ export class BlogListComponent {
 
   setTopic(topic: string) {
     this.activeTopic.set(topic);
+  }
+
+  getSlidePath(post: BlogPost): string {
+    return getBlogPostSlidePath(post);
   }
 
   setTag(tag: string) {

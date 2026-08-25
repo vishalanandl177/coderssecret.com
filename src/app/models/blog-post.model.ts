@@ -1,3 +1,5 @@
+import type { OpenSourceProjectId } from './open-source-project.model';
+
 export interface BlogPost {
   id: string;
   title: string;
@@ -5,14 +7,41 @@ export interface BlogPost {
   excerpt: string;
   content: string;
   author: string;
+  /** Original publication date. Keep listing order based on this value. */
   date: string;
+  /** Date of the latest material content update, when one has shipped. */
+  dateModified?: string;
   readTime: string;
   tags: string[];
   category: string;
   coverImage: string;
   featured?: boolean;
+  /** Custom slide-deck slug when it differs from the article slug. */
+  slideSlug?: string;
+  /** Optional open-source project promoted by this article. */
+  projectId?: OpenSourceProjectId;
   /** Popularity rank from GA data. Lower = more popular. Update from GA dashboard. */
   popularRank?: number;
+}
+
+export function getBlogPostLastModified(post: Pick<BlogPost, 'date' | 'dateModified'>): string {
+  return post.dateModified || post.date;
+}
+
+export function getBlogPostSlidePath(post: Pick<BlogPost, 'slug' | 'slideSlug'>): string {
+  return `/slides/${post.slideSlug || post.slug}`;
+}
+
+export function compareBlogPostsByPublishedDateDesc(
+  left: Pick<BlogPost, 'date' | 'slug'>,
+  right: Pick<BlogPost, 'date' | 'slug'>,
+): number {
+  const dateDifference = Date.parse(right.date) - Date.parse(left.date);
+  return dateDifference || left.slug.localeCompare(right.slug);
+}
+
+export function sortBlogPostsByPublishedDate(posts: readonly BlogPost[]): BlogPost[] {
+  return [...posts].sort(compareBlogPostsByPublishedDateDesc);
 }
 
 export function getRelatedBlogPosts(
@@ -1329,6 +1358,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: '2026-04-04',
     readTime: '22 min read',
     tags: ['Python', 'C Extension', 'Performance', 'Tutorial', 'Workshop'],
+    slideSlug: 'python-c-extensions',
     coverImage: '',
   },
   {
@@ -1430,13 +1460,16 @@ export const BLOG_POSTS: BlogPost[] = [
     id: '4',
     title: 'DRF API Logger for Django REST Framework',
     slug: 'drf-api-logger-django-rest-framework',
-    excerpt: 'Deep dive into DRF API Logger for Django REST Framework: request and response logging, database and signal modes, sensitive-data masking, API profiling, retention, querying, and production tuning.',
+    excerpt: 'A maintainer-led guide to DRF API Logger: safely log DRF requests, mask secrets, profile slow APIs, and tune production storage.',
     category: 'open-source',
     content: '',
     author: 'Vishal Anand',
     date: '2026-05-14',
+    dateModified: '2026-08-26',
     readTime: '24 min read',
     tags: ['Django', 'Python', 'DRF', 'API Logging', 'Observability'],
+    slideSlug: 'drf-api-logger',
+    projectId: 'drf-api-logger',
     coverImage: '',
   }
 ];

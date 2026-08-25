@@ -31,10 +31,10 @@ export const PRODUCTION_RAG_SYSTEMS_ENGINEERING_COURSE: Course = {
     instructor: {
       name: 'Vishal Anand',
       title: 'Senior Product Engineer & Tech Lead',
-      bio: 'Creator of DRF API Logger (1.6M+ PyPI downloads), educator at CodersSecret, and author of the Mastering SPIFFE & SPIRE and Cloud Native Security Engineering courses. Builds production AI and infrastructure systems.',
+      bio: 'Creator and maintainer of DRF API Logger, an Apache-2.0 package listed in Django REST Framework\'s third-party packages documentation. Educator at CodersSecret and author of the Mastering SPIFFE & SPIRE and Cloud Native Security Engineering courses. Builds production AI and infrastructure systems.',
       github: 'https://github.com/vishalanandl177',
       achievements: [
-        'Creator of DRF API Logger - 1.6M+ downloads, enterprise-grade API observability',
+        'Maintainer of DRF API Logger - production request logging, profiling, and masking',
         'Author of 2 production-focused free courses (SPIFFE/SPIRE + Cloud Native Security)',
         '80+ production-grade engineering tutorials at CodersSecret',
         'Production experience building AI retrieval systems at scale',

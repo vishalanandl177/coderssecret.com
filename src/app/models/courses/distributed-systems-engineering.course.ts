@@ -23,10 +23,10 @@ export const DISTRIBUTED_SYSTEMS_ENGINEERING_COURSE: Course = {
     instructor: {
       name: 'Vishal Anand',
       title: 'Senior Product Engineer & Tech Lead',
-      bio: 'Senior Product Engineer and Tech Lead with hands-on experience building production distributed systems at scale. Creator of DRF API Logger (1.6M+ downloads) and the Mastering SPIFFE & SPIRE course. Teaches engineering from operational reality - no theory without code, no concepts without labs.',
+      bio: 'Senior Product Engineer and Tech Lead with hands-on experience building production distributed systems at scale. Creator and maintainer of DRF API Logger, an Apache-2.0 package listed in Django REST Framework\'s third-party packages documentation, and author of the Mastering SPIFFE & SPIRE course. Teaches engineering from operational reality - no theory without code, no concepts without labs.',
       github: 'https://github.com/vishalanandl177',
       achievements: [
-        'Creator of DRF API Logger - 1.6M+ downloads',
+        'Maintainer of DRF API Logger - production API logging and profiling',
         'Author of Mastering SPIFFE & SPIRE - comprehensive workload identity course',
         'Author of Cloud Native Security Engineering - 16-module free course',
         'Builds and operates production distributed systems',
@@ -1479,6 +1479,8 @@ export const DISTRIBUTED_SYSTEMS_ENGINEERING_COURSE: Course = {
           <h2>Structured Logging and Correlation IDs</h2>
 
           <p>Logs are useful when they are queryable. That means structured (JSON or key=value) and correlated. Every log line should include the trace ID so you can filter by request and the user/tenant ID so you can debug per-user issues.</p>
+
+          <p>In Django REST Framework services, the <a href="/blog/drf-api-logger-django-rest-framework" class="text-primary underline">DRF API Logger production guide</a> shows how to capture masked request context, propagate correlation metadata, and sample API profiling. Use it as a bounded application evidence source, not as a substitute for OpenTelemetry traces, metrics, or centralized log storage.</p>
 
           <p>The minimum log line for a service: <code>timestamp, level, service, trace_id, span_id, user_id, message, ...fields</code>. Anything less and your logs are unsearchable at scale.</p>
 

@@ -80,9 +80,8 @@ function sitemapPaths() {
   }));
 }
 
-function isAllowedSupportingRoute(pathname, articleSlugs, canonicalPaths) {
-  const blogSlides = pathname.match(/^\/slides\/([^/]+)$/);
-  if (blogSlides) return articleSlugs.has(blogSlides[1]);
+function isAllowedSupportingRoute(pathname, canonicalSlidePaths, canonicalPaths) {
+  if (canonicalSlidePaths.has(pathname)) return true;
 
   const courseSlides = pathname.match(/^(\/courses\/[^/]+\/[^/]+)\/slides$/);
   return Boolean(courseSlides && canonicalPaths.has(courseSlides[1]));
@@ -94,14 +93,27 @@ function articleFiles() {
     .sort();
 }
 
-function blogPostCatalogSlugs() {
-  const source = fs.readFileSync(BLOG_POST_MODEL_PATH, 'utf8');
-  const catalog = source.match(/export const BLOG_POSTS:[\s\S]*?=\s*\[([\s\S]*?)\n\];/);
-  if (!catalog) {
-    fail('could not read BLOG_POSTS from src/app/models/blog-post.model.ts');
-    return new Set();
+function blogPostCatalog() {
+  try {
+    const ts = require('typescript');
+    const source = fs.readFileSync(BLOG_POST_MODEL_PATH, 'utf8');
+    const js = ts.transpileModule(source, {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2020,
+      },
+    }).outputText;
+    const mod = { exports: {} };
+    new Function('exports', 'require', 'module', js)(mod.exports, require, mod);
+    const posts = Array.isArray(mod.exports.BLOG_POSTS) ? mod.exports.BLOG_POSTS : [];
+    if (posts.length === 0) {
+      fail('BLOG_POSTS loaded an empty catalog from src/app/models/blog-post.model.ts');
+    }
+    return posts;
+  } catch (err) {
+    fail(`could not execute BLOG_POSTS from src/app/models/blog-post.model.ts (${err.message})`);
+    return [];
   }
-  return new Set([...catalog[1].matchAll(/\bslug:\s*['"]([^'"]+)['"]/g)].map(match => match[1]));
 }
 
 function reportInventoryDifference(leftName, left, rightName, right) {
@@ -115,7 +127,16 @@ function validate() {
   const canonicalPaths = sitemapPaths();
   const files = articleFiles();
   const articleSlugs = new Set(files.map(file => path.basename(file, '.ts')));
-  const catalogSlugs = blogPostCatalogSlugs();
+  const catalogPosts = blogPostCatalog();
+  const catalogSlugs = new Set(catalogPosts.map(post => post.slug));
+  const canonicalSlidePaths = new Set(catalogPosts.map(post => `/slides/${post.slideSlug || post.slug}`));
+  const redirectSlideAliases = new Map(catalogPosts
+    .filter(post => post.slideSlug && post.slideSlug !== post.slug)
+    .map(post => [`/slides/${post.slug}`, `/slides/${post.slideSlug}`]));
+  const drfPost = catalogPosts.find(post => post.projectId === 'drf-api-logger');
+  if (!drfPost || `/slides/${drfPost.slideSlug || drfPost.slug}` !== '/slides/drf-api-logger') {
+    fail('DRF API Logger must resolve to the canonical supporting route /slides/drf-api-logger');
+  }
   const sitemapArticleSlugs = new Set([...canonicalPaths]
     .map(route => route.match(/^\/blog\/([^/]+)$/)?.[1])
     .filter(Boolean));
@@ -154,8 +175,13 @@ function validate() {
         continue;
       }
 
+      if (redirectSlideAliases.has(normalized.pathname)) {
+        fail(`${route}: contextual link targets a redirect alias; link to ${redirectSlideAliases.get(normalized.pathname)} instead (${href})`);
+        continue;
+      }
+
       if (!canonicalPaths.has(normalized.pathname)
-        && !isAllowedSupportingRoute(normalized.pathname, articleSlugs, canonicalPaths)) {
+        && !isAllowedSupportingRoute(normalized.pathname, canonicalSlidePaths, canonicalPaths)) {
         fail(`${route}: contextual link target is not a canonical indexable route (${href})`);
       }
 

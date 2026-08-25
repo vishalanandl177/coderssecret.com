@@ -80,6 +80,97 @@
 
 .slide-check { animation: slide-check-draw 1.5s var(--md-sys-motion-easing-emphasized-decelerate) forwards; }
 
+/* End-slide resource and copy actions */
+
+.slide-action-card {
+  display: flex;
+  width: 100%;
+  min-height: 7.5rem;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: 1rem;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-lg);
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  transition:
+    background-color var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
+    border-color var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
+    box-shadow var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
+    transform var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+.slide-action-card:hover {
+  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-primary-container);
+  box-shadow: var(--md-sys-elevation-1);
+  color: var(--md-sys-color-on-primary-container);
+  transform: translateY(-1px);
+}
+
+.slide-action-card:active {
+  transform: scale(0.99);
+}
+
+.slide-action-card__label {
+  color: var(--md-sys-color-primary);
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Consolas, monospace);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.slide-action-card:hover .slide-action-card__label {
+  color: inherit;
+}
+
+.slide-action-card__value {
+  margin-top: 0.3rem;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Consolas, monospace);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.slide-action-card__affordance {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.75rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
+  color: var(--md-sys-color-primary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.slide-action-card:hover .slide-action-card__affordance {
+  color: inherit;
+}
+
+.slide-action-card__affordance svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.slide-action-status {
+  min-height: 1.5rem;
+  max-width: 36rem;
+  margin: 0.4rem 0 0;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
 /* Slide teaching companion: focus ring, roaming sprite, and pointer */
 
 .slide-stage-guide-enabled {
@@ -302,6 +393,17 @@
     outline-width: 2px;
     outline-offset: 3px;
     box-shadow: 0 0 0 5px color-mix(in srgb, var(--md-sys-color-primary-container) 30%, transparent);
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide-action-card {
+    transition: none;
+  }
+
+  .slide-action-card:hover,
+  .slide-action-card:active {
     transform: none;
   }
 }

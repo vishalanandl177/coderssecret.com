@@ -63,6 +63,7 @@ export class ApiAttackDefenseComponent {
 
   callToActions: QuizCallToActions = {
     primary: { label: 'Take the full course', href: '/courses/cloud-native-security-engineering' },
+    secondary: { label: 'Inspect safe DRF API logging', href: '/blog/drf-api-logger-django-rest-framework' },
   };
 
   scenarios: Scenario[] = [

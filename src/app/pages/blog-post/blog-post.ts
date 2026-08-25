@@ -1,16 +1,19 @@
 import { Component, inject, DestroyRef, AfterViewChecked, OnDestroy, ElementRef, signal, HostListener, ChangeDetectorRef, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BLOG_POSTS, CATEGORIES, BlogPost, getRelatedBlogPosts } from '../../models/blog-post.model';
+import { BLOG_POSTS, CATEGORIES, BlogPost, getBlogPostSlidePath, getRelatedBlogPosts } from '../../models/blog-post.model';
+import { getOpenSourceProject, type OpenSourceProjectId } from '../../models/open-source-project.model';
 import { SeoService } from '../../services/seo.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { getActiveTocHeadingId } from '../../shared/blog-toc';
 import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
+import { ProjectSpotlightComponent, type ProjectSpotlightConfig } from '../../components/project-spotlight/project-spotlight';
+import { projectSpotlightConfigFor } from '../../components/project-spotlight/project-spotlight.config';
 
 @Component({
   selector: 'app-blog-post',
-  imports: [RouterLink],
+  imports: [RouterLink, ProjectSpotlightComponent],
   styleUrl: './blog-post.styles.css',
   encapsulation: ViewEncapsulation.None,
   template: `
@@ -47,7 +50,17 @@ import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
                 </a>
               }
               <div class="md3-article-meta-tools flex items-center gap-2 text-sm text-muted-foreground">
-                <time class="font-mono text-xs" [attr.datetime]="post.date">{{ post.date }}</time>
+                <span class="inline-flex items-center gap-1 font-mono text-xs">
+                  <span class="font-sans text-muted-foreground">Published</span>
+                  <time [attr.datetime]="post.date">{{ post.date }}</time>
+                </span>
+                @if (post.dateModified) {
+                  <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
+                  <span class="inline-flex items-center gap-1 font-mono text-xs">
+                    <span class="font-sans text-muted-foreground">Updated</span>
+                    <time [attr.datetime]="post.dateModified">{{ post.dateModified }}</time>
+                  </span>
+                }
                 <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
                 <span>{{ post.readTime }}</span>
                 <span class="h-1 w-1 rounded-full bg-muted-foreground/50"></span>
@@ -74,7 +87,8 @@ import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
                     Stop
                   </button>
                 }
-                <a [routerLink]="'/slides/' + post.slug"
+                <a [routerLink]="slidePathFor(post)"
+                   (click)="trackProjectSlideClick(post)"
                    class="md3-article-slide-button inline-flex min-h-[44px] touch-manipulation items-center gap-1.5 rounded-full border border-green-500/40 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400 transition-all duration-200 hover:bg-green-500/20 hover:border-green-500/60 cursor-pointer">
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
                   Watch as Slides
@@ -194,6 +208,14 @@ import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
             <!-- Article content (left) -->
             <article class="md3-article-shell flex-1 min-w-0">
               <div class="md3-article-content-surface max-w-3xl mx-auto py-12 md:py-16">
+                @if (projectSpotlight && projectAnalyticsId) {
+                  <app-project-spotlight
+                    class="mb-10 block"
+                    [project]="projectSpotlight"
+                    surface="tonal"
+                    [analyticsId]="projectAnalyticsId"
+                    analyticsPlacement="article-body" />
+                }
                 <div class="md3-article-content prose prose-neutral max-w-none
                             [&>p]:text-foreground [&>p]:leading-[1.8] [&>p]:mb-6 [&>p]:text-[15px]
                             [&>h2]:text-2xl [&>h2]:font-extrabold [&>h2]:tracking-tight [&>h2]:mt-14 [&>h2]:mb-5 [&>h2]:text-foreground
@@ -523,6 +545,8 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
   desktopTocTitle = '';
   categoryName = '';
   categoryColor = md3CategoryAccent('');
+  projectSpotlight: ProjectSpotlightConfig | undefined;
+  projectAnalyticsId: OpenSourceProjectId | undefined;
   constructor() {
     this.route.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -544,6 +568,11 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
 
         if (basePost && slug) {
           this.post = { ...basePost, content: '' };
+          const project = getOpenSourceProject(basePost.projectId);
+          this.projectSpotlight = project
+            ? projectSpotlightConfigFor(project, { includeSlides: true })
+            : undefined;
+          this.projectAnalyticsId = project?.id;
           const cat = CATEGORIES.find(c => c.slug === basePost.category);
           this.categoryName = cat?.name ?? '';
           this.categoryColor = this.getCategoryColor(basePost.category);
@@ -574,6 +603,7 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
             article: {
               author: this.post.author,
               publishedTime: this.post.date,
+              modifiedTime: this.post.dateModified,
               tags: this.post.tags,
               section: this.categoryName,
             },
@@ -592,6 +622,8 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
           this.observeDiscussionWhenNear();
         } else {
           this.post = undefined;
+          this.projectSpotlight = undefined;
+          this.projectAnalyticsId = undefined;
           this.relatedPosts = [];
           this.desktopToc = [];
           this.desktopTocTitle = '';
@@ -602,6 +634,15 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
           this.cdr.detectChanges();
         }
       });
+  }
+
+  slidePathFor(post: BlogPost): string {
+    return getBlogPostSlidePath(post);
+  }
+
+  trackProjectSlideClick(post: BlogPost) {
+    if (!post.projectId) return;
+    this.analytics.trackProjectInternalClick(post.projectId, 'slides', 'article-hero');
   }
 
   @HostListener('window:scroll')

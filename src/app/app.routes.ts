@@ -18,8 +18,18 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/slides/drf-api-logger-slides').then(m => m.DrfApiLoggerSlidesComponent),
   },
   {
+    path: 'slides/drf-api-logger-django-rest-framework',
+    redirectTo: 'slides/drf-api-logger',
+    pathMatch: 'full',
+  },
+  {
     path: 'slides/python-c-extensions',
     loadComponent: () => import('./pages/slides/python-c-extensions-slides').then(m => m.PythonCExtSlidesComponent),
+  },
+  {
+    path: 'slides/python-c-extensions-workshop',
+    redirectTo: 'slides/python-c-extensions',
+    pathMatch: 'full',
   },
   {
     path: 'slides/claude-tokens-hidden-costs-optimization-guide',

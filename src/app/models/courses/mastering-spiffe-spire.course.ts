@@ -10,10 +10,10 @@ export const MASTERING_SPIFFE_SPIRE_COURSE: Course = {
     instructor: {
       name: 'Vishal Anand',
       title: 'Senior Product Engineer & Open Source Contributor',
-      bio: 'Creator of DRF API Logger, an open-source package powering API observability across thousands of enterprise Django applications. Vishal builds production infrastructure at scale and created this course to fill the gap in practical SPIFFE/SPIRE education - teaching real deployment patterns, not just theory.',
+      bio: 'Creator and maintainer of DRF API Logger, an Apache-2.0 request logging and profiling package listed in Django REST Framework\'s third-party packages documentation. Vishal builds production infrastructure at scale and created this course to fill the gap in practical SPIFFE/SPIRE education - teaching real deployment patterns, not just theory.',
       github: 'https://github.com/vishalanandl177',
       achievements: [
-        'Creator of DRF API Logger - open source with 1,200+ GitHub stars',
+        'Maintainer of DRF API Logger - Apache-2.0 and listed in DRF\'s third-party package docs',
         'Used across enterprise systems for API observability',
         'Senior Product Engineer with production Kubernetes experience',
         'Technical writer at coderssecret.com - 80+ engineering tutorials',

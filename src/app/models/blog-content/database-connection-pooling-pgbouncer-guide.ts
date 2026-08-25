@@ -198,6 +198,8 @@ SHOW POOLS;
 SELECT count(*) FROM pg_stat_activity;
 SELECT state, count(*) FROM pg_stat_activity GROUP BY state;</code></pre>
 
+      <p>Pool counters explain saturation, while request evidence explains which application paths caused it. In Django REST Framework, the <a href="/blog/drf-api-logger-django-rest-framework">DRF API Logger guide</a> shows how to record masked API timings and use sampled SQL profiling to investigate slow endpoints without treating the request log as a pool monitor.</p>
+
       <h2>Common Mistakes</h2>
 
       <ul>

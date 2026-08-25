@@ -241,4 +241,6 @@ topk(10, avg by (path) (rate(http_request_duration_seconds_sum[5m]) / rate(http_
       </ul>
 
       <p>GreptimeDB is not a replacement for Prometheus - it's a <strong>complement</strong>. Prometheus scrapes. GreptimeDB stores and queries. Grafana visualises. Together, they form a modern observability stack that scales from a hobby project to a multi-region enterprise deployment.</p>
+
+      <p>If the application is a Django REST Framework API, use the <a href="/blog/drf-api-logger-django-rest-framework">DRF API Logger production guide</a> to create masked request evidence and safe, low-cardinality API metrics before exporting selected signals. GreptimeDB remains the metrics store; request logging and storage are separate operational decisions.</p>
     `;

@@ -471,10 +471,10 @@ export const ANALYTICS_ENGINEERING_COURSE: Course = {
   instructor: {
     name: 'Vishal Anand',
     title: 'Senior Product Engineer & Tech Lead',
-    bio: 'Creator of DRF API Logger and author of production-focused CodersSecret courses. Vishal teaches engineering through concrete systems, diagrams, operational failures, and practical tradeoffs.',
+    bio: 'Creator and maintainer of DRF API Logger, an Apache-2.0 package listed in Django REST Framework\'s third-party packages documentation, and author of production-focused CodersSecret courses. Vishal teaches engineering through concrete systems, diagrams, operational failures, and practical tradeoffs.',
     github: 'https://github.com/vishalanandl177',
     achievements: [
-      'Creator of DRF API Logger, used across production Django systems',
+      'Maintainer of DRF API Logger - request logging, profiling, and masking for Django APIs',
       'Author of free CodersSecret courses on security, distributed systems, and production AI',
       'Writes practical engineering guides for backend, DevOps, security, and data systems',
       'Focuses on beginner-friendly explanations without hiding production realities',

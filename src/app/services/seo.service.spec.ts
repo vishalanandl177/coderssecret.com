@@ -109,6 +109,56 @@ describe('SeoService', () => {
     expect(documentRef.head.querySelector('meta[property^="article:"]')).toBeNull();
   });
 
+  it('emits a real modified date in article metadata and BlogPosting schema', () => {
+    service.update({
+      title: 'DRF API Logger for Django REST Framework',
+      description: 'A production guide to request and response observability in Django REST Framework.',
+      url: '/blog/drf-api-logger-django-rest-framework',
+      type: 'article',
+      article: {
+        author: 'Vishal Anand',
+        publishedTime: '2026-05-14',
+        modifiedTime: '2026-08-26',
+        section: 'Open Source',
+        tags: ['Django', 'DRF'],
+      },
+    });
+
+    expect(documentRef.head.querySelector<HTMLMetaElement>('meta[property="article:published_time"]')?.content)
+      .toBe('2026-05-14');
+    expect(documentRef.head.querySelector<HTMLMetaElement>('meta[property="article:modified_time"]')?.content)
+      .toBe('2026-08-26');
+
+    const blogPosting = readJsonLd().find(schema => schema['@type'] === 'BlogPosting');
+    expect(blogPosting?.['datePublished']).toBe('2026-05-14');
+    expect(blogPosting?.['dateModified']).toBe('2026-08-26');
+
+    service.update({
+      title: 'DRF API Logger for Django REST Framework',
+      description: 'A production guide to request and response observability in Django REST Framework.',
+      url: '/blog/drf-api-logger-django-rest-framework',
+      type: 'article',
+      article: {
+        author: 'Vishal Anand',
+        publishedTime: '2026-05-14',
+        section: 'Open Source',
+        tags: ['Django', 'DRF'],
+      },
+    });
+
+    expect(documentRef.head.querySelector('meta[property="article:modified_time"]')).toBeNull();
+    const refreshedBlogPosting = readJsonLd().find(schema => schema['@type'] === 'BlogPosting');
+    expect(refreshedBlogPosting).not.toHaveProperty('dateModified');
+
+    service.update({
+      title: 'About',
+      description: 'About CodersSecret.',
+      url: '/about',
+    });
+
+    expect(documentRef.head.querySelector('meta[property="article:modified_time"]')).toBeNull();
+  });
+
   function addJsonLd(data: unknown): void {
     const script = documentRef.createElement('script');
     script.type = 'application/ld+json';

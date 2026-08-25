@@ -1,7 +1,12 @@
-import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewEncapsulation, computed, input, signal, viewChild } from '@angular/core';
-import { ResolvedSlideFocusStep, SlideCompanionAnchor, SlideData, resolveSlideFocusSteps } from './slide-focus';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewEncapsulation, computed, inject, input, signal, viewChild } from '@angular/core';
+import {
+  AnalyticsService,
+  ProjectAnalyticsId,
+  ProjectSlideMilestone,
+} from '../../services/analytics.service';
+import { ResolvedSlideFocusStep, SlideCompanionAnchor, SlideData, SlideLink, resolveSlideFocusSteps } from './slide-focus';
 
-export type { SlideData, SlideFocusStep } from './slide-focus';
+export type { SlideData, SlideFocusStep, SlideLink } from './slide-focus';
 
 type ResolvedCompanionAnchor = Exclude<SlideCompanionAnchor, 'auto'> | 'dock';
 
@@ -60,7 +65,7 @@ interface RelativeRect {
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h12"/></svg>
             Script
           </button>
-          <a [href]="backUrl()" aria-label="Close slides" class="inline-flex h-11 w-11 items-center justify-center gap-1.5 rounded-full border border-border/60 bg-card px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:w-auto">
+          <a [href]="backUrl()" (click)="trackBackToArticle()" aria-label="Close slides" class="inline-flex h-11 w-11 items-center justify-center gap-1.5 rounded-full border border-border/60 bg-card px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:w-auto">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             <span class="hidden sm:inline">Close</span>
           </a>
@@ -312,12 +317,64 @@ interface RelativeRect {
                 @if (currentSlide().links?.length) {
                   <div class="grid sm:grid-cols-2 gap-4 max-w-xl">
                     @for (link of currentSlide().links; track link.label) {
-                      <div [attr.data-slide-focus]="'link:' + $index" [class.slide-focus-active]="isFocusActive('link:' + $index)" class="slide-focus-target rounded-xl border border-border/60 bg-card p-4">
-                        <div class="font-mono text-xs text-primary uppercase tracking-wider mb-1.5">{{ link.label }}</div>
-                        <div class="font-mono text-sm text-foreground break-all">{{ link.value }}</div>
-                      </div>
+                      @if (link.href) {
+                        <a
+                          [attr.data-slide-focus]="'link:' + $index"
+                          [class.slide-focus-active]="isFocusActive('link:' + $index)"
+                          [href]="link.href"
+                          [attr.target]="isSlideLinkExternal(link) ? '_blank' : null"
+                          [attr.rel]="isSlideLinkExternal(link) ? 'noopener noreferrer' : null"
+                          [attr.aria-label]="slideLinkAriaLabel(link)"
+                          (click)="trackSlideLinkClick(link)"
+                          class="slide-focus-target slide-action-card md3-focus-ring">
+                          <span class="slide-action-card__label">{{ link.label }}</span>
+                          <span class="slide-action-card__value">{{ link.value }}</span>
+                          <span class="slide-action-card__affordance" aria-hidden="true">
+                            Open
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                              @if (isSlideLinkExternal(link)) {
+                                <path d="M14 5h5v5M13 11l6-6M19 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5" />
+                              } @else {
+                                <path d="m9 18 6-6-6-6" />
+                              }
+                            </svg>
+                          </span>
+                        </a>
+                      } @else if (link.copyValue) {
+                        <button
+                          type="button"
+                          [attr.data-slide-focus]="'link:' + $index"
+                          [class.slide-focus-active]="isFocusActive('link:' + $index)"
+                          [attr.aria-label]="link.ariaLabel ?? ('Copy ' + link.label)"
+                          (click)="copySlideAction(link, $index)"
+                          class="slide-focus-target slide-action-card md3-focus-ring">
+                          <span class="slide-action-card__label">{{ link.label }}</span>
+                          <span class="slide-action-card__value">{{ link.value }}</span>
+                          <span class="slide-action-card__affordance" aria-hidden="true">
+                            @if (copiedActionIndex() === $index) {
+                              Copied
+                            } @else {
+                              Copy
+                            }
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                              @if (copiedActionIndex() === $index) {
+                                <path d="m5 12.5 4.5 4.5L19 7.5" />
+                              } @else {
+                                <rect x="8" y="8" width="11" height="11" rx="2" />
+                                <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
+                              }
+                            </svg>
+                          </span>
+                        </button>
+                      } @else {
+                        <div [attr.data-slide-focus]="'link:' + $index" [class.slide-focus-active]="isFocusActive('link:' + $index)" class="slide-focus-target rounded-xl border border-border/60 bg-card p-4">
+                          <div class="font-mono text-xs text-primary uppercase tracking-wider mb-1.5">{{ link.label }}</div>
+                          <div class="font-mono text-sm text-foreground break-all">{{ link.value }}</div>
+                        </div>
+                      }
                     }
                   </div>
+                  <p class="slide-action-status" role="status" aria-live="polite" aria-atomic="true">{{ slideActionStatus() }}</p>
                 }
               </div>
             }
@@ -465,6 +522,7 @@ export class SlidePlayerComponent implements AfterViewInit, OnDestroy {
   slides = input.required<SlideData[]>();
   deckTitle = input<string>('Tutorial');
   backUrl = input<string>('/');
+  analyticsId = input<ProjectAnalyticsId | undefined>(undefined);
 
   slideViewport = viewChild<ElementRef<HTMLElement>>('slideViewport');
   slideStage = viewChild<ElementRef<HTMLElement>>('slideStage');
@@ -486,6 +544,8 @@ export class SlidePlayerComponent implements AfterViewInit, OnDestroy {
   connectorTarget = signal<{ x: number; y: number } | null>(null);
   showScript = signal(false);
   copied = signal(false);
+  copiedActionIndex = signal<number | null>(null);
+  slideActionStatus = signal('');
   availableVoices = signal<SpeechSynthesisVoice[]>([]);
   selectedVoice = signal<string>('');
   rate = signal<number>(1.0);
@@ -496,11 +556,13 @@ export class SlidePlayerComponent implements AfterViewInit, OnDestroy {
   synthAvailable = signal(typeof window !== 'undefined' && 'speechSynthesis' in window);
   rates = [0.75, 1.0, 1.25, 1.5];
 
+  private readonly analytics = inject(AnalyticsService);
   private synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
   private utterance: SpeechSynthesisUtterance | null = null;
   private speakTimer: ReturnType<typeof setTimeout> | null = null;
   private autoAdvanceTimer: ReturnType<typeof setTimeout> | null = null;
   private travelTimer: ReturnType<typeof setTimeout> | null = null;
+  private actionCopyResetTimer: ReturnType<typeof setTimeout> | null = null;
   private companionFrame: number | null = null;
   private connectorFrame: number | null = null;
   private revealFrame: number | null = null;
@@ -508,6 +570,10 @@ export class SlidePlayerComponent implements AfterViewInit, OnDestroy {
   private narrationSession = 0;
   private pendingStepIndex: number | null = null;
   private userInitiated = false;
+  private slideStartedTracked = false;
+  private slideCompletedTracked = false;
+  private slideBackTracked = false;
+  private readonly trackedSlideMilestones = new Set<ProjectSlideMilestone>();
   private readonly companionTravelDuration = 500;
   private readonly companionLeadInDuration = 520;
   private readonly viewportScrollHandler = () => this.scheduleCompanionPosition();
@@ -554,6 +620,7 @@ export class SlidePlayerComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     this.prepareFocusForSlide();
+    this.trackSlideVisit();
     const stage = this.slideStage()?.nativeElement;
     const viewport = this.slideViewport()?.nativeElement;
 
@@ -588,6 +655,7 @@ export class SlidePlayerComponent implements AfterViewInit, OnDestroy {
   @HostListener('window:keydown', ['$event'])
   onKey(e: KeyboardEvent) {
     if (e.key === 'Escape') {
+      this.trackBackToArticle();
       window.location.href = this.backUrl();
       return;
     }
@@ -622,6 +690,78 @@ export class SlidePlayerComponent implements AfterViewInit, OnDestroy {
     } catch {
       // Clipboard API failed (permissions, not HTTPS, etc.) - silently fail
     }
+  }
+
+  isSlideLinkExternal(link: SlideLink) {
+    return link.external ?? /^(?:https?:)?\/\//.test(link.href ?? '');
+  }
+
+  slideLinkAriaLabel(link: SlideLink) {
+    if (link.ariaLabel) return link.ariaLabel;
+    return this.isSlideLinkExternal(link)
+      ? `${link.label} (opens in a new tab)`
+      : link.label;
+  }
+
+  trackSlideLinkClick(link: SlideLink) {
+    const projectId = this.analyticsId();
+    if (!projectId) return;
+
+    if (link.analyticsDestination) {
+      this.safelyTrack(() => this.analytics.trackProjectInternalClick(
+        projectId,
+        link.analyticsDestination!,
+        'slides',
+      ));
+    } else if (link.analyticsResource) {
+      this.safelyTrack(() => this.analytics.trackProjectResourceClick(
+        projectId,
+        link.analyticsResource!,
+        'slides',
+      ));
+    }
+  }
+
+  async copySlideAction(link: SlideLink, index: number) {
+    const value = link.copyValue;
+    if (!value) return;
+
+    if (typeof navigator === 'undefined' || !navigator.clipboard?.writeText) {
+      this.copiedActionIndex.set(null);
+      this.slideActionStatus.set('Copy is unavailable. Select the command and copy it manually.');
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch {
+      this.copiedActionIndex.set(null);
+      this.slideActionStatus.set('The command could not be copied. Select it and copy it manually.');
+      return;
+    }
+
+    this.copiedActionIndex.set(index);
+    this.slideActionStatus.set(`${link.label} copied to the clipboard.`);
+
+    const projectId = this.analyticsId();
+    if (projectId && link.analyticsAction === 'install') {
+      this.safelyTrack(() => this.analytics.trackProjectInstallCopy(projectId, 'slides'));
+    }
+
+    if (this.actionCopyResetTimer) clearTimeout(this.actionCopyResetTimer);
+    this.actionCopyResetTimer = setTimeout(() => {
+      this.copiedActionIndex.set(null);
+      this.slideActionStatus.set('');
+      this.actionCopyResetTimer = null;
+    }, 2000);
+  }
+
+  trackBackToArticle() {
+    const projectId = this.analyticsId();
+    if (!projectId || this.slideBackTracked) return;
+
+    this.slideBackTracked = true;
+    this.safelyTrack(() => this.analytics.trackProjectSlideBackToArticle(projectId));
   }
 
   next() {
@@ -681,12 +821,49 @@ export class SlidePlayerComponent implements AfterViewInit, OnDestroy {
     this.speaking.set(false);
     this.narrationPaused.set(false);
     this.prepareFocusForSlide();
+    this.trackSlideVisit();
 
     if (continueNarrating) {
       this.speak();
     } else if (wasPaused) {
       this.pendingStepIndex = 0;
       this.narrationPaused.set(true);
+    }
+  }
+
+  private trackSlideVisit() {
+    const projectId = this.analyticsId();
+    if (!projectId) return;
+
+    if (!this.slideStartedTracked) {
+      this.slideStartedTracked = true;
+      this.safelyTrack(() => this.analytics.trackProjectSlideStart(projectId));
+    }
+
+    const finalSlideIndex = this.slides().length - 1;
+    if (finalSlideIndex < 0) return;
+
+    const progress = finalSlideIndex === 0
+      ? 100
+      : (this.idx() / finalSlideIndex) * 100;
+    const milestones: ProjectSlideMilestone[] = [25, 50, 75];
+    for (const milestone of milestones) {
+      if (progress < milestone || this.trackedSlideMilestones.has(milestone)) continue;
+      this.trackedSlideMilestones.add(milestone);
+      this.safelyTrack(() => this.analytics.trackProjectSlideProgress(projectId, milestone));
+    }
+
+    if (this.idx() === finalSlideIndex && !this.slideCompletedTracked) {
+      this.slideCompletedTracked = true;
+      this.safelyTrack(() => this.analytics.trackProjectSlideComplete(projectId));
+    }
+  }
+
+  private safelyTrack(track: () => void) {
+    try {
+      track();
+    } catch {
+      // Analytics must never interrupt slide navigation or clipboard actions.
     }
   }
 
@@ -1203,6 +1380,7 @@ export class SlidePlayerComponent implements AfterViewInit, OnDestroy {
     if (this.connectorFrame !== null) cancelAnimationFrame(this.connectorFrame);
     if (this.revealFrame !== null) cancelAnimationFrame(this.revealFrame);
     if (this.travelTimer) clearTimeout(this.travelTimer);
+    if (this.actionCopyResetTimer) clearTimeout(this.actionCopyResetTimer);
     if (this.synth) this.synth.onvoiceschanged = null;
   }
 }

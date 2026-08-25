@@ -6,6 +6,10 @@ import { Md3HeroComponent } from '../../shared/md3/md3-hero';
 import { Md3LinkPanelComponent } from '../../shared/md3/md3-link-panel';
 import { Md3ResourceCardComponent } from '../../shared/md3/md3-resource-card';
 import { Md3Hero, Md3LinkPanel, Md3ResourceCard } from '../../shared/md3/md3.types';
+import { getOpenSourceProject } from '../../models/open-source-project.model';
+import { ProjectSpotlightComponent, type ProjectSpotlightConfig } from '../../components/project-spotlight/project-spotlight';
+import { projectSpotlightConfigFor } from '../../components/project-spotlight/project-spotlight.config';
+import { DRF_API_LOGGER_ANALYTICS_ID } from '../../services/analytics.service';
 
 interface FocusArea {
   label: string;
@@ -19,7 +23,7 @@ interface TrustSignal {
 
 @Component({
   selector: 'app-about',
-  imports: [Md3HeroComponent, Md3ResourceCardComponent, Md3LinkPanelComponent],
+  imports: [Md3HeroComponent, Md3ResourceCardComponent, Md3LinkPanelComponent, ProjectSpotlightComponent],
   template: `
     <main class="md3-learning-page">
       <app-md3-hero [hero]="hero" />
@@ -70,6 +74,15 @@ interface TrustSignal {
 
       <section class="md3-learning-section">
         <div class="md3-learning-container">
+          @if (drfProjectSpotlight) {
+            <div class="mb-8">
+              <app-project-spotlight
+                [project]="drfProjectSpotlight"
+                surface="outlined"
+                [analyticsId]="drfAnalyticsId"
+                analyticsPlacement="about" />
+            </div>
+          }
           <div class="md3-learning-grid-3">
             @for (card of proofCards; track card.title) {
               <app-md3-resource-card [card]="card" />
@@ -92,12 +105,17 @@ export class AboutComponent {
   totalPosts = BLOG_POSTS.length;
   totalCategories = CATEGORIES.filter(c => c.slug).length;
   totalTags = new Set(BLOG_POSTS.flatMap(p => p.tags)).size;
+  readonly drfAnalyticsId = DRF_API_LOGGER_ANALYTICS_ID;
+  readonly drfProjectSpotlight: ProjectSpotlightConfig | undefined = (() => {
+    const project = getOpenSourceProject(DRF_API_LOGGER_ANALYTICS_ID);
+    return project ? projectSpotlightConfigFor(project, { includeArticle: true, includeSlides: true }) : undefined;
+  })();
 
   trustSignals: TrustSignal[] = [
     { value: `${this.totalPosts}`, label: 'In-depth guides' },
     { value: `${this.totalCategories}`, label: 'Categories' },
     { value: `${this.totalTags}`, label: 'Topics' },
-    { value: '1.6M+', label: 'OSS downloads' },
+    { value: 'DRF', label: 'Third-party listing' },
   ];
 
   get hero(): Md3Hero {
@@ -145,14 +163,6 @@ export class AboutComponent {
 
   get proofCards(): Md3ResourceCard[] {
     return [
-      {
-        title: 'DRF API Logger',
-        description: 'I created DRF API Logger, an open-source Django package with 1.6M+ PyPI downloads for production API observability. That operating context shapes the site: practical examples, honest trade-offs, and details that matter in production.',
-        href: 'https://github.com/vishalanandl177/DRF-API-Logger',
-        external: true,
-        badge: 'Open source',
-        actionLabel: 'View project',
-      },
       {
         title: 'Structured learning paths',
         description: 'Free courses cover SPIFFE/SPIRE, cloud-native security, production RAG, distributed systems, and analytics engineering. Labs and slides stay inside the site so learners can move from concept to practice quickly.',

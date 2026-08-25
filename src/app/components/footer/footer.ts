@@ -58,6 +58,7 @@ import { EXTERNAL_LINKS } from '../../shared/external-links';
               <h2 class="mb-3 text-sm font-bold text-foreground">CodersSecret</h2>
               <ul class="space-y-2 text-sm">
                 <li><a routerLink="/about" class="text-muted-foreground hover:text-foreground">About</a></li>
+                <li><a routerLink="/blog/drf-api-logger-django-rest-framework" class="text-muted-foreground hover:text-foreground">DRF API Logger</a></li>
                 <li><a routerLink="/consultation" class="text-muted-foreground hover:text-foreground">Consulting</a></li>
                 <li><a [href]="links.spotifyPodcast" target="_blank" rel="noopener noreferrer" class="text-muted-foreground hover:text-foreground">Podcast</a></li>
                 <li><a [href]="links.youtube" target="_blank" rel="noopener noreferrer" class="text-muted-foreground hover:text-foreground">YouTube</a></li>

@@ -15,6 +15,7 @@ interface SeoConfig {
   article?: {
     author?: string;
     publishedTime?: string;
+    modifiedTime?: string;
     tags?: string[];
     section?: string;
   };
@@ -83,6 +84,9 @@ export class SeoService {
       if (config.article.publishedTime) {
         this.meta.updateTag({ property: 'article:published_time', content: config.article.publishedTime });
       }
+      if (config.article.modifiedTime) {
+        this.meta.updateTag({ property: 'article:modified_time', content: config.article.modifiedTime });
+      }
       if (config.article.section) {
         this.meta.updateTag({ property: 'article:section', content: config.article.section });
       }
@@ -109,6 +113,9 @@ export class SeoService {
         'url': url,
         'image': image,
         'datePublished': config.article.publishedTime,
+        // Keep the key present in the in-memory merge so a same-page update can
+        // clear a previously emitted value. JSON.stringify omits undefined.
+        'dateModified': config.article.modifiedTime,
         'author': {
           '@type': 'Person',
           'name': config.article.author,

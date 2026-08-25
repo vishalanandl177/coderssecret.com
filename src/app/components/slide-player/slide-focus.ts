@@ -1,3 +1,5 @@
+import type { ProjectInternalDestination, ProjectResource } from '../../services/analytics.service';
+
 export type SlideType = 'title' | 'content' | 'code' | 'grid' | 'image' | 'end';
 
 export type SlideCompanionAnchor = 'auto' | 'top' | 'right' | 'bottom' | 'left';
@@ -7,6 +9,18 @@ export interface SlideFocusStep {
   narration: string;
   label?: string;
   anchor?: SlideCompanionAnchor;
+}
+
+export interface SlideLink {
+  label: string;
+  value: string;
+  href?: string;
+  copyValue?: string;
+  external?: boolean;
+  ariaLabel?: string;
+  analyticsResource?: ProjectResource;
+  analyticsDestination?: ProjectInternalDestination;
+  analyticsAction?: 'install';
 }
 
 export interface SlideData {
@@ -24,7 +38,7 @@ export interface SlideData {
   imageWidth?: number;
   imageHeight?: number;
   caption?: string;
-  links?: { label: string; value: string }[];
+  links?: SlideLink[];
   narration: string;
   focusSteps?: SlideFocusStep[];
 }

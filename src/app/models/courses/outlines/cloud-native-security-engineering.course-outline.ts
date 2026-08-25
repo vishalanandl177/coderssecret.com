@@ -48,10 +48,10 @@ export const CLOUD_NATIVE_SECURITY_ENGINEERING_OUTLINE: CourseOutline = {
   "instructor": {
     "name": "Vishal Anand",
     "title": "Senior Product Engineer & Tech Lead",
-    "bio": "Creator of DRF API Logger (1.6M+ PyPI downloads), educator at CodersSecret, and author of the Mastering SPIFFE & SPIRE course. Builds production infrastructure security systems and teaches practical engineering - no theory without code, no concepts without labs.",
+    "bio": "Creator and maintainer of DRF API Logger, an Apache-2.0 package listed in Django REST Framework's third-party packages documentation. Educator at CodersSecret and author of the Mastering SPIFFE & SPIRE course. Builds production infrastructure security systems and teaches practical engineering - no theory without code, no concepts without labs.",
     "github": "https://github.com/vishalanandl177",
     "achievements": [
-      "Creator of DRF API Logger - 1.6M+ downloads, used across enterprise systems",
+      "Maintainer of DRF API Logger - request logging, profiling, masking, and admin analytics",
       "Author of Mastering SPIFFE & SPIRE - comprehensive free workload identity course",
       "Educator at CodersSecret - 80+ production-grade engineering tutorials",
       "Production experience securing Kubernetes platforms at scale"

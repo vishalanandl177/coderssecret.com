@@ -170,6 +170,8 @@ def create_order(order):
 
       <h2>Structured Logging with Trace Correlation</h2>
 
+      <p>For Django REST Framework services, the <a href="/blog/drf-api-logger-django-rest-framework">maintainer-led DRF API Logger guide</a> shows how request and response evidence can be masked, correlated, sampled for profiling, and retained safely. Treat those records as one application-log source alongside OpenTelemetry, not as a replacement for traces, metrics, or an observability backend.</p>
+
       <pre><code>import logging
 import json
 from opentelemetry import trace

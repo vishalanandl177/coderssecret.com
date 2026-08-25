@@ -1,6 +1,6 @@
 import { Component, inject, computed, signal, effect } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { BLOG_POSTS, CATEGORIES } from '../../models/blog-post.model';
+import { BLOG_POSTS, CATEGORIES, sortBlogPostsByPublishedDate } from '../../models/blog-post.model';
 import { SeoService } from '../../services/seo.service';
 import { md3CategoryAccent, md3CategoryAccentLine, md3CategoryTint } from '../../shared/md3/md3-color-roles';
 
@@ -276,8 +276,8 @@ export class CategoryComponent {
 
   filteredPosts = computed(() => {
     const slug = this.categorySlug();
-    if (!slug) return BLOG_POSTS;
-    return BLOG_POSTS.filter(post => post.category === slug);
+    const posts = slug ? BLOG_POSTS.filter(post => post.category === slug) : BLOG_POSTS;
+    return sortBlogPostsByPublishedDate(posts);
   });
 
   recommendedPosts = computed(() => this.filteredPosts().slice(0, 3));

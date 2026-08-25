@@ -43,10 +43,10 @@ export const DISTRIBUTED_SYSTEMS_ENGINEERING_OUTLINE: CourseOutline = {
   "instructor": {
     "name": "Vishal Anand",
     "title": "Senior Product Engineer & Tech Lead",
-    "bio": "Senior Product Engineer and Tech Lead with hands-on experience building production distributed systems at scale. Creator of DRF API Logger (1.6M+ downloads) and the Mastering SPIFFE & SPIRE course. Teaches engineering from operational reality - no theory without code, no concepts without labs.",
+    "bio": "Senior Product Engineer and Tech Lead with hands-on experience building production distributed systems at scale. Creator and maintainer of DRF API Logger, an Apache-2.0 package listed in Django REST Framework's third-party packages documentation, and author of the Mastering SPIFFE & SPIRE course. Teaches engineering from operational reality - no theory without code, no concepts without labs.",
     "github": "https://github.com/vishalanandl177",
     "achievements": [
-      "Creator of DRF API Logger - 1.6M+ downloads",
+      "Maintainer of DRF API Logger - production API logging and profiling",
       "Author of Mastering SPIFFE & SPIRE - comprehensive workload identity course",
       "Author of Cloud Native Security Engineering - 16-module free course",
       "Builds and operates production distributed systems"

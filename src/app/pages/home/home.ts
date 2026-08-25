@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit, ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SeoService } from '../../services/seo.service';
+import { AnalyticsService, DRF_API_LOGGER_ANALYTICS_ID } from '../../services/analytics.service';
 import { EXTERNAL_LINKS } from '../../shared/external-links';
 import { md3CategoryAccent, md3CategoryAccentLine, md3CategoryGradient, md3CategoryTint } from '../../shared/md3/md3-color-roles';
 
@@ -1091,6 +1092,17 @@ type HeroTrack = {
               <div class="mt-2 text-sm text-muted-foreground">Free, Open Source</div>
             </div>
           </div>
+          <p class="mx-auto mt-8 max-w-3xl text-center text-sm leading-6 text-muted-foreground">
+            Vishal also maintains
+            <a routerLink="/blog/drf-api-logger-django-rest-framework"
+               (click)="trackDrfGuideClick()"
+               class="font-semibold text-primary underline underline-offset-4">
+              DRF API Logger
+            </a>,
+            an Apache-2.0 Django package listed in Django REST Framework's official third-party packages documentation.
+            This listing is not an endorsement.
+            The guide explains its architecture, safe setup, and production trade-offs.
+          </p>
         </div>
       </div>
     </section>
@@ -1311,6 +1323,7 @@ type HeroTrack = {
 })
 export class HomeComponent implements OnInit {
   private seo = inject(SeoService);
+  private analytics = inject(AnalyticsService);
   private readonly homeDescription = 'Free engineering courses and guides on Kubernetes, SPIFFE/SPIRE, Zero Trust, production RAG, analytics engineering, DevSecOps, labs, and diagrams.';
   links = EXTERNAL_LINKS;
   popularPosts = signal<PostCard[]>([]);
@@ -1404,14 +1417,15 @@ export class HomeComponent implements OnInit {
 
   async ngOnInit() {
     // Only load blog metadata (48KB) - NOT the course model (418KB)
-    const { BLOG_POSTS, CATEGORIES } = await import('../../models/blog-post.model');
+    const { BLOG_POSTS, CATEGORIES, sortBlogPostsByPublishedDate } = await import('../../models/blog-post.model');
+    const postsByPublishedDate = sortBlogPostsByPublishedDate(BLOG_POSTS);
 
     this.popularPosts.set(
       BLOG_POSTS.filter(p => p.popularRank != null)
         .sort((a, b) => (a.popularRank ?? 99) - (b.popularRank ?? 99))
         .slice(0, 6).map(p => this.toCard(p))
     );
-    this.latestPosts.set(BLOG_POSTS.slice(0, 4).map(p => this.toCard(p)));
+    this.latestPosts.set(postsByPublishedDate.slice(0, 4).map(p => this.toCard(p)));
     this.categories.set(CATEGORIES.filter(c => c.slug !== ''));
     this.totalPosts.set(BLOG_POSTS.length);
     this.uniqueTags.set(new Set(BLOG_POSTS.flatMap(p => p.tags)).size);
@@ -1430,6 +1444,10 @@ export class HomeComponent implements OnInit {
     const catCounts: Record<string, number> = {};
     for (const p of BLOG_POSTS) { catCounts[p.category] = (catCounts[p.category] || 0) + 1; }
     this.categoryCountsMap.set(catCounts);
+  }
+
+  trackDrfGuideClick() {
+    this.analytics.trackProjectInternalClick(DRF_API_LOGGER_ANALYTICS_ID, 'article', 'home');
   }
 
   private toCard(p: any): PostCard {

@@ -9,43 +9,41 @@ const path = require('path');
 const SITE_URL = 'https://coderssecret.com';
 const OUTPUT_DIR = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'browser');
 
-// Read the blog post model to extract slugs and dates
+// Execute the blog post model so sitemap dates use the same publication and
+// modification semantics as the application and static route generator.
 const modelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'blog-post.model.ts');
-const modelContent = fs.readFileSync(modelPath, 'utf-8');
-
-// Extract slugs and dates from the model
-const dateRegex = /date:\s*'([^']+)'/g;
-const categoryRegex = /category:\s*'([^']+)'/g;
-
-const slugs = [];
-const dates = [];
-const categories = new Set();
-let match;
-
-// Extract categories first
-while ((match = categoryRegex.exec(modelContent)) !== null) {
-  categories.add(match[1]);
-}
-
-// Extract blog post slugs - only after BLOG_POSTS starts
-const blogPostsStart = modelContent.indexOf('BLOG_POSTS');
-const blogSection = blogPostsStart > 0 ? modelContent.substring(blogPostsStart) : modelContent;
-const blogSlugRegex = /slug:\s*'([^']+)'/g;
-while ((match = blogSlugRegex.exec(blogSection)) !== null) {
-  const s = match[1];
-  // Skip category slugs that get matched
-  if (s && !categories.has(s)) {
-    slugs.push(s);
-  }
-}
-while ((match = dateRegex.exec(blogSection)) !== null) {
-  dates.push(match[1]);
-}
+const blogModel = loadBlogModel(modelPath);
+const posts = blogModel.posts;
+const getBlogPostLastModified = blogModel.getBlogPostLastModified;
+const categories = new Set(posts.map(post => post.category).filter(Boolean));
 const today = new Date().toISOString().split('T')[0];
-const blogLastmods = new Map(slugs.map((slug, index) => [
-  `${SITE_URL}/blog/${slug}`,
-  dates[index],
+const blogLastmods = new Map(posts.map(post => [
+  `${SITE_URL}/blog/${post.slug}`,
+  getBlogPostLastModified(post),
 ]));
+
+function loadBlogModel(filePath) {
+  const ts = require('typescript');
+  const source = fs.readFileSync(filePath, 'utf-8');
+  const js = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2020,
+    },
+  }).outputText;
+  const mod = { exports: {} };
+  new Function('exports', 'require', 'module', js)(mod.exports, require, mod);
+  const loadedPosts = Array.isArray(mod.exports.BLOG_POSTS) ? mod.exports.BLOG_POSTS : [];
+  if (loadedPosts.length === 0) {
+    throw new Error('BLOG_POSTS could not be loaded for sitemap generation');
+  }
+  return {
+    posts: loadedPosts,
+    getBlogPostLastModified: typeof mod.exports.getBlogPostLastModified === 'function'
+      ? mod.exports.getBlogPostLastModified
+      : post => post.dateModified || post.date,
+  };
+}
 
 function normalizeSitemapXml(sitemapXml) {
   return sitemapXml
@@ -951,11 +949,11 @@ for (const cat of categories) {
 
 // Blog post pages. Slide decks remain available to users, but they are
 // noindex supporting pages and are intentionally excluded from the sitemap.
-for (let i = 0; i < slugs.length; i++) {
-  const date = dates[i];
+for (const post of posts) {
+  const lastModified = getBlogPostLastModified(post);
   xml += `  <url>
-    <loc>${SITE_URL}/blog/${slugs[i]}</loc>
-${date ? `    <lastmod>${date}</lastmod>\n` : ''}    <changefreq>monthly</changefreq>
+    <loc>${SITE_URL}/blog/${post.slug}</loc>
+${lastModified ? `    <lastmod>${lastModified}</lastmod>\n` : ''}    <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 `;
@@ -978,7 +976,7 @@ const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
 if (fs.existsSync(OUTPUT_DIR)) {
   fs.writeFileSync(path.join(OUTPUT_DIR, 'sitemap.xml'), xml);
   fs.writeFileSync(path.join(OUTPUT_DIR, 'sitemap_index.xml'), sitemapIndex);
-  console.log(`✅ Sitemap generated with ${slugs.length} blog posts and ${categories.size} categories. Slide routes are noindex supporting pages and excluded.`);
+  console.log(`✅ Sitemap generated with ${posts.length} blog posts and ${categories.size} categories. Slide routes are noindex supporting pages and excluded.`);
 } else {
   console.error('❌ Build output directory not found. Run ng build first.');
   process.exit(1);

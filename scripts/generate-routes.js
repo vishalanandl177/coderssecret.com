@@ -45,6 +45,14 @@ const modelContent = fs.readFileSync(modelPath, 'utf-8');
 const blogModel = loadBlogModel(modelContent);
 const posts = blogModel.posts;
 const getRelatedBlogPosts = blogModel.getRelatedBlogPosts;
+const getBlogPostLastModified = blogModel.getBlogPostLastModified;
+const getBlogPostSlidePath = blogModel.getBlogPostSlidePath;
+const postsByPublishedDate = blogModel.sortBlogPostsByPublishedDate(posts);
+const projectModelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'open-source-project.model.ts');
+const openSourceProjects = loadOpenSourceProjects(projectModelPath);
+const openSourceProjectsById = new Map(openSourceProjects.map(project => [project.id, project]));
+const drfApiLoggerPost = posts.find(post => post.projectId === 'drf-api-logger');
+const drfApiLoggerProject = openSourceProjectsById.get('drf-api-logger');
 const categories = new Set(posts.map(post => post.category).filter(Boolean));
 
 // Category display names
@@ -624,10 +632,46 @@ function loadBlogModel(blogContent) {
       getRelatedBlogPosts: typeof mod.exports.getRelatedBlogPosts === 'function'
         ? mod.exports.getRelatedBlogPosts
         : () => [],
+      getBlogPostLastModified: typeof mod.exports.getBlogPostLastModified === 'function'
+        ? mod.exports.getBlogPostLastModified
+        : post => post.dateModified || post.date,
+      getBlogPostSlidePath: typeof mod.exports.getBlogPostSlidePath === 'function'
+        ? mod.exports.getBlogPostSlidePath
+        : post => `/slides/${post.slideSlug || post.slug}`,
+      sortBlogPostsByPublishedDate: typeof mod.exports.sortBlogPostsByPublishedDate === 'function'
+        ? mod.exports.sortBlogPostsByPublishedDate
+        : posts => [...posts].sort((left, right) => Date.parse(right.date) - Date.parse(left.date)),
     };
   } catch (err) {
     console.warn(`Could not load blog model for rich blog prerender: ${err.message}`);
-    return { posts: [], getRelatedBlogPosts: () => [] };
+    return {
+      posts: [],
+      getRelatedBlogPosts: () => [],
+      getBlogPostLastModified: post => post.dateModified || post.date,
+      getBlogPostSlidePath: post => `/slides/${post.slideSlug || post.slug}`,
+      sortBlogPostsByPublishedDate: posts => [...posts].sort((left, right) => Date.parse(right.date) - Date.parse(left.date)),
+    };
+  }
+}
+
+function loadOpenSourceProjects(filePath) {
+  try {
+    const ts = require('typescript');
+    const source = fs.readFileSync(filePath, 'utf-8');
+    const js = ts.transpileModule(source, {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2020,
+      },
+    }).outputText;
+    const mod = { exports: {} };
+    new Function('exports', 'require', 'module', js)(mod.exports, require, mod);
+    return Array.isArray(mod.exports.OPEN_SOURCE_PROJECTS)
+      ? mod.exports.OPEN_SOURCE_PROJECTS
+      : [];
+  } catch (err) {
+    console.warn(`Could not load open-source project metadata: ${err.message}`);
+    return [];
   }
 }
 
@@ -1821,7 +1865,7 @@ function seoLandingJsonLd(course, page) {
 let created = 0;
 
 // Home page (/)
-const topHomePosts = posts.slice(0, 10);
+const topHomePosts = postsByPublishedDate.slice(0, 10);
 const homeCategoryLinks = [...categories]
   .map(cat => `<li><a href="/category/${cat}">${categoryNames[cat] || cat}</a></li>`)
   .join('\n      ');
@@ -1876,6 +1920,7 @@ const homeContent = `
     <section>
       <h2>About CodersSecret</h2>
       <p>CodersSecret is written by Vishal Anand for engineers who build, secure, and operate production systems. Every course and guide is free, ad-free, and focused on real infrastructure trade-offs.</p>
+      ${drfApiLoggerProject ? `<p>Vishal also maintains <a href="${escapeHtml(drfApiLoggerProject.articlePath)}">${escapeHtml(drfApiLoggerProject.name)}</a>, an ${escapeHtml(drfApiLoggerProject.license)} Django package. ${escapeHtml(drfApiLoggerProject.officialListingStatement)} The guide explains its architecture, safe setup, and production trade-offs.</p>` : ''}
       <p><a href="/about">Learn more about CodersSecret</a></p>
     </section>
   </main>
@@ -1973,8 +2018,8 @@ created++;
 // ── Blog list page (/blog) ────────────────────
 const BLOG_LIST_TITLE = 'Blog | CodersSecret | Practical Engineering Tutorials';
 const BLOG_LIST_DESCRIPTION = 'Practical tutorials on system design, security, DevOps, AI, cloud, Python, databases, and production software engineering.';
-const visibleBlogPosts = posts.slice(0, 24);
-const startHerePosts = posts.filter(post => post.featured).slice(0, 4);
+const visibleBlogPosts = postsByPublishedDate.slice(0, 24);
+const startHerePosts = postsByPublishedDate.filter(post => post.featured).slice(0, 4);
 const topicLinks = [
   ['Security', 'security'],
   ['System Design', 'system-design'],
@@ -1998,7 +2043,7 @@ const blogListContent = `
     <p>Start here</p>
     <h2 id="blog-start-here">Featured paths for practical engineers</h2>
     <ul>
-      ${(startHerePosts.length ? startHerePosts : posts.slice(0, 4)).map(post => `<li><a href="/blog/${post.slug}">${escapeHtml(post.title)}</a> - ${escapeHtml(post.excerpt)} <a href="/slides/${post.slug}">Watch as Slides</a></li>`).join('\n      ')}
+      ${(startHerePosts.length ? startHerePosts : postsByPublishedDate.slice(0, 4)).map(post => `<li><a href="/blog/${post.slug}">${escapeHtml(post.title)}</a> - ${escapeHtml(post.excerpt)} <a href="${getBlogPostSlidePath(post)}">Watch as Slides</a></li>`).join('\n      ')}
     </ul>
   </section>
   <section aria-labelledby="blog-topics">
@@ -2012,7 +2057,7 @@ const blogListContent = `
     <p>Latest practical guides</p>
     <h2 id="blog-latest">Newest engineering tutorials</h2>
     <ul>
-      ${posts.map(post => `<li><article><h3><a href="/blog/${post.slug}">${escapeHtml(post.title)}</a></h3><p>${escapeHtml(post.excerpt)}</p><p>${escapeHtml(categoryNames[post.category] || post.category || 'Guide')} ${post.date ? `| ${escapeHtml(post.date)}` : ''} ${post.readTime ? `| ${escapeHtml(post.readTime)}` : ''}</p><p><a href="/blog/${post.slug}">Read article</a> <a href="/slides/${post.slug}">Watch as Slides</a></p></article></li>`).join('\n      ')}
+      ${postsByPublishedDate.map(post => `<li><article><h3><a href="/blog/${post.slug}">${escapeHtml(post.title)}</a></h3><p>${escapeHtml(post.excerpt)}</p><p>${escapeHtml(categoryNames[post.category] || post.category || 'Guide')} ${post.date ? `| ${escapeHtml(post.date)}` : ''} ${post.readTime ? `| ${escapeHtml(post.readTime)}` : ''}</p><p><a href="/blog/${post.slug}">Read article</a> <a href="${getBlogPostSlidePath(post)}">Watch as Slides</a></p></article></li>`).join('\n      ')}
     </ul>
   </section>
 `;
@@ -2065,6 +2110,38 @@ fs.writeFileSync(path.join(blogDir, 'index.html'), makeHtml({
 }));
 created++;
 
+function renderOpenSourceProjectPanel(post, options = {}) {
+  if (!post) return '';
+  const project = openSourceProjectsById.get(post.projectId);
+  if (!project) return '';
+
+  const includeArticleLink = options.includeArticleLink === true;
+  const compatibility = project.compatibility || {};
+  const links = project.links || {};
+  return `<section class="project-spotlight-fallback" data-project-spotlight="${escapeHtml(project.id)}" aria-labelledby="${escapeHtml(project.id)}-project-status">
+      <h2 id="${escapeHtml(project.id)}-project-status">${escapeHtml(project.name)} project status</h2>
+      <p>${escapeHtml(project.summary)}</p>
+      <p><strong>Current verified release:</strong> ${escapeHtml(project.version)}, released ${escapeHtml(project.releaseDate)} (verified ${escapeHtml(project.verifiedOn)}). <strong>License:</strong> ${escapeHtml(project.license)}.</p>
+      <ul>
+        <li>Python ${escapeHtml(compatibility.python)}</li>
+        <li>Django ${escapeHtml(compatibility.django)}</li>
+        <li>Django REST Framework ${escapeHtml(compatibility.djangoRestFramework)}</li>
+      </ul>
+      <p><code>${escapeHtml(project.installCommand)}</code></p>
+      <p>${escapeHtml(project.maintainerDisclosure)}</p>
+      <p>${escapeHtml(project.officialListingStatement)}</p>
+      <p>
+        ${includeArticleLink ? `<a href="${escapeHtml(project.articlePath)}">Read the maintainer-led ${escapeHtml(project.name)} guide</a> |` : ''}
+        <a href="${escapeHtml(links.pypi)}">Install ${escapeHtml(project.name)} from PyPI</a> |
+        <a href="${escapeHtml(links.docs)}">Read the ${escapeHtml(project.name)} documentation</a> |
+        <a href="${escapeHtml(links.github)}">View the ${escapeHtml(project.name)} source on GitHub</a> |
+        <a href="${escapeHtml(links.officialDrfListing)}">Verify the Django REST Framework third-party package listing</a> |
+        <a href="${escapeHtml(links.issues)}">Report a ${escapeHtml(project.name)} issue</a> |
+        <a href="${escapeHtml(project.slidePath)}">Watch the ${escapeHtml(project.name)} slides</a>
+      </p>
+    </section>`;
+}
+
 // ── Individual blog posts (/blog/:slug) ───────
 for (const post of posts) {
   const dir = path.join(OUTPUT_DIR, 'blog', post.slug);
@@ -2079,13 +2156,15 @@ for (const post of posts) {
   const articleWordCount = wordCountFor(articleHtml || post.excerpt);
   const authorName = post.author || 'Vishal Anand';
   const seoTitle = blogSeoTitle(post);
+  const projectPanel = renderOpenSourceProjectPanel(post);
 
   const content = `
     <article>
       <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/blog">Blog</a> / ${escapeHtml(post.title)}</nav>
       <h1>${escapeHtml(post.title)}</h1>
-      <p>By ${escapeHtml(authorName)} | ${post.date || ''} | Category: ${escapeHtml(categoryNames[post.category] || post.category || '')} | ${escapeHtml(post.readTime || '')}</p>
+      <p>By ${escapeHtml(authorName)} | Published ${post.date ? `<time datetime="${escapeHtml(post.date)}">${escapeHtml(post.date)}</time>` : ''}${post.dateModified ? ` | Updated <time datetime="${escapeHtml(post.dateModified)}">${escapeHtml(post.dateModified)}</time>` : ''} | Category: ${escapeHtml(categoryNames[post.category] || post.category || '')} | ${escapeHtml(post.readTime || '')}</p>
       <p>${escapeHtml(post.excerpt)}</p>
+      ${projectPanel}
       ${articleBody}
       ${tags.length > 0 ? '<p>Tags: ' + tags.map(t => `<span>${escapeHtml(t)}</span>`).join(', ') + '</p>' : ''}
       ${related.length > 0 ? '<h2>Related Articles</h2><ul>' + related.map(r => `<li><a href="/blog/${r.slug}">${escapeHtml(r.title)}</a></li>`).join('') + '</ul>' : ''}
@@ -2100,6 +2179,7 @@ for (const post of posts) {
     'description': post.excerpt,
     'url': `${SITE_URL}/blog/${post.slug}`,
     'datePublished': post.date || '',
+    ...(post.dateModified ? { 'dateModified': getBlogPostLastModified(post) } : {}),
     'author': {
       '@type': 'Person',
       'name': authorName,
@@ -2156,6 +2236,7 @@ for (const post of posts) {
     extraHead: [
       `  <meta property="article:author" content="${escapeHtml(authorName)}">\n`,
       post.date ? `  <meta property="article:published_time" content="${escapeHtml(post.date)}">\n` : '',
+      post.dateModified ? `  <meta property="article:modified_time" content="${escapeHtml(getBlogPostLastModified(post))}">\n` : '',
       post.category ? `  <meta property="article:section" content="${escapeHtml(categoryNames[post.category] || post.category)}">\n` : '',
       ...tags.map(tag => `  <meta property="article:tag" content="${escapeHtml(tag)}">\n`),
     ].join(''),
@@ -2245,7 +2326,7 @@ for (const cat of categories) {
   fs.mkdirSync(dir, { recursive: true });
 
   const catName = categoryNames[cat] || cat;
-  const catPosts = posts.filter(p => p.category === cat);
+  const catPosts = postsByPublishedDate.filter(p => p.category === cat);
   const recommended = catPosts.slice(0, 3);
   const hub = categoryHubDetails(cat, catName);
 
@@ -3244,6 +3325,11 @@ if (courseContent) {
 
 // ── Slides pages (/slides/{slug}) - pre-render for every blog post ──
 for (const post of posts) {
+  // A custom deck is generated below at its canonical slideSlug. Do not emit a
+  // second full deck at the article slug; that path becomes a redirect alias.
+  if (post.slideSlug && post.slideSlug !== post.slug) {
+    continue;
+  }
   const slideDir = path.join(OUTPUT_DIR, 'slides', post.slug);
   fs.mkdirSync(slideDir, { recursive: true });
   const customSlidePage = claudeTokenSlidesPrerender(post);
@@ -3306,21 +3392,26 @@ for (const post of posts) {
 
 // ── /home/ redirect (Google sometimes discovers /home/ instead of /) ──
 const standaloneSlidePages = [
-  {
-    slug: 'drf-api-logger',
-    title: 'DRF API Logger Tutorial Slides',
-    description: 'Watch a narrated slide walkthrough for DRF API Logger, Django REST Framework request logging, middleware flow, configuration, production usage, and debugging patterns.',
-    articleUrl: '/blog/drf-api-logger-django-rest-framework',
+  drfApiLoggerProject ? {
+    slug: drfApiLoggerProject.slidePath.split('/').filter(Boolean).at(-1),
+    title: 'DRF API Logger 1.4 - Interactive Production Guide',
+    description: 'Learn DRF API Logger 1.4 through 24 interactive slides covering safe request logging, sampled profiling, correlation, metrics, security signals, and production operations.',
+    schemaName: 'DRF API Logger 1.4 Interactive Production Guide',
+    schemaDescription: 'A 24-slide maintainer-led guide to safe request logging, sampled profiling, correlation, metrics, detect-only security signals, and production operations for Django REST Framework.',
+    educationalLevel: 'Intermediate',
+    articleUrl: drfApiLoggerProject.articlePath,
     topic: 'Django REST Framework API logging',
-  },
+    includeBreadcrumb: false,
+  } : null,
   {
     slug: 'python-c-extensions',
     title: 'Python C Extensions Tutorial Slides',
     description: 'Watch a narrated slide walkthrough for Python C extensions, CPython internals, native modules, performance tradeoffs, memory safety, and practical extension patterns.',
     articleUrl: '/blog/python-c-extensions-workshop',
     topic: 'Python C extension development',
+    includeBreadcrumb: true,
   },
-];
+].filter(Boolean);
 
 for (const slide of standaloneSlidePages) {
   const slideDir = path.join(OUTPUT_DIR, 'slides', slide.slug);
@@ -3331,7 +3422,7 @@ for (const slide of standaloneSlidePages) {
     url: `/slides/${slide.slug}`,
     extraHead: NOINDEX_FOLLOW_META,
     content: `<main>
-      <nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="${slide.articleUrl}">Article</a> / Slides</nav>
+      ${slide.includeBreadcrumb ? `<nav aria-label="Breadcrumb"><a href="/">Home</a> / <a href="${slide.articleUrl}">Article</a> / Slides</nav>` : ''}
       <h1>${escapeHtml(slide.title)}</h1>
       <p>${escapeHtml(slide.description)}</p>
       <section>
@@ -3346,7 +3437,7 @@ for (const slide of standaloneSlidePages) {
       <p><a href="${slide.articleUrl}">Read the full article</a></p>
     </main>`,
     jsonLd: [
-      {
+      ...(slide.includeBreadcrumb ? [{
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         'itemListElement': [
@@ -3354,14 +3445,16 @@ for (const slide of standaloneSlidePages) {
           { '@type': 'ListItem', 'position': 2, 'name': 'Article', 'item': `${SITE_URL}${slide.articleUrl}` },
           { '@type': 'ListItem', 'position': 3, 'name': 'Slides', 'item': `${SITE_URL}/slides/${slide.slug}` },
         ],
-      },
+      }] : []),
       {
         '@context': 'https://schema.org',
         '@type': 'LearningResource',
-        'name': slide.title,
-        'description': slide.description,
+        'name': slide.schemaName || slide.title,
+        'description': slide.schemaDescription || slide.description,
         'url': `${SITE_URL}/slides/${slide.slug}`,
         'learningResourceType': 'Slide deck',
+        ...(slide.educationalLevel ? { 'educationalLevel': slide.educationalLevel } : {}),
+        'isBasedOn': `${SITE_URL}${slide.articleUrl}`,
         'isAccessibleForFree': true,
         'inLanguage': 'en',
       },
@@ -3369,6 +3462,51 @@ for (const slide of standaloneSlidePages) {
   });
   fs.mkdirSync(slideDir, { recursive: true });
   fs.writeFileSync(path.join(slideDir, 'index.html'), standaloneSlideHtml);
+  created++;
+}
+
+function makeStaticRedirectHtml(sourcePath, targetPath, pageTitle) {
+  const safeTargetPath = escapeHtml(targetPath);
+  const canonicalTarget = `${SITE_URL}${targetPath}`;
+  const description = `This CodersSecret slide route moved permanently. Continue to ${pageTitle}.`;
+  const targetJson = JSON.stringify(targetPath).replace(/</g, '\\u003c');
+  let html = normalizeBuiltShell(baseHtml)
+    .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(pageTitle)} | ${SITE_NAME}</title>`)
+    .replace(
+      /<meta name="description" content="[^"]*">/,
+      `<meta name="description" content="${escapeHtml(description)}">`,
+    )
+    .replace(
+      /<app-root\b[^>]*>[\s\S]*?<\/app-root>/i,
+      `<app-root><main data-coderssecret-static-redirect="${escapeHtml(sourcePath)}">
+        <h1>${escapeHtml(pageTitle)} moved</h1>
+        <p>This slide route has moved to its canonical address.</p>
+        <p><a href="${safeTargetPath}">Open ${escapeHtml(pageTitle)}</a></p>
+      </main></app-root>`,
+    );
+
+  html = html.replace(
+    '</head>',
+    `  <meta name="robots" content="noindex,follow">\n` +
+    `  <meta http-equiv="refresh" content="0; url=${safeTargetPath}">\n` +
+    `  <link rel="canonical" href="${canonicalTarget}">\n` +
+    '</head>',
+  );
+  return html.replace(
+    '</body>',
+    `  <script>window.location.replace(${targetJson});</script>\n</body>`,
+  );
+}
+
+for (const post of posts.filter(item => item.slideSlug && item.slideSlug !== item.slug)) {
+  const sourcePath = `/slides/${post.slug}`;
+  const targetPath = `/slides/${post.slideSlug}`;
+  const redirectDir = path.join(OUTPUT_DIR, 'slides', post.slug);
+  fs.mkdirSync(redirectDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(redirectDir, 'index.html'),
+    makeStaticRedirectHtml(sourcePath, targetPath, `${post.title} slides`),
+  );
   created++;
 }
 
@@ -3611,6 +3749,7 @@ fs.writeFileSync(path.join(aboutDir, 'index.html'), makeHtml({
     <p>The <a href="${SPOTIFY_PODCAST_URL}">CodersSecret Podcast on Spotify</a> turns the same production engineering topics into audio-first explainers for screen-free learning.</p>
     <p>The site focuses on systems that engineers actually operate: API gateways, workload identity, distributed systems, RAG infrastructure, analytics engineering, observability, platform security, and production debugging.</p>
     <p>Every guide aims to connect the concept, the implementation path, the failure mode, and the operational tradeoff so readers can use the material in real projects instead of only memorizing definitions.</p>
+    ${renderOpenSourceProjectPanel(drfApiLoggerPost, { includeArticleLink: true })}
     <p>${posts.length} articles published across ${categories.size} categories.</p>
     <p><a href="/blog">Browse all articles</a></p>
   `,
@@ -3744,11 +3883,17 @@ notFoundHtml = notFoundHtml.replace('</head>', `  <meta name="robots" content="n
 fs.writeFileSync(path.join(OUTPUT_DIR, '404.html'), notFoundHtml);
 
 const extensionlessAliases = writeExtensionlessRouteAliases();
+const staticRedirectRules = writeStaticRedirectRules();
+
+assertOpenSourceProjectFallback(
+  posts.find(post => post.projectId === 'drf-api-logger'),
+  openSourceProjectsById.get('drf-api-logger'),
+);
 
 assertGeneratedSeoContent([
   {
     route: 'index.html',
-    requiredText: ['Security, AI, Data & Production Engineering', 'Start a Free Course'],
+    requiredText: ['Security, AI, Data & Production Engineering', 'Start a Free Course', 'Vishal also maintains', 'DRF API Logger'],
   },
   {
     route: 'blog/index.html',
@@ -3757,6 +3902,14 @@ assertGeneratedSeoContent([
   {
     route: 'blog/mcp-security-production-ai-agents-oauth-gateways/index.html',
     requiredText: ['MCP Security in Production', 'On this page', 'Discussion', 'Continue Reading'],
+  },
+  {
+    route: 'blog/drf-api-logger-django-rest-framework/index.html',
+    requiredText: ['DRF API Logger for Django REST Framework', 'Discussion', 'data-project-spotlight="drf-api-logger"'],
+  },
+  {
+    route: 'about/index.html',
+    requiredText: ['About CodersSecret', 'data-project-spotlight="drf-api-logger"'],
   },
   {
     route: 'consultation/index.html',
@@ -3777,6 +3930,10 @@ assertGeneratedSeoContent([
   {
     route: 'slides/solid-principles-practical-examples/index.html',
     requiredText: ['SOLID Principles', 'app-slide-player'],
+  },
+  {
+    route: 'slides/drf-api-logger/index.html',
+    requiredText: ['DRF API Logger'],
   },
   {
     route: 'games/kubernetes-security-simulator/index.html',
@@ -3803,7 +3960,6 @@ assertGeneratedSeoContent([
     requiredText: ['Understanding Zero Trust Security', 'Module 1 of 13', 'app-slide-player'],
   },
 ]);
-const staticRedirectRules = writeStaticRedirectRules();
 cleanupPrerenderRuntime();
 
 function writeExtensionlessRouteAliases() {
@@ -3900,6 +4056,15 @@ function writeStaticRedirectRules() {
     '/blog/?tag=:tag /blog 301!',
     '/blog?tag=:tag /blog 301!',
   ];
+  const customSlideRedirectSources = new Set();
+  for (const post of posts.filter(item => item.slideSlug && item.slideSlug !== item.slug)) {
+    const source = `/slides/${post.slug}`;
+    const target = `/slides/${post.slideSlug}`;
+    customSlideRedirectSources.add(source);
+    rules.push(`${source} ${target} 301!`);
+    rules.push(`${source}/ ${target} 301!`);
+    rules.push(`${source}.html ${target} 301!`);
+  }
   const routePaths = [];
 
   function visit(dir) {
@@ -3921,6 +4086,7 @@ function writeStaticRedirectRules() {
 
   visit(outputRoot);
   for (const routePath of [...new Set(routePaths)].sort()) {
+    if (customSlideRedirectSources.has(routePath)) continue;
     rules.push(`${routePath}/ ${routePath} 301!`);
   }
 
@@ -3934,6 +4100,47 @@ function extensionlessAliasForRoute(route) {
   }
 
   return route.replace(/\/index\.html$/, '.html');
+}
+
+function assertOpenSourceProjectFallback(post, project) {
+  if (!post || !project) {
+    throw new Error('DRF API Logger post and project metadata are required for the static project fallback.');
+  }
+  const panel = renderOpenSourceProjectPanel(post);
+  const aboutPanel = renderOpenSourceProjectPanel(post, { includeArticleLink: true });
+  const failures = [];
+  const requiredText = [
+    `data-project-spotlight="${project.id}"`,
+    project.version,
+    project.releaseDate,
+    project.verifiedOn,
+    project.license,
+    project.installCommand,
+    project.compatibility.python,
+    project.compatibility.django,
+    project.compatibility.djangoRestFramework,
+    project.maintainerDisclosure,
+    project.officialListingStatement,
+  ];
+  for (const value of requiredText) {
+    if (!panel.includes(value)) failures.push(`missing source-backed text (${value})`);
+  }
+  for (const href of [...Object.values(project.links), project.slidePath]) {
+    if (!panel.includes(`href="${escapeHtml(href)}"`)) {
+      failures.push(`missing source-backed href (${href})`);
+    }
+  }
+  if (!aboutPanel.includes(`href="${escapeHtml(project.articlePath)}"`)) {
+    failures.push(`about fallback missing canonical article href (${project.articlePath})`);
+  }
+  if (!aboutPanel.includes(`href="${escapeHtml(project.slidePath)}"`)) {
+    failures.push(`about fallback missing canonical slide href (${project.slidePath})`);
+  }
+  if (/<h1\b/i.test(panel)) failures.push('must not add a second H1');
+  if (/<h1\b/i.test(aboutPanel)) failures.push('about fallback must not add a second H1');
+  if (failures.length > 0) {
+    throw new Error(`DRF API Logger static project fallback check failed:\n${failures.join('\n')}`);
+  }
 }
 
 function assertGeneratedSeoContent(checks) {

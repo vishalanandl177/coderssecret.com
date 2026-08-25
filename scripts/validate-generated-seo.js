@@ -14,6 +14,24 @@ const DIST_DIR = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'browser
 const SITEMAP_PATH = path.join(DIST_DIR, 'sitemap.xml');
 const ROBOTS_PATH = path.join(DIST_DIR, 'robots.txt');
 const REDIRECTS_PATH = path.join(DIST_DIR, '_redirects');
+const BLOG_MODEL_PATH = path.join(__dirname, '..', 'src', 'app', 'models', 'blog-post.model.ts');
+const PROJECT_MODEL_PATH = path.join(__dirname, '..', 'src', 'app', 'models', 'open-source-project.model.ts');
+const blogModel = executeTsDataModel(BLOG_MODEL_PATH);
+const projectModel = executeTsDataModel(PROJECT_MODEL_PATH);
+const blogPosts = Array.isArray(blogModel.BLOG_POSTS) ? blogModel.BLOG_POSTS : [];
+const openSourceProjects = Array.isArray(projectModel.OPEN_SOURCE_PROJECTS)
+  ? projectModel.OPEN_SOURCE_PROJECTS
+  : [];
+const drfPost = blogPosts.find(post => post.projectId === 'drf-api-logger');
+const drfProject = openSourceProjects.find(project => project.id === 'drf-api-logger');
+const customSlidePosts = blogPosts.filter(post => post.slideSlug && post.slideSlug !== post.slug);
+const pythonCExtensionsPost = blogPosts.find(post => post.slug === 'python-c-extensions-workshop');
+const DRF_ARTICLE_URL = `${SITE_URL}/blog/drf-api-logger-django-rest-framework`;
+const DRF_SLIDE_URL = `${SITE_URL}/slides/drf-api-logger`;
+const customSlideAliases = new Map(customSlidePosts.map(post => [
+  `/slides/${post.slug}`,
+  `/slides/${post.slideSlug}`,
+]));
 
 const REQUIRED_URLS = [
   SITE_URL,
@@ -27,6 +45,7 @@ const REQUIRED_URLS = [
   `${SITE_URL}/blog/css-grid-flexbox-mastery-responsive-layouts`,
   `${SITE_URL}/blog/database-connection-pooling-pgbouncer-guide`,
   `${SITE_URL}/blog/distributed-systems-algorithms-production-guide`,
+  DRF_ARTICLE_URL,
   `${SITE_URL}/blog/fine-tuning-vs-rag-vs-prompt-engineering`,
   `${SITE_URL}/blog/linux-commands-developer-debugging-guide`,
   `${SITE_URL}/blog/m2m-authentication-golang-m2mauth-library`,
@@ -66,6 +85,7 @@ const REQUIRED_URLS = [
 ];
 
 const REQUIRED_NOINDEX_URLS = [
+  ...customSlidePosts.map(post => `/slides/${post.slideSlug}`),
   '/courses/spiffe-spire',
   '/courses/what-is-spire',
   '/courses/workload-identity',
@@ -123,6 +143,20 @@ const ASSET_EXTENSIONS = new Set([
 
 const errors = [];
 const warnings = [];
+
+function executeTsDataModel(filePath) {
+  const ts = require('typescript');
+  const source = fs.readFileSync(filePath, 'utf-8');
+  const js = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2020,
+    },
+  }).outputText;
+  const mod = { exports: {} };
+  new Function('exports', 'require', 'module', js)(mod.exports, require, mod);
+  return mod.exports;
+}
 
 function fail(message) {
   errors.push(message);
@@ -706,7 +740,8 @@ function validateSitemapXml() {
   const locs = extractAll(/<loc>([^<]+)<\/loc>/g, sitemap);
   const seen = new Set();
 
-  for (const block of sitemap.match(/<url>[\s\S]*?<\/url>/g) || []) {
+  const sitemapBlocks = sitemap.match(/<url>[\s\S]*?<\/url>/g) || [];
+  for (const block of sitemapBlocks) {
     const loc = extractFirst(/<loc>([^<]+)<\/loc>/i, block);
     const lastmods = extractAll(/<lastmod>([^<]+)<\/lastmod>/gi, block);
     if (lastmods.length > 1) {
@@ -721,6 +756,43 @@ function validateSitemapXml() {
       } else if (parsed > Date.now() + 24 * 60 * 60 * 1000) {
         fail(`sitemap.xml: future lastmod value (${loc}: ${value})`);
       }
+    }
+  }
+
+  if (blogPosts.length === 0) {
+    fail('blog model: BLOG_POSTS is empty');
+  }
+  const lastModifiedFor = typeof blogModel.getBlogPostLastModified === 'function'
+    ? blogModel.getBlogPostLastModified
+    : post => post.dateModified || post.date;
+  for (const post of blogPosts) {
+    const published = post.date;
+    const modified = post.dateModified;
+    for (const [label, value] of [['date', published], ['dateModified', modified]]) {
+      if (value === undefined) continue;
+      const parsed = Date.parse(`${value}T00:00:00Z`);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || !Number.isFinite(parsed)) {
+        fail(`blog model: ${post.slug} has an invalid ${label} (${value})`);
+      } else if (parsed > Date.now() + 24 * 60 * 60 * 1000) {
+        fail(`blog model: ${post.slug} has a future ${label} (${value})`);
+      }
+    }
+    if (modified && Date.parse(modified) < Date.parse(published)) {
+      fail(`blog model: ${post.slug} dateModified precedes date (${modified} < ${published})`);
+    }
+
+    const articleUrl = `${SITE_URL}/blog/${post.slug}`;
+    const matchingBlocks = sitemapBlocks.filter(block => (
+      extractFirst(/<loc>([^<]+)<\/loc>/i, block) === articleUrl
+    ));
+    if (matchingBlocks.length !== 1) {
+      fail(`sitemap.xml: expected one URL block for ${articleUrl}, found ${matchingBlocks.length}`);
+      continue;
+    }
+    const sitemapLastmod = extractFirst(/<lastmod>([^<]+)<\/lastmod>/i, matchingBlocks[0]);
+    const expectedLastmod = lastModifiedFor(post);
+    if (sitemapLastmod !== expectedLastmod) {
+      fail(`sitemap.xml: ${articleUrl} lastmod (${sitemapLastmod}) does not match source (${expectedLastmod})`);
     }
   }
 
@@ -759,6 +831,13 @@ function validateSitemapXml() {
       fail(`sitemap.xml: noindex supporting guide must not be included (${noindexUrl})`);
     }
   }
+  for (const post of customSlidePosts) {
+    for (const slideUrl of [`${SITE_URL}/slides/${post.slideSlug}`, `${SITE_URL}/slides/${post.slug}`]) {
+      if (seen.has(slideUrl)) {
+        fail(`sitemap.xml: custom supporting slide route must not be included (${slideUrl})`);
+      }
+    }
+  }
 
   return locs;
 }
@@ -795,6 +874,15 @@ function validateStaticRedirectRules() {
     'https://www.coderssecret.com/* https://coderssecret.com/:splat 301!',
     '/blog/?tag=:tag /blog 301!',
     '/blog?tag=:tag /blog 301!',
+    ...customSlidePosts.flatMap(post => {
+      const source = `/slides/${post.slug}`;
+      const target = `/slides/${post.slideSlug}`;
+      return [
+        `${source} ${target} 301!`,
+        `${source}/ ${target} 301!`,
+        `${source}.html ${target} 301!`,
+      ];
+    }),
     '/blog/cap-theorem-distributed-systems-explained/ /blog/cap-theorem-distributed-systems-explained 301!',
     '/category/frontend/ /category/frontend 301!',
     '/courses/production-rag-systems-engineering/production-rag-architecture/ /courses/production-rag-systems-engineering/production-rag-architecture 301!',
@@ -803,6 +891,17 @@ function validateStaticRedirectRules() {
   for (const rule of requiredRules) {
     if (!redirects.includes(rule)) {
       fail(`_redirects: missing required canonical redirect rule (${rule})`);
+    }
+  }
+
+  for (const post of customSlidePosts) {
+    const source = `/slides/${post.slug}`;
+    const target = `/slides/${post.slideSlug}`;
+    if (redirects.includes(`${source}/ ${source} 301!`)) {
+      fail(`_redirects: custom slide alias has a conflicting self-normalization rule (${source})`);
+    }
+    if (!redirects.includes(`${source} ${target} 301!`)) {
+      fail(`_redirects: custom slide alias is missing its direct canonical redirect (${source})`);
     }
   }
 
@@ -842,6 +941,302 @@ function validateRequiredNoindexPages() {
     }
     if (!/<meta[^>]+name=["']robots["'][^>]+content=["'][^"']*noindex[^"']*follow/i.test(content)) {
       fail(`${route}: supporting guide must be marked noindex,follow (${url})`);
+    }
+  }
+}
+
+function validateBlogDateParity() {
+  for (const post of blogPosts) {
+    const articleUrl = `${SITE_URL}/blog/${post.slug}`;
+    const { primary, route } = htmlFileForUrl(articleUrl);
+    if (!fs.existsSync(primary)) continue;
+
+    const content = read(primary);
+    const head = extractHead(content);
+    const publishedMeta = extractMetaContents(head, 'property', 'article:published_time');
+    if (publishedMeta.length !== 1 || publishedMeta[0] !== post.date) {
+      fail(`${route}: article:published_time must match source date ${post.date}`);
+    }
+
+    const modifiedMeta = extractMetaContents(head, 'property', 'article:modified_time');
+    if (post.dateModified) {
+      if (modifiedMeta.length !== 1 || modifiedMeta[0] !== post.dateModified) {
+        fail(`${route}: article:modified_time must match source dateModified ${post.dateModified}`);
+      }
+    } else if (modifiedMeta.length !== 0) {
+      fail(`${route}: unmodified article must not expose article:modified_time`);
+    }
+
+    const blogPostings = parseJsonLdData(content)
+      .flatMap(value => collectObjectNodes(value))
+      .filter(node => {
+        const types = Array.isArray(node['@type']) ? node['@type'] : [node['@type']];
+        return types.includes('BlogPosting');
+      });
+    if (blogPostings.length !== 1) {
+      fail(`${route}: expected exactly one BlogPosting, found ${blogPostings.length}`);
+      continue;
+    }
+    const blogPosting = blogPostings[0];
+    if (blogPosting.datePublished !== post.date) {
+      fail(`${route}: BlogPosting datePublished (${blogPosting.datePublished}) does not match source (${post.date})`);
+    }
+    if (post.dateModified) {
+      if (blogPosting.dateModified !== post.dateModified) {
+        fail(`${route}: BlogPosting dateModified (${blogPosting.dateModified}) does not match source (${post.dateModified})`);
+      }
+    } else if (Object.prototype.hasOwnProperty.call(blogPosting, 'dateModified')) {
+      fail(`${route}: unmodified article must omit BlogPosting dateModified`);
+    }
+
+    for (const [label, value] of [['Published', post.date], ['Updated', post.dateModified]]) {
+      if (!value) continue;
+      const timeTags = extractTags(content, 'time').filter(tag => extractTagAttribute(tag, 'datetime') === value);
+      if (timeTags.length === 0) {
+        fail(`${route}: visible ${label} date must include <time datetime="${value}">`);
+      }
+    }
+  }
+}
+
+function validateProjectPanel(content, relativePath, project, options = {}) {
+  const marker = `data-project-spotlight="${project.id}"`;
+  const count = content.split(marker).length - 1;
+  if (count === 0) {
+    if (options.required) {
+      fail(`${relativePath}: required ${project.name} project spotlight is missing`);
+    } else {
+      warn(`${relativePath}: runtime project spotlight is not rendered yet; manual static fallback remains available`);
+    }
+    return;
+  }
+  if (count !== 1) {
+    fail(`${relativePath}: expected one ${project.name} project spotlight, found ${count}`);
+  }
+
+  const requiredText = [
+    project.version,
+    project.releaseDate,
+    project.verifiedOn,
+    project.license,
+    project.installCommand,
+    project.compatibility.python,
+    project.compatibility.django,
+    project.compatibility.djangoRestFramework,
+    project.maintainerDisclosure,
+    project.officialListingStatement,
+  ];
+  for (const value of requiredText) {
+    if (!content.includes(value)) {
+      fail(`${relativePath}: project spotlight is missing source-backed text (${value})`);
+    }
+  }
+  const hrefs = new Set(extractTags(content, 'a').map(tag => extractTagAttribute(tag, 'href')));
+  for (const href of [...Object.values(project.links), project.slidePath, ...(options.extraHrefs || [])]) {
+    if (!hrefs.has(href)) {
+      fail(`${relativePath}: project spotlight is missing source-backed href (${href})`);
+    }
+  }
+}
+
+function validateDrfPromotionRoutes() {
+  if (!drfPost || !drfProject) {
+    fail('DRF API Logger source metadata is missing from the blog or project registry');
+    return;
+  }
+  if (`${SITE_URL}${drfProject.articlePath}` !== DRF_ARTICLE_URL
+    || `${SITE_URL}${drfProject.slidePath}` !== DRF_SLIDE_URL
+    || drfPost.slideSlug !== 'drf-api-logger') {
+    fail('DRF API Logger source metadata does not resolve to the canonical article and slide routes');
+  }
+
+  const articleFile = htmlFileForUrl(DRF_ARTICLE_URL).primary;
+  if (fs.existsSync(articleFile)) {
+    validateProjectPanel(read(articleFile), path.relative(DIST_DIR, articleFile), drfProject, { required: true });
+  }
+
+  const aboutFile = htmlFileForUrl(`${SITE_URL}/about`).primary;
+  if (fs.existsSync(aboutFile)) {
+    validateProjectPanel(read(aboutFile), path.relative(DIST_DIR, aboutFile), drfProject, {
+      required: true,
+      extraHrefs: [drfProject.articlePath],
+    });
+  }
+
+  const homeFile = htmlFileForUrl(SITE_URL).primary;
+  if (fs.existsSync(homeFile)) {
+    const homeContent = read(homeFile);
+    const homeHrefs = new Set(extractTags(homeContent, 'a').map(tag => extractTagAttribute(tag, 'href')));
+    for (const value of [
+      'Vishal also maintains',
+      drfProject.name,
+      drfProject.license,
+      "Django REST Framework's official third-party packages documentation",
+      'This listing is not an endorsement.',
+    ]) {
+      if (!homeContent.includes(value)) {
+        fail(`index.html: maintainer proof is missing source-backed text (${value})`);
+      }
+    }
+    if (!homeHrefs.has(drfProject.articlePath)) {
+      fail(`index.html: maintainer proof is missing canonical article href (${drfProject.articlePath})`);
+    }
+  }
+
+  const targetFiles = [
+    path.join(DIST_DIR, 'slides', 'drf-api-logger.html'),
+    path.join(DIST_DIR, 'slides', 'drf-api-logger', 'index.html'),
+  ];
+  for (const filePath of targetFiles) {
+    const relative = path.relative(DIST_DIR, filePath);
+    if (!fs.existsSync(filePath)) {
+      fail(`${relative}: canonical DRF slide output is missing`);
+      continue;
+    }
+    const content = read(filePath);
+    const canonicals = extractAll(/<link\s+rel=["']canonical["']\s+href=["']([^"']+)["'][^>]*>/gi, content);
+    if (canonicals.length !== 1 || canonicals[0] !== DRF_SLIDE_URL) {
+      fail(`${relative}: canonical DRF slide page must be self-canonical`);
+    }
+    if (!/<meta[^>]+name=["']robots["'][^>]+content=["'][^"']*noindex[^"']*follow/i.test(content)) {
+      fail(`${relative}: canonical DRF slide page must be noindex,follow`);
+    }
+    if (/<meta[^>]+http-equiv=["']refresh["']/i.test(content)) {
+      fail(`${relative}: canonical DRF slide page must not use meta refresh`);
+    }
+    const learningResources = parseJsonLdData(content)
+      .flatMap(value => collectObjectNodes(value))
+      .filter(node => node['@type'] === 'LearningResource');
+    const learningResource = learningResources[0];
+    if (learningResources.length !== 1 || learningResource?.url !== DRF_SLIDE_URL) {
+      fail(`${relative}: expected one canonical DRF LearningResource schema`);
+    } else {
+      const expectedLearningResource = {
+        name: 'DRF API Logger 1.4 Interactive Production Guide',
+        description: 'A 24-slide maintainer-led guide to safe request logging, sampled profiling, correlation, metrics, detect-only security signals, and production operations for Django REST Framework.',
+        educationalLevel: 'Intermediate',
+        isBasedOn: DRF_ARTICLE_URL,
+        isAccessibleForFree: true,
+      };
+      for (const [property, expected] of Object.entries(expectedLearningResource)) {
+        if (learningResource[property] !== expected) {
+          fail(`${relative}: DRF LearningResource ${property} must equal source value (${expected})`);
+        }
+      }
+    }
+    const hasVisibleBreadcrumb = /<nav\b[^>]*aria-label=["']Breadcrumb["']/i.test(content);
+    const breadcrumbSchemas = parseJsonLdData(content)
+      .flatMap(value => collectObjectNodes(value))
+      .filter(node => node['@type'] === 'BreadcrumbList');
+    if (breadcrumbSchemas.length !== (hasVisibleBreadcrumb ? 1 : 0)) {
+      fail(`${relative}: BreadcrumbList schema must match the visible breadcrumb trail`);
+    }
+  }
+
+  const aliasFiles = [
+    path.join(DIST_DIR, 'slides', 'drf-api-logger-django-rest-framework.html'),
+    path.join(DIST_DIR, 'slides', 'drf-api-logger-django-rest-framework', 'index.html'),
+  ];
+  for (const filePath of aliasFiles) {
+    const relative = path.relative(DIST_DIR, filePath);
+    if (!fs.existsSync(filePath)) {
+      fail(`${relative}: DRF slide redirect fallback is missing`);
+      continue;
+    }
+    const content = read(filePath);
+    const canonical = extractAll(/<link\s+rel=["']canonical["']\s+href=["']([^"']+)["'][^>]*>/gi, content);
+    if (canonical.length !== 1 || canonical[0] !== DRF_SLIDE_URL) {
+      fail(`${relative}: DRF slide alias must canonicalize to ${DRF_SLIDE_URL}`);
+    }
+    if (!/<meta[^>]+name=["']robots["'][^>]+content=["'][^"']*noindex[^"']*follow/i.test(content)) {
+      fail(`${relative}: DRF slide alias must be noindex,follow`);
+    }
+    const refreshTags = extractTags(content, 'meta').filter(tag => (
+      extractTagAttribute(tag, 'http-equiv').toLowerCase() === 'refresh'
+    ));
+    if (refreshTags.length !== 1
+      || !new RegExp(`^0;\\s*url=${escapeRegExp(drfProject.slidePath)}$`, 'i')
+        .test(extractTagAttribute(refreshTags[0], 'content'))) {
+      fail(`${relative}: DRF slide alias meta refresh must point directly to ${drfProject.slidePath}`);
+    }
+    if (!content.includes(`window.location.replace(${JSON.stringify(drfProject.slidePath)})`)) {
+      fail(`${relative}: DRF slide alias location.replace must point directly to ${drfProject.slidePath}`);
+    }
+    const hrefs = extractTags(content, 'a').map(tag => extractTagAttribute(tag, 'href'));
+    if (!hrefs.includes(drfProject.slidePath)) {
+      fail(`${relative}: DRF slide alias must expose a visible canonical fallback link`);
+    }
+    if (/<app-slide-player\b|["'](?:BlogPosting|LearningResource)["']/i.test(content)) {
+      fail(`${relative}: DRF slide alias contains duplicate article or deck content`);
+    }
+  }
+}
+
+function validatePythonCExtensionSlideRoutes() {
+  if (!pythonCExtensionsPost || pythonCExtensionsPost.slideSlug !== 'python-c-extensions') {
+    fail('Python C Extensions must resolve to the canonical supporting route /slides/python-c-extensions');
+    return;
+  }
+
+  const sourcePath = `/slides/${pythonCExtensionsPost.slug}`;
+  const targetPath = `/slides/${pythonCExtensionsPost.slideSlug}`;
+  const targetUrl = `${SITE_URL}${targetPath}`;
+  for (const filePath of [
+    path.join(DIST_DIR, `${targetPath.slice(1)}.html`),
+    path.join(DIST_DIR, targetPath.slice(1), 'index.html'),
+  ]) {
+    const relative = path.relative(DIST_DIR, filePath);
+    if (!fs.existsSync(filePath)) {
+      fail(`${relative}: canonical Python C Extensions slide output is missing`);
+      continue;
+    }
+    const content = read(filePath);
+    const canonicals = extractAll(/<link\s+rel=["']canonical["']\s+href=["']([^"']+)["'][^>]*>/gi, content);
+    if (canonicals.length !== 1 || canonicals[0] !== targetUrl) {
+      fail(`${relative}: Python C Extensions slide page must be self-canonical`);
+    }
+    if (!/<meta[^>]+name=["']robots["'][^>]+content=["'][^"']*noindex[^"']*follow/i.test(content)) {
+      fail(`${relative}: Python C Extensions slide page must be noindex,follow`);
+    }
+    if (/<meta[^>]+http-equiv=["']refresh["']/i.test(content)) {
+      fail(`${relative}: canonical Python C Extensions slide page must not use meta refresh`);
+    }
+  }
+
+  for (const filePath of [
+    path.join(DIST_DIR, `${sourcePath.slice(1)}.html`),
+    path.join(DIST_DIR, sourcePath.slice(1), 'index.html'),
+  ]) {
+    const relative = path.relative(DIST_DIR, filePath);
+    if (!fs.existsSync(filePath)) {
+      fail(`${relative}: Python C Extensions redirect fallback is missing`);
+      continue;
+    }
+    const content = read(filePath);
+    const canonicals = extractAll(/<link\s+rel=["']canonical["']\s+href=["']([^"']+)["'][^>]*>/gi, content);
+    if (canonicals.length !== 1 || canonicals[0] !== targetUrl) {
+      fail(`${relative}: Python C Extensions alias must canonicalize to ${targetUrl}`);
+    }
+    if (!/<meta[^>]+name=["']robots["'][^>]+content=["'][^"']*noindex[^"']*follow/i.test(content)) {
+      fail(`${relative}: Python C Extensions alias must be noindex,follow`);
+    }
+    const refreshTags = extractTags(content, 'meta').filter(tag => (
+      extractTagAttribute(tag, 'http-equiv').toLowerCase() === 'refresh'
+    ));
+    if (refreshTags.length !== 1
+      || !new RegExp(`^0;\\s*url=${escapeRegExp(targetPath)}$`, 'i')
+        .test(extractTagAttribute(refreshTags[0], 'content'))) {
+      fail(`${relative}: Python C Extensions alias meta refresh must point to ${targetPath}`);
+    }
+    if (!content.includes(`window.location.replace(${JSON.stringify(targetPath)})`)) {
+      fail(`${relative}: Python C Extensions alias location.replace must point to ${targetPath}`);
+    }
+    const hrefs = extractTags(content, 'a').map(tag => extractTagAttribute(tag, 'href'));
+    if (!hrefs.includes(targetPath)) {
+      fail(`${relative}: Python C Extensions alias must expose a visible canonical fallback link`);
+    }
+    if (/<app-slide-player\b|["'](?:BlogPosting|LearningResource)["']/i.test(content)) {
+      fail(`${relative}: Python C Extensions alias contains duplicate article or deck content`);
     }
   }
 }
@@ -1029,6 +1424,11 @@ function validateGeneratedHtmlFiles() {
       .filter(Boolean);
     for (const href of hrefs) {
       validateInternalAnchorDestination(href, relative, content, urlAttrs[0] || SITE_URL);
+      const sameOriginHref = parseSameOriginReference(href, documentBaseUrl(content, urlAttrs[0] || SITE_URL));
+      const canonicalCustomSlide = sameOriginHref && customSlideAliases.get(sameOriginHref.pathname);
+      if (canonicalCustomSlide) {
+        fail(`${relative}: internal link points to a custom slide redirect alias; use ${canonicalCustomSlide} (${href})`);
+      }
       if (!href.startsWith('/') || href === '/' || href.startsWith('/#') || href.startsWith('//')) {
         continue;
       }
@@ -1121,6 +1521,9 @@ if (!fs.existsSync(DIST_DIR)) {
   validateGeneratedHtmlFiles();
   validateNoEmptyRouteDirectories();
   validateRequiredNoindexPages();
+  validateBlogDateParity();
+  validateDrfPromotionRoutes();
+  validatePythonCExtensionSlideRoutes();
   sitemapUrls.forEach(validatePageForSitemapUrl);
   validateUniqueSitemapMetadata(sitemapUrls);
   validateSitemapInternalLinks(sitemapUrls);

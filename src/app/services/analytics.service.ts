@@ -2,6 +2,41 @@ import { Injectable } from '@angular/core';
 
 const GA_MEASUREMENT_ID = 'G-32HFW3BZEY';
 
+export const DRF_API_LOGGER_ANALYTICS_ID = 'drf-api-logger' as const;
+
+export type ProjectAnalyticsId = typeof DRF_API_LOGGER_ANALYTICS_ID;
+
+export type ProjectPromotionPlacement =
+  | 'project-spotlight'
+  | 'article-hero'
+  | 'article-body'
+  | 'home'
+  | 'about'
+  | 'slides';
+
+export type ProjectResource = 'pypi' | 'docs' | 'github' | 'official-listing' | 'issues';
+
+export type ProjectInternalDestination = 'article' | 'slides';
+
+export type ProjectSlideMilestone = 25 | 50 | 75;
+
+export type ProjectPromotionEventName =
+  | 'project_resource_click'
+  | 'project_internal_click'
+  | 'project_install_copy'
+  | 'project_slide_start'
+  | 'project_slide_progress'
+  | 'project_slide_complete'
+  | 'project_slide_back_to_article';
+
+type ProjectPromotionEventParams = {
+  project_id: ProjectAnalyticsId;
+  placement?: ProjectPromotionPlacement;
+  resource?: ProjectResource;
+  destination?: ProjectInternalDestination;
+  milestone?: ProjectSlideMilestone;
+};
+
 type GtagFn = (...args: unknown[]) => void;
 
 type AnalyticsWindow = Window & {
@@ -74,6 +109,68 @@ export class AnalyticsService {
     });
   }
 
+  trackProjectResourceClick(
+    projectId: ProjectAnalyticsId,
+    resource: ProjectResource,
+    placement: ProjectPromotionPlacement,
+  ) {
+    this.trackProjectEvent('project_resource_click', {
+      project_id: projectId,
+      resource,
+      placement,
+    });
+  }
+
+  trackProjectInstallCopy(
+    projectId: ProjectAnalyticsId,
+    placement: ProjectPromotionPlacement,
+  ) {
+    this.trackProjectEvent('project_install_copy', {
+      project_id: projectId,
+      placement,
+    });
+  }
+
+  trackProjectInternalClick(
+    projectId: ProjectAnalyticsId,
+    destination: ProjectInternalDestination,
+    placement: ProjectPromotionPlacement,
+  ) {
+    this.trackProjectEvent('project_internal_click', {
+      project_id: projectId,
+      destination,
+      placement,
+    });
+  }
+
+  trackProjectSlideStart(projectId: ProjectAnalyticsId) {
+    this.trackProjectEvent('project_slide_start', {
+      project_id: projectId,
+    });
+  }
+
+  trackProjectSlideProgress(
+    projectId: ProjectAnalyticsId,
+    milestone: ProjectSlideMilestone,
+  ) {
+    this.trackProjectEvent('project_slide_progress', {
+      project_id: projectId,
+      milestone,
+    });
+  }
+
+  trackProjectSlideComplete(projectId: ProjectAnalyticsId) {
+    this.trackProjectEvent('project_slide_complete', {
+      project_id: projectId,
+    });
+  }
+
+  trackProjectSlideBackToArticle(projectId: ProjectAnalyticsId) {
+    this.trackProjectEvent('project_slide_back_to_article', {
+      project_id: projectId,
+    });
+  }
+
   monitorCoreWebVitals() {
     if (
       this.coreWebVitalsMonitoringStarted ||
@@ -122,6 +219,20 @@ export class AnalyticsService {
     }
 
     return analyticsWindow.gtag;
+  }
+
+  private trackProjectEvent(
+    eventName: ProjectPromotionEventName,
+    params: ProjectPromotionEventParams,
+  ) {
+    try {
+      const gtag = this.getGtag(true);
+      if (!gtag) return;
+
+      gtag('event', eventName, params);
+    } catch {
+      // Promotion analytics must never block navigation or other UI actions.
+    }
   }
 
   private queueGtagConfig(gtag: GtagFn) {

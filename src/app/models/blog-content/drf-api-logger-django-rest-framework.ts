@@ -1,7 +1,9 @@
 export const CONTENT = `
-      <p>If you run APIs in Django REST Framework, you eventually need answers that normal application logs do not give you quickly: which endpoint failed, what payload arrived, what status code was returned, how long the request took, whether sensitive data was masked, and whether the same endpoint is getting slower over time. <strong>DRF API Logger</strong> exists for that exact gap. It adds request and response observability to a DRF project without forcing every view to write custom logging code. The <a href="/blog/observability-opentelemetry-logs-metrics-traces">OpenTelemetry observability guide</a> shows how these API records complement service-level logs, metrics, and traces.</p>
+      <p>If you run APIs in Django REST Framework, you eventually need answers that normal application logs do not give you quickly: which endpoint failed, what payload arrived, what status code was returned, how long the request took, whether sensitive data was masked, and whether the same endpoint is getting slower over time. <strong>DRF API Logger</strong> fills that gap. It adds request and response observability without forcing every view to write custom logging code. The <a href="/blog/observability-opentelemetry-logs-metrics-traces">OpenTelemetry observability guide</a> shows how these API records complement service-level logs, metrics, and traces.</p>
 
-      <p>This guide targets the modern <strong>v1.2.x</strong> line, including the documentation update for <strong>v1.2.1</strong>. The package is published under the <strong>Apache 2.0 license</strong>, supports Python 3.6 and newer, and the current documentation highlights request/response logging, sensitive-data masking, database logging, signal-based logging, admin analytics, queue-based background processing, request tracing, content-type controls, and per-request API profiling.</p>
+      <p>This guide covers <strong>DRF API Logger 1.4.0</strong>, released on <strong>July 8, 2026</strong>. The supported baseline is <strong>Python 3.10+</strong>, <strong>Django 4.2+</strong>, and <strong>Django REST Framework 3.16+</strong>; the package uses the <strong>Apache-2.0</strong> license. DRF API Logger is <a href="https://www.django-rest-framework.org/community/third-party-packages/" target="_blank" rel="noopener noreferrer">listed in Django REST Framework's official third-party packages documentation</a>. That listing is useful independent evidence of discoverability, but it does not mean the package is endorsed, certified, or maintained by the DRF project.</p>
+
+      <p><strong>Maintainer disclosure:</strong> I am Vishal Anand, the creator and maintainer of DRF API Logger and the author of this guide. The walkthrough is maintainer-led, while version, compatibility, release, and listing claims link to sources you can verify directly.</p>
 
       <!-- DRF Logger Pipeline -->
       <div class="flow-diagram">
@@ -9,13 +11,13 @@ export const CONTENT = `
         <div class="pipeline">
           <div class="pipeline-step" style="background:#3b82f6;--i:0"><span class="pipeline-step-icon">&#x1F4E8;</span>Client<span class="pipeline-step-sub">Calls DRF endpoint</span></div>
           <div class="pipeline-arrow">&#x2192;</div>
-          <div class="pipeline-step" style="background:#7c3aed;--i:1"><span class="pipeline-step-icon">&#x1F50D;</span>Middleware<span class="pipeline-step-sub">Captures request</span></div>
+          <div class="pipeline-step" style="background:#7c3aed;--i:1"><span class="pipeline-step-icon">&#x1F50D;</span>Middleware<span class="pipeline-step-sub">Captures and masks</span></div>
           <div class="pipeline-arrow">&#x2192;</div>
           <div class="pipeline-step" style="background:#22c55e;--i:2"><span class="pipeline-step-icon">&#x2699;</span>View<span class="pipeline-step-sub">Runs normally</span></div>
           <div class="pipeline-arrow">&#x2192;</div>
           <div class="pipeline-step" style="background:#f97316;--i:3"><span class="pipeline-step-icon">&#x23F1;</span>Profiler<span class="pipeline-step-sub">Measures timing</span></div>
           <div class="pipeline-arrow">&#x2192;</div>
-          <div class="pipeline-step" style="background:#0ea5e9;--i:4"><span class="pipeline-step-icon">&#x1F4DD;</span>Queue<span class="pipeline-step-sub">Stores asynchronously</span></div>
+          <div class="pipeline-step" style="background:#0ea5e9;--i:4"><span class="pipeline-step-icon">&#x1F4DD;</span>Queue<span class="pipeline-step-sub">Batches database writes</span></div>
           <div class="pipeline-arrow">&#x2192;</div>
           <div class="pipeline-step" style="background:#ef4444;--i:5"><span class="pipeline-step-icon">&#x1F4E4;</span>Response<span class="pipeline-step-sub">Returned to client</span></div>
         </div>
@@ -27,7 +29,7 @@ export const CONTENT = `
       <ul>
         <li><strong>Debugging:</strong> Reproduce what happened when a client says "the API returned the wrong thing".</li>
         <li><strong>Operational monitoring:</strong> Find slow endpoints, failed status codes, noisy clients, and regression patterns.</li>
-        <li><strong>Audit trails:</strong> Keep a structured trail of API activity for internal analysis and compliance workflows.</li>
+        <li><strong>Operational evidence:</strong> Keep structured request records for investigations, while using a separate immutable audit system when one is required.</li>
         <li><strong>Performance diagnosis:</strong> Use profiling fields to split total time into middleware, view/serialization, SQL, and business-logic cost.</li>
       </ul>
 
@@ -39,8 +41,8 @@ export const CONTENT = `
         <li>The logger middleware records request metadata such as path, method, headers, body, and client IP.</li>
         <li>The DRF view runs normally. Authentication, permissions, throttling, serializer validation, database work, and response generation continue as usual.</li>
         <li>The middleware receives the response and records status code, response body, and execution time.</li>
-        <li>The log event is sent to the configured destination: database, signal listeners, or both.</li>
-        <li>Database writes are buffered through a queue so normal API response time is not blocked by one insert per request.</li>
+        <li>An eligible log event is sent to the configured destination: database, signal listeners, or both.</li>
+        <li>Capture, masking, serialization, custom handling, and enqueueing still happen on the request path. The background worker batches database writes so the request thread does not perform one insert per log record.</li>
       </ol>
 
       <div class="flow-diagram">
@@ -70,7 +72,7 @@ export const CONTENT = `
 
       <h2>When to Use It</h2>
       <p>Use DRF API Logger when you need structured visibility into DRF request and response behavior, especially when the API team needs to answer production questions without digging through unstructured logs. It is useful for CRUD APIs, internal admin APIs, B2B APIs, mobile app backends, partner integrations, and services where request payloads and status-code patterns matter.</p>
-      <p>Do not treat it as a full replacement for metrics, distributed tracing, or APM. It complements those systems. Metrics tell you that error rate increased. Tracing tells you which service path was slow. DRF API Logger gives you the concrete DRF request/response record inside your Django app.</p>
+      <p>Do not treat it as an immutable audit log, a compliance guarantee, a WAF, SIEM, IDS, APM, or distributed tracing backend. It complements those systems. Metrics tell you that error rate increased. Tracing tells you which service path was slow. DRF API Logger gives you the concrete DRF request/response record inside your Django app.</p>
 
       <h2>Install and Wire It Correctly</h2>
       <p><strong>Step 1:</strong> Install the package:</p>
@@ -110,6 +112,7 @@ export const CONTENT = `
       <pre><code>DRF_API_LOGGER_DATABASE = True</code></pre>
       <pre><code>python manage.py migrate</code></pre>
       <p>The database table is only useful after migrations are run. If you enable database logging but skip migrations, you should expect missing-table errors or no usable admin records.</p>
+      <p><strong>MySQL and MariaDB upgrade warning:</strong> migration <code>0003</code> adds profiling columns. Adding columns to a large existing log table can lock or rebuild it depending on the exact database version, engine, row format, and table definition. Inspect the generated SQL first with <code>python manage.py sqlmigrate drf_api_logger 0003</code>, test the operation against production-like data, and use database-native online DDL or a reviewed online migration process where appropriate. Do not copy a generic <code>ALTER TABLE</code> command without validating it.</p>
 
       <h2>Database Logging Deep Dive</h2>
       <p>Database logging stores API calls in a Django model and exposes them through the Django admin. This is the easiest mode to start with because it gives your team an immediate UI for searching, filtering, and inspecting API traffic.</p>
@@ -144,7 +147,7 @@ export const CONTENT = `
       <p>The important operational detail is that <code>execution_time</code> is server-side execution time, not the user's complete network round trip. That makes it useful for backend diagnosis because it removes client network conditions from the number.</p>
 
       <h2>Signal-Based Logging Deep Dive</h2>
-      <p>Signal-based logging is for teams that do not want every API log stored only in the application database. When enabled, DRF API Logger emits a signal for every API call. Your listeners can write JSON lines, ship events to a log pipeline, publish to Kafka, trigger a Slack alert, or attach application-specific labels.</p>
+      <p>Signal-based logging is for teams that do not want eligible API records stored only in the application database. When enabled, DRF API Logger emits a signal for calls that pass its filters and endpoint policy. Your listeners can write JSON lines, ship events to a log pipeline, publish to Kafka, trigger an alert, or attach application-specific context.</p>
       <pre><code>DRF_API_LOGGER_SIGNAL = True</code></pre>
       <pre><code>from drf_api_logger import API_LOGGER_SIGNAL
 
@@ -182,9 +185,9 @@ API_LOGGER_SIGNAL.listen += alert_on_server_errors</code></pre>
     'added_on': datetime.now(),
     'tracing_id': 'uuid4-string'
 }</code></pre>
-      <p>This makes signal mode useful when your main log storage is not Django admin. For example, you can keep a short retention window in the database for support/debugging and send the full stream to a centralized log system for longer retention.</p>
+      <p>This makes signal mode useful when your main log storage is not Django admin. For example, you can keep a short retention window in the database for support and debugging and send a deliberately minimized event stream to a centralized log system for longer retention. The signal is an integration point, not a SIEM or exporter backend by itself.</p>
 
-      <h2>API Profiling in v1.2.x</h2>
+      <h2>Sampled API Profiling in v1.4</h2>
       <p>The most important modern capability to explain is API profiling. When profiling is enabled, each logged request can include a timing breakdown instead of only a single total duration. That lets you answer better questions:</p>
       <ul>
         <li>Was the request slow because of SQL?</li>
@@ -195,8 +198,9 @@ API_LOGGER_SIGNAL.listen += alert_on_server_errors</code></pre>
       </ul>
 
       <pre><code>DRF_API_LOGGER_ENABLE_PROFILING = True
-DRF_API_LOGGER_PROFILING_SQL_TRACKING = True</code></pre>
-      <p>When enabled, the profiling data can include middleware time, view and serialization time, SQL time, SQL query count, and diagnosis hints. The package documentation describes patterns such as SQL taking more than 70 percent of total time with high query count as likely N+1 behavior, while low SQL time with high total time suggests business logic or external service latency.</p>
+DRF_API_LOGGER_PROFILING_SQL_TRACKING = True
+DRF_API_LOGGER_PROFILING_SAMPLE_RATE = 0.10</code></pre>
+      <p>When enabled, the profiling data can include middleware time, view and serialization time, SQL time, SQL query count, and diagnosis hints. <code>DRF_API_LOGGER_PROFILING_SAMPLE_RATE</code> accepts a fraction from <code>0.0</code> to <code>1.0</code>, so a busy service can profile a sample while still applying its normal logging rules. The package documentation describes patterns such as SQL taking more than 70 percent of total time with high query count as likely N+1 behavior, while low SQL time with high total time suggests business logic or external service latency. Treat diagnosis labels as investigation hints, not proof.</p>
 
       <div class="flow-diagram">
         <div class="flow-diagram-title">Profiling Diagnosis Map</div>
@@ -214,7 +218,7 @@ DRF_API_LOGGER_PROFILING_SQL_TRACKING = True</code></pre>
       <h3>Core Destination Settings</h3>
       <pre><code>DRF_API_LOGGER_DATABASE = True
 DRF_API_LOGGER_SIGNAL = False</code></pre>
-      <p>Use database mode for admin search and debugging. Use signal mode when your organization already has centralized logging. Use both when you want a short local debugging window plus a durable external log stream.</p>
+      <p>Use database mode for admin search and debugging. Use signal mode when your organization already has centralized logging. Use both when you want a short local debugging window plus a minimized external stream governed by its own access and retention controls.</p>
 
       <h3>Queue and Background Processing</h3>
       <pre><code>DRF_LOGGER_QUEUE_MAX_SIZE = 50
@@ -239,9 +243,9 @@ DRF_API_LOGGER_STATUS_CODES = [200, 201, 400, 401, 403, 404, 500]</code></pre>
     'authorization',
 ]
 
-DRF_API_LOGGER_MAX_REQUEST_BODY_SIZE = 1024
-DRF_API_LOGGER_MAX_RESPONSE_BODY_SIZE = 2048</code></pre>
-      <p>Masking protects common secret fields. Body size limits protect your database. A single huge response body can consume more storage than thousands of normal API calls, so set limits before using the logger on high-volume production endpoints.</p>
+DRF_API_LOGGER_MAX_REQUEST_BODY_SIZE = 32768
+DRF_API_LOGGER_MAX_RESPONSE_BODY_SIZE = 65536</code></pre>
+      <p>Masking protects common secret fields. The default request cap is <strong>32,768 bytes (32 KiB)</strong> and the default response cap is <strong>65,536 bytes (64 KiB)</strong>. Oversized payloads are replaced with a marker rather than stored in full. A value of <code>-1</code> removes the corresponding limit; that is intentionally unlimited, so use it only after a storage and privacy review.</p>
 
       <h3>Supported Content Types</h3>
       <pre><code>DRF_API_LOGGER_CONTENT_TYPES = [
@@ -252,11 +256,73 @@ DRF_API_LOGGER_MAX_RESPONSE_BODY_SIZE = 2048</code></pre>
 ]</code></pre>
       <p>By default, JSON APIs are the primary use case. The package also supports custom content types, including vendor JSON media types such as JSON:API style content types.</p>
 
-      <h3>Tracing and Correlation IDs</h3>
+      <h3>Tracing IDs</h3>
       <pre><code>DRF_API_LOGGER_ENABLE_TRACING = True
 DRF_API_LOGGER_TRACING_ID_HEADER_NAME = 'X-Trace-ID'
 DRF_API_LOGGER_TRACING_FUNC = 'myapp.tracing.generate_trace_id'</code></pre>
       <p>Tracing IDs matter when an API request crosses systems. If your gateway already sends a trace header, configure the header name so DRF API Logger stores the upstream correlation ID instead of inventing an unrelated one. In your views, you can access <code>request.tracing_id</code> when tracing is enabled.</p>
+
+      <h3>Request Correlation, W3C traceparent, and Logging Context</h3>
+      <pre><code>DRF_API_LOGGER_ENABLE_CORRELATION = True
+DRF_API_LOGGER_CORRELATION_REQUEST_ID_HEADERS = [
+    'X-Request-ID',
+    'X-Correlation-ID',
+]
+DRF_API_LOGGER_CORRELATION_TRACE_ID_HEADERS = [
+    'traceparent',
+    'X-Trace-ID',
+]
+DRF_API_LOGGER_ENABLE_LOGGING_CONTEXT = True</code></pre>
+      <p>Correlation mode parses inbound request IDs and W3C <code>traceparent</code> values, exposes request-scoped context during the view call, and adds correlation plus low-cardinality route metadata to signal payloads. It intentionally does not add correlation columns or synthetic fields to <code>APILogsModel</code>. Keep trace IDs and request IDs in logs and traces, not as Prometheus labels.</p>
+
+      <h3>Endpoint Policies and a Custom Handler</h3>
+      <pre><code>DRF_API_LOGGER_POLICY = {
+    'rules': [
+        {'url_name': 'health_check', 'log': False},
+        {
+            'route': 'api/payments/',
+            'request_body': False,
+            'response_body': False,
+            'mask_keys': ['card_number', 'payment_token'],
+            'signal': False,
+        },
+    ],
+}
+
+DRF_API_LOGGER_CUSTOM_HANDLER = 'myapp.logging.clean_api_log'</code></pre>
+      <p>Endpoint policies let a sensitive route disable logging, strip request or response bodies, add route-specific mask keys, or prevent signal export. A custom handler can transform a record before it enters the queue, or return <code>None</code> to drop it. Keep handlers fast and deterministic because they run on the request path.</p>
+
+      <h2>ASGI, Observability Helpers, and First-Party Metrics</h2>
+      <p>The 1.4 middleware supports Django's async middleware chain while remaining compatible with synchronous deployments. Request-scoped context is isolated across concurrent ASGI requests, but the same production rule still applies: benchmark capture, masking, profiling, and custom handlers under your workload.</p>
+
+      <h3>Safe Prometheus, OpenTelemetry, and Sentry Helpers</h3>
+      <pre><code>from drf_api_logger import API_LOGGER_SIGNAL
+from drf_api_logger.observability import (
+    annotate_opentelemetry_span,
+    configure_sentry_scope,
+    record_prometheus_metrics,
+)
+
+def export_observability(**event):
+    record_prometheus_metrics(event, API_REQUESTS, API_DURATION)
+    annotate_opentelemetry_span(current_span, event)
+    configure_sentry_scope(sentry_scope, event)
+
+API_LOGGER_SIGNAL.listen += export_observability</code></pre>
+      <p>These helpers attach safe route and status context without turning DRF API Logger into Prometheus, OpenTelemetry, or Sentry. Your application still owns those dependencies, exporters, sampling, retention, and access controls. Metrics labels are allowlisted and low-cardinality; never use raw URLs, query strings, request IDs, trace IDs, user IDs, IP addresses, tokens, bodies, SQL text, or exception messages as labels.</p>
+
+      <h3>Logger Health, API Metrics, and Detect-Only Security Signals</h3>
+      <pre><code>pip install "drf-api-logger[prometheus]"
+
+DRF_API_LOGGER_METRICS_ENABLED = True
+DRF_API_LOGGER_METRICS_GROUPS = ['logger', 'pipeline']
+DRF_API_LOGGER_API_METRICS_ENABLED = True
+
+# Optional and disabled by default
+DRF_API_LOGGER_SECURITY_METRICS_ENABLED = True
+DRF_API_LOGGER_SECURITY_MODE = 'detect'</code></pre>
+      <p>First-party metrics can report request-path overhead, queue depth, worker health, flushes, storage failures, API counts, duration, body sizes, slow requests, exceptions, and throttles. API metrics are enabled separately so an application that already instruments requests can avoid duplicates.</p>
+      <p>Security signals are <strong>detect-only</strong> and disabled by default. They can flag patterns such as authentication failures, admin probes, route scans, suspicious payloads, enumeration hints, rate-limit pressure, or bulk export behavior. They do not block traffic and they are not a WAF, IDS, or SIEM. Expect false positives, validate alert thresholds, protect any Prometheus endpoint behind an internal authenticated route, and run <code>python manage.py check</code> after enabling metrics.</p>
 
       <h3>Path Storage Format</h3>
       <pre><code>DRF_API_LOGGER_PATH_TYPE = 'ABSOLUTE'
@@ -290,28 +356,22 @@ endpoint_summary = (
     .values('api', 'method')
     .annotate(
         calls=Count('id'),
-        avg_ms=Avg('execution_time'),
-        max_ms=Max('execution_time'),
+        avg_seconds=Avg('execution_time'),
+        max_seconds=Max('execution_time'),
     )
     .order_by('-calls')
 )</code></pre>
 
+      <p><code>execution_time</code> is stored in seconds, so the aggregate names above deliberately say <code>avg_seconds</code> and <code>max_seconds</code>. Multiply explicitly if your dashboard presents milliseconds; do not label the raw decimal as milliseconds.</p>
+
       <h2>Retention and Cleanup</h2>
-      <p>API logs grow forever unless you intentionally delete or archive them. Decide retention before enabling database logging in production. For many teams, 7 to 30 days in the application database is enough for support and debugging, while longer retention belongs in cheaper log storage.</p>
-      <pre><code>from datetime import timedelta
-from django.core.management.base import BaseCommand
-from django.utils import timezone
-from drf_api_logger.models import APILogsModel
+      <p>API logs grow until you intentionally delete or archive them. Decide retention before enabling database logging in production. A short local window is often enough for support and debugging; any longer period should be justified by operational and privacy requirements rather than copied from an example.</p>
+      <pre><code># Preview rows older than 30 days
+python manage.py prune_api_logs --days 30 --dry-run
 
-class Command(BaseCommand):
-    help = 'Delete old DRF API Logger records'
-
-    def handle(self, *args, **options):
-        cutoff = timezone.now() - timedelta(days=30)
-        deleted, _ = APILogsModel.objects.filter(
-            added_on__lt=cutoff,
-        ).delete()
-        self.stdout.write(f'Deleted {deleted} old API log rows')</code></pre>
+# Delete in bounded batches
+python manage.py prune_api_logs --days 30 --batch-size 1000</code></pre>
+      <p>Schedule the built-in <code>prune_api_logs</code> command through your normal job runner, monitor its results, and always use <code>--dry-run</code> before the first destructive execution. The command also supports a fixed <code>--before</code> date when policy requires a calendar cutoff.</p>
 
       <h2>Production Database Design</h2>
       <p>For small applications, storing logs in the default database may be acceptable. For high-traffic systems, use a dedicated logging database so API log writes and log searches do not compete with customer-facing transactional data. Apply the same workload-first reasoning from the <a href="/blog/database-indexing-secrets-slow-queries-fix">database indexing guide</a> before adding indexes to the log table.</p>
@@ -340,6 +400,9 @@ ON drf_api_logs(status_code, added_on);</code></pre>
       </ul>
 
       <h2>Troubleshooting: No Logs Showing Up</h2>
+      <p>Start with the read-only production diagnostics command:</p>
+      <pre><code>python manage.py drf_api_logger_doctor</code></pre>
+      <p><code>drf_api_logger_doctor</code> checks the active logging mode, database and migration readiness, table availability, queue and worker state, payload limits, masking settings, and profiling risk. CI or deployment automation can also request JSON output or set a failure threshold; see the operations documentation for those options.</p>
       <p>If you installed the package but do not see logs, check these in order:</p>
       <ol>
         <li><strong>Middleware is missing:</strong> Confirm <code>APILoggerMiddleware</code> is in <code>MIDDLEWARE</code>.</li>
@@ -393,17 +456,20 @@ DRF_API_LOGGER_EXCLUDE_KEYS = [
     'authorization',
 ]
 
-DRF_API_LOGGER_MAX_REQUEST_BODY_SIZE = 2048
-DRF_API_LOGGER_MAX_RESPONSE_BODY_SIZE = 4096
+DRF_API_LOGGER_MAX_REQUEST_BODY_SIZE = 32768
+DRF_API_LOGGER_MAX_RESPONSE_BODY_SIZE = 65536
 
 DRF_API_LOGGER_SLOW_API_ABOVE = 200
-DRF_API_LOGGER_ENABLE_TRACING = True
-DRF_API_LOGGER_TRACING_ID_HEADER_NAME = 'X-Trace-ID'
+DRF_API_LOGGER_ENABLE_CORRELATION = True
+DRF_API_LOGGER_CORRELATION_REQUEST_ID_HEADERS = ['X-Request-ID']
+DRF_API_LOGGER_CORRELATION_TRACE_ID_HEADERS = ['traceparent']
+DRF_API_LOGGER_ENABLE_LOGGING_CONTEXT = True
 
-# Enable profiling first in staging or selectively in production.
+# Validate profiling in staging, then sample it in production.
 DRF_API_LOGGER_ENABLE_PROFILING = True
-DRF_API_LOGGER_PROFILING_SQL_TRACKING = True</code></pre>
-      <p>This example logs failures and slow behavior aggressively, masks sensitive fields, limits payload growth, and keeps traceability. You can widen or narrow it based on your compliance and debugging needs.</p>
+DRF_API_LOGGER_PROFILING_SQL_TRACKING = True
+DRF_API_LOGGER_PROFILING_SAMPLE_RATE = 0.10</code></pre>
+      <p>This example records selected failures, masks sensitive fields, keeps the documented default body caps, correlates with upstream request and W3C trace context, and profiles a sample. Review each status filter, payload cap, and retention period against your actual debugging and privacy requirements; this is a starting point, not a compliance preset.</p>
 
       <h2>What to Monitor After Enabling It</h2>
       <ul>
@@ -413,14 +479,15 @@ DRF_API_LOGGER_PROFILING_SQL_TRACKING = True</code></pre>
         <li><strong>Error bursts:</strong> Sudden increases in 4xx or 5xx responses.</li>
         <li><strong>Payload size:</strong> Whether large request or response bodies are being stored.</li>
         <li><strong>Admin query speed:</strong> Whether support engineers can search logs quickly.</li>
+        <li><strong>Logger health:</strong> Queue depth, worker state, request-path overhead, flush duration, dropped records, and storage failures when first-party metrics are enabled.</li>
       </ul>
 
       <h2>FAQ</h2>
       <h3>Does DRF API Logger affect API response time?</h3>
-      <p>The package is designed around queue-based background processing so log writes do not sit directly on the API response path. You should still monitor memory, queue settings, and database write behavior under real traffic.</p>
+      <p>It is designed for low request-path overhead, not zero overhead. Capture, masking, serialization, optional profiling or custom handling, and enqueueing remain on the request path. Batched database writes happen in the background. Benchmark representative payloads and monitor queue health, memory, and logger overhead under real traffic.</p>
 
       <h3>Can I use database logging and signal logging together?</h3>
-      <p>Yes. Database logging gives you a convenient admin interface, while signal logging lets you ship the same event stream to external systems.</p>
+      <p>Yes. Database logging gives you a convenient admin interface, while signal logging lets an application-owned listener process the same eligible record. Minimize and secure any external destination separately.</p>
 
       <h3>Should I log every endpoint?</h3>
       <p>Not always. Skip health checks, metrics endpoints, high-frequency polling routes, and endpoints that carry data you should not retain.</p>
@@ -428,16 +495,18 @@ DRF_API_LOGGER_PROFILING_SQL_TRACKING = True</code></pre>
       <h3>Is profiling safe in production?</h3>
       <p>Profiling is useful, but treat it as an operational feature to validate under your workload. SQL tracking can add overhead in some environments, so enable it deliberately and monitor impact.</p>
 
-      <h3>Can it replace Datadog, Prometheus, OpenTelemetry, or Sentry?</h3>
-      <p>No. It solves a different layer of the observability problem. Use it for structured DRF API logs. Use metrics, traces, and error tracking for broader system visibility.</p>
+      <h3>Can it replace a SIEM, WAF, IDS, APM, Prometheus, OpenTelemetry, or Sentry?</h3>
+      <p>No. It solves a different layer of the observability problem. Use it for structured DRF API records and optional detect-only signals. Use dedicated systems for enforcement, immutable auditing, distributed traces, metrics storage, alert investigation, and error tracking.</p>
 
       <h2>Reference Links</h2>
       <ul>
         <li><a href="https://pypi.org/project/drf-api-logger/" target="_blank" rel="noopener noreferrer">DRF API Logger on PyPI</a></li>
-        <li><a href="https://drf-api-logger.readthedocs.io/" target="_blank" rel="noopener noreferrer">DRF API Logger documentation</a></li>
+        <li><a href="https://drf-api-logger.readthedocs.io/en/latest/" target="_blank" rel="noopener noreferrer">DRF API Logger 1.4 documentation</a></li>
         <li><a href="https://github.com/vishalanandl177/DRF-API-Logger" target="_blank" rel="noopener noreferrer">DRF API Logger GitHub repository</a></li>
+        <li><a href="https://github.com/vishalanandl177/DRF-API-Logger/issues" target="_blank" rel="noopener noreferrer">Report an issue or request a feature</a></li>
+        <li><a href="https://www.django-rest-framework.org/community/third-party-packages/" target="_blank" rel="noopener noreferrer">Django REST Framework third-party packages documentation</a></li>
       </ul>
 
       <h2>Final Recommendation</h2>
-      <p>DRF API Logger is a practical way to add API-level observability to Django REST Framework without rewriting views. Start with database logging in a staging environment, confirm that masking and body limits are correct, tune the queue, then enable the production paths you actually need. For higher-traffic systems, route logs to a dedicated database or an external pipeline and keep retention intentionally short.</p>
+      <p>DRF API Logger 1.4 is a practical way to add API-level evidence and performance diagnostics to a supported Django REST Framework service without rewriting views. Start in staging, run <code>drf_api_logger_doctor</code>, confirm masking and body policy, inspect migrations, validate ASGI or sync behavior, and measure request-path overhead. Then enable only the destinations, endpoint policies, profiling sample, metrics, and retention schedule your production system needs.</p>
     `;
