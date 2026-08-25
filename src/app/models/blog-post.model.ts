@@ -85,6 +85,20 @@ export const CATEGORIES = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    id: '102',
+    title: 'Types of Malware: Common Categories and Their Risks',
+    slug: 'types-of-malware-and-their-risks',
+    excerpt: 'Compare common types of malware, from ransomware and worms to spyware and rootkits, by behavior, impact, warning signs, risk, and developer defenses.',
+    category: 'devops',
+    featured: false,
+    content: '',
+    author: 'Vishal Anand',
+    date: '2026-08-25',
+    readTime: '18 min read',
+    tags: ['Malware', 'Cybersecurity', 'Ransomware', 'Incident Response', 'Secure Development'],
+    coverImage: '/images/banners/types-of-malware-and-their-risks.svg',
+  },
+  {
     id: '101',
     title: 'OAuth2 Private Key JWT: Build Client Authentication Without Shared Secrets',
     slug: 'oauth2-private-key-jwt-client-authentication',

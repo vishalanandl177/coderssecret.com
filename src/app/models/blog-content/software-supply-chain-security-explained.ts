@@ -217,6 +217,7 @@ export const CONTENT = `
       <h2>Related CodersSecret Guides</h2>
 
       <ul>
+        <li><a href="/blog/types-of-malware-and-their-risks">Types of Malware: Common Categories and Their Risks</a></li>
         <li><a href="/blog/common-cicd-attack-paths">Common CI/CD Attack Paths</a></li>
         <li><a href="/blog/kubernetes-security-explained">Kubernetes Security Explained</a></li>
         <li><a href="/cheatsheets/devsecops">DevSecOps Cheatsheet</a></li>

@@ -41,6 +41,7 @@ const REQUIRED_URLS = [
   `${SITE_URL}/blog/scheduling-systems-production-guide`,
   `${SITE_URL}/blog/sql-window-functions-rank-lag-running-totals`,
   `${SITE_URL}/blog/terraform-infrastructure-as-code-production-guide`,
+  `${SITE_URL}/blog/types-of-malware-and-their-risks`,
   `${SITE_URL}/blog/vector-databases-embeddings-similarity-search`,
   `${SITE_URL}/category/frontend`,
   `${SITE_URL}/category/open-source`,

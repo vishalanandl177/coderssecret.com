@@ -125,8 +125,8 @@ import { md3CategoryAccent } from '../../shared/md3/md3-color-roles';
       <div class="md3-article-banner-wrap container max-w-4xl mx-auto px-6 mt-6 md:mt-8">
         @if (bannerImageFor(post); as bannerImage) {
           <img [src]="bannerImage"
-               [alt]="post.title + ' illustration'"
-               width="1200" height="480"
+               [alt]="bannerAltFor(post)"
+               width="1200" [attr.height]="bannerHeightFor(post)"
                class="md3-article-banner w-full rounded-2xl border border-border/40 shadow-lg"
                loading="eager"
                fetchpriority="high"
@@ -1109,6 +1109,18 @@ export class BlogPostComponent implements AfterViewChecked, OnDestroy {
     }
 
     return `/images/banners/${post.slug}.svg`;
+  }
+
+  bannerAltFor(post: BlogPost): string {
+    if (post.slug === 'types-of-malware-and-their-risks') {
+      return 'Malware categories grouped by spread, objective, stealth, and entry path';
+    }
+
+    return `${post.title} illustration`;
+  }
+
+  bannerHeightFor(post: BlogPost): number {
+    return post.slug === 'types-of-malware-and-their-risks' ? 630 : 480;
   }
 
   private getBlogFaqSchema(slug: string): Record<string, unknown> | undefined {
