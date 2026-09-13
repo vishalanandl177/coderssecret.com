@@ -128,9 +128,15 @@ The remaining examples use `npm`; the equivalent PowerShell form is `npm.cmd`.
 | `npm run check:seo` | Validate source SEO, route, metadata, content, workflow, and available generated-output rules |
 | `npm run check:generated-seo` | Validate the existing generated site in `dist`; run `build:prod` first |
 | `npm run check:ai-punctuation` | Reject em-dash characters or entities in repository source and generated text |
-| `npm run precommit` | Run the production dependency audit, full production build, SEO checks, and punctuation guard |
+| `npm run check:analytics-examples` | Check unique lesson examples and execute the published SQL fixtures |
+| `npm run generate:course-directory` | Refresh the lightweight lesson directory after course titles or slugs change |
+| `npm run precommit` | Run the production dependency audit, asset and example checks, unit tests, production build, performance, SEO, internal-link, and punctuation checks |
 
-`npm run precommit` is the authoritative local release gate, but it does **not** run unit tests. It is an npm script, not an automatically installed Git hook.
+`npm run precommit` is the authoritative local release gate and includes unit tests. Enable the versioned Git hook once per clone to run the same gate before every commit:
+
+```bash
+git config core.hooksPath .githooks
+```
 
 ## Validation and release gate
 
@@ -363,14 +369,14 @@ The workflow:
 1. Checks out the repository.
 2. Sets up Node.js 22 with npm caching.
 3. Runs `npm ci`.
-4. Generates article banners.
-5. Builds Angular in production mode.
-6. Generates the sitemap.
-7. Generates prerendered static routes.
+4. Runs unit tests, the production dependency audit, course asset checks, and analytics example checks.
+5. Generates article banners and builds Angular in production mode.
+6. Checks performance budgets, generates the sitemap, and checks internal content links.
+7. Generates prerendered static routes and validates generated SEO, source SEO, and punctuation.
 8. Uploads `dist/coderssecret-app/browser` as the Pages artifact.
 9. Deploys the artifact to GitHub Pages.
 
-The workflow has `contents: read`, `pages: write`, and `id-token: write` permissions. It does not run unit tests, the production dependency audit, `check:seo`, or the complete `precommit` gate. Run the local validation sequence before merging or pushing to `main`.
+The workflow has `contents: read`, `pages: write`, and `id-token: write` permissions. It runs the release checks as separate steps so failures are visible before deployment. Run the local validation sequence before merging or pushing to `main` as well.
 
 The production custom domain is stored in [`public/CNAME`](public/CNAME). DNS records and GitHub Pages repository settings are external to this repository.
 

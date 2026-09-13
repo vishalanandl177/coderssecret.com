@@ -378,4 +378,6 @@ ollama run gemma4:12b --verbose
       </ul>
 
       <p>Running LLMs locally has never been easier. With Ollama, you're one command away from having a private, free, and fast AI assistant. Start with <code>ollama run gemma4:12b</code> - it's the best balance of quality and speed for most hardware. For maximum performance, try llama.cpp. For ML research and fine-tuning, use Hugging Face Transformers. The future of AI is local.</p>
+<h2>Build and Evaluate a Local Retrieval Application</h2>
+      <p>After confirming local inference works, the <a href="/courses/production-rag-systems-engineering/building-basic-rag-systems">basic RAG systems lesson</a> connects document retrieval to answer generation. Review <a href="/courses/production-rag-systems-engineering/security-rag-systems">security for RAG systems</a> before exposing private documents or connecting the application to other tools.</p>
     `;

@@ -675,88 +675,8 @@ function loadOpenSourceProjects(filePath) {
   }
 }
 
-function loadCoursesFromModel(courseContent, sourcePath = path.join(__dirname, '..', 'src', 'app', 'models', 'courses', 'course-collection.ts')) {
-  try {
-    const ts = require('typescript');
-    const moduleCache = new Map();
-
-    function resolveLocalModule(baseDir, request) {
-      const base = path.resolve(baseDir, request);
-      const candidates = [
-        base,
-        `${base}.ts`,
-        `${base}.js`,
-        path.join(base, 'index.ts'),
-        path.join(base, 'index.js'),
-      ];
-      const found = candidates.find(candidate => fs.existsSync(candidate) && fs.statSync(candidate).isFile());
-      if (!found) {
-        throw new Error(`Cannot resolve local module ${request} from ${baseDir}`);
-      }
-      return found;
-    }
-
-    function executeTsModule(filePath, sourceOverride) {
-      const resolvedPath = path.resolve(filePath);
-      if (moduleCache.has(resolvedPath)) {
-        return moduleCache.get(resolvedPath).exports;
-      }
-
-      const sourceText = sourceOverride ?? fs.readFileSync(resolvedPath, 'utf-8');
-      const js = ts.transpileModule(sourceText, {
-        compilerOptions: {
-          module: ts.ModuleKind.CommonJS,
-          target: ts.ScriptTarget.ES2020,
-        },
-      }).outputText;
-      const mod = { exports: {} };
-      moduleCache.set(resolvedPath, mod);
-      const localRequire = (request) => {
-        if (request.startsWith('.')) {
-          return executeTsModule(resolveLocalModule(path.dirname(resolvedPath), request));
-        }
-        return require(request);
-      };
-
-      new Function('exports', 'require', 'module', '__filename', '__dirname', js)(
-        mod.exports,
-        localRequire,
-        mod,
-        resolvedPath,
-        path.dirname(resolvedPath)
-      );
-      return mod.exports;
-    }
-
-    const mod = executeTsModule(sourcePath, courseContent);
-    const courses = Array.isArray(mod.COURSES) ? [...mod.COURSES] : [];
-    const malwareCoursePath = path.join(
-      __dirname,
-      '..',
-      'src',
-      'app',
-      'models',
-      'courses',
-      'malware-analysis-defense.course.ts'
-    );
-
-    if (fs.existsSync(malwareCoursePath)) {
-      const malwareModule = executeTsModule(malwareCoursePath);
-      const malwareCourse = malwareModule.MALWARE_ANALYSIS_DEFENSE_COURSE;
-      const isPublished = malwareCourse &&
-        (malwareCourse.status === undefined || malwareCourse.status === 'published');
-      if (isPublished && !courses.some(course => course.slug === malwareCourse.slug)) {
-        courses.push(malwareCourse);
-      }
-    }
-
-    return courses.filter(course =>
-      course && (course.status === undefined || course.status === 'published')
-    );
-  } catch (err) {
-    console.warn(`Could not load course model for rich course hub prerender: ${err.message}`);
-    return [];
-  }
+function loadCoursesFromModel() {
+  return require('./lib/content-models').loadPublishedCourses();
 }
 
 function loadComponentDataFromSource(relativePath, propertyNames) {
@@ -1436,6 +1356,7 @@ function moduleJsonLd(course, mod) {
     'description': moduleSeoDescription(course, mod),
     'url': `${SITE_URL}/courses/${course.slug}/${mod.slug}`,
     'learningResourceType': 'Course module',
+    ...(mod.dateModified ? { 'dateModified': mod.dateModified } : {}),
     'isAccessibleForFree': true,
     'inLanguage': 'en',
     'position': mod.number,
@@ -1651,6 +1572,7 @@ function renderModuleContent(course, mod) {
     <article>
       <h1>Module ${mod.number}: ${escapeHtml(mod.title)}</h1>
       <p>${escapeHtml(mod.subtitle)}</p>
+      ${mod.dateModified ? `<p>Updated <time datetime="${escapeHtml(mod.dateModified)}">${escapeHtml(mod.dateModified)}</time></p>` : ''}
       <p>${escapeHtml(mod.duration)}. ${moduleLabLabelFor(course, mod)}. Free course module.</p>
       <section><h2>Learning Objectives</h2>${renderList(mod.objectives)}</section>
       ${mod.whyThisMatters ? `<section><h2>Why This Matters</h2><p>${escapeHtml(mod.whyThisMatters)}</p></section>` : ''}
@@ -1885,6 +1807,7 @@ const homeContent = `
         <li><a href="/courses/production-analytics-engineering-dbt">Production Analytics Engineering with dbt</a> - learn transformations, marts, tests, metrics, semantic layers, lineage, and data quality workflows.</li>
         <li><a href="/courses/malware-analysis-defense">Malware Analysis and Defense for Developers</a> - analyze inert evidence, build tested detections, support incident recovery, and harden software delivery without live malware.</li>
       </ul>
+      <p>Start with <a href="/courses/centralized-authentication-authorization-envoy/plain-envoy-central-front-door">an Envoy front door</a> or <a href="/courses/malware-analysis-defense/ghidra-decompiler-workflow">a benign program in Ghidra</a>, or <a href="/courses#lesson-directory-heading">browse the lesson directory</a>.</p>
     </section>
     <section>
       <h2>Popular Engineering Topics</h2>
@@ -3038,6 +2961,13 @@ if (courseContent) {
           <p>Topics: ${course.tags.slice(0, 8).map(escapeHtml).join(', ')}</p>
         </li>`).join('\n        ')}
       </ul>
+      <h2 id="lesson-directory-heading">Browse lessons by course</h2>
+      <div class="lesson-directory">
+        ${courses.map(course => `<details>
+          <summary>${escapeHtml(course.title)} <span>${course.modules.length} lessons</span></summary>
+          <ol>${course.modules.map(mod => `<li><a href="/courses/${course.slug}/${mod.slug}">${escapeHtml(mod.title)}</a></li>`).join('')}</ol>
+        </details>`).join('\n')}
+      </div>
       <h2>Suggested Learning Paths</h2>
       <ol>
         <li><a href="/courses/distributed-systems-engineering">Distributed Systems Engineering</a> → <a href="/courses/cloud-native-security-engineering">Cloud Native Security Engineering</a> → <a href="/courses/mastering-spiffe-spire">Mastering SPIFFE & SPIRE</a></li>

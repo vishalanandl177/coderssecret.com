@@ -8,6 +8,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { loadTsModule, loadPublishedCourses } = require('./lib/content-models');
 
 const SITE_URL = 'https://coderssecret.com';
 const DIST_DIR = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'browser');
@@ -17,6 +18,8 @@ const REDIRECTS_PATH = path.join(DIST_DIR, '_redirects');
 const BLOG_MODEL_PATH = path.join(__dirname, '..', 'src', 'app', 'models', 'blog-post.model.ts');
 const PROJECT_MODEL_PATH = path.join(__dirname, '..', 'src', 'app', 'models', 'open-source-project.model.ts');
 const blogModel = executeTsDataModel(BLOG_MODEL_PATH);
+const publishedCourses = loadPublishedCourses();
+const { PAGE_LAST_MODIFIED } = loadTsModule(path.join(__dirname, '..', 'src', 'app', 'models', 'page-lastmod.ts'));
 const projectModel = executeTsDataModel(PROJECT_MODEL_PATH);
 const blogPosts = Array.isArray(blogModel.BLOG_POSTS) ? blogModel.BLOG_POSTS : [];
 const openSourceProjects = Array.isArray(projectModel.OPEN_SOURCE_PROJECTS)
@@ -1462,6 +1465,7 @@ function normalizeInternalHref(href) {
 function validateSitemapInternalLinks(sitemapUrls) {
   const sitemapSet = new Set(sitemapUrls);
   const inboundSources = new Map(sitemapUrls.map(url => [url, new Set()]));
+  const outgoing = new Map(sitemapUrls.map(url => [url, new Set()]));
 
   for (const sourceUrl of sitemapUrls) {
     const { primary } = htmlFileForUrl(sourceUrl);
@@ -1472,6 +1476,7 @@ function validateSitemapInternalLinks(sitemapUrls) {
       const targetUrl = normalizeInternalHref(href);
       if (!targetUrl || targetUrl === sourceUrl || !sitemapSet.has(targetUrl)) continue;
       inboundSources.get(targetUrl).add(sourceUrl);
+      outgoing.get(sourceUrl).add(targetUrl);
     }
   }
 
@@ -1482,6 +1487,60 @@ function validateSitemapInternalLinks(sitemapUrls) {
 
     if (url.startsWith(`${SITE_URL}/blog/`) && sources.size < 3) {
       fail(`internal links: blog article has fewer than three crawlable inbound page links (${url}, found ${sources.size})`);
+    }
+  }
+
+  // Site navigation policy, not a Google ranking threshold. Checking only
+  // inbound counts misses disconnected groups of pages that link to each other.
+  const depth = new Map([[SITE_URL, 0]]);
+  const queue = [SITE_URL];
+  for (let index = 0; index < queue.length; index++) {
+    const source = queue[index];
+    for (const target of outgoing.get(source) || []) {
+      if (depth.has(target)) continue;
+      depth.set(target, depth.get(source) + 1);
+      queue.push(target);
+    }
+  }
+  for (const url of sitemapUrls) {
+    if (!depth.has(url)) fail(`internal links: URL is unreachable from the homepage (${url})`);
+    else if (depth.get(url) > 2) fail(`internal links: URL needs more than two page navigations from home (${url})`);
+  }
+  for (const course of publishedCourses) {
+    const landing = `${SITE_URL}/courses/${course.slug}`;
+    if (!outgoing.get(SITE_URL)?.has(landing)) fail(`internal links: homepage is missing course ${landing}`);
+    for (const module of course.modules) {
+      const lesson = `${landing}/${module.slug}`;
+      if (!outgoing.get(`${SITE_URL}/courses`)?.has(lesson)) fail(`internal links: course directory is missing lesson ${lesson}`);
+    }
+  }
+}
+
+function validateEditorialModificationDates() {
+  const sitemap = read(SITEMAP_PATH);
+  const blocks = new Map((sitemap.match(/<url>[\s\S]*?<\/url>/g) || []).map(block => [
+    extractFirst(/<loc>([^<]+)<\/loc>/i, block),
+    extractFirst(/<lastmod>([^<]+)<\/lastmod>/i, block),
+  ]));
+  for (const [route, date] of Object.entries(PAGE_LAST_MODIFIED)) {
+    const url = `${SITE_URL}${route === '/' ? '' : route}`;
+    if (blocks.get(url) !== date) fail(`sitemap.xml: page date does not match source (${url})`);
+  }
+  for (const course of publishedCourses) {
+    for (const module of course.modules) {
+      const url = `${SITE_URL}/courses/${course.slug}/${module.slug}`;
+      if (blocks.get(url) !== (module.dateModified || '')) fail(`sitemap.xml: lesson date does not match source (${url})`);
+      if (!module.dateModified) continue;
+      const { primary } = htmlFileForUrl(url);
+      if (!fs.existsSync(primary)) continue;
+      const html = read(primary);
+      const resource = parseJsonLdData(html).flatMap(data => collectObjectNodes(data))
+        .find(data => data['@type'] === 'LearningResource');
+      if (resource?.dateModified !== module.dateModified) fail(`schema: lesson date does not match source (${url})`);
+      const visibleDates = extractAll(/<time\b[^>]*\bdatetime=["']([^"']+)["'][^>]*>/gi, html);
+      if (!visibleDates.includes(module.dateModified)) {
+        fail(`content: updated lesson date is not visible (${url})`);
+      }
     }
   }
 }
@@ -1527,6 +1586,7 @@ if (!fs.existsSync(DIST_DIR)) {
   sitemapUrls.forEach(validatePageForSitemapUrl);
   validateUniqueSitemapMetadata(sitemapUrls);
   validateSitemapInternalLinks(sitemapUrls);
+  validateEditorialModificationDates();
 }
 
 if (warnings.length > 0) {

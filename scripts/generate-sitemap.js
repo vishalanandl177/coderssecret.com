@@ -5,6 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { loadTsModule, loadPublishedCourses } = require('./lib/content-models');
 
 const SITE_URL = 'https://coderssecret.com';
 const OUTPUT_DIR = path.join(__dirname, '..', 'dist', 'coderssecret-app', 'browser');
@@ -21,6 +22,11 @@ const blogLastmods = new Map(posts.map(post => [
   `${SITE_URL}/blog/${post.slug}`,
   getBlogPostLastModified(post),
 ]));
+const { PAGE_LAST_MODIFIED } = loadTsModule(path.join(__dirname, '..', 'src', 'app', 'models', 'page-lastmod.ts'));
+const lastmodByUrl = new Map([
+  ...blogLastmods,
+  ...Object.entries(PAGE_LAST_MODIFIED).map(([route, date]) => [`${SITE_URL}${route === '/' ? '' : route}`, date]),
+]);
 
 function loadBlogModel(filePath) {
   const ts = require('typescript');
@@ -52,10 +58,11 @@ function normalizeSitemapXml(sitemapXml) {
     .replace(/<url>[\s\S]*?<\/url>/g, block => {
       const loc = block.match(/<loc>(.*?)<\/loc>/)?.[1];
       if (loc && noindexCourseGuideUrls.has(loc)) return '';
-      const isVerifiedBlogDate = loc && blogLastmods.get(loc) === today;
-      return isVerifiedBlogDate
-        ? block
-        : block.replace(new RegExp(`\\n\\s*<lastmod>${today}<\\/lastmod>`, 'g'), '');
+      const cleanBlock = block.replace(/\n\s*<lastmod>[^<]*<\/lastmod>/g, '');
+      const lastmod = lastmodByUrl.get(loc);
+      return lastmod
+        ? cleanBlock.replace('</loc>', `</loc>\n    <lastmod>${lastmod}</lastmod>`)
+        : cleanBlock;
     });
 }
 
@@ -819,91 +826,6 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
   </url>
 `;
 
-function loadCoursesFromModel() {
-  const courseModelPath = path.join(__dirname, '..', 'src', 'app', 'models', 'courses', 'course-collection.ts');
-  if (!fs.existsSync(courseModelPath)) return [];
-
-  try {
-    const ts = require('typescript');
-    const moduleCache = new Map();
-
-    function resolveLocalModule(baseDir, request) {
-      const base = path.resolve(baseDir, request);
-      const candidates = [
-        base,
-        `${base}.ts`,
-        `${base}.js`,
-        path.join(base, 'index.ts'),
-        path.join(base, 'index.js'),
-      ];
-      const found = candidates.find(candidate => fs.existsSync(candidate) && fs.statSync(candidate).isFile());
-      if (!found) {
-        throw new Error(`Cannot resolve local module ${request} from ${baseDir}`);
-      }
-      return found;
-    }
-
-    function executeTsModule(filePath) {
-      const resolvedPath = path.resolve(filePath);
-      if (moduleCache.has(resolvedPath)) {
-        return moduleCache.get(resolvedPath).exports;
-      }
-
-      const js = ts.transpileModule(fs.readFileSync(resolvedPath, 'utf-8'), {
-        compilerOptions: {
-          module: ts.ModuleKind.CommonJS,
-          target: ts.ScriptTarget.ES2020,
-        },
-      }).outputText;
-      const mod = { exports: {} };
-      moduleCache.set(resolvedPath, mod);
-      const localRequire = (request) => {
-        if (request.startsWith('.')) {
-          return executeTsModule(resolveLocalModule(path.dirname(resolvedPath), request));
-        }
-        return require(request);
-      };
-
-      new Function('exports', 'require', 'module', '__filename', '__dirname', js)(
-        mod.exports,
-        localRequire,
-        mod,
-        resolvedPath,
-        path.dirname(resolvedPath)
-      );
-      return mod.exports;
-    }
-
-    const mod = executeTsModule(courseModelPath);
-    const courses = Array.isArray(mod.COURSES) ? [...mod.COURSES] : [];
-    const malwareCoursePath = path.join(
-      __dirname,
-      '..',
-      'src',
-      'app',
-      'models',
-      'courses',
-      'malware-analysis-defense.course.ts'
-    );
-
-    if (fs.existsSync(malwareCoursePath)) {
-      const malwareModule = executeTsModule(malwareCoursePath);
-      const malwareCourse = malwareModule.MALWARE_ANALYSIS_DEFENSE_COURSE;
-      const isPublished = malwareCourse &&
-        (malwareCourse.status === undefined || malwareCourse.status === 'published');
-      if (isPublished && !courses.some(course => course.slug === malwareCourse.slug)) {
-        courses.push(malwareCourse);
-      }
-    }
-
-    return courses.filter(course =>
-      course && (course.status === undefined || course.status === 'published')
-    );
-  } catch (err) {
-    console.warn(`Could not load course model for sitemap: ${err.message}`);
-    return [];
-  }
-}
 
 const sitemapUrls = new Set([...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map(item => item[1]));
 function appendUrl(urlPath, priority = '0.8') {
@@ -919,7 +841,7 @@ function appendUrl(urlPath, priority = '0.8') {
 `;
 }
 
-const publishedCourses = loadCoursesFromModel();
+const publishedCourses = loadPublishedCourses();
 const noindexCourseGuideUrls = new Set(publishedCourses.flatMap(course => (
   (course.seoPages || [])
     .filter(page => page.indexable !== true)
@@ -930,6 +852,7 @@ for (const course of publishedCourses) {
   appendUrl(`/courses/${course.slug}`, '0.9');
   for (const mod of course.modules || []) {
     appendUrl(`/courses/${course.slug}/${mod.slug}`, '0.8');
+    if (mod.dateModified) lastmodByUrl.set(`${SITE_URL}/courses/${course.slug}/${mod.slug}`, mod.dateModified);
   }
   for (const page of course.seoPages || []) {
     if (page.indexable === true) appendUrl(`/courses/${page.slug}`, '0.8');

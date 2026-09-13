@@ -565,6 +565,24 @@ type HeroTrack = {
           </a>
         </div>
 
+        <div class="mt-8 grid gap-6 md:grid-cols-3">
+          <div>
+            <h3 class="text-lg font-semibold"><a routerLink="/courses/centralized-authentication-authorization-envoy" class="text-primary underline">Centralized authentication with Envoy</a></h3>
+            <p class="mt-2 text-sm text-muted-foreground">Connect SSO, JWT validation, and authorization at one platform boundary.</p>
+            <a routerLink="/courses/centralized-authentication-authorization-envoy/plain-envoy-central-front-door" class="mt-2 inline-block py-2 text-sm text-primary underline">Build an Envoy front door</a>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold"><a routerLink="/courses/malware-analysis-defense" class="text-primary underline">Malware analysis and defense</a></h3>
+            <p class="mt-2 text-sm text-muted-foreground">Work with inert evidence, test detections, and practice incident response.</p>
+            <a routerLink="/courses/malware-analysis-defense/ghidra-decompiler-workflow" class="mt-2 inline-block py-2 text-sm text-primary underline">Inspect a benign program with Ghidra</a>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold"><a routerLink="/courses/distributed-systems-engineering" class="text-primary underline">Distributed systems engineering</a></h3>
+            <p class="mt-2 text-sm text-muted-foreground">Reason about consistency, replication, failure recovery, and scaling.</p>
+            <a routerLink="/courses" fragment="lesson-directory-heading" class="mt-2 inline-block py-2 text-sm text-primary underline">Browse the lesson directory</a>
+          </div>
+        </div>
+
         <div class="mt-10 text-center">
           <a routerLink="/courses" class="md3-button-tonal">
             Browse all free courses

@@ -33,6 +33,8 @@ jobs:
 
       - run: npm run check:course-assets
 
+      - run: npm run check:analytics-examples
+
       - run: node scripts/generate-banners.js
 
       - run: npm run check:build

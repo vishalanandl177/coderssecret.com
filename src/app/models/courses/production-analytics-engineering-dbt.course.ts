@@ -1,4 +1,5 @@
 import type { Course, CourseModule } from '../course.model';
+import { ANALYTICS_WORKED_EXAMPLES } from './analytics-worked-examples';
 
 interface AnalyticsModuleSeed {
   number: number;
@@ -55,52 +56,43 @@ function analyticsDiagram(title: string, steps: string[]): string {
 }
 
 function analyticsContent(seed: AnalyticsModuleSeed): string {
+  const example = ANALYTICS_WORKED_EXAMPLES[seed.slug];
+  if (!example) throw new Error(`Missing analytics worked example: ${seed.slug}`);
+  const dataset = seed.number === 1
+    ? `<h2 id="course-dataset">Course Dataset</h2>
+      <p>The course uses a small ecommerce model. Individual worked examples provide their own rows and state any narrower assumptions.</p>
+      <table>
+        <thead><tr><th>Table</th><th>Grain</th><th>Example columns</th></tr></thead>
+        <tbody>
+          <tr><td><code>raw_orders</code></td><td>one row per order in the lesson fixtures; deduplicate source events before using this grain</td><td><code>order_id</code>, <code>customer_id</code>, <code>amount</code>, <code>status</code>, <code>created_at</code></td></tr>
+          <tr><td><code>raw_order_items</code></td><td>one row per item inside an order</td><td><code>order_id</code>, <code>product_id</code>, <code>quantity</code>, <code>item_price</code></td></tr>
+          <tr><td><code>raw_customers</code></td><td>one row per current customer</td><td><code>customer_id</code>, <code>email</code>, <code>country</code>, <code>created_at</code></td></tr>
+        </tbody>
+      </table>`
+    : '<p>Dataset reference: <a href="/courses/production-analytics-engineering-dbt/what-is-analytics-engineering#course-dataset">ecommerce tables and grain assumptions</a>.</p>';
+
   return `
     <h2>The Mental Model</h2>
     <p>${seed.concept}</p>
     <p>${seed.beginnerBridge}</p>
-
-    <h2>Tiny Example</h2>
-    <p>We will use a small ecommerce dataset throughout the course. Think of these as the only tables in your first warehouse:</p>
-    <table>
-      <thead><tr><th>Table</th><th>Grain</th><th>Example columns</th></tr></thead>
-      <tbody>
-        <tr><td><code>raw_orders</code></td><td>one row per order event</td><td><code>order_id</code>, <code>customer_id</code>, <code>amount</code>, <code>status</code>, <code>created_at</code></td></tr>
-        <tr><td><code>raw_order_items</code></td><td>one row per item inside an order</td><td><code>order_id</code>, <code>product_id</code>, <code>quantity</code>, <code>item_price</code></td></tr>
-        <tr><td><code>raw_customers</code></td><td>one row per customer</td><td><code>customer_id</code>, <code>email</code>, <code>country</code>, <code>created_at</code></td></tr>
-      </tbody>
-    </table>
-
+    ${dataset}
+    <h2>${example.title}</h2>
+    ${example.html}
     <h2>Interactive Check</h2>
     <p><strong>Question:</strong> ${seed.practicePrompt}</p>
     <details>
       <summary>Reveal the answer</summary>
       <p>${seed.answer}</p>
     </details>
-
-    <h2>Inline Practice Lab</h2>
-    <p>This lab is intentionally small. You can solve it by reading the table, writing the SQL/YAML mentally, or pasting the snippet into any SQL scratchpad later.</p>
-    <pre><code>-- Example starter table
-select
-  order_id,
-  customer_id,
-  amount,
-  status,
-  created_at
-from raw_orders;</code></pre>
-    <p>The goal is not tooling setup. The goal is learning the production habit: state the grain, clean one thing, test one assumption, and explain the downstream impact.</p>
-
-    <h2>Self-Check Quiz</h2>
-    <ol>
-      <li>What is the grain of the table you are building?</li>
-      <li>Which downstream metric or dashboard would be wrong if this model broke?</li>
-      <li>What test would catch the most likely beginner mistake here?</li>
-    </ol>
+    <h2>Practice: ${seed.labTitle}</h2>
+    <p>${seed.labObjective}</p>
+    <p>Use the guided lab below to record your result, assumptions, and the check that would catch an incorrect result.</p>
   `;
 }
 
 function analyticsModule(seed: AnalyticsModuleSeed): CourseModule {
   return {
+    dateModified: '2026-09-14',
     number: seed.number,
     title: seed.title,
     slug: seed.slug,
@@ -120,20 +112,19 @@ function analyticsModule(seed: AnalyticsModuleSeed): CourseModule {
       },
     ],
     keyTakeaways: seed.keyTakeaways,
-    whyThisMatters: seed.concept,
     productionNotes: seed.productionNotes,
     commonMistakes: seed.commonMistakes,
-    thinkLikeAnEngineer: [
+    thinkLikeAnEngineer: seed.number === 1 ? [
       'Can you explain the grain of this model in one sentence?',
       'What breaks downstream if this field becomes null tomorrow?',
       'Where should this logic live so it is reused instead of copied?',
-    ],
-    realWorldUseCases: [
+    ] : undefined,
+    realWorldUseCases: seed.number === 1 ? [
       'Reliable executive dashboards that do not disagree across teams',
       'AI analytics agents that query governed metrics instead of guessing SQL',
       'Auditable metric changes where owners can see downstream impact before merge',
-    ],
-    careerRelevance: 'Analytics engineering is the bridge between SQL skill and production data ownership. Freshers who learn tests, lineage, metrics, and semantic modeling early stand out because they can reason about trust, not just queries.',
+    ] : undefined,
+    careerRelevance: seed.number === 1 ? 'Analytics engineering is the bridge between SQL skill and production data ownership. Freshers who learn tests, lineage, metrics, and semantic modeling early stand out because they can reason about trust, not just queries.' : undefined,
     glossary: seed.glossary,
   };
 }

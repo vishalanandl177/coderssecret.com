@@ -479,4 +479,6 @@ client.messages.count_tokens(
         <li>Use adaptive thinking only when the task needs deeper reasoning.</li>
         <li>Use Batch API for non-urgent bulk processing.</li>
       </ul>
+<h2>Measure Cost Alongside Answer Quality</h2>
+      <p>For a retrieval application, work through <a href="/courses/production-rag-systems-engineering/ai-observability-engineering">AI observability engineering</a> to relate token usage to request traces and latency. Pair the cost measurements with <a href="/courses/production-rag-systems-engineering/rag-evaluation-quality-engineering">RAG quality evaluation</a> before accepting a cheaper configuration that may return worse answers.</p>
     `;

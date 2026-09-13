@@ -8,6 +8,7 @@ import {
   loadCourses,
 } from './course-loader';
 import { toCourseOutline } from './course-outline';
+import { COURSE_LESSON_DIRECTORY } from './course-lesson-directory';
 
 describe('course loader and lightweight catalog', () => {
   it('keeps the public catalog unique without importing full course content', () => {
@@ -62,6 +63,15 @@ describe('course loader and lightweight catalog', () => {
       expect(toCourseCatalogEntry(course)).toEqual(findCourseCatalogEntry(course.slug));
       expect(outlines.find(outline => outline.slug === course.slug)).toEqual(toCourseOutline(course));
     }
+  });
+
+  it('keeps every published lesson discoverable in the lightweight directory', async () => {
+    const courses = await loadCourses();
+    expect(COURSE_LESSON_DIRECTORY).toEqual(courses.map(course => ({
+      slug: course.slug,
+      title: course.title,
+      lessons: course.modules.map(module => ({ slug: module.slug, title: module.title })),
+    })));
   });
 
   it('indexes only focused course guides with distinct editorial intent', async () => {

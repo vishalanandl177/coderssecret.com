@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { COURSE_CATALOG, CourseCatalogEntry } from '../../../models/course-catalog';
+import { COURSE_LESSON_DIRECTORY } from '../../../models/course-lesson-directory';
 import { SeoService } from '../../../services/seo.service';
 
 @Component({
@@ -133,6 +134,26 @@ import { SeoService } from '../../../services/seo.service';
         </div>
       </section>
 
+      <section class="md3-section" aria-labelledby="lesson-directory-heading">
+        <div class="md3-container">
+          <div class="md3-course-section-heading">
+            <h2 id="lesson-directory-heading">Browse lessons by course</h2>
+          </div>
+          <div class="lesson-directory">
+            @for (course of lessonDirectory; track course.slug) {
+              <details>
+                <summary>{{ course.title }} <span>{{ course.lessons.length }} lessons</span></summary>
+                <ol>
+                  @for (lesson of course.lessons; track lesson.slug) {
+                    <li><a [routerLink]="'/courses/' + course.slug + '/' + lesson.slug">{{ lesson.title }}</a></li>
+                  }
+                </ol>
+              </details>
+            }
+          </div>
+        </div>
+      </section>
+
       <section class="md3-course-path-section md3-section">
         <div class="md3-container">
           <div class="md3-course-section-heading">
@@ -201,9 +222,20 @@ import { SeoService } from '../../../services/seo.service';
       </section>
     </main>
   `,
+  styles: `
+    :host { display: block; }
+    .lesson-directory details { border-bottom: 1px solid var(--md-sys-color-outline-variant); }
+    .lesson-directory summary { cursor: pointer; padding: 1rem 0; font-weight: 600; overflow-wrap: anywhere; }
+    .lesson-directory summary span { display: block; margin-top: .25rem; font-size: .875rem; font-weight: 400; color: var(--md-sys-color-on-surface-variant); }
+    .lesson-directory ol { padding: 0 0 1rem 1.5rem; columns: 2 20rem; }
+    .lesson-directory li { break-inside: avoid; padding: .25rem .75rem .25rem 0; }
+    .lesson-directory a { display: inline-block; padding: .5rem 0; color: var(--md-sys-color-primary); text-decoration: underline; text-underline-offset: .2em; overflow-wrap: anywhere; }
+    .lesson-directory :is(summary, a):focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 3px; }
+  `,
 })
 export class CoursesHubComponent {
   courses = COURSE_CATALOG;
+  lessonDirectory = COURSE_LESSON_DIRECTORY;
   private seo = inject(SeoService);
   private readonly coursesDescription = 'Free practical courses in malware defense, cloud native security, centralized authentication, distributed systems, SPIFFE/SPIRE, production RAG, and analytics engineering. No signup.';
 

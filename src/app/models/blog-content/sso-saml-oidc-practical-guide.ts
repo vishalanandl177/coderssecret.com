@@ -378,4 +378,6 @@ Standard Body        OASIS                 OpenID Foundation</code></pre>
       </ul>
 
       <p>SSO is no longer optional for serious applications. Whether you choose SAML, OIDC, or both, understanding these protocols deeply will help you build secure, user-friendly authentication that scales with your product.</p>
+<h2>Apply SSO at the Platform Boundary</h2>
+      <p>Continue with the <a href="/courses/centralized-authentication-authorization-envoy/sso-oidc-saml-envoy-external-auth">Envoy SSO and external authorization lesson</a> to connect the browser login flow to gateway enforcement. Then work through <a href="/courses/centralized-authentication-authorization-envoy/authorization-policy-headers-product-boundaries">trusted headers and product boundaries</a> so authentication does not accidentally grant access to every product.</p>
     `;

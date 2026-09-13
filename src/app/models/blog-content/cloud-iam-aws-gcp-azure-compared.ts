@@ -467,4 +467,6 @@ resource "azurerm_role_assignment" "sql_access" {
       </ul>
 
       <p>The cloud doesn't matter as much as the practices. Least privilege, machine identities, no long-lived credentials, MFA everywhere, IaC for policies, regular access reviews. Follow these on any cloud and you'll be more secure than 90% of organisations out there. The remaining 10% is about catching the edge cases - and that comes with experience.</p>
+<h2>Connect Cloud Identity to Application Access</h2>
+      <p>Cloud IAM permissions and application permissions are separate decisions. The <a href="/courses/centralized-authentication-authorization-envoy/access-service-tokens-federated-credentials">service tokens and federated credentials lesson</a> follows the machine identity flow into a platform. Pair it with <a href="/courses/centralized-authentication-authorization-envoy/authorization-policy-headers-product-boundaries">authorization policy and product boundaries</a> when reviewing which application resources that identity may use.</p>
     `;

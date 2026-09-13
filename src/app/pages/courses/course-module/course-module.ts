@@ -1,4 +1,5 @@
-import { Component, DestroyRef, inject, signal, computed } from '@angular/core';
+import { Component, DestroyRef, Injector, afterNextRender, inject, signal, computed } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -31,6 +32,9 @@ import { SeoService } from '../../../services/seo.service';
                 <p class="md3-course-eyebrow">Module {{ m.number }} of {{ totalModules() }}</p>
                 <h1>{{ m.title }}</h1>
                 <p class="md3-course-detail-text">{{ m.subtitle }}</p>
+                @if (m.dateModified) {
+                  <p class="text-sm text-muted-foreground">Updated <time [attr.datetime]="m.dateModified">{{ m.dateModified }}</time></p>
+                }
 
                 <div class="md3-course-meta-row" aria-label="Module facts">
                   <span class="md3-chip-selected">{{ m.duration }}</span>
@@ -452,6 +456,8 @@ import { SeoService } from '../../../services/seo.service';
   `,
 })
 export class CourseModuleComponent {
+  private readonly document = inject(DOCUMENT);
+  private readonly injector = inject(Injector);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
@@ -537,6 +543,7 @@ export class CourseModuleComponent {
             'description': moduleDescription,
             'url': `https://coderssecret.com${moduleUrl}`,
             'learningResourceType': 'Course module',
+            ...(m.dateModified ? { 'dateModified': m.dateModified } : {}),
             'isAccessibleForFree': true,
             'inLanguage': 'en',
             'position': m.number,
@@ -559,7 +566,14 @@ export class CourseModuleComponent {
             },
           },
         });
-        if (typeof window !== 'undefined') window.scrollTo(0, 0);
+        // Lesson content arrives asynchronously, after router scroll restoration.
+        afterNextRender(() => {
+          if (this.mod()?.slug !== m.slug) return;
+          const fragment = this.route.snapshot.fragment;
+          const target = fragment ? this.document.getElementById(fragment) : null;
+          if (target) target.scrollIntoView({ behavior: 'instant', block: 'start' });
+          else this.document.defaultView?.scrollTo(0, 0);
+        }, { injector: this.injector });
       } else {
         this.router.navigate(['/courses/' + c.slug]);
       }

@@ -260,4 +260,6 @@ def callback(request):
       </ul>
 
       <p>OAuth 2.0 and OIDC are not complicated once you understand the roles and flows. The protocol itself is sound - the vulnerabilities come from implementation shortcuts. Follow this guide, avoid the security mistakes, and your auth implementation will be solid.</p>
+<h2>Validate Tokens at an Envoy Gateway</h2>
+      <p>Work through <a href="/courses/centralized-authentication-authorization-envoy/jwt-jwks-validation-envoy">JWT and JWKS validation at Envoy</a> to connect token verification to gateway configuration. For browser sign-in and session handling, continue with <a href="/courses/centralized-authentication-authorization-envoy/sso-oidc-saml-envoy-external-auth">SSO through Envoy and external authorization</a>.</p>
     `;

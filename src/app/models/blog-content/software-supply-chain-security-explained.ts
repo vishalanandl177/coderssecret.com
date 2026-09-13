@@ -231,4 +231,6 @@ export const CONTENT = `
         <li><a href="https://www.cisa.gov/news-events/alerts/2023/11/09/cisa-nsa-and-partners-release-new-guidance-securing-software-supply-chain">CISA software supply chain guidance</a></li>
         <li><a href="https://owasp.org/www-project-top-10-ci-cd-security-risks/">OWASP Top 10 CI/CD Security Risks</a></li>
       </ul>
+<h2>Inspect Artifacts and Test Recovery</h2>
+      <p>Use the <a href="/courses/malware-analysis-defense/static-triage-modern-artifacts">static triage lesson</a> to inspect inert package and binary evidence. Then follow <a href="/courses/malware-analysis-defense/building-malware-resistant-software">the malware-resistant software lesson</a> to connect build provenance, application controls, and recovery decisions. The exercises use safe course fixtures rather than live malware.</p>
 `;

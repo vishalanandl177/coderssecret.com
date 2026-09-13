@@ -17,6 +17,8 @@ export interface CourseLab {
 }
 
 export interface CourseModule {
+  /** Date of the last material lesson update; omit when not verified. */
+  dateModified?: string;
   number: number;
   title: string;
   slug: string;
